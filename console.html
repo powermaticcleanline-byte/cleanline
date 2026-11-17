@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CLEANLINE · หลังบ้าน</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--ink:#15230f;--sub:#5b6656;--line:#e3e8da;--bg:#f2f5ec;--card:#fff;--acc:#4f9a12;--accS:#eef6e2;--bad:#c62828;--badS:#fdecec;--warn:#f0b23a;--warnS:#fff6e0;--r:18px}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:Prompt,"Noto Sans Thai",Sarabun,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+aside{background:var(--ink);color:#e9efe1;padding:24px 16px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.brand{font-weight:700;font-size:20px;letter-spacing:.5px;padding:0 10px}.brand small{display:block;font-weight:500;font-size:13px;color:#9acd3c;letter-spacing:0}
+nav{margin-top:22px;display:flex;flex-direction:column;gap:2px}
+nav button{all:unset;cursor:pointer;padding:10px 12px;border-radius:12px;display:flex;align-items:center;gap:10px;color:#cfd8c4;font-size:15px}
+nav button:hover{background:rgba(255,255,255,.06)}nav button.on{background:#9acd3c;color:var(--ink);font-weight:600}
+nav .n{margin-left:auto;background:var(--bad);color:#fff;border-radius:999px;font-size:12px;padding:0 7px;line-height:20px;font-weight:600}
+.me{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.1);font-size:13px;color:#b8c3ac}
+.me b{display:block;color:#fff;font-size:14px}.me a,.me button{color:#9acd3c;background:none;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:none;margin-right:12px}
+main{padding:28px 36px;max-width:1200px;width:100%}
+h1{font-size:26px;margin:0 0 4px}.lead{color:var(--sub);margin:0 0 22px}
+.card{background:var(--card);border-radius:var(--r);padding:20px 22px;margin-bottom:18px;box-shadow:0 1px 0 var(--line)}
+.card h2{font-size:17px;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+.pill{display:inline-block;border-radius:999px;padding:1px 10px;font-size:12.5px;font-weight:600;background:var(--accS);color:var(--acc)}
+.pill.bad{background:var(--badS);color:var(--bad)}.pill.warn{background:var(--warnS);color:#8a5a00}.pill.gray{background:#eef0ea;color:var(--sub)}
+table{width:100%;border-collapse:collapse}th{text-align:left;font-size:13px;color:var(--sub);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}tr:last-child td{border-bottom:0}
+.who{display:flex;align-items:center;gap:10px}.who img,.av{width:34px;height:34px;border-radius:50%;background:var(--accS);flex:none;object-fit:cover;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--acc)}
+.who small{display:block;color:var(--sub);font-size:12.5px}
+select,input[type=text],input[type=search],input[type=tel]{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff;color:var(--ink);min-width:0}
+input[type=text],input[type=tel]{width:150px}
+.btn{font:inherit;font-size:14px;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;background:var(--ink);color:#fff;white-space:nowrap}
+.btn.l{background:#eef0ea;color:var(--ink)}.btn.g{background:var(--acc)}.btn.bad{background:var(--bad)}.btn.sm{padding:5px 12px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.sp{flex:1}
+.empty{color:var(--sub);text-align:center;padding:26px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{background:var(--bg);border-radius:14px;padding:14px}.stat b{display:block;font-size:24px}.stat span{color:var(--sub);font-size:13px}
+.log td{font-size:14px;padding:8px 10px}.log .t{white-space:nowrap;color:var(--sub);font-size:13px}
+.note{background:var(--warnS);border-radius:12px;padding:10px 14px;font-size:14px;color:#6b4800}
+.ok{background:var(--accS);border-radius:12px;padding:10px 14px;font-size:14px;color:#2f6b0a}
+.switch{display:flex;align-items:center;gap:12px;cursor:pointer}.switch input{display:none}
+.switch i{width:48px;height:28px;border-radius:999px;background:#cfd6c6;position:relative;transition:.2s}.switch i:after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.switch input:checked+i{background:var(--bad)}.switch input:checked+i:after{left:23px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:10px 20px;font-size:14px;z-index:50;display:none}
+#toast.bad{background:var(--bad)}
+#modal{position:fixed;inset:0;background:rgba(21,35,15,.45);display:none;align-items:center;justify-content:center;z-index:40}
+#modal .bx{background:#fff;border-radius:22px;padding:24px;max-width:440px;width:92%}#modal h3{margin:0 0 8px}#modal p{color:var(--sub);margin:0 0 14px}
+.mut{color:var(--sub);font-size:13px}a{color:var(--acc)}
+</style>
+</head>
+<body>
+<div class="app" id="app" hidden>
+  <aside>
+    <div class="brand">CLEANLINE<small>หลังบ้าน · ผู้ดูแลระบบ</small></div>
+    <nav id="nav"></nav>
+    <div class="me" id="me"></div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="toast"></div>
+<div id="modal"><div class="bx" id="mbx"></div></div>
+<script src="config.js"></script>
+<script src="gdb.js"></script>
+<script>
+'use strict';
+const ROLE = {admin:'แอดมิน',dispatch:'หัวหน้าจัดงาน',lead:'หัวหน้าตรวจแบบ',eng:'วิศวกร'};
+const ROLE_PAGE = {admin:'เว็บแอดมิน · ดูโฟลเดอร์',dispatch:'เว็บแอดมิน · ดูโฟลเดอร์',lead:'แอปวิศวกร · แก้ไขโฟลเดอร์',eng:'แอปวิศวกร · แก้ไขโฟลเดอร์'};
+const TEAMS = ['ทีม 1','ทีม 2','ทีม 3','ทีม 4'];
+const COLN = {jobs:'งาน',customers:'ลูกค้า',sites:'ไซต์',products:'สินค้า',members:'ผู้ใช้',services:'งานบริการ',messages:'ข้อความ',photos:'รูป',meters:'มิเตอร์',config:'ตั้งค่า',jobnos:'เลขใบงาน',forms:'แบบฟอร์ม',articles:'บทความ'};
+const FN = {name:'ชื่อ',phone:'เบอร์',role:'บทบาท',team:'ทีม',status:'สถานะ',title:'ชื่องาน',stage:'ขั้นงาน',history:'ประวัติ',surveyTeam:'ทีมสำรวจ',surveyor:'ผู้สำรวจ',supervisor:'ผู้คุมงาน',installTeam:'ทีมติดตั้ง',jobNo:'เลขใบงาน',queueDate:'วันนัด',queueTime:'เวลานัด',installDate:'วันติดตั้ง',sv:'ขั้นย่อยสำรวจ',request:'ความต้องการลูกค้า',proposals:'ที่เสนอ',equipment:'อุปกรณ์ที่ติด',checkins:'เช็กอิน',file:'ไฟล์',text:'ข้อความ',kind:'ประเภท',folderId:'โฟลเดอร์',folderUrl:'โฟลเดอร์'};
+const ACT = {new:'เพิ่ม',edit:'แก้ไข',del:'ลบ',login:'เข้าสู่ระบบ'};
+const TABS = [['users','ผู้ใช้และสิทธิ์'],['logs','บันทึกการใช้งาน'],['backup','สำรอง / กู้ข้อมูล'],['system','ระบบ']];
+const S = {tab:'users', members:{}, joinreq:{}, logs:{}, me:null, db:null, health:null, backups:null, sys:{}, lq:'', lcol:'', lby:'', llim:150, edit:{}, busy:false, shares:null};
+const $ = s => document.querySelector(s);
+const esc = t => String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fdt = ms => { if(!ms) return '-'; const d=new Date(ms); return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}); };
+const ini = n => (String(n||'?').trim()[0]||'?');
+function toast(t,bad){const e=$('#toast');e.textContent=t;e.className=bad?'bad':'';e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',3500)}
+function ask(title,body,okText,danger,typed){
+  return new Promise(res=>{
+    $('#mbx').innerHTML=`<h3>${esc(title)}</h3><p>${body}</p>${typed?`<p style="margin:0 0 6px">พิมพ์ <b>${esc(typed)}</b> เพื่อยืนยัน</p><input type="text" id="mty" style="width:100%;margin-bottom:14px">`:''}
+      <div class="row" style="justify-content:flex-end"><button class="btn l" id="mno">ยกเลิก</button><button class="btn ${danger?'bad':'g'}" id="mok" ${typed?'disabled':''}>${esc(okText)}</button></div>`;
+    $('#modal').style.display='flex';
+    const done=v=>{$('#modal').style.display='none';res(v)};
+    $('#mno').onclick=()=>done(false);$('#mok').onclick=()=>done(true);
+    if(typed){const i=$('#mty');i.focus();i.oninput=()=>$('#mok').disabled=i.value.trim()!==typed}
+  });
+}
+async function run(fn,okMsg){
+  if(S.busy) return; S.busy=true; render();
+  try{const r=await fn(); if(okMsg) toast(okMsg); return r}
+  catch(e){toast(e.message||'ทำไม่สำเร็จ',true)}
+  finally{S.busy=false; render()}
+}
+
+/* ---------- หน้าจอ ---------- */
+function render(){
+  const pend=Object.keys(S.joinreq).length;
+  $('#nav').innerHTML=TABS.map(([k,l])=>`<button data-tab="${k}" class="${S.tab===k?'on':''}">${l}${k==='users'&&pend?`<span class="n">${pend}</span>`:''}</button>`).join('');
+  $('#me').innerHTML=`<b>${esc(S.me.name)}</b>${esc(S.me.email)}<div style="margin-top:8px"><a href="index.html">เปิดเว็บแอดมิน</a><button id="out">ออกจากระบบ</button></div>`;
+  $('#main').innerHTML=({users:vUsers,logs:vLogs,backup:vBackup,system:vSystem})[S.tab]();
+}
+function memberRows(){return Object.entries(S.members).map(([id,m])=>({id,...m})).sort((a,b)=>(a.status==='suspended')-(b.status==='suspended')||Object.keys(ROLE).indexOf(a.role)-Object.keys(ROLE).indexOf(b.role)||String(a.name).localeCompare(String(b.name),'th'))}
+function who(m){return `<div class="who">${m.picture?`<img src="${esc(m.picture)}" alt="" onerror="this.outerHTML='<div class=av>${esc(ini(m.name))}</div>'">`:`<div class="av">${esc(ini(m.name||m.email))}</div>`}<div>${esc(m.name||'-')}<small>${esc(m.email||'')}</small></div></div>`}
+function roleSel(id,v,attr){return `<select ${attr}="${id}"><option value="">— เลือกบทบาท —</option>${Object.entries(ROLE).map(([k,l])=>`<option value="${k}" ${v===k?'selected':''}>${l}</option>`).join('')}</select>`}
+function teamSel(id,v,attr,role){const need=role==='eng'||role==='lead';return `<select ${attr}="${id}" ${need?'':'disabled'} title="${need?'':'ใช้กับวิศวกร/หัวหน้าตรวจแบบ'}"><option value="">—</option>${TEAMS.map(t=>`<option ${v===t?'selected':''}>${t}</option>`).join('')}</select>`}
+function vUsers(){
+  const pend=Object.entries(S.joinreq).map(([id,r])=>({id,...r})).sort((a,b)=>b.at-a.at);
+  const mem=memberRows();
+  const P=S.edit;
+  return `<h1>ผู้ใช้และสิทธิ์</h1><p class="lead">อนุมัติคนใหม่ ตั้งบทบาท/ทีม ระงับบัญชี · สิทธิ์โฟลเดอร์งานใน Drive ปรับให้อัตโนมัติตามบทบาท</p>
+  <section class="card"><h2>รออนุมัติ ${pend.length?`<span class="pill bad">${pend.length}</span>`:''}</h2>
+  ${pend.length?`<table><thead><tr><th>บัญชี Google</th><th>ขอเมื่อ</th><th>ชื่อที่แสดง</th><th>บทบาท</th><th>ทีม</th><th></th></tr></thead><tbody>
+  ${pend.map(r=>{const e=P[r.id]||{};const role=e.role||'';return `<tr><td>${who(r)}</td><td class="mut">${fdt(r.at)}</td>
+    <td><input type="text" data-pname="${r.id}" value="${esc(e.name??r.name??'')}"></td><td>${roleSel(r.id,role,'data-prole')}</td><td>${teamSel(r.id,e.team||'','data-pteam',role)}</td>
+    <td class="row" style="flex-wrap:nowrap"><button class="btn g sm" data-approve="${r.id}" ${role&&!S.busy?'':'disabled'}>อนุมัติ</button><button class="btn l sm" data-reject="${r.id}" ${S.busy?'disabled':''}>ไม่อนุมัติ</button></td></tr>`}).join('')}
+  </tbody></table>`:`<div class="empty">ไม่มีคำขอใหม่ · ให้ทีมเปิดลิงก์แล้วลงชื่อเข้าใช้ด้วย Google ชื่อจะขึ้นที่นี่</div>`}</section>
+  <section class="card"><h2>ผู้ใช้ทั้งหมด <span class="pill gray">${mem.length} คน</span><span class="sp"></span><button class="btn l sm" data-shares ${S.busy?'disabled':''}>ตรวจสิทธิ์โฟลเดอร์ Drive</button></h2>
+  ${S.shares?`<div class="ok" style="margin-bottom:12px">ตรวจแล้ว · เพิ่ม ${S.shares.added.length} · เปลี่ยน ${S.shares.changed.length} · ถอน ${S.shares.removed.length}${S.shares.removed.length?' ('+esc(S.shares.removed.join(', '))+')':''}</div>`:''}
+  ${mem.length?`<table><thead><tr><th>ผู้ใช้</th><th>ชื่อที่แสดง</th><th>เบอร์</th><th>บทบาท</th><th>ทีม</th><th>ใช้หน้า / โฟลเดอร์</th><th></th></tr></thead><tbody>
+  ${mem.map(m=>{const e=P[m.id]||{};const role=e.role??m.role;const sus=m.status==='suspended';const dirty=['name','phone','role','team'].some(k=>k in e&&e[k]!==(m[k]||''));
+    return `<tr style="${sus?'opacity:.55':''}"><td>${who(m)}</td>
+    <td><input type="text" data-mname="${m.id}" value="${esc(e.name??m.name??'')}"></td><td><input type="tel" data-mphone="${m.id}" value="${esc(e.phone??m.phone??'')}" style="width:120px"></td>
+    <td>${roleSel(m.id,role,'data-mrole')}</td><td>${teamSel(m.id,e.team??m.team??'','data-mteam',role)}</td>
+    <td class="mut">${sus?'<span class="pill bad">ระงับอยู่</span>':esc(ROLE_PAGE[role]||'-')}</td>
+    <td class="row" style="flex-wrap:nowrap;justify-content:flex-end">${dirty?`<button class="btn g sm" data-save="${m.id}" ${S.busy?'disabled':''}>บันทึก</button>`:''}
+      <button class="btn l sm" data-sus="${m.id}" ${S.busy?'disabled':''}>${sus?'เปิดใช้':'ระงับ'}</button><button class="btn l sm" data-del="${m.id}" title="ลบผู้ใช้" ${S.busy?'disabled':''}>ลบ</button></td></tr>`}).join('')}
+  </tbody></table>`:'<div class="empty">ยังไม่มีผู้ใช้</div>'}
+  <p class="mut" style="margin:12px 0 0">คุณ (${esc(S.me.email)}) เป็นผู้ดูแลระบบคนเดียว ไม่อยู่ในตารางนี้ · ทีม 1–4 ใช้กับวิศวกร/หัวหน้าตรวจแบบ (ระบบส่งงานสำรวจตามทีม)</p></section>`;
+}
+function vLogs(){
+  const all=Object.entries(S.logs).map(([id,l])=>({id,...l})).sort((a,b)=>b.at-a.at);
+  const people=[...new Map(all.map(l=>[l.by,l.byName])).entries()];
+  const q=S.lq.trim().toLowerCase();
+  const rows=all.filter(l=>(!S.lcol||l.col===S.lcol||(S.lcol==='login'&&l.act==='login'))&&(!S.lby||l.by===S.lby)&&(!q||[l.byName,l.ttl,l.id,COLN[l.col],(l.fields||[]).join(' ')].join(' ').toLowerCase().includes(q)));
+  return `<h1>บันทึกการใช้งาน</h1><p class="lead">ทุกการบันทึก/แก้/ลบ และการเข้าสู่ระบบ ตัวกลางเป็นคนเขียน ไม่มีใครลบหรือแก้ได้</p>
+  <section class="card"><div class="row" style="margin-bottom:12px"><input type="search" id="lq" placeholder="ค้นหา: ชื่อคน ชื่องาน ช่องที่แก้" value="${esc(S.lq)}" style="width:280px">
+    <select id="lby"><option value="">ทุกคน</option>${people.map(([id,n])=>`<option value="${esc(id)}" ${S.lby===id?'selected':''}>${esc(n||id)}</option>`).join('')}</select>
+    <select id="lcol"><option value="">ทุกเรื่อง</option><option value="login" ${S.lcol==='login'?'selected':''}>เข้าสู่ระบบ</option>${Object.entries(COLN).map(([k,v])=>`<option value="${k}" ${S.lcol===k?'selected':''}>${v}</option>`).join('')}</select>
+    <span class="sp"></span><span class="mut">${rows.length} รายการ</span></div>
+  ${rows.length?`<table class="log"><thead><tr><th>เวลา</th><th>ใคร</th><th>ทำอะไร</th><th>เรื่อง</th><th>ช่องที่เปลี่ยน</th></tr></thead><tbody>
+  ${rows.slice(0,S.llim).map(l=>`<tr><td class="t">${fdt(l.at)}</td><td>${esc(l.byName||'-')} <span class="mut">${esc(ROLE[l.role]||(l.role==='sysadmin'?'ผู้ดูแลระบบ':''))}</span></td>
+    <td><span class="pill ${l.act==='del'?'bad':l.act==='login'?'gray':''}">${esc(ACT[l.act]||l.act)}</span></td>
+    <td>${l.col?esc(COLN[l.col]||l.col)+' · ':''}${esc(l.ttl||l.id||'')}</td><td class="mut">${esc([...new Set((l.fields||[]).map(f=>FN[f]||f))].join(', '))}</td></tr>`).join('')}
+  </tbody></table>${rows.length>S.llim?`<div style="text-align:center;margin-top:12px"><button class="btn l" data-lmore>แสดงเพิ่ม</button></div>`:''}`:'<div class="empty">ไม่มีรายการ</div>'}</section>`;
+}
+function vBackup(){
+  const L=S.backups;
+  return `<h1>สำรอง / กู้ข้อมูล</h1><p class="lead">ระบบสำรองอัตโนมัติทุกคืนตี 2 เก็บ 30 ชุดล่าสุด ไว้ในโฟลเดอร์ "ข้อมูลระบบ (ห้ามแชร์)/สำรองข้อมูล" ใน Drive ของคุณ</p>
+  <section class="card"><h2>ชุดสำรอง<span class="sp"></span><button class="btn g sm" data-bknow ${S.busy?'disabled':''}>สำรองตอนนี้</button></h2>
+  ${L==null?'<div class="empty">กำลังโหลด…</div>':L.length?`<table><thead><tr><th>ชื่อ</th><th>เมื่อ</th><th></th></tr></thead><tbody>
+  ${L.map(b=>`<tr><td>${esc(b.name)}</td><td class="mut">${fdt(b.at)}</td><td style="text-align:right"><button class="btn l sm" data-restore="${esc(b.id)}" data-rname="${esc(b.name)}" ${S.busy?'disabled':''}>กู้จากชุดนี้</button></td></tr>`).join('')}
+  </tbody></table>`:'<div class="empty">ยังไม่มีชุดสำรอง กด "สำรองตอนนี้" ได้เลย</div>'}
+  <p class="note" style="margin:14px 0 0">กู้ข้อมูล = ระบบสำรองข้อมูลปัจจุบันให้ก่อน 1 ชุด แล้วใช้ชุดที่เลือกแทน ทุกเครื่องจะโหลดข้อมูลใหม่เอง · ไฟล์ใน Drive (รูป/เอกสาร) ไม่ถูกย้อน</p></section>`;
+}
+function vSystem(){
+  const h=S.health, m=!!S.sys.maintenance;
+  return `<h1>ระบบ</h1><p class="lead">ปิดปรับปรุงชั่วคราว · ดูสถานะและลิงก์ไปที่เก็บข้อมูล</p>
+  <section class="card"><h2>ปิดปรับปรุงชั่วคราว ${m?'<span class="pill bad">ปิดอยู่</span>':'<span class="pill">เปิดใช้งานปกติ</span>'}</h2>
+  <p class="mut" style="margin:0 0 12px">เปิดก่อนอัปเดตโปรแกรม/กู้ข้อมูล · ทุกคนยังเปิดดูได้ แต่บันทึกไม่ได้ และเห็นแถบแจ้งด้านบน (คุณยังแก้ได้)</p>
+  <div class="row"><label class="switch"><input type="checkbox" id="mt" ${m?'checked':''} ${S.busy?'disabled':''}><i></i><span>${m?'ปิดปรับปรุงอยู่':'ปิดปรับปรุง'}</span></label>
+  <input type="text" id="mmsg" placeholder="ข้อความแจ้ง เช่น ถึง 20:00" value="${esc(S.mmsg??S.sys.msg??'')}" style="width:260px"><button class="btn l sm" data-mmsg ${S.busy?'disabled':''}>บันทึกข้อความ</button></div></section>
+  <section class="card"><h2>สถานะ<span class="sp"></span><button class="btn l sm" data-health ${S.busy?'disabled':''}>รีเฟรช</button></h2>
+  ${h?`<div class="grid">${[['jobs','งาน'],['customers','ลูกค้า'],['photos','รูป'],['logs','บันทึกการใช้งาน']].map(([k,l])=>`<div class="stat"><b>${(h.rows[k]||0).toLocaleString('th-TH')}</b><span>${l}</span></div>`).join('')}</div>
+  <p style="margin:16px 0 0" class="row"><a href="${esc(h.dataUrl)}" target="_blank" rel="noopener">เปิดตาราง Google Sheets (ข้อมูลหลัก)</a><a href="${esc(h.rootUrl)}" target="_blank" rel="noopener">เปิดโฟลเดอร์งานใน Drive</a><span class="sp"></span><span class="mut">ตัวกลางรุ่น ${esc(h.version)}</span></p>
+  <p class="note" style="margin:12px 0 0">แก้ข้อมูลในตาราง Sheets ตรง ๆ ไม่แนะนำ (ข้อมูลอยู่ในรูปแบบที่โปรแกรมอ่าน) ถ้าต้องซ่อม บอก Claude</p>`:'<div class="empty">กำลังโหลด…</div>'}</section>`;
+}
+
+/* ---------- การกด ---------- */
+document.addEventListener('click',async e=>{
+  const t=e.target.closest('button,[data-tab]'); if(!t) return;
+  const d=t.dataset;
+  if(d.tab){S.tab=d.tab;if(d.tab==='backup'&&S.backups==null)loadBackups();if(d.tab==='system')loadHealth();render();return}
+  if(t.id==='out'){CLGDB.user.signOut();return}
+  if(d.approve){const e2=S.edit[d.approve]||{};const r=S.joinreq[d.approve]||{};
+    await run(()=>S.db.call('approve',{uid:d.approve,member:{name:(e2.name??r.name??'').trim(),role:e2.role,team:(e2.role==='eng'||e2.role==='lead')?(e2.team||''):'',phone:''}}).then(x=>{delete S.edit[d.approve];S.db.refresh();return x}),'อนุมัติแล้ว · แชร์โฟลเดอร์งานให้แล้ว');return}
+  if(d.reject){if(!await ask('ไม่อนุมัติคำขอนี้?','คนนี้จะเข้าไม่ได้ ถ้าลงชื่อเข้าใช้อีกครั้งจะขึ้นคำขอใหม่','ไม่อนุมัติ',true))return;
+    await run(()=>S.db.call('approve',{uid:d.reject,member:null}).then(()=>S.db.refresh()),'ลบคำขอแล้ว');return}
+  if(d.save){const m=S.members[d.save],e2=S.edit[d.save]||{};const role=e2.role??m.role;
+    if(!role) return toast('เลือกบทบาทก่อน',true);
+    if(role!==m.role&&!await ask('เปลี่ยนบทบาท?',`${esc(m.name)}: ${esc(ROLE[m.role]||'-')} → <b>${esc(ROLE[role])}</b><br>หน้าที่ใช้ได้และสิทธิ์โฟลเดอร์จะเปลี่ยนทันที`,'เปลี่ยน'))return;
+    const mm={};['name','phone','role','team'].forEach(k=>{if(k in e2)mm[k]=String(e2[k]).trim()});if(!(role==='eng'||role==='lead'))mm.team='';
+    await run(()=>S.db.call('approve',{uid:d.save,member:mm}).then(()=>{delete S.edit[d.save];S.db.refresh()}),'บันทึกแล้ว');return}
+  if(d.sus){const m=S.members[d.sus];const sus=m.status==='suspended';
+    if(!sus&&!await ask('ระงับบัญชีนี้?',`${esc(m.name)} จะใช้ระบบไม่ได้ทันที และถูกถอนสิทธิ์โฟลเดอร์งาน (ข้อมูลที่เคยทำยังอยู่)`,'ระงับ',true))return;
+    await run(()=>S.db.call('approve',{uid:d.sus,member:{status:sus?'':'suspended'}}).then(()=>S.db.refresh()),sus?'เปิดใช้แล้ว':'ระงับแล้ว');return}
+  if(d.del){const m=S.members[d.del];
+    if(!await ask('ลบผู้ใช้?',`${esc(m.name)} (${esc(m.email)}) จะถูกลบจากรายชื่อและถอนสิทธิ์โฟลเดอร์ · ถ้าลงชื่อเข้าใช้อีกจะขึ้นเป็นคำขอใหม่`,'ลบ',true,'ลบ'))return;
+    await run(()=>S.db.call('approve',{uid:d.del,member:null}).then(()=>S.db.refresh()),'ลบแล้ว');return}
+  if(d.shares!==undefined){S.shares=await run(()=>S.db.call('syncShares').then(r=>r.report),'ตรวจสิทธิ์โฟลเดอร์แล้ว')||S.shares;render();return}
+  if(d.lmore!==undefined){S.llim+=150;render();return}
+  if(d.bknow!==undefined){await run(()=>S.db.call('backup').then(loadBackups),'สำรองแล้ว');return}
+  if(d.restore){if(!await ask('กู้ข้อมูลจากชุดนี้?',`<b>${esc(d.rname)}</b><br>ข้อมูลที่บันทึกหลังจากเวลานั้นจะหายจากระบบ (ระบบสำรองข้อมูลปัจจุบันให้ก่อน 1 ชุด เผื่อเปลี่ยนใจ) · แนะนำเปิด "ปิดปรับปรุง" ก่อน`,'กู้ข้อมูล',true,'กู้'))return;
+    await run(()=>S.db.call('restore',{fileId:d.restore}).then(()=>{loadBackups();S.db.refresh()}),'กู้ข้อมูลแล้ว ทุกเครื่องจะโหลดใหม่');return}
+  if(d.mmsg!==undefined){const msg=$('#mmsg').value;await run(()=>S.db.call('setSys',{flags:{maintenance:!!S.sys.maintenance,msg}}).then(r=>S.sys=r.sys),'บันทึกข้อความแล้ว');return}
+  if(d.health!==undefined){loadHealth();return}
+});
+document.addEventListener('change',async e=>{
+  const t=e.target,d=t.dataset;
+  const set=(id,k,v)=>{S.edit[id]={...(S.edit[id]||{}),[k]:v};render()};
+  if(d.prole)return set(d.prole,'role',t.value);
+  if(d.pteam)return set(d.pteam,'team',t.value);
+  if(d.mrole)return set(d.mrole,'role',t.value);
+  if(d.mteam)return set(d.mteam,'team',t.value);
+  if(t.id==='lby'){S.lby=t.value;S.llim=150;render();return}
+  if(t.id==='lcol'){S.lcol=t.value;S.llim=150;render();return}
+  if(t.id==='mt'){const on=t.checked,msg=$('#mmsg').value;
+    if(on&&!await ask('ปิดปรับปรุงระบบ?','ทุกคนจะบันทึกอะไรไม่ได้จนกว่าคุณจะเปิดกลับ','ปิดปรับปรุง',true)){t.checked=false;return}
+    await run(()=>S.db.call('setSys',{flags:{maintenance:on,msg}}).then(r=>S.sys=r.sys),on?'ปิดปรับปรุงแล้ว':'เปิดใช้งานปกติแล้ว');return}
+});
+document.addEventListener('input',e=>{
+  const t=e.target,d=t.dataset;
+  const keep=(id,k)=>{S.edit[id]={...(S.edit[id]||{}),[k]:t.value}};
+  if(d.pname)return keep(d.pname,'name');
+  if(d.mname){keep(d.mname,'name');return softRender(t)}
+  if(d.mphone){keep(d.mphone,'phone');return softRender(t)}
+  if(t.id==='lq'){S.lq=t.value;S.llim=150;softRender(t)}
+  if(t.id==='mmsg')S.mmsg=t.value;
+});
+// วาดใหม่โดยไม่เสียตำแหน่งเคอร์เซอร์
+function softRender(el){const sel=el.selectionStart,key=[...el.attributes].filter(a=>a.name.startsWith('data-')||a.name==='id').map(a=>`[${a.name}="${a.value}"]`).join('');render();const n=document.querySelector(key);if(n){n.focus();try{n.setSelectionRange(sel,sel)}catch(x){}}}
+async function loadBackups(){try{S.backups=(await S.db.call('backups')).list}catch(e){S.backups=[];toast(e.message,true)}render()}
+async function loadHealth(){try{const h=await S.db.call('health');S.health=h;S.sys=h.sys||{}}catch(e){toast(e.message,true)}render()}
+
+/* ---------- เริ่ม ---------- */
+CLGDB.connect('console').then(({db,me})=>{
+  S.db=db;S.me=me;$('#app').hidden=false;
+  const live=(col)=>db.collection(col).onSnapshot(s=>{const o={};s.docs.forEach(x=>o[x.id]=x.data());S[col]=o;
+    const a=document.activeElement;if(a&&/INPUT|SELECT/.test(a.tagName)&&a.closest('main'))return; render()},e=>toast(e.message,true));
+  live('members');live('joinreq');live('logs');
+  render();
+}).catch(e=>{document.body.insertAdjacentHTML('beforeend',`<p style="padding:40px;text-align:center">${esc(e.message)}</p>`)});
+</script>
+</body>
+</html>
