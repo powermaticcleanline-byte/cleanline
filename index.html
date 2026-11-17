@@ -1966,7 +1966,7 @@ function needs(n,j,c,s){
 const mapsDir=dest=>`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(PWM_ADDR)}${dest?'&destination='+encodeURIComponent(dest):''}`;
 function closedDays(){return (S.config&&S.config.survey&&S.config.survey.closed)||{}}
 const isoAdd=(k,n)=>{const d=new Date(k+'T00:00:00');d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-function teamCount(team,k,exceptId){return Object.values(S.jobs).filter(j=>j.id!==exceptId&&j.status!=='lost'&&(j.surveyTeam||'')===team&&(j.surveyDate||j.queueDate)===k).length}
+function teamCount(team,k,exceptId){return Object.values(S.jobs).filter(j=>j.id!==exceptId&&!['lost','cancelled'].includes(j.status)&&(j.surveyTeam||'')===team&&(j.surveyDate||j.queueDate)===k).length}
 /* ทีมนี้รับเพิ่มได้กี่ที่ในวัน k (ห้ามออกสองวันติดกัน) */
 function teamSlots(team,k,exceptId){if(S.me&&S.me.role){if(teamBlock(team,k,exceptId))return 0;return PER_TEAM-svJobsOn(team,k,exceptId).length}const c=teamCount(team,k,exceptId);if(c>=PER_TEAM)return 0;if(!c&&(teamCount(team,isoAdd(k,-1),exceptId)||teamCount(team,isoAdd(k,1),exceptId)))return 0;return PER_TEAM-c}
 function teamWhy(team,k,exceptId,time,job){if(S.me&&S.me.role){const b=teamBlock(team,k,exceptId,time,job);return b||('ว่าง '+(PER_TEAM-svJobsOn(team,k,exceptId).length)+' ที่')}const c=teamCount(team,k,exceptId);if(c>=PER_TEAM)return 'เต็ม '+PER_TEAM+' ที่แล้ว';if(!c&&teamCount(team,isoAdd(k,-1),exceptId))return 'ออกสำรวจเมื่อวาน';if(!c&&teamCount(team,isoAdd(k,1),exceptId))return 'ออกสำรวจวันถัดไป';return 'ว่าง '+(PER_TEAM-c)+' ที่'}
@@ -2044,6 +2044,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeou
 function myRole(){const r=S.me&&S.me.role;return r==='sysadmin'?'admin':(r==='dispatch'?'dispatch':'admin')}
 const isSys=()=>!!(S.me&&S.me.role==='sysadmin');
 const isDispatch=()=>myRole()==='dispatch';
+const canCancel=()=>['admin','dispatch'].includes(myRole());
 /* ช่องที่แต่ละบทบาทแก้ไม่ได้ (ตัวกลางตรวจซ้ำทุกครั้ง) */
 const F_ASSIGN=['surveyTeam','surveyor','supervisor','installTeam'];
 const F_SURVEY_SECS=['site','req','survey'];
@@ -2425,7 +2426,7 @@ function emptyStart(){
 /* ---------- all jobs ---------- */
 const svDate=j=>[j.surveyDate,j.queueDate].find(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x))||'';
 const PHC2={pre:'b',offer:'g',ins:'o',post:'v'};
-function jobPill(j){return j.status==='lost'?'<span class="pill gy">ยังไม่ตกลง</span>':j.status==='done'?'<span class="pill ok">ปิดงานแล้ว</span>':`<span class="pill ${PHC2[phaseOf(j.stage)?.k]||'gy'}">${esc(STAGES[j.stage].name)}</span>`}
+function jobPill(j){return j.status==='cancelled'?'<span class="pill gy">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy">ยังไม่ตกลง</span>':j.status==='done'?'<span class="pill ok">ปิดงานแล้ว</span>':`<span class="pill ${PHC2[phaseOf(j.stage)?.k]||'gy'}">${esc(STAGES[j.stage].name)}</span>`}
 const placeOf=(j,s,c)=>s.area||s.place||c.address||'';
 function needsCare(j){if(!isInstalled(j))return false;const d=pmDue(j);return (d&&dLeft(d)<=30)||(j.siteId&&cmOpen(j.siteId).length>0)}
 function isPm(j){if(!isInstalled(j))return false;const d=pmDue(j);return !!d&&dLeft(d)<=30}
@@ -2468,7 +2469,7 @@ function viewJobs(mode){
   const per=f.per||20;const pages=Math.max(1,Math.ceil(list.length/per));if(f.pg>=pages)f.pg=pages-1;if(f.pg<0)f.pg=0;const p0=f.pg*per;const shown=list.slice(p0,p0+per);
   const noDate=all.filter(j=>!svDate(j)).length;
   const engs=[...new Set(all.map(j=>j.surveyor).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'th'));
-  const cards=SV?[['installed','ติดตั้งแล้ว','sun','g',''],['pm','ครบตรวจเช็กใน 30 วัน','clock','o',''],['cm','แจ้งซ่อมค้าง','wrench','r','']]:[['all','ทั้งหมด','layers','n',''],['active','กำลังดำเนินการ','inbox','b',''],['done','ปิดงานแล้ว','check','g','']];
+  const cards=SV?[['installed','ติดตั้งแล้ว','sun','g',''],['pm','ครบตรวจเช็กใน 30 วัน','clock','o',''],['cm','แจ้งซ่อมค้าง','wrench','r','']]:[['all','ทั้งหมด','layers','n',''],['active','กำลังดำเนินการ','inbox','b',''],['done','ปิดงานแล้ว','check','g',''],['cancelled','ยกเลิก','x','n','']];
   const sub=SV?(status==='pm'?'ไซต์ที่ครบรอบตรวจเช็กประจำปีภายใน 30 วัน หรือเลยกำหนดแล้ว':status==='cm'?'ไซต์ที่มีแจ้งซ่อมยังไม่ปิด':'ไซต์ที่ติดตั้งแล้ว เรียงตามวันติดตั้ง'):f.mine?'งานที่ต้องทำต่อ จากทุกเดือน':f.q?`ผลค้นหา "${esc(f.q)}" จากทุกเดือน`:f.status==='installed'?'ทุกไซต์ที่ติดตั้งแล้ว เรียงจากวันติดตั้งล่าสุด':f.status==='care'?'ไซต์ที่มีแจ้งซ่อมยังไม่ปิด หรือครบตรวจเช็กประจำปีภายใน 30 วัน':'ไซต์ที่สำรวจในเดือนนี้';
   const dd=d=>d?`${+d.slice(8,10)} ${TM[+d.slice(5,7)-1]} ${String(+d.slice(0,4)+543).slice(2)}`:'';
   const two=(a,b)=>a||b?`<b class="${a?'':'nil'}">${a||'—'}</b><span title="${esc(b||'')}">${b?esc(b):'—'}</span>`:'<span class="nil">—</span>';
@@ -2497,7 +2498,7 @@ function viewJobs(mode){
         const view=ib('eye','ดูรายละเอียด',`data-sel="${esc(j.id)}"`);
         const acts=svc?[view,ib('wrench','บันทึกแจ้งซ่อม',`data-svnew="CM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('check','บันทึกตรวจเช็ก',`data-svnew="PM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('copy','คัดลอก S/N',`data-cpy="${esc(sn)}"`,sn?'':'ยังไม่มี S/N')]
           :[view,ib('pen','แก้ไขข้อมูล',`data-regedit="${esc(j.id)}"`),ib('trash','ลบงานนี้',`data-jdel="${esc(j.id)}"`),ib('file','คัดลอกที่อยู่โฟลเดอร์',`data-cpy="${esc(j.folderPath||'')}"`,j.folderPath?'':'ยังไม่มีที่อยู่โฟลเดอร์')];
-        const now=j.status==='active'?`${j.stage===ST.DOCS?'รอเอกสารขนานไฟ':'รอ'+(GROUP[STAGES[j.stage].role]||'')} · ${days(j.stageSince)} วัน`:j.status==='lost'?(j.lostReason||''):'';
+        const now=j.status==='active'?`${j.stage===ST.DOCS?'รอเอกสารขนานไฟ':'รอ'+(GROUP[STAGES[j.stage].role]||'')} · ${days(j.stageSince)} วัน`:j.status==='lost'?(j.lostReason||''):j.status==='cancelled'?(j.cancelReason||''):'';
         const st=svc||isInstalled(j)&&j.status==='done'?(careTags(j)||jobPill(j)):jobPill(j);
         const T=(v,cls)=>v?`<td class="${cls||''}" title="${esc(v)}">${esc(v)}</td>`:`<td class="${cls||''}"><span class="nil">—</span></td>`;
         return `<tr data-sel="${esc(j.id)}" tabindex="0" class="${S.sel===j.id?'on':''}" aria-label="ดูรายละเอียด ${esc(nm)}">
@@ -3043,6 +3044,9 @@ function viewJob(id){
       <div class="btns">${btns}</div>
       ${act?'':`<span class="sub">รอ${esc(ownerOf(j))}ดำเนินการ</span>`}
     </section>`;
+    if(n<=ST.SURVEY&&canCancel())right+=`<button class="btn sm" data-act="cancel" style="align-self:flex-start;box-shadow:none;color:var(--mut)">ยกเลิกคิว</button>`;
+  }else if(j.status==='cancelled'){
+    right=`<section class="act"><h2>ยกเลิก</h2><span class="sub">${esc(j.cancelReason||'')}${j.cancelledAt?' · '+fdt(j.cancelledAt):''}</span>${canCancel()?(j.autoCancelled?'<button class="btn dk" data-act="resume">เปิดงานต่อ</button><button class="btn" data-act="rebook">จองใหม่</button>':'<button class="btn dk" data-act="rebook">จองใหม่</button>'):''}</section>`;
   }else if(j.status==='lost'){
     right=`<section class="act"><h2>ลูกค้ายังไม่ตกลง</h2><span class="sub">${esc(j.lostReason||'')}</span><span class="sub">ลูกค้ากลับมาตกลงเมื่อไร เปิดงานต่อได้ทันที</span><button class="btn dk" data-act="reopen">ลูกค้าตกลงแล้ว เปิดงานต่อ</button></section>`;
   }else if(j.status==='done'){
@@ -3065,7 +3069,7 @@ function viewJob(id){
     <div class="jsc"><span class="sub">อยู่ขั้นนี้มา</span><b class="${dd>30?'tcrit':dd>14?'twarn':''}">${dd} วัน</b></div>
     <div class="jsc grow"><span class="sub">${n<LAST?`ถัดไป: ${esc(STAGES[n+1].name)}`:'ขั้นสุดท้าย'}</span>
       <div class="jprog" role="progressbar" aria-valuemin="0" aria-valuemax="${LAST}" aria-valuenow="${n-1}">${STAGES.slice(1).map((x,i)=>`<i class="${i+1<n?'d':i+1===n?'c':''}" title="${esc(x.name)}"></i>`).join('')}</div></div>
-  </section>`:`<section class="card jst"><div class="jsc"><span class="sub">สถานะ</span>${j.status==='lost'?'<span class="pill gy big">ลูกค้ายังไม่ตกลง</span>':'<span class="pill ok big">ปิดงานแล้ว · ดูแลหลังการขาย</span>'}</div></section>`}
+  </section>`:`<section class="card jst"><div class="jsc"><span class="sub">สถานะ</span>${j.status==='cancelled'?'<span class="pill gy big">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy big">ลูกค้ายังไม่ตกลง</span>':'<span class="pill ok big">ปิดงานแล้ว · ดูแลหลังการขาย</span>'}</div></section>`}
   <div class="banner" id="heldNote" hidden>งานนี้มีการอัปเดตระหว่างแก้ไข บันทึกหรือยกเลิกเพื่อดูข้อมูลล่าสุด</div>
   <div class="cols">
     <div class="colL">${curSecs.size?[...curSecs].map(id=>{const sec=SECTIONS.find(x=>x.id===id);return secForm(sec,j,c,s,true)}).join(''):''}
@@ -3304,7 +3308,7 @@ function viewQueue(){
   const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const t=today();const kf=S.f.qk||'all';const adm=myGroup()==='admin'||(!myGroup()&&S.me.owner);
   const by={};visibleJobs().forEach(j=>{
-    const sd=svDate(j);if(sd&&j.status!=='lost'&&kf!=='i')(by[sd]=by[sd]||[]).push({j,k:j.stage===ST.ACCEPT?'p':'s',tm:j.queueTime||''});
+    const sd=svDate(j);if(sd&&!['lost','cancelled'].includes(j.status)&&kf!=='i')(by[sd]=by[sd]||[]).push({j,k:j.stage===ST.ACCEPT?'p':'s',tm:j.queueTime||''});
     if(j.installDate&&(j.stage>=ST.INSREQ||j.status==='done')&&kf!=='s'){const D=insDays(j);D.forEach((d,i)=>(by[d]=by[d]||[]).push({j,k:'i',tm:'',day:i+1,of:D.length}))}
   });
   const sortL=L=>L.sort((a,b)=>(a.k==='i')-(b.k==='i')||String(a.tm||'99').localeCompare(String(b.tm||'99')));
@@ -3386,7 +3390,7 @@ function viewCustomers(){
   const anyF=cf.cst||cf.cph||cf.cteam;
   const groups=[];rows.forEach(r=>{const k=r.d.slice(0,7);let g=groups[groups.length-1];if(!g||g.k!==k)groups.push(g={k,rows:[]});g.rows.push(r)});
   const PHC2={pre:'b',offer:'g',ins:'o',post:'v'};
-  const stTag=j=>j.status==='lost'?'<span class="pill gy">ยังไม่ตกลง</span>':j.status==='done'?'<span class="pill ok">ปิดงานแล้ว</span>':`<span class="pill ${PHC2[phaseOf(j.stage)?.k]||'gy'}">${esc(STAGES[j.stage].name)}</span>`;
+  const stTag=j=>j.status==='cancelled'?'<span class="pill gy">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy">ยังไม่ตกลง</span>':j.status==='done'?'<span class="pill ok">ปิดงานแล้ว</span>':`<span class="pill ${PHC2[phaseOf(j.stage)?.k]||'gy'}">${esc(STAGES[j.stage].name)}</span>`;
   return pageHead('ลูกค้า',searching?`ผลค้นหาจากทุกเดือน · พบ ${rows.length} ราย`:`แสดง ${rows.length} ราย จากทั้งหมด ${total} ราย · ตามเดือนที่สำรวจ`,searching?'':monthNav('cmo'))+`
   <section class="card tq">
   <div class="tqb" role="group" aria-label="ตัวกรองลูกค้า">
@@ -3654,6 +3658,11 @@ async function doAct0(a,jid){
   if(a==='next'){const to=n+1;await pushHist(j,ev('handoff',`ส่งต่อให้${GROUP[STAGES[to].role]} (${STAGES[to].name})`,{from:n,to}),{stage:to,stageSince:now});toast('ส่งต่อแล้ว');return}
     if(a==='pmdone'){const d=today();await pushHist(j,ev('edit','ตรวจเช็กประจำปีแล้ว '+fd(d)),{lastPm:d});toast('บันทึกแล้ว ครบกำหนดครั้งถัดไป '+fd(pmDue({...j,lastPm:d})));return}
   if(a==='done'){await pushHist(j,ev('handoff','ยื่นขนานไฟฟ้าเสร็จ ปิดงาน ครบตรวจเช็กประจำปี '+fd(pmDue(j)),{from:LAST}),{status:'done',stageSince:now});return}
+  if(a==='cancel'){const r=await ask('ยกเลิกคิวสำรวจ','เหตุผล');if(!r)return;
+    await pushHist(j,ev('lost','ยกเลิกคิว: '+r),{status:'cancelled',cancelReason:r,cancelledAt:now,stageSince:now});toast('ยกเลิกแล้ว คิวว่างให้งานอื่น');return}
+  if(a==='resume'){await pushHist(j,ev('handoff','เปิดงานต่อ ('+STAGES[n].name+')'),{status:'active',stageSince:now,cancelReason:'',cancelledAt:null,autoCancelled:false});toast('เปิดงานต่อแล้ว');return}
+  if(a==='rebook'){if(!await confirmBox('จองใหม่','ใช้ข้อมูลเดิม แล้วเลือกวันสำรวจใหม่','จองใหม่','dk'))return;
+    await pushHist(j,ev('handoff','จองใหม่ (ข้อมูลเดิม)',{to:ST.BOOK}),{status:'active',stage:ST.BOOK,stageSince:now,cancelReason:'',cancelledAt:null,autoCancelled:false,surveyTeam:'',surveyor:'',surveyorId:'',surveyHelpers:'',queueUnlock:''});toast('เปิดงานแล้ว เลือกวันใหม่');return}
   if(a==='reopen'){await pushHist(j,ev('handoff','ลูกค้าตกลง ส่งให้แอดมินนัดติดตั้ง',{to:ST.INSREQ}),{status:'active',stage:ST.INSREQ,stageSince:now,lostReason:''});return}
   if(a==='lost'||a==='back'){
     const title={lost:'ลูกค้ายังไม่ตกลง',back:`ย้อนกลับไป${STAGES[n-1].name}`}[a];

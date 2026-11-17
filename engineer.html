@@ -898,6 +898,7 @@ function viewJob(id){
   const nameOf=uid=>C().members[uid]?.name||(uid?'ผู้ใช้':'ระบบ');
   let now=STAGES[j.stage]?.name||'',next='',prog='';
   if(j.status==='done'){now='ปิดงานแล้ว';next='ดูแลหลังการขาย (PM/CM)'}
+  else if(j.status==='cancelled'){now='ยกเลิก';next=j.cancelReason||''}
   else if(j.status==='lost'){now='ลูกค้ายังไม่ตกลง';next='รอเซลส์ติดตาม'}
   else{const nx=STAGES[j.stage+1];next=nx?`${nx.name} (${GROUP_NAME[nx.role]||nx.role})`:'';
     if(j.stage===ST.SURVEY){const st=svSteps(j,s),n=st.filter(x=>x.ok).length;now=needDraw(j)?'รอวาดแบบที่ออฟฟิศ':'กำลังสำรวจ';
@@ -1224,6 +1225,7 @@ function viewNoti(){
 const hasSurvey=j=>!!(j&&(Object.keys(j.sv||{}).length||j.proposedModel||(Array.isArray(j.proposals)&&j.proposals.length)));
 function statusOf(j){
   if(j.status==='done')return {t:'ปิดงานแล้ว · ดูแลหลังการขาย',c:'f-grn'};
+  if(j.status==='cancelled')return {t:'ยกเลิก',c:'f-red'};
   if(j.status==='lost')return {t:'ลูกค้ายังไม่ตกลง',c:'f-red'};
   if(j.stage===ST.SURVEY)return needDraw(j)?{t:'รอวาดแบบ',c:'f-vio'}:{t:'กำลังสำรวจ',c:'f-blu'};
   return {t:'ขั้น '+j.stage+' · '+(STAGES[j.stage]?.name||''),c:j.stage===ST.OFFER?'f-org':'f-mut'};
@@ -1477,7 +1479,7 @@ function viewToday(){
 }
 function slip(j){
   const c=cOf(j),s=sOf(j),r=j.request||{},props=propsView(j),st=svSteps(j,s),nOk=st.filter(x=>x.ok).length;
-  const head=j.status==='done'?['ok','ปิดงานแล้ว']:j.status==='lost'?['no','ลูกค้ายังไม่ตกลง']:j.stage>ST.SURVEY?['ok','ส่งเซลส์แล้ว']:nOk===8?['ok','สำรวจครบแล้ว']:['wip','กำลังสำรวจ '+nOk+'/8'];
+  const head=j.status==='done'?['ok','ปิดงานแล้ว']:j.status==='lost'?['no','ลูกค้ายังไม่ตกลง']:j.status==='cancelled'?['no','ยกเลิก']:j.stage>ST.SURVEY?['ok','ส่งเซลส์แล้ว']:nOk===8?['ok','สำรวจครบแล้ว']:['wip','กำลังสำรวจ '+nOk+'/8'];
   const row=(l,v)=>`<div class="sr"><span>${l}</span><b>${v}</b></div>`;
   const dash='<i class="nil">—</i>',v=x=>x===undefined||x===null||x===''?dash:esc(x);
   const yn=x=>x===true?'<em class="yes">ต้องการ</em>':x===false?'ไม่ต้องการ':dash;
@@ -1563,7 +1565,7 @@ async function saveSlipImage(id){
   };
 }
 const ALL_ST=[['all','ทั้งหมด',()=>true],['sv','กำลังสำรวจ',j=>j.status==='active'&&j.stage<=ST.SURVEY],['offer','ส่งเซลส์แล้ว',j=>j.status==='active'&&j.stage===ST.OFFER],
-  ['ins','รอติดตั้ง',j=>j.status==='active'&&j.stage>=ST.INSREQ],['done','ปิดงานแล้ว',j=>j.status==='done'],['lost','ไม่ตกลง',j=>j.status==='lost']];
+  ['ins','รอติดตั้ง',j=>j.status==='active'&&j.stage>=ST.INSREQ],['done','ปิดงานแล้ว',j=>j.status==='done'],['lost','ไม่ตกลง',j=>j.status==='lost'],['cancelled','ยกเลิก',j=>j.status==='cancelled']];
 const jobDateOf=j=>j.surveyDate||j.queueDate||j.installDate||(j.createdAt?isoOf(new Date(j.createdAt)):'');
 function arow(j){
   const s=sOf(j),stt=statusOf(j),d=jobDateOf(j),pv=hasSurvey(j)?propsView(j)[0]:null;
@@ -1625,7 +1627,7 @@ function viewTool(name){
 }
 function calEvents(){
   const u=me(),all=S.scope==='all'||u.role==='lead',kf=TV('ck','all'),by={};
-  S.api.listAllJobs().filter(j=>j.status!=='lost'&&(all||ownedByMe(j)||touchedByMe(j))).forEach(j=>{
+  S.api.listAllJobs().filter(j=>!['lost','cancelled'].includes(j.status)&&(all||ownedByMe(j)||touchedByMe(j))).forEach(j=>{
     const sd=j.surveyDate||j.queueDate;if(sd&&j.stage<=ST.SURVEY&&kf!=='i')(by[sd]=by[sd]||[]).push({j,k:j.stage===ST.ACCEPT?'p':'s',tm:j.queueTime||''});
     if(j.installDate&&(j.stage>=ST.INSREQ||j.status==='done')&&kf!=='s'){const D=[];for(let d=j.installDate;d<=(j.installEnd||j.installDate)&&D.length<10;d=isoAdd(d,1))D.push(d);D.forEach((d,i)=>(by[d]=by[d]||[]).push({j,k:'i',tm:'',day:i+1,of:D.length}))}});
   Object.values(by).forEach(L=>L.sort((a,b)=>(a.k==='i')-(b.k==='i')||String(a.tm||'99').localeCompare(String(b.tm||'99'))));
