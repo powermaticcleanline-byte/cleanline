@@ -315,7 +315,7 @@ html.framed.bandjob .sbar{background:#3c7f0e;color:#fff}
 .ubtn .av{width:42px;height:42px;font-size:17px}
 .ubtn b{display:block;font-weight:600}.ubtn span{font-size:13.5px;color:var(--mut)}
 .prof{text-align:center;padding:8px 0 4px}.prof .av{width:84px;height:84px;font-size:34px;margin:0 auto 10px;box-shadow:0 0 0 4px #fff,0 10px 24px -10px rgba(80,90,200,.6)}
-.prof b{display:block;font-size:22px;font-weight:600}.pfav{width:56px!important;height:56px!important;font-size:22px!important;margin:0!important;border-radius:50%}.prof img.av{border-radius:50%;display:block}.prof span{color:var(--mut)}
+.prof b{display:block;font-size:22px;font-weight:600}.icu{border:1px solid #e3e6ea;border-radius:14px;padding:10px 12px 2px;margin:6px 0 4px;background:#fafbfc}.icuh{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.icu input{width:100%;font:inherit;padding:10px 12px;border:1px solid #ccd;border-radius:10px;background:#fff}.pfav{width:56px!important;height:56px!important;font-size:22px!important;margin:0!important;border-radius:50%}.prof img.av{border-radius:50%;display:block}.prof span{color:var(--mut)}
 .ov{position:fixed;inset:0;z-index:60;background:rgba(17,18,24,.45);display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--sf);width:100%;max-width:480px;border-radius:28px 28px 0 0;padding:22px 18px calc(18px + var(--safe))}
 .sheet h3{margin:0 0 6px;font-size:19px;font-weight:600}.sheet p{margin:0 0 16px;color:var(--ink2)}
@@ -1078,10 +1078,11 @@ const IC_KINDS=[['nameplate','ป้ายเครื่อง (S/N)',1],['sld'
 function icDraft(j){
   if((S.icd=S.icd||{})[j.id])return S.icd[j.id];const e=j.equipment||{},c=cOf(j);
   return S.icd[j.id]={model:e.model||j.proposedModel||'',sn:e.sn||'',wifiSn:e.wifiSn||'',meter:e.meter||'',ct:e.ct||'',panels:e.panels??j.proposedPanelQty??'',plantName:e.plantName||(c.name?c.name.replace(/\s+/g,'_'):''),
-    batteryModel:e.batteryModel||j.proposedBatteryModel||'',batterySn:e.batterySn||'',commissionDate:e.commissionDate||today()};
+    batteryModel:e.batteryModel||j.proposedBatteryModel||'',batterySn:e.batterySn||'',commissionDate:e.commissionDate||today(),
+    slaves:invUnits(e).slice(1).map(u=>({model:u.model||'',sn:u.sn||'',wifiSn:u.wifiSn||''}))};
 }
 const icCan=j=>actionable(j)&&j.stage===ST.COMM&&(ownedByMe(j)||me().role==='lead');
-function icMissing(j){const d=icDraft(j),P=S.api.listPhotos(j.id),m=[];if(!d.model)m.push('รุ่นอินเวอร์เตอร์');if(!d.sn)m.push('S/N เครื่อง');if(!(+d.panels>0))m.push('จำนวนแผง');
+function icMissing(j){const d=icDraft(j),P=S.api.listPhotos(j.id),m=[];if(!d.model)m.push('รุ่นอินเวอร์เตอร์');if(!d.sn)m.push('S/N เครื่อง');(d.slaves||[]).forEach((u,i)=>{if(!String(u.sn||'').trim())m.push('S/N Slave '+(i+1))});if(!(+d.panels>0))m.push('จำนวนแผง');
   IC_KINDS.forEach(([k,t,r])=>{if(r&&!P.some(p=>p.kind===k))m.push('รูป '+t)});return m}
 function viewIc(id){
   const j=C().jobs[id];if(!j)return topBar('ปิดงานติดตั้ง',{back:true})+`<main class="wrap">${emptyBox('ไม่พบงานนี้','','x')}</main>`;
@@ -1099,7 +1100,12 @@ function viewIc(id){
    <section class="card icplan">${ic('doc')}<div><small>ตามที่เสนอลูกค้า</small><b>${esc(plan||'—')}</b></div><span class="pill ${j.installDate?'':'m'}">${j.installDate?esc(fdRange(j.installDate,j.installEnd)):'ไม่มีวันติดตั้ง'}</span></section>
    <section class="card"><h2>${ic('bolt')}อินเวอร์เตอร์ที่ติดตั้งจริง</h2>
     <div class="ccs2">${invs.map(p=>chip('model',p.model,p.model)).join('')}</div>${inv?`<p class="hint" style="margin:6px 0 10px">${inv.kw} kW · ${inv.phase} เฟส · ${esc(inv.type)}</p>`:''}
-    ${inp('sn','S/N เครื่อง','สแกนหรือพิมพ์',1)}${inp('wifiSn','S/N WiFi / Datalogger','สแกนหรือพิมพ์',1)}
+    ${(d.slaves||[]).length?'<span class="cl">Master</span>':''}${inp('sn','S/N เครื่อง','สแกนหรือพิมพ์',1)}${inp('wifiSn','S/N WiFi / Datalogger','สแกนหรือพิมพ์',1)}
+    ${(d.slaves||[]).map((u,i)=>`<div class="icu"><div class="icuh"><span class="cl" style="margin:0">Slave ${i+1}</span><button class="lk" style="min-height:0;padding:0" data-icudel="${i}">ลบ</button></div>
+      <label class="fl"><span>รุ่น</span><input data-icu="${i}:model" value="${esc(u.model)}" autocomplete="off"></label>
+      <label class="fl"><span>S/N เครื่อง</span><input data-icu="${i}:sn" value="${esc(u.sn)}" placeholder="พิมพ์ S/N" autocapitalize="characters" autocomplete="off"></label>
+      <label class="fl"><span>S/N WiFi / Datalogger</span><input data-icu="${i}:wifiSn" value="${esc(u.wifiSn)}" placeholder="ถ้ามี" autocapitalize="characters" autocomplete="off"></label></div>`).join('')}
+    <button class="btn" type="button" style="width:100%;margin:6px 0 10px" data-icuadd>+ เพิ่มเครื่อง Slave</button>
     ${inv&&inv.meters?`<span class="cl">Smart meter</span><div class="ccs2">${String(inv.meters).split(',').map(x=>chip('meter',x.trim(),x.trim())).join('')}</div>`:''}
     ${inv&&inv.cts?`<span class="cl">ขนาด CT</span><div class="ccs2">${chip('ct','','ไม่ใช้')}${String(inv.cts).split(',').map(x=>chip('ct',x.trim(),x.trim())).join('')}</div>`:''}</section>
    ${inv&&inv.type==='Hybrid'?`<section class="card"><h2>${ic('bat')}แบตเตอรี่</h2><div class="ccs2">${chip('batteryModel','','ไม่มี')}${bats.map(p=>chip('batteryModel',p.model,p.model+' · '+p.kwh+' kWh')).join('')}</div>${d.batteryModel?inp('batterySn','S/N แบตเตอรี่','สแกนหรือพิมพ์',1):''}</section>`:''}
@@ -1112,11 +1118,12 @@ function viewIc(id){
    <div class="abar"><div class="in"><button class="btn" data-icsave ${S.busy?'disabled':''}>บันทึก</button><button class="btn pri" data-icclose ${m.length||S.busy?'disabled':''}>${ic('check')}ปิดงาน ส่งต่อ</button></div></div>`;
 }
 function icSummary(j){const e=j.equipment||{},row=(l,v)=>v?`<div class="sr"><span>${l}</span><b>${esc(v)}</b></div>`:'';
-  return `<section class="card"><h2>${ic('check')}ติดตั้งเสร็จ ${e.commissionDate?fd(e.commissionDate):''}</h2><div class="slb">${row('อินเวอร์เตอร์',e.model)}${row('S/N',e.sn)}${row('S/N WiFi',e.wifiSn)}${row('Smart meter',e.meter)}${row('CT',e.ct)}${row('แบตเตอรี่',[e.batteryModel,e.batterySn].filter(Boolean).join(' · '))}${row('แผง',e.panels?e.panels+' แผง':'')}${row('Plant name',e.plantName)}</div></section>
+  return `<section class="card"><h2>${ic('check')}ติดตั้งเสร็จ ${e.commissionDate?fd(e.commissionDate):''}</h2><div class="slb">${row('อินเวอร์เตอร์',e.model)}${row(invUnits(e).length>1?'S/N Master':'S/N',e.sn)}${row('S/N WiFi',e.wifiSn)}${invUnits(e).slice(1).map((u,i)=>row('Slave '+(i+1),[u.model,u.sn&&'S/N '+u.sn,u.wifiSn&&'WiFi '+u.wifiSn].filter(Boolean).join(' · '))).join('')}${row('Smart meter',e.meter)}${row('CT',e.ct)}${row('แบตเตอรี่',[e.batteryModel,e.batterySn].filter(Boolean).join(' · '))}${row('แผง',e.panels?e.panels+' แผง':'')}${row('Plant name',e.plantName)}</div></section>
    <section class="card"><h2>${ic('cam')}รูปงานติดตั้ง</h2>${photoTiles(j,true,IC_KINDS)}</section>`}
 function icPatch(j){const d=icDraft(j),inv=S.api.listProducts().find(p=>p.model===d.model),P=S.api.listPhotos(j.id);
   return {...(j.equipment||{}),model:d.model,kw:inv?inv.kw:'',systemType:inv?inv.type:'',sn:String(d.sn).trim(),wifiSn:String(d.wifiSn).trim(),meter:d.meter,ct:d.ct,panels:+d.panels||'',plantName:String(d.plantName).trim(),
-    batteryModel:inv&&inv.type==='Hybrid'?d.batteryModel:'',batterySn:inv&&inv.type==='Hybrid'&&d.batteryModel?String(d.batterySn).trim():'',commissionDate:d.commissionDate,sldAsBuilt:P.some(p=>p.kind==='sld')?(j.equipment?.sldAsBuilt||Date.now()):''}}
+    batteryModel:inv&&inv.type==='Hybrid'?d.batteryModel:'',batterySn:inv&&inv.type==='Hybrid'&&d.batteryModel?String(d.batterySn).trim():'',commissionDate:d.commissionDate,sldAsBuilt:P.some(p=>p.kind==='sld')?(j.equipment?.sldAsBuilt||Date.now()):'',
+    units:(d.slaves||[]).length?[{role:'Master',model:d.model,sn:String(d.sn).trim(),wifiSn:String(d.wifiSn).trim()},...d.slaves.map(u=>({role:'Slave',model:String(u.model||d.model).trim(),sn:String(u.sn||'').trim(),wifiSn:String(u.wifiSn||'').trim()}))]:[]}}
 async function icSave(id,close){
   const j=C().jobs[id];if(!j)return;const e=icPatch(j);
   if(close&&!await ask('ปิดงานติดตั้ง',`ส่งข้อมูล ${e.model} S/N ${e.sn} ไปทำเอกสารขนานไฟ`,{ok:'ปิดงาน'}))return;
@@ -1446,6 +1453,8 @@ async function saveMe(photo){const u=me();const n=(document.getElementById('pf-n
   catch(e){toast(e.message||'บันทึกไม่ได้')}}
 document.addEventListener('change',async e=>{if(e.target.id!=='pf-photo'||!e.target.files||!e.target.files[0])return;
   S.pfName=(document.getElementById('pf-name')||{}).value;try{S.pfPhoto=await pfResize(e.target.files[0]);render()}catch(x){toast('อ่านรูปไม่ได้')}});
+function invUnits(e){e=e||{};const U=Array.isArray(e.units)?e.units.filter(u=>u&&(u.model||u.sn||u.wifiSn)):[];if(U.length)return U;return e.model||e.sn||e.wifiSn?[{role:'Master',model:e.model||'',sn:e.sn||'',wifiSn:e.wifiSn||''}]:[]}
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.icu;if(!k)return;const j=C().jobs[route().slice(3)];if(!j)return;const [i,f]=k.split(':');const u=(icDraft(j).slaves||[])[+i];if(u)u[f]=e.target.value});
 const destOf=j=>j.stage===ST.SURVEY&&canAct(j)?'#ns-'+j.id:j.stage===ST.COMM&&icCan(j)?'#ic-'+j.id:'#job-'+j.id;
 function nextJob(){
   const u=me(),T=today();
@@ -2024,7 +2033,7 @@ function toolSpec(){
   return `${tchips('cat',CT.map(([k,t])=>[k,t+' '+P.filter(p=>p.category===k).length]),cat)}
    <section class="ls">${L.map(row).join('')||'<div class="lse">ไม่พบสินค้า</div>'}</section><p class="hint" style="text-align:center">ข้อมูลจากแคตตาล็อกส่วนกลาง (แก้ได้ที่ Console)</p>`;
 }
-const snOf=j=>[j.equipment?.sn,j.equipment?.wifiSn,...(j.serials||[]).map(x=>x.sn||x)].filter(Boolean);
+const snOf=j=>[j.equipment?.sn,j.equipment?.wifiSn,...invUnits(j.equipment).flatMap(u=>[u.sn,u.wifiSn]),...(j.serials||[]).map(x=>x.sn||x)].filter(Boolean);
 function render(){
   if(!S.api||!S.api.me())return;
   if(S.simT&&!location.hash.startsWith('#tool-sim')){clearInterval(S.simT);S.simT=null}
@@ -2085,6 +2094,8 @@ document.addEventListener('click',e=>{
   if('nsstart' in d){nsStart(route().slice(3));return}
   if('fname' in d){renameFolder(d.fname);return}
   if('pfsave' in d){saveMe();return}
+  if('icuadd' in d){const jj=C().jobs[route().slice(3)];if(jj){const dd=icDraft(jj);(dd.slaves=dd.slaves||[]).push({model:dd.model||'',sn:'',wifiSn:''});render()}return}
+  if('icudel' in d){const jj=C().jobs[route().slice(3)];if(jj){icDraft(jj).slaves.splice(+d.icudel,1);render()}return}
   if('pfdel' in d){S.pfPhoto=null;saveMe('');return}
   if('nsresign' in d){S.nsResign=route().slice(3);S.sig=null;render();return}
   if(d.slipimg){saveSlipImage(d.slipimg);return}

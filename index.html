@@ -2295,7 +2295,7 @@ function bellPanel(){
 }
 function pageHead(title,sub,actions=''){return `<div class="ph"><div><h1>${title}</h1>${sub?`<p>${sub}</p>`:''}</div>${actions?`<div class="pha">${actions}</div>`:''}</div>`}
 /* ค้นหาจากแถบบน: ผลลัพธ์ทันที 6 รายการ, Enter = ดูผลทั้งหมดในหน้างาน */
-function gMatch(q){q=q.trim().toLowerCase();if(!q)return [];return visibleJobs().filter(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),e.sn,e.wifiSn,e.plantName].join(' ').toLowerCase().includes(q)}).sort((a,b)=>svDate(b).localeCompare(svDate(a)))}
+function gMatch(q){q=q.trim().toLowerCase();if(!q)return [];return visibleJobs().filter(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),e.sn,e.wifiSn,unitSns(e),e.plantName].join(' ').toLowerCase().includes(q)}).sort((a,b)=>svDate(b).localeCompare(svDate(a)))}
 function gSearch(v){const box=$('#gqr');if(!box)return;const m=gMatch(v);
   if(!v.trim()){box.hidden=true;box.innerHTML='';return}
   box.innerHTML=(m.length?m.slice(0,6).map(j=>{const c=cOf(j),e=j.equipment||{};const nm=j.title||c.name||'ไม่มีชื่อไซต์';const sub=[j.jobNo?'#'+j.jobNo:'',e.sn||'',c.phone||''].filter(Boolean).join(' · ');
@@ -2455,7 +2455,7 @@ function jobsList(st,svcMode){
   const all=visibleJobs();
   const month=all.filter(j=>svDate(j).startsWith(curK));
   const inScope=allMonths?all:month;
-  const qf=j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),j.surveyor,e.sn,e.wifiSn,e.plantName,e.model,j.proposedModel,j.installTeam].join(' ').toLowerCase().includes(q)};
+  const qf=j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),j.surveyor,e.sn,e.wifiSn,unitSns(e),e.plantName,e.model,j.proposedModel,j.installTeam].join(' ').toLowerCase().includes(q)};
   const src=(q||mine||(f.phAll&&phase)?all:month).filter(j=>!q||qf(j));
   const cnt={all:src.length,active:0,lost:0,done:0,installed:all.filter(isInstalled).length,care:all.filter(needsCare).length,pm:all.filter(isPm).length,cm:all.filter(isCm).length};src.forEach(j=>cnt[j.status]=(cnt[j.status]||0)+1);
   let list=status==='all'?inScope:status==='installed'?all.filter(isInstalled):status==='care'?all.filter(needsCare):status==='pm'?all.filter(isPm):status==='cm'?all.filter(isCm):inScope.filter(j=>j.status===status);
@@ -2463,7 +2463,7 @@ function jobsList(st,svcMode){
   if(phase)list=list.filter(j=>j.status==='active'&&phaseOf(j.stage)?.k===phase);
   if(f.team)list=list.filter(j=>j.salesTeam===f.team);
   if(f.eng)list=list.filter(j=>(j.surveyor||'')===f.eng);
-  if(q)list=list.filter(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),j.surveyor,e.sn,e.wifiSn,e.plantName,e.model,j.proposedModel,j.installTeam].join(' ').toLowerCase().includes(q)});
+  if(q)list=list.filter(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),j.surveyor,e.sn,e.wifiSn,unitSns(e),e.plantName,e.model,j.proposedModel,j.installTeam].join(' ').toLowerCase().includes(q)});
   if(status==='care'||status==='pm')list.sort((a,b)=>String(pmDue(a)||'9').localeCompare(String(pmDue(b)||'9')));
   else if(status==='installed'||status==='cm')list.sort((a,b)=>String(b.installDate||'').localeCompare(String(a.installDate||'')));
   else list.sort((a,b)=>svDate(b).localeCompare(svDate(a))||String(b.jobNo||'').localeCompare(String(a.jobNo||'')));
@@ -2572,7 +2572,7 @@ function jobDrawer(j){
   const tab=S.dtab||(inst?'hist':'info');
   const nil='<span class="nil">—</span>';
   const facts=inst?`<div class="dkf k4">
-      <div class="dk key"><small>S/N อินเวอร์เตอร์</small><b class="mono">${e.sn?esc(e.sn):'ยังไม่มี'}</b>${cp(e.sn)}</div>
+      <div class="dk key"><small>S/N อินเวอร์เตอร์</small><b class="mono">${e.sn?esc(e.sn):'ยังไม่มี'}</b>${cp(e.sn)}${invUnits(e).length>1?`<em>+ Slave ${invUnits(e).length-1} เครื่อง: ${invUnits(e).slice(1).map(u=>esc(u.sn||'—')).join(', ')}</em>`:''}</div>
       <div class="dk"><small>อินเวอร์เตอร์</small><b>${esc(e.model||j.proposedModel||'')||nil}</b></div>
       <div class="dk"><small>ขนาด</small><b>${e.kw||j.proposedKw?esc(e.kw||j.proposedKw)+' kW':nil}</b></div>
       <div class="dk"><small>ติดตั้ง</small><b>${j.installDate?esc(fd(j.installDate)):nil}</b></div>
@@ -2616,6 +2616,16 @@ function jobDrawer(j){
 
 /* ---------- site registry ---------- */
 const CM_CH=['ลูกค้าโทรแจ้ง','LINE','เซลส์แจ้ง','แอปมอนิเตอร์','ตรวจพบตอนตรวจเช็ก','อื่นๆ'];
+function invUnits(e){e=e||{};const U=Array.isArray(e.units)?e.units.filter(u=>u&&(u.model||u.sn||u.wifiSn)):[];if(U.length)return U;return e.model||e.sn||e.wifiSn?[{role:'Master',model:e.model||'',sn:e.sn||'',wifiSn:e.wifiSn||''}]:[]}
+/* Master = ช่อง model/sn/wifiSn เดิม · units[0] ตามให้ตรงเสมอ */
+function eqSync(e){if(!e||!Array.isArray(e.units)||!e.units.length)return e;const u=[...e.units];u[0]={...u[0],role:'Master',model:e.model||'',sn:e.sn||'',wifiSn:e.wifiSn||''};return {...e,units:u}}
+const unitSns=e=>invUnits(e).flatMap(u=>[u.sn,u.wifiSn]).filter(Boolean).join(' ');
+const slaveRow=(u,i)=>`<div class="eqsl" style="display:grid;grid-template-columns:90px 1fr 1fr 1fr auto;gap:8px;align-items:end;margin-top:8px"><b style="font-size:13px;padding-bottom:10px">Slave <i>${i+1}</i></b>
+  <label class="fld">รุ่น<input data-uk="model" value="${esc(u.model||'')}" list="dl-INVERTER"></label><label class="fld">S/N เครื่อง<input data-uk="sn" value="${esc(u.sn||'')}"></label><label class="fld">S/N WiFi<input data-uk="wifiSn" value="${esc(u.wifiSn||'')}"></label>
+  <button class="btn sm" type="button" data-eqsdel="1" style="margin-bottom:4px">ลบ</button></div>`;
+document.addEventListener('click',e=>{const t=e.target.closest('[data-eqsadd],[data-eqsdel]');if(!t)return;const sec=t.closest('[data-sec]');if(!sec)return;const box=sec.querySelector('.eqsls');
+  if(t.dataset.eqsadd){const m=sec.querySelector('[data-k="model"]');box.insertAdjacentHTML('beforeend',slaveRow({model:m?m.value:''},box.children.length))}else t.closest('.eqsl').remove();
+  [...box.children].forEach((r,i)=>{const x=r.querySelector('b i');if(x)x.textContent=i+1})});
 function siteJobs(sid){return Object.values(S.jobs).filter(j=>j.siteId===sid).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))}
 function mainJob(sid){const L=siteJobs(sid);return L.find(j=>isInstalled(j))||L[0]||null}
 function isInstalled(j){return !!j&&(j.status==='done'||(j.status==='active'&&j.stage>=ST.COMM)||(!!j.installDate&&j.installDate<=today()))}
@@ -2691,7 +2701,7 @@ async function saveReg(){
   try{
     if(j.customerId){const cu={firstName:v.firstName,lastName:v.lastName,phone:v.phone};const nm2=[v.firstName,v.lastName].filter(Boolean).join(' ');if(nm2)cu.name=nm2;await w('customers/'+j.customerId,cu)}
     if(j.siteId)await w('sites/'+j.siteId,{label:v.title,area:v.area,utility:v.utility,phase:v.phase,address:v.address});
-    await pushHist(j,ev('edit','แก้ไขข้อมูลระบบ'),{title:v.title,installDate:v.installDate,folderPath:v.folderPath,equipment:{...(j.equipment||{}),...eq}});
+    await pushHist(j,ev('edit','แก้ไขข้อมูลระบบ'),{title:v.title,installDate:v.installDate,folderPath:v.folderPath,equipment:eqSync({...(j.equipment||{}),...eq})});
     closeModal();toast('บันทึกแล้ว');
   }catch(e){}
 }
@@ -3215,6 +3225,7 @@ function secForm(sec,j,c,s,cur){
   const obj=getT(sec.tgt,j,c,s);
   return `<section class="sec ${cur?'cur':'editing'}" data-sec="${sec.id}" id="sec-${sec.id}"><h2>${esc(sec.title)}${cur?'<span class="tg">ขั้นปัจจุบัน</span>':'<span class="tg" style="background:#eef0f3;color:var(--ink)">กำลังแก้ไข</span>'}</h2>
     <div class="fgrid">${sec.fields.map(fl=>fieldHtml(sec,fl,obj,'f')).join('')}</div>
+    ${sec.id==='eq'?`<div class="eqsls">${invUnits(obj).slice(1).map(slaveRow).join('')}</div><button class="btn sm" type="button" data-eqsadd="1" style="margin-top:8px">+ เพิ่มเครื่อง Slave</button>`:''}
     <div class="save"><button class="btn sm" data-cancel="${sec.id}">ยกเลิก</button><button class="btn pri sm" data-save="${sec.id}">บันทึก</button></div></section>`;
 }
 function showVal([k,l,t],v){
@@ -3234,7 +3245,8 @@ function summaryCard(j,c,s,curSecs){
   const blocks=secs.map(sec=>{
     if(S.edit===sec.id)return secForm(sec,j,c,s,false);
     const obj=getT(sec.tgt,j,c,s);
-    const rows=sec.fields.map(f=>{const v=showVal(f,obj[f[0]]);return v==null?'':`<div class="kv ${f[2]==='area'||(f[3]&&f[3].full)?'full':''}"><span>${esc(f[1])}</span><b>${esc(v)}</b></div>`}).join('');
+    const rows=sec.fields.map(f=>{const v=showVal(f,obj[f[0]]);return v==null?'':`<div class="kv ${f[2]==='area'||(f[3]&&f[3].full)?'full':''}"><span>${esc(f[1])}${sec.id==='eq'&&invUnits(obj).length>1&&['model','sn','wifiSn'].includes(f[0])?' (Master)':''}</span><b>${esc(v)}</b></div>`}).join('')
+      +(sec.id==='eq'?invUnits(obj).slice(1).map((u,i)=>`<div class="kv full"><span>Slave ${i+1}</span><b>${esc([u.model,u.sn&&'S/N '+u.sn,u.wifiSn&&'WiFi '+u.wifiSn].filter(Boolean).join(' · '))}</b></div>`).join(''):'');
     const canEd=!!S.db&&secEditable(sec,j);
     return `<div class="sblk"><div class="sh"><h3>${esc(sec.title)}</h3>${canEd?`<button class="lnk" data-edit="${sec.id}">แก้ไข</button>`:''}</div>${rows?`<div class="kvg">${rows}</div>`:'<span class="sub">ยังไม่มีข้อมูล</span>'}</div>`;
   }).join('');
@@ -3624,13 +3636,16 @@ async function saveSec(id){
   for(const f of sec.fields)if(f[2]==='url'&&data[f[0]]){const u=normUrl(data[f[0]]);if(!u){toast('ลิงก์ "'+f[1]+'" ต้องขึ้นต้นด้วย https://');return}data[f[0]]=u}
   const old=getT(sec.tgt,j,cOf(j),sOf(j))||{};const nv=v=>v===undefined||v===null||v===false?'':String(v);
   const ch=sec.fields.filter(f=>f[2]!=='h'&&f[0] in data&&nv(data[f[0]])!==nv(old[f[0]])).map(f=>String(f[1]).replace(/\s*\(.*?\)/g,''));
+  if(id==='eq'){const sl=[...root.querySelectorAll('.eqsl')].map(r=>{const o={role:'Slave'};r.querySelectorAll('[data-uk]').forEach(x=>o[x.dataset.uk]=x.value.trim());return o}).filter(u=>u.model||u.sn||u.wifiSn);
+    if(sl.some(u=>!u.sn)){toast('ใส่ S/N ของเครื่อง Slave ให้ครบ');return}
+    const nu=sl.length?[{role:'Master'},...sl]:[];if(JSON.stringify(nu.slice(1))!==JSON.stringify(invUnits(old).slice(1).map(u=>({role:'Slave',model:u.model||'',sn:u.sn||'',wifiSn:u.wifiSn||''}))))ch.push('เครื่อง Slave');data.units=nu}
   if(!ch.length){toast('ยังไม่มีการเปลี่ยนแปลง');return}
   if(!await confirmBox('บันทึกการแก้ไข "'+String(sec.title).replace(/\s*\(.*?\)/g,'')+'"?','จะเปลี่ยน: '+ch.join(', ')+' · ข้อมูลเดิมจะถูกแทนที่','บันทึก','pri'))return;
   try{
     if(sec.tgt==='customer'){if(!j.customerId)return;await w('customers/'+j.customerId,{...data,updatedAt:now})}
     else if(sec.tgt==='site'){if(!j.siteId)return;await w('sites/'+j.siteId,{...data,updatedAt:now})}
     else if(sec.tgt==='job'){await w('jobs/'+j.id,{...data,updatedAt:now})}
-    else{const k=sec.tgt.split('.')[1];await w('jobs/'+j.id,{[k]:data,updatedAt:now})}
+    else{const k=sec.tgt.split('.')[1];const nd={...(j[k]||{}),...data};await w('jobs/'+j.id,{[k]:k==='equipment'?eqSync(nd):nd,updatedAt:now})}
     S.dirty.delete(id);if(S.edit===id)S.edit=null;toast('บันทึกแล้ว');render();
   }catch(e){}
 }
