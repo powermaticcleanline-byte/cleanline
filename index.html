@@ -3741,7 +3741,7 @@ async function runImport(file){
     });
     const pg=(d,t)=>{out.innerHTML=`<div class="bar"><i id="xbar" style="width:${t?d/t*100:0}%"></i></div><div class="sub" id="xtxt">เขียนแล้ว ${d} / ${t}</div>`};pg(0,tasks.length);
     if(S.db.batch){
-      const N=45;let done=0;
+      const N=20;let done=0;
       for(let i=0;i<tasks.length;i+=N){const part=tasks.slice(i,i+N);
         for(let a=0;;a++){try{const b=S.db.batch();part.forEach(([p,d])=>b.set(S.db.doc(p),d));await b.commit();break}
           catch(e){if(e?.code==='bad'&&/batch/.test(e.message||'')){for(const [p,d] of part)await S.db.doc(p).set(d);break} /* ตัวกลางรุ่นเก่า → ทีละรายการ */

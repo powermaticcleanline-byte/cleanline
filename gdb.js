@@ -17,7 +17,7 @@
     if (!CFG.api) return Promise.reject(mkErr('setup', 'ยังไม่ได้ตั้งค่า config.js (ที่อยู่ตัวกลาง)'));
     req.token = st.token;
     var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var to = setTimeout(function () { ctl && ctl.abort(); }, 45000);
+    var to = setTimeout(function () { ctl && ctl.abort(); }, req.op === 'batch' || req.op === 'upload' ? 180000 : 60000);
     return fetch(CFG.api, { method: 'POST', body: JSON.stringify(req), redirect: 'follow',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, signal: ctl ? ctl.signal : undefined })
       .then(function (r) { return r.json(); })
