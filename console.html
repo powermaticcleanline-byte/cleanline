@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CLEANLINE · หลังบ้าน</title>
+<title>CLEANLINE Console</title>
 <meta name="robots" content="noindex">
 <style>
 :root{--ink:#15230f;--sub:#5b6656;--line:#e3e8da;--bg:#f2f5ec;--card:#fff;--acc:#4f9a12;--accS:#eef6e2;--bad:#c62828;--badS:#fdecec;--warn:#f0b23a;--warnS:#fff6e0;--r:18px}
@@ -54,7 +54,7 @@ input[type=text],input[type=tel]{width:150px}
 <body>
 <div class="app" id="app" hidden>
   <aside>
-    <div class="brand">CLEANLINE<small>หลังบ้าน · ผู้ดูแลระบบ</small></div>
+    <div class="brand">CLEANLINE<small>Console</small></div>
     <nav id="nav"></nav>
     <div class="me" id="me"></div>
   </aside>
@@ -67,7 +67,7 @@ input[type=text],input[type=tel]{width:150px}
 <script>
 'use strict';
 const ROLE = {admin:'แอดมิน',dispatch:'หัวหน้าจัดงาน',lead:'หัวหน้าตรวจแบบ',eng:'วิศวกร'};
-const ROLE_PAGE = {admin:'เว็บแอดมิน · ดูโฟลเดอร์',dispatch:'เว็บแอดมิน · ดูโฟลเดอร์',lead:'แอปวิศวกร · แก้ไขโฟลเดอร์',eng:'แอปวิศวกร · แก้ไขโฟลเดอร์'};
+const ROLE_PAGE = {admin:'Management · ดูโฟลเดอร์',dispatch:'Management · ดูโฟลเดอร์',lead:'Man · แก้ไขโฟลเดอร์',eng:'Man · แก้ไขโฟลเดอร์'};
 const TEAMS = ['ทีม 1','ทีม 2','ทีม 3','ทีม 4'];
 const COLN = {jobs:'งาน',customers:'ลูกค้า',sites:'ไซต์',products:'สินค้า',members:'ผู้ใช้',services:'งานบริการ',messages:'ข้อความ',photos:'รูป',meters:'มิเตอร์',config:'ตั้งค่า',jobnos:'เลขใบงาน',forms:'แบบฟอร์ม',articles:'บทความ'};
 const FN = {name:'ชื่อ',phone:'เบอร์',role:'บทบาท',team:'ทีม',status:'สถานะ',title:'ชื่องาน',stage:'ขั้นงาน',history:'ประวัติ',surveyTeam:'ทีมสำรวจ',surveyor:'ผู้สำรวจ',supervisor:'ผู้คุมงาน',installTeam:'ทีมติดตั้ง',jobNo:'เลขใบงาน',queueDate:'วันนัด',queueTime:'เวลานัด',installDate:'วันติดตั้ง',sv:'ขั้นย่อยสำรวจ',request:'ความต้องการลูกค้า',proposals:'ที่เสนอ',equipment:'อุปกรณ์ที่ติด',checkins:'เช็กอิน',file:'ไฟล์',text:'ข้อความ',kind:'ประเภท',folderId:'โฟลเดอร์',folderUrl:'โฟลเดอร์'};
@@ -113,10 +113,10 @@ async function run(fn,okMsg){
 function render(){
   const pend=Object.keys(S.joinreq).length;
   $('#nav').innerHTML=TABS.map(([k,l])=>`<button data-tab="${k}" class="${S.tab===k?'on':''}">${l}${k==='users'&&pend?`<span class="n">${pend}</span>`:''}</button>`).join('');
-  $('#me').innerHTML=`<b>${esc(S.me.name)}</b>${esc(S.me.email)}<div style="margin-top:8px"><a href="index.html">เปิดเว็บแอดมิน</a><button id="out">ออกจากระบบ</button></div>`;
+  $('#me').innerHTML=`<b>${esc(S.me.name)}</b>${esc(S.me.email)}<div style="margin-top:8px"><a href="index.html">เปิด Management</a><button id="out">ออกจากระบบ</button></div>`;
   $('#main').innerHTML=({users:vUsers,docs:vDocs,cat:vCat,logs:vLogs,backup:vBackup,system:vSystem})[S.tab]();
 }
-function memberRows(){return Object.entries(S.members).map(([id,m])=>({id,...m})).sort((a,b)=>(a.status==='suspended')-(b.status==='suspended')||Object.keys(ROLE).indexOf(a.role)-Object.keys(ROLE).indexOf(b.role)||String(a.name).localeCompare(String(b.name),'th'))}
+function memberRows(){return Object.entries(S.members).filter(([id])=>id!==S.me.id).map(([id,m])=>({id,...m})).sort((a,b)=>(a.status==='suspended')-(b.status==='suspended')||Object.keys(ROLE).indexOf(a.role)-Object.keys(ROLE).indexOf(b.role)||String(a.name).localeCompare(String(b.name),'th'))}
 function who(m){return `<div class="who">${m.picture?`<img src="${esc(m.picture)}" alt="" onerror="this.outerHTML='<div class=av>${esc(ini(m.name))}</div>'">`:`<div class="av">${esc(ini(m.name||m.email))}</div>`}<div>${esc(m.name||'-')}<small>${esc(m.email||'')}</small></div></div>`}
 function roleSel(id,v,attr){return `<select ${attr}="${id}"><option value="">— เลือกบทบาท —</option>${Object.entries(ROLE).map(([k,l])=>`<option value="${k}" ${v===k?'selected':''}>${l}</option>`).join('')}</select>`}
 function teamSel(id,v,attr,role){const need=role==='eng'||role==='lead';return `<select ${attr}="${id}" ${need?'':'disabled'} title="${need?'':'ใช้กับวิศวกร/หัวหน้าตรวจแบบ'}"><option value="">—</option>${TEAMS.map(t=>`<option ${v===t?'selected':''}>${t}</option>`).join('')}</select>`}
@@ -124,13 +124,13 @@ function vUsers(){
   const pend=Object.entries(S.joinreq).map(([id,r])=>({id,...r})).sort((a,b)=>b.at-a.at);
   const mem=memberRows();
   const P=S.edit;
-  return `<h1>ผู้ใช้และสิทธิ์</h1><p class="lead">อนุมัติคนใหม่ ตั้งบทบาท/ทีม ระงับบัญชี · สิทธิ์โฟลเดอร์งานใน Drive ปรับให้อัตโนมัติตามบทบาท</p>
+  return `<h1>ผู้ใช้และสิทธิ์</h1><p class="lead">อนุมัติ ตั้งบทบาท ระงับบัญชี · สิทธิ์โฟลเดอร์ Drive ปรับตามบทบาทอัตโนมัติ</p>
   <section class="card"><h2>รออนุมัติ ${pend.length?`<span class="pill bad">${pend.length}</span>`:''}</h2>
   ${pend.length?`<table><thead><tr><th>บัญชี Google</th><th>ขอเมื่อ</th><th>ชื่อที่แสดง</th><th>บทบาท</th><th>ทีม</th><th></th></tr></thead><tbody>
   ${pend.map(r=>{const e=P[r.id]||{};const role=e.role||'';return `<tr><td>${who(r)}</td><td class="mut">${fdt(r.at)}</td>
     <td><input type="text" data-pname="${r.id}" value="${esc(e.name??r.name??'')}"></td><td>${roleSel(r.id,role,'data-prole')}</td><td>${teamSel(r.id,e.team||'','data-pteam',role)}</td>
     <td class="row" style="flex-wrap:nowrap"><button class="btn g sm" data-approve="${r.id}" ${role&&!S.busy?'':'disabled'}>อนุมัติ</button><button class="btn l sm" data-reject="${r.id}" ${S.busy?'disabled':''}>ไม่อนุมัติ</button></td></tr>`}).join('')}
-  </tbody></table>`:`<div class="empty">ไม่มีคำขอใหม่ · ให้ทีมเปิดลิงก์แล้วลงชื่อเข้าใช้ด้วย Google ชื่อจะขึ้นที่นี่</div>`}</section>
+  </tbody></table>`:`<div class="empty">ไม่มีคำขอใหม่</div>`}</section>
   <section class="card"><h2>ผู้ใช้ทั้งหมด <span class="pill gray">${mem.length} คน</span><span class="sp"></span><button class="btn l sm" data-shares ${S.busy?'disabled':''}>ตรวจสิทธิ์โฟลเดอร์ Drive</button></h2>
   ${S.shares?`<div class="ok" style="margin-bottom:12px">ตรวจแล้ว · เพิ่ม ${S.shares.added.length} · เปลี่ยน ${S.shares.changed.length} · ถอน ${S.shares.removed.length}${S.shares.removed.length?' ('+esc(S.shares.removed.join(', '))+')':''}</div>`:''}
   ${mem.length?`<table><thead><tr><th>ผู้ใช้</th><th>ชื่อที่แสดง</th><th>เบอร์</th><th>บทบาท</th><th>ทีม</th><th>ใช้หน้า / โฟลเดอร์</th><th></th></tr></thead><tbody>
@@ -142,13 +142,13 @@ function vUsers(){
     <td class="row" style="flex-wrap:nowrap;justify-content:flex-end">${dirty?`<button class="btn g sm" data-save="${m.id}" ${S.busy?'disabled':''}>บันทึก</button>`:''}
       <button class="btn l sm" data-sus="${m.id}" ${S.busy?'disabled':''}>${sus?'เปิดใช้':'ระงับ'}</button><button class="btn l sm" data-del="${m.id}" title="ลบผู้ใช้" ${S.busy?'disabled':''}>ลบ</button></td></tr>`}).join('')}
   </tbody></table>`:'<div class="empty">ยังไม่มีผู้ใช้</div>'}
-  <p class="mut" style="margin:12px 0 0">คุณ (${esc(S.me.email)}) เป็นผู้ดูแลระบบคนเดียว ไม่อยู่ในตารางนี้ · ทีม 1–4 ใช้กับวิศวกร/หัวหน้าตรวจแบบ (ระบบส่งงานสำรวจตามทีม)</p></section>`;
+  <p class="mut" style="margin:12px 0 0">ทีม 1–4 ใช้กับคนที่ลงคิวสำรวจ</p></section>`;
 }
 function vDocs(){
   const q=S.dq.trim().toLowerCase();
   const L=Object.entries(S.forms).map(([id,x])=>({id,...x})).filter(x=>!q||[x.code,x.name,x.cat,x.used,x.note].join(' ').toLowerCase().includes(q))
     .sort((a,b)=>FMC.indexOf(a.cat)-FMC.indexOf(b.cat)||String(a.code||a.name).localeCompare(String(b.code||b.name),'th',{numeric:true}));
-  return `<h1>เอกสาร</h1><p class="lead">แบบฟอร์มฉบับล่าสุดที่ทีมใช้ · เพิ่ม แก้ ลบ ได้ที่นี่ที่เดียว (เว็บแอดมินดูและเปิดไฟล์ได้อย่างเดียว)</p>
+  return `<h1>เอกสาร</h1><p class="lead">แบบฟอร์มฉบับล่าสุด · Management ดูได้อย่างเดียว</p>
   <section class="card"><div class="row" style="margin-bottom:12px"><input type="search" id="dq" placeholder="ค้นหา: รหัส ชื่อเอกสาร" value="${esc(S.dq)}" style="width:280px"><span class="sp"></span><span class="mut">${L.length} รายการ</span><button class="btn g sm" data-dnew>+ เพิ่มเอกสาร</button></div>
   ${L.length?`<table><thead><tr><th>รหัส</th><th>ชื่อเอกสาร</th><th>หมวด</th><th>ใช้ตอนไหน</th><th>ไฟล์</th><th></th></tr></thead><tbody>
   ${L.map(x=>`<tr><td style="white-space:nowrap"><b>${esc(x.code||'—')}</b> <span class="mut">${esc(x.rev||'')}</span></td><td>${esc(x.name||'')}</td><td class="mut">${esc(x.cat||'')}</td><td class="mut">${esc(x.used||'')}</td>
@@ -159,7 +159,7 @@ function vDocs(){
 function vCat(){
   const cat=S.eqc,q=S.eqq.trim().toLowerCase(),all=Object.entries(S.products).map(([id,p])=>({id,...p}));
   const L=all.filter(p=>p.category===cat&&(!q||[p.model,p.brand,p.type,p.note].join(' ').toLowerCase().includes(q))).sort((a,b)=>String(a.model).localeCompare(String(b.model),'en',{numeric:true}));
-  return `<h1>แคตตาล็อกสินค้า</h1><p class="lead">รุ่นที่เลือกได้ในใบสำรวจ/ใบงาน · เพิ่ม แก้ ลบ ได้ที่นี่ที่เดียว · <b>อินเวอร์เตอร์ต้องมีเฟสและประเภทระบบ</b> แอปวิศวกรถึงจะกรองรุ่นให้ถูก</p>
+  return `<h1>แคตตาล็อกสินค้า</h1><p class="lead">รุ่นที่เลือกได้ในใบสำรวจและใบงาน · อินเวอร์เตอร์ต้องระบุเฟสและประเภทระบบ</p>
   <section class="card"><div class="row" style="margin-bottom:12px">
     ${EQT.map(([k,t])=>`<button class="btn ${cat===k?'':'l'} sm" data-eqc="${k}">${t} <span style="opacity:.7">${all.filter(p=>p.category===k).length}</span></button>`).join('')}
     <input type="search" id="eqq" placeholder="รุ่น หรือยี่ห้อ" value="${esc(S.eqq)}" style="width:200px"><span class="sp"></span>
@@ -224,7 +224,7 @@ function vLogs(){
   const people=[...new Map(all.map(l=>[l.by,l.byName])).entries()];
   const q=S.lq.trim().toLowerCase();
   const rows=all.filter(l=>(!S.lcol||l.col===S.lcol||(S.lcol==='login'&&l.act==='login'))&&(!S.lby||l.by===S.lby)&&(!q||[l.byName,l.ttl,l.id,COLN[l.col],(l.fields||[]).join(' ')].join(' ').toLowerCase().includes(q)));
-  return `<h1>บันทึกการใช้งาน</h1><p class="lead">ทุกการบันทึก/แก้/ลบ และการเข้าสู่ระบบ ตัวกลางเป็นคนเขียน ไม่มีใครลบหรือแก้ได้</p>
+  return `<h1>บันทึกการใช้งาน</h1><p class="lead">การบันทึก แก้ไข ลบ และการเข้าสู่ระบบทั้งหมด · แก้ไขหรือลบไม่ได้</p>
   <section class="card"><div class="row" style="margin-bottom:12px"><input type="search" id="lq" placeholder="ค้นหา: ชื่อคน ชื่องาน ช่องที่แก้" value="${esc(S.lq)}" style="width:280px">
     <select id="lby"><option value="">ทุกคน</option>${people.map(([id,n])=>`<option value="${esc(id)}" ${S.lby===id?'selected':''}>${esc(n||id)}</option>`).join('')}</select>
     <select id="lcol"><option value="">ทุกเรื่อง</option><option value="login" ${S.lcol==='login'?'selected':''}>เข้าสู่ระบบ</option>${Object.entries(COLN).map(([k,v])=>`<option value="${k}" ${S.lcol===k?'selected':''}>${v}</option>`).join('')}</select>
@@ -237,24 +237,24 @@ function vLogs(){
 }
 function vBackup(){
   const L=S.backups;
-  return `<h1>สำรอง / กู้ข้อมูล</h1><p class="lead">ระบบสำรองอัตโนมัติทุกคืนตี 2 เก็บ 30 ชุดล่าสุด ไว้ในโฟลเดอร์ "ข้อมูลระบบ (ห้ามแชร์)/สำรองข้อมูล" ใน Drive ของคุณ</p>
+  return `<h1>สำรอง / กู้ข้อมูล</h1><p class="lead">สำรองอัตโนมัติทุกวัน 02:00 · เก็บ 30 ชุดล่าสุด</p>
   <section class="card"><h2>ชุดสำรอง<span class="sp"></span><button class="btn g sm" data-bknow ${S.busy?'disabled':''}>สำรองตอนนี้</button></h2>
   ${L==null?'<div class="empty">กำลังโหลด…</div>':L.length?`<table><thead><tr><th>ชื่อ</th><th>เมื่อ</th><th></th></tr></thead><tbody>
   ${L.map(b=>`<tr><td>${esc(b.name)}</td><td class="mut">${fdt(b.at)}</td><td style="text-align:right"><button class="btn l sm" data-restore="${esc(b.id)}" data-rname="${esc(b.name)}" ${S.busy?'disabled':''}>กู้จากชุดนี้</button></td></tr>`).join('')}
   </tbody></table>`:'<div class="empty">ยังไม่มีชุดสำรอง กด "สำรองตอนนี้" ได้เลย</div>'}
-  <p class="note" style="margin:14px 0 0">กู้ข้อมูล = ระบบสำรองข้อมูลปัจจุบันให้ก่อน 1 ชุด แล้วใช้ชุดที่เลือกแทน ทุกเครื่องจะโหลดข้อมูลใหม่เอง · ไฟล์ใน Drive (รูป/เอกสาร) ไม่ถูกย้อน</p></section>`;
+  <p class="note" style="margin:14px 0 0">ก่อนกู้ ระบบสำรองข้อมูลปัจจุบันให้อัตโนมัติ · ไฟล์ใน Drive ไม่ถูกย้อน</p></section>`;
 }
 function vSystem(){
   const h=S.health, m=!!S.sys.maintenance;
-  return `<h1>ระบบ</h1><p class="lead">ปิดปรับปรุงชั่วคราว · ดูสถานะและลิงก์ไปที่เก็บข้อมูล</p>
+  return `<h1>ระบบ</h1><p class="lead">ปิดปรับปรุง · สถานะระบบ</p>
   <section class="card"><h2>ปิดปรับปรุงชั่วคราว ${m?'<span class="pill bad">ปิดอยู่</span>':'<span class="pill">เปิดใช้งานปกติ</span>'}</h2>
-  <p class="mut" style="margin:0 0 12px">เปิดก่อนอัปเดตโปรแกรม/กู้ข้อมูล · ทุกคนยังเปิดดูได้ แต่บันทึกไม่ได้ และเห็นแถบแจ้งด้านบน (คุณยังแก้ได้)</p>
+  <p class="mut" style="margin:0 0 12px">ระหว่างปิด ทุกคนดูข้อมูลได้แต่บันทึกไม่ได้</p>
   <div class="row"><label class="switch"><input type="checkbox" id="mt" ${m?'checked':''} ${S.busy?'disabled':''}><i></i><span>${m?'ปิดปรับปรุงอยู่':'ปิดปรับปรุง'}</span></label>
   <input type="text" id="mmsg" placeholder="ข้อความแจ้ง เช่น ถึง 20:00" value="${esc(S.mmsg??S.sys.msg??'')}" style="width:260px"><button class="btn l sm" data-mmsg ${S.busy?'disabled':''}>บันทึกข้อความ</button></div></section>
   <section class="card"><h2>สถานะ<span class="sp"></span><button class="btn l sm" data-health ${S.busy?'disabled':''}>รีเฟรช</button></h2>
   ${h?`<div class="grid">${[['jobs','งาน'],['customers','ลูกค้า'],['photos','รูป'],['logs','บันทึกการใช้งาน']].map(([k,l])=>`<div class="stat"><b>${(h.rows[k]||0).toLocaleString('th-TH')}</b><span>${l}</span></div>`).join('')}</div>
   <p style="margin:16px 0 0" class="row"><a href="${esc(h.dataUrl)}" target="_blank" rel="noopener">เปิดตาราง Google Sheets (ข้อมูลหลัก)</a><a href="${esc(h.rootUrl)}" target="_blank" rel="noopener">เปิดโฟลเดอร์งานใน Drive</a><span class="sp"></span><span class="mut">ตัวกลางรุ่น ${esc(h.version)}</span></p>
-  <p class="note" style="margin:12px 0 0">แก้ข้อมูลในตาราง Sheets ตรง ๆ ไม่แนะนำ (ข้อมูลอยู่ในรูปแบบที่โปรแกรมอ่าน) ถ้าต้องซ่อม บอก Claude</p>`:'<div class="empty">กำลังโหลด…</div>'}</section>`;
+  <p class="note" style="margin:12px 0 0">ไม่ควรแก้ข้อมูลใน Sheets โดยตรง</p>`:'<div class="empty">กำลังโหลด…</div>'}</section>`;
 }
 
 /* ---------- การกด ---------- */

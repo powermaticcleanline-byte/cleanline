@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CLEANLINE</title>
+<title>CLEANLINE Management</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%23636469'/%3E%3Cpath d='M12 34V21a6 6 0 0 1 6-6h3a6 6 0 0 1 6 6v6a6 6 0 0 0 6 6h4' fill='none' stroke='%2394d30a' stroke-width='5.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
 <style>
@@ -2059,7 +2059,7 @@ const safeUrl=u=>{u=String(u||'').trim();return /^https?:\/\//i.test(u)?u:''};
 const normUrl=u=>{u=String(u||'').trim();if(!u)return '';if(/^https?:\/\//i.test(u))return u;if(/^[a-z][a-z0-9+.-]*:/i.test(u))return '';return /^[\w-]+(\.[\w-]+)+([/?#].*)?$/.test(u)?'https://'+u:''};
 /* รูปโปรไฟล์ชั่วคราว (ใช้กับทุกผู้ใช้จนกว่าจะมีระบบรูปโปรไฟล์) */
 const AVATAR='data:image/webp;base64,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';
-const avImg=()=>`<img src="${AVATAR}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block">`;
+const avImg=()=>`<img src="${esc((S.members[S.me.id]||{}).photo||AVATAR)}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block">`;
 function greet(){const h=new Date().getHours();return h<12?'สวัสดีตอนเช้า':h<17?'สวัสดีตอนบ่าย':'สวัสดีตอนเย็น'}
 
 /* ---------- db ---------- */
@@ -2207,7 +2207,7 @@ function hdr(r){
     <div class="tbr"><div class="appw" id="appw"></div><div class="ntw">${bellBtn()}${S.bell?bellPanel():''}</div>
     <div class="pfw"><button type="button" class="tav" id="pfbtn" aria-haspopup="menu" aria-expanded="${!!S.pf}" title="${esc(name)}" style="padding:0;overflow:hidden">${avImg()}</button>
     ${S.pf?`<div class="pfm" role="menu"><div class="pfh"><span class="tav" style="padding:0;overflow:hidden">${avImg()}</span><span><b>${esc(name||'ผู้ใช้')}</b><small>${esc(isSys()?'ผู้ดูแลระบบ':(ROLES[myRole()]||['แอดมิน'])[0])} · แผนก Energy</small></span></div>
-    ${isSys()?`<a role="menuitem" href="console.html" class="pfi">${svg('gear','currentColor',2)}เปิดหลังบ้าน</a>`:''}${!S.me.role||isSys()?`<a role="menuitem" href="#settings" class="pfi">${svg('file','currentColor',2)}${S.me.role?'นำเข้าตารางงาน':'ตั้งค่า'}</a>`:''}
+    <a role="menuitem" href="#settings" class="pfi">${svg('gear','currentColor',2)}ตั้งค่า</a>
     <button role="menuitem" type="button" class="pfi" id="pfout">${svg('arrow','currentColor',2)}ออกจากระบบ</button></div>`:''}</div></div></header>`;
 }
 /* ตัวเลือกเดือน: ลูกศรอยู่กับที่ (ช่องกลางกว้างคงที่) + เลือกเดือนเองได้จากรายการ */
@@ -2294,7 +2294,7 @@ function renderSide(r){
   $('#nav2').innerHTML='';
 }
 function topbar(){return ''}
-function newBtn(){return ['eng','lead'].includes(myGroup())?'':`<a class="btn pri" href="#new">${svg('plus','#fff',2.4)}${myGroup()==='admin'?'จองคิวสำรวจแทนเซลส์':'แจ้งงานสำรวจ'}</a>`}
+function newBtn(){return ['eng','lead'].includes(myGroup())?'':`<a class="btn pri" href="#new">${svg('plus','#fff',2.4)}จองคิวสำรวจ</a>`}
 
 /* ---------- today ---------- */
 /* feed: each role sees only what it acts on */
@@ -2397,7 +2397,7 @@ function viewToday(){
 function tool(href,name,desc,bg,fg,icon,ext,phase){return `<a class="tool" href="${href}"${ext?' target="_blank" rel="noopener"':''}${phase?` data-phase="${phase}"`:''}><span class="ic" style="background:${bg}">${svg(icon,fg,2)}</span><span><b>${esc(name)}</b><span>${esc(desc)}</span></span></a>`}
 function emptyStart(){
   const can=S.me.owner||S.me.edit;
-  return `<section class="hro">${SWOOSH}<h1>ยังไม่มีงานในระบบ</h1><p class="lead">เริ่มจากนำเข้า "ตารางงานดู Site ติดตั้ง Solar" ไฟล์ Excel เดิม เพื่อย้ายทุกไซต์เข้ามา หรือเปิดงานใหม่ทีละงาน</p>
+  return `<section class="hro">${SWOOSH}<h1>ยังไม่มีงานในระบบ</h1><p class="lead">นำเข้าตารางงานจาก Excel หรือจองคิวสำรวจงานแรก</p>
   <div style="display:flex;gap:10px">${can?'<a class="btn lime" href="#settings">นำเข้าจาก Excel</a>':''}<a class="btn" href="#new">เปิดงานใหม่</a></div></section>`;
 }
 
@@ -2448,13 +2448,13 @@ function viewJobs(mode){
   const noDate=all.filter(j=>!svDate(j)).length;
   const engs=[...new Set(all.map(j=>j.surveyor).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'th'));
   const cards=SV?[['installed','ติดตั้งแล้ว','sun','g',''],['pm','ครบตรวจเช็กใน 30 วัน','clock','o',''],['cm','แจ้งซ่อมค้าง','wrench','r','']]:[['all','ทั้งหมด','layers','n',''],['active','กำลังดำเนินการ','inbox','b',''],['done','ปิดงานแล้ว','check','g','']];
-  const sub=SV?(status==='pm'?'ไซต์ที่ครบรอบตรวจเช็กประจำปีภายใน 30 วัน หรือเลยกำหนดแล้ว':status==='cm'?'ไซต์ที่มีแจ้งซ่อมยังไม่ปิด':'ทุกไซต์ที่ติดตั้งแล้ว เรียงจากวันติดตั้งล่าสุด · กดที่แถวเพื่อดูประวัติ ตรวจเช็ก และแจ้งซ่อม'):f.mine?'งานที่ต้องทำต่อ จากทุกเดือน':f.q?`ผลค้นหา "${esc(f.q)}" จากทุกเดือน`:f.status==='installed'?'ทุกไซต์ที่ติดตั้งแล้ว เรียงจากวันติดตั้งล่าสุด':f.status==='care'?'ไซต์ที่มีแจ้งซ่อมยังไม่ปิด หรือครบตรวจเช็กประจำปีภายใน 30 วัน':'ทุกไซต์ที่สำรวจในเดือนนี้ เรียงจากวันสำรวจล่าสุด · กดที่แถวเพื่อดูรายละเอียดทั้งหมด';
+  const sub=SV?(status==='pm'?'ไซต์ที่ครบรอบตรวจเช็กประจำปีภายใน 30 วัน หรือเลยกำหนดแล้ว':status==='cm'?'ไซต์ที่มีแจ้งซ่อมยังไม่ปิด':'ไซต์ที่ติดตั้งแล้ว เรียงตามวันติดตั้ง'):f.mine?'งานที่ต้องทำต่อ จากทุกเดือน':f.q?`ผลค้นหา "${esc(f.q)}" จากทุกเดือน`:f.status==='installed'?'ทุกไซต์ที่ติดตั้งแล้ว เรียงจากวันติดตั้งล่าสุด':f.status==='care'?'ไซต์ที่มีแจ้งซ่อมยังไม่ปิด หรือครบตรวจเช็กประจำปีภายใน 30 วัน':'ไซต์ที่สำรวจในเดือนนี้';
   const dd=d=>d?`${+d.slice(8,10)} ${TM[+d.slice(5,7)-1]} ${String(+d.slice(0,4)+543).slice(2)}`:'';
   const two=(a,b)=>a||b?`<b class="${a?'':'nil'}">${a||'—'}</b><span title="${esc(b||'')}">${b?esc(b):'—'}</span>`:'<span class="nil">—</span>';
   const tx=(v,cls)=>v||v===0?`<span class="${cls||''}" title="${esc(v)}">${esc(v)}</span>`:'<span class="nil">—</span>';
   const BOARD=false;
   const filtered=SV?(f.team||f.eng||f.q):(f.mine||f.phase||f.team||f.eng||f.q||f.status!=='all');
-  return pageHead(SV?'งานบริการหลังการขาย':f.mine?'งานที่รอดำเนินการ':'รายการงาน',BOARD?'งานที่กำลังดำเนินการทั้งหมด แยกตามขั้นตอน กดการ์ดเพื่อดูรายละเอียด':sub,SV?'':`${allMonths||BOARD?'':monthNav('jmo')}${newBtn()}`)+``+`
+  return pageHead(SV?'งานบริการหลังการขาย':f.mine?'งานที่รอดำเนินการ':'รายการงาน',BOARD?'งานที่กำลังดำเนินการ แยกตามขั้นตอน':sub,SV?'':`${allMonths||BOARD?'':monthNav('jmo')}${newBtn()}`)+``+`
   ${true?'':`<div class="scards s5 c3" role="tablist" aria-label="สถานะ">${cards.map(([k,t,ic,c,note])=>`<button role="tab" aria-selected="${status===k}" class="scd ${status===k?'on':''}" ${SV?'data-sst':'data-status'}="${k}"><span class="sci ${c}">${svg(ic,'currentColor',2)}</span><span><small>${t}</small><b>${cnt[k]||0}</b>${note?`<em>${note}</em>`:''}</span></button>`).join('')}</div>`}
   ${SV?svcAlert():''}
   <section class="card tq">
@@ -2725,7 +2725,7 @@ function viewEquip(){
       ${eqVis(p)}${p.type?`<span class="pdt">${esc(p.type)}</span>`:''}
       <span class="pdb"><b>${esc(p.model)}</b><span>${[p.brand,...sp].filter(Boolean).map(esc).join(' · ')||'ยังไม่มีสเปก'}</span></span>
       <span class="pdf"><span class="pdd ${ds?'on':''}">${svg('file','currentColor',2)}${ds?'Datasheet':'ยังไม่มี Datasheet'}</span><span class="pdgo">ดูรายละเอียด ${svg('chev','currentColor',2.2)}</span></span></button>`};
-  return pageHead('แคตตาล็อกสินค้า','กดที่รุ่นเพื่อดู Datasheet และคู่มือ',`<label class="btn" for="eqxfile" title="นำเข้าไฟล์ Catalog.xlsx">${svg('file','currentColor',2)}นำเข้าจาก Excel<input type="file" id="eqxfile" accept=".xlsx" hidden></label><button class="btn pri" data-eqnew="${cat}">${svg('plus','#fff',2.4)}เพิ่มรุ่น</button>`)+`
+  return pageHead('แคตตาล็อกสินค้า','สเปก Datasheet และคู่มือ',`<label class="btn" for="eqxfile" title="นำเข้าไฟล์ Catalog.xlsx">${svg('file','currentColor',2)}นำเข้าจาก Excel<input type="file" id="eqxfile" accept=".xlsx" hidden></label><button class="btn pri" data-eqnew="${cat}">${svg('plus','#fff',2.4)}เพิ่มรุ่น</button>`)+`
   <section class="card eqw">
     <div class="tqb pdtb"><label class="jsrch">${svg('search','currentColor',2)}<input id="eqq" type="search" placeholder="รุ่น หรือยี่ห้อ" value="${esc(S.f.eqq||'')}" aria-label="ค้นหารุ่นสินค้า" autocomplete="off"></label>
       <div class="seg" role="group" aria-label="ประเภทสินค้า">${EQT.map(([k,t])=>`<button class="${cat===k?'on':''}" data-eqc="${k}" aria-pressed="${cat===k}">${t}<span class="n">${P.filter(p=>p.category===k).length}</span></button>`).join('')}</div>
@@ -2824,7 +2824,7 @@ function viewForms(){
     .sort((a,b)=>FMC.indexOf(a.cat)-FMC.indexOf(b.cat)||String(a.code||a.name).localeCompare(String(b.code||b.name),'th',{numeric:true}));
   const n=k=>all.filter(x=>!k||x.cat===k).length;
   const ib=(ic,lab,attr)=>`<button type="button" class="ib" ${attr} aria-label="${lab}" title="${lab}">${svg(ic,'currentColor',2)}</button>`;
-  return pageHead('แบบฟอร์มเอกสาร','แบบฟอร์มฉบับล่าสุดที่ทีมใช้ เปิดหรือคัดลอกที่อยู่ไฟล์ได้จากที่นี่',`<button class="btn pri" data-fmnew="1">${svg('plus','#fff',2.4)}เพิ่มแบบฟอร์ม</button>`)+`
+  return pageHead('แบบฟอร์มเอกสาร','แบบฟอร์มฉบับล่าสุด',`<button class="btn pri" data-fmnew="1">${svg('plus','#fff',2.4)}เพิ่มแบบฟอร์ม</button>`)+`
   <section class="card tq">
     <div class="tqb">
       <label class="jsrch">${svg('search','currentColor',2)}<input id="fmq" type="search" placeholder="รหัส ชื่อเอกสาร หรือใช้ตอนไหน" value="${esc(f.fmq||'')}" aria-label="ค้นหาแบบฟอร์ม" autocomplete="off"></label>
@@ -2881,7 +2881,7 @@ function viewMeter(){
   const list=all.filter(b=>b.status!=='returned'||mtEnd(b)>=isoAdd(t,-14)).sort((a,b)=>a.from.localeCompare(b.from));
   const st=b=>!b.device?['o','รอจัดเครื่อง']:b.status==='returned'?['gy','คืนแล้ว']:b.status==='out'?(b.to<t?['rd','เลยวันเก็บ']:['b','ติดตั้งอยู่']):b.from<=t?['o','ถึงวันติดตั้ง']:['ok','จองแล้ว'];
   const ib=(ic,lab,attr,off)=>`<button type="button" class="ib" ${off?'disabled':attr} aria-label="${lab}" title="${off||lab}">${svg(ic,'currentColor',2)}</button>`;
-  return pageHead('สมาร์ทมิเตอร์','เครื่องวัดพฤติกรรมไฟ 3 เครื่อง · จองจากใบแจ้งงานสำรวจ หรือจองเฉพาะเครื่อง',`<button class="btn pri" data-mtnew="1">${svg('plus','#fff',2.4)}จองเครื่อง</button>`)+`
+  return pageHead('สมาร์ทมิเตอร์','เครื่องวัดพฤติกรรมไฟ 3 เครื่อง',`<button class="btn pri" data-mtnew="1">${svg('plus','#fff',2.4)}จองเครื่อง</button>`)+`
   <div class="mtcs">${METERS.map(card).join('')}</div>
   ${wait.length?`<section class="card sal"><div class="phd"><div class="ptl">${svg('bell','currentColor',2)}คำขอรอจัดเครื่อง<span class="tdn">${wait.length}</span></div><span class="sub">ช่วงที่ขอไม่มีเครื่องว่าง กดแก้ไขเพื่อเลื่อนวันหรือเลือกเครื่อง</span></div></section>`:''}
   <section class="card"><div class="phd"><div class="ptl">${svg('cal','currentColor',2)}ตารางการใช้เครื่อง 6 สัปดาห์</div><div class="mlg"><span><i class="booked"></i>จองแล้ว</span><span><i class="out"></i>ติดตั้งอยู่</span><span><i class="returned"></i>คืนแล้ว</span></div></div>${tl}</section>
@@ -2904,7 +2904,7 @@ function viewKb(){
   const n=k=>all.filter(a=>!k||a.col===k).length;
   const ci=(k,t,ic)=>`<button class="kqc ${kc===k?'on':''}" data-kbc="${k}" aria-pressed="${kc===k}">${svg(ic,'currentColor',2)}<span>${esc(t)}</span><i>${n(k)}</i></button>`;
   const segs=[['all','ทั้งหมด'],['published','เผยแพร่แล้ว'],['draft','ฉบับร่าง']];
-  return pageHead('บทความ','รวมวิธีทำงานของแผนกไว้ที่เดียว ใครมาใหม่ก็หาเจอ ไม่ต้องรอถามคนเดิม',`<a class="btn pri" href="#kb-new">${svg('plus','#fff',2.4)}เขียนบทความ</a>`)+`
+  return pageHead('บทความ','คู่มือการทำงานของแผนก',`<a class="btn pri" href="#kb-new">${svg('plus','#fff',2.4)}เขียนบทความ</a>`)+`
   <section class="kqh">
     <span class="kbhi">${svg('book','#fff',2)}</span>
     <div class="kbht"><b>ความรู้ของทีม อยู่บนชั้นเดียวกัน</b><span>ขั้นตอน เอกสาร และวิธีแก้ปัญหาที่ทีมเจอบ่อย</span></div>
@@ -3023,7 +3023,7 @@ function viewJob(id){
       ${act?'':`<span class="sub">รอ${GROUP[st.role]}ดำเนินการ${myGroup()?'':' · คุณยังไม่มีโรล'}</span>`}
     </section>`;
   }else if(j.status==='lost'){
-    right=`<section class="act"><h2>ลูกค้ายังไม่ตกลง</h2><span class="sub">${esc(j.lostReason||'')}</span><span class="sub">ข้อมูลยังอยู่ในฐานข้อมูล ถ้าลูกค้ากลับมาตกลง เปิดงานต่อที่ขั้นนัดติดตั้งได้เลย</span><button class="btn dk" data-act="reopen">ลูกค้าตกลงแล้ว เปิดงานต่อ</button></section>`;
+    right=`<section class="act"><h2>ลูกค้ายังไม่ตกลง</h2><span class="sub">${esc(j.lostReason||'')}</span><span class="sub">ลูกค้ากลับมาตกลงเมื่อไร เปิดงานต่อได้ทันที</span><button class="btn dk" data-act="reopen">ลูกค้าตกลงแล้ว เปิดงานต่อ</button></section>`;
   }else if(j.status==='done'){
     const due=pmDue(j),dl=due?dLeft(due):null;
     right=`<section class="act"><div><h2>ตรวจเช็กประจำปี</h2><span class="sub">${due?'ครบกำหนด '+fd(due)+(dl<0?' · เลยมา '+(-dl)+' วัน':' · อีก '+dl+' วัน'):'ยังไม่มีวันติดตั้ง จึงคำนวณวันครบกำหนดไม่ได้'}</span></div>
@@ -3045,7 +3045,7 @@ function viewJob(id){
     <div class="jsc grow"><span class="sub">${n<LAST?`ถัดไป: ${esc(STAGES[n+1].name)} โดย${GROUP[STAGES[n+1].role]}`:'ขั้นสุดท้าย'}</span>
       <div class="jprog" role="progressbar" aria-valuemin="0" aria-valuemax="${LAST}" aria-valuenow="${n-1}">${STAGES.slice(1).map((x,i)=>`<i class="${i+1<n?'d':i+1===n?'c':''}" title="${esc(x.name)}"></i>`).join('')}</div></div>
   </section>`:`<section class="card jst"><div class="jsc"><span class="sub">สถานะ</span>${j.status==='lost'?'<span class="pill gy big">ลูกค้ายังไม่ตกลง</span>':'<span class="pill ok big">ปิดงานแล้ว · ดูแลหลังการขาย</span>'}</div></section>`}
-  <div class="banner" id="heldNote" hidden>มีคนอัปเดตงานนี้ระหว่างที่คุณแก้ไขอยู่ บันทึกหรือยกเลิกการแก้ไขแล้วหน้าจะอัปเดตเอง</div>
+  <div class="banner" id="heldNote" hidden>งานนี้มีการอัปเดตระหว่างแก้ไข บันทึกหรือยกเลิกเพื่อดูข้อมูลล่าสุด</div>
   <div class="cols">
     <div class="colL">${curSecs.size?[...curSecs].map(id=>{const sec=SECTIONS.find(x=>x.id===id);return secForm(sec,j,c,s,true)}).join(''):''}
       ${summaryCard(j,c,s,curSecs)}</div>
@@ -3126,7 +3126,7 @@ function svCard(j,c,s,act){
     if(x.k==='accepted')return `<button class="btn dk sm" data-act="sv:accepted">ตอบรับใบงาน</button>`;
     if(x.k==='folder')return `<div class="svin"><input id="sv-folder" value="${esc(fpath)}" aria-label="ที่อยู่โฟลเดอร์"><button class="btn sm" data-copy="#sv-folder" type="button">คัดลอก</button></div><button class="btn dk sm" data-act="sv:folder">สร้างโฟลเดอร์แล้ว</button>`;
     if(x.k==='onsite')return `${safeUrl(s.mapLink)?`<a class="btn sm" href="${esc(safeUrl(s.mapLink))}" target="_blank" rel="noopener">เปิดแผนที่ไปหน้างาน</a>`:'<span class="tag warn" style="height:auto;padding:4px 8px">เซลส์ยังไม่ได้ใส่ Location</span>'}<button class="btn dk sm" data-act="sv:onsite">ถึงหน้างานแล้ว</button>`;
-    if(x.k==='form')return `<button class="btn sm" data-go="sec-site" type="button">ไปที่ฟอร์มสำรวจ</button><span class="sub">ติ๊กเองเมื่อกรอกประเภทไฟฟ้า ไฟฟ้าพื้นที่ มิเตอร์ ประเภทบ้าน และหลังคาครบ</span>`;
+    if(x.k==='form')return `<button class="btn sm" data-go="sec-site" type="button">ไปที่ฟอร์มสำรวจ</button><span class="sub">ครบเมื่อกรอกข้อมูลไซต์ครบ</span>`;
     if(x.k==='photos')return `<div class="svin"><input id="sv-photos" type="number" min="1" placeholder="จำนวนรูป" aria-label="จำนวนรูป" style="max-width:120px"><button class="btn dk sm" data-act="sv:photos">ส่งรูปเข้าโฟลเดอร์แล้ว</button></div>`;
     if(x.k==='sign')return `<button class="btn dk sm" data-act="sv:sign">ให้ลูกค้าเซ็น</button>`;
     if(x.k==='cad')return `<a class="btn sm" href="${CADABRA}" target="_blank" rel="noopener">เปิด CADabra</a><button class="btn dk sm" data-act="sv:cad">วาดแบบเสร็จ</button>`;
@@ -3200,7 +3200,7 @@ function viewNew(){
   const team=myTeam()||(myRole()==='sales_en'?'EN':'');const f=S.nf||(S.nf={});
   if(S.f.qd&&!f.date){f.date=S.f.qd}
   return `<div class="top"><nav class="crumb"><a href="#today">วันนี้</a><span>/</span><b>แจ้งงานสำรวจ</b></nav></div>
-  ${pageHead('จองคิวสำรวจแทนเซลส์','ใช้เมื่อเซลส์โทรมาให้จองแทน กรอกข้อมูลลูกค้าตามใบเซอร์เวย์ FM-EN-028-A แล้วเลือกวันและเวลาที่ทีมสำรวจว่าง')}
+  ${pageHead('จองคิวสำรวจ','ข้อมูลลูกค้าตามแบบฟอร์ม FM-EN-028-A')}
   <form id="newForm" class="nsplit" autocomplete="off">
     <section class="card pad nform" aria-label="ข้อมูลแจ้งงาน">
       <div class="ngrp"><h2>ผู้แจ้งงาน</h2><div class="fgrid">
@@ -3385,13 +3385,29 @@ function viewCustomers(){
 }
 
 /* ---------- settings ---------- */
+function profCard(){
+  const m=S.members[S.me.id]||{};const pv=S.pf2??m.photo??'';
+  return `<section class="card pad" style="display:flex;flex-direction:column;gap:14px;max-width:640px"><h2 style="margin:0;font-size:16px">โปรไฟล์</h2>
+    <div style="display:flex;gap:18px;align-items:center">
+      <label for="pfphoto" style="cursor:pointer;flex:none;position:relative"><span style="display:block;width:84px;height:84px;border-radius:50%;overflow:hidden;background:#eef0f3">${pv?`<img src="${esc(pv)}" alt="" style="width:100%;height:100%;object-fit:cover">`:avImg()}</span><span class="sub" style="display:block;text-align:center;margin-top:4px">เปลี่ยนรูป</span><input type="file" id="pfphoto" accept="image/*" hidden></label>
+      <div style="display:flex;flex-direction:column;gap:10px;flex:1">
+        <label class="fld" for="pfname">ชื่อที่แสดง<input id="pfname" value="${esc(S.pfn??m.name??nm(S.me.id)??'')}" maxlength="40"></label>
+        <span class="sub">${esc(S.me.email||'')}</span></div></div>
+    <div style="display:flex;gap:8px"><button class="btn pri" id="pfsave" type="button">บันทึก</button>${pv&&!S.pf2?'<button class="btn" id="pfdelphoto" type="button">ใช้รูปเริ่มต้น</button>':''}</div></section>`;
+}
+function shrinkImg(file,max){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.85))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(file)})}
+async function saveProfile(photo){
+  const name=($('#pfname')?.value||'').trim();if(!name)return toast('ใส่ชื่อที่แสดงก่อน');
+  const p={name};if(photo!==undefined)p.photo=photo;else if(S.pf2)p.photo=S.pf2;
+  try{await S.db.call('profile',p);S.pf2=null;S.pfn=null;S.names[S.me.id]=name;S.db.refresh();toast('บันทึกโปรไฟล์แล้ว');render()}catch(e){toast(e.message||'บันทึกไม่ได้')}
+}
 function viewSettings(){
   const adm=S.me.owner||S.me.edit;const mem=Object.values(S.members);
-  return pageHead('ตั้งค่า',S.me.role?'นำเข้าข้อมูล':'ผู้ใช้และบทบาท และการนำเข้าข้อมูล')+`
+  return pageHead('ตั้งค่า','')+`${S.me.role?profCard():''}
 
-  ${S.me.role&&!isSys()?'<section class="card empty">ไม่มีการตั้งค่าสำหรับบทบาทนี้</section>':''}
-  ${(S.me.role?isSys():adm)?`<section class="card pad" style="display:flex;flex-direction:column;gap:12px"><h2 style="margin:0;font-size:16px">นำเข้าจาก Excel</h2>
-    <p class="sub" style="margin:0">เลือกไฟล์ "ตารางงานดู Site ติดตั้ง Solar" ระบบอ่านชีต ตารางงาน และ LIST แล้วสร้างลูกค้า ไซต์ และงาน 1 งานต่อ 1 แถว ขั้นของงานคำนวณจากช่องที่กรอกไว้ งานที่ส่งแบบแล้วไม่มีข้อมูลต่อเกิน 60 วันจะเป็น "ยังไม่ตกลง" นำเข้าซ้ำได้ แถวเดิมจะถูกเขียนทับ</p>
+  
+  ${(S.me.role?isSys():adm)?`<section class="card pad" style="display:flex;flex-direction:column;gap:12px"><h2 style="margin:0;font-size:16px">นำเข้าตารางงาน</h2>
+    <p class="sub" style="margin:0">ไฟล์ตารางงาน (.xlsx) · นำเข้าซ้ำได้ ข้อมูลเดิมจะอัปเดตตามไฟล์</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><label class="filein" for="xfile">${svg('file','#16171a',2)}<span id="xfname">เลือกไฟล์ .xlsx</span><input type="file" id="xfile" accept=".xlsx"></label><button class="btn pri" id="ximport">นำเข้า</button></div><div id="xprog">${S.xprog||''}</div></section>`:''}
 `;
 }
@@ -3825,8 +3841,12 @@ render();
 
 /* ลิงก์ภายใน (#...) เปลี่ยนหน้าด้วย JS: บางหน้าตัวอย่าง/iframe ดักการคลิกลิงก์ ทำให้ปุ่มอย่าง "เปิดหน้างาน" ไม่ไป */
 document.addEventListener('click',e=>{if(document.body.classList.contains('rocat')&&e.target.closest('[data-fmnew],[data-fmedit],[data-fmdel],[data-eqnew],[data-eqedit],[data-eqdel],label[for="eqxfile"]')){e.preventDefault();e.stopImmediatePropagation();toast('เพิ่ม/แก้ เอกสารและแคตตาล็อก ทำได้ที่หน้าหลังบ้าน (ผู้ดูแลระบบ)')}},true);
+document.addEventListener('change',async e=>{if(e.target.id==='pfphoto'){const f=e.target.files[0];e.target.value='';if(!f)return;try{S.pfn=$('#pfname')?.value;S.pf2=await shrinkImg(f,256);render()}catch(x){toast('อ่านรูปไม่ได้')}}});
+document.addEventListener('input',e=>{if(e.target.id==='pfname')S.pfn=e.target.value});
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('#signout,[data-mkfolder]');if(!t)return;
+  const t=e.target.closest('#signout,[data-mkfolder],#pfsave,#pfdelphoto');if(!t)return;
+  if(t.id==='pfsave'){t.disabled=true;await saveProfile();return}
+  if(t.id==='pfdelphoto'){await saveProfile('');return}
   if(t.id==='signout'){CLGDB.user.signOut();return}
   if(t.dataset.mkfolder){t.disabled=true;try{const r=await S.db.folder(t.dataset.mkfolder);toast('สร้างโฟลเดอร์งานแล้ว');S.db.refresh();if(r.url)window.open(r.url,'_blank','noopener')}catch(x){toast(x.message);t.disabled=false}}
 });

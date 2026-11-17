@@ -7,7 +7,7 @@
   'use strict';
   var CFG = window.CLEANLINE_CONFIG || {};
   var PAGE_URL = { admin: 'index.html', engineer: 'engineer.html', console: 'console.html' };
-  var PAGE_NAME = { admin: 'เว็บแอดมิน', engineer: 'แอปวิศวกร', console: 'หลังบ้าน' };
+  var PAGE_NAME = { admin: 'CLEANLINE Management', engineer: 'CLEANLINE Man', console: 'CLEANLINE Console' };
   var SKEY = 'cl.sess';
   var st = { token: null, me: null, page: '', data: {}, ver: {}, loaded: {}, subs: {}, epoch: null,
     timer: null, busy: false, again: false, fails: 0, sys: {} };
@@ -227,7 +227,7 @@
     canEdit: function () { return Promise.resolve(!!(st.me && /^(sysadmin|admin)$/.test(st.me.role))); },
     profiles: function (ids) {
       var m = st.data.members || {}, out = {};
-      (ids || []).forEach(function (id) { var x = m[id]; if (x) out[id] = { name: x.name || x.email || '', picture: x.picture || '' }; else if (st.me && id === st.me.id) out[id] = { name: st.me.name, picture: st.me.picture }; });
+      (ids || []).forEach(function (id) { var x = m[id]; if (x) out[id] = { name: x.name || x.email || '', picture: x.photo || x.picture || '' }; else if (st.me && id === st.me.id) out[id] = { name: st.me.name, picture: st.me.picture }; });
       return Promise.resolve(out);
     },
     me: function () { return clone(st.me); },
@@ -303,7 +303,7 @@
   function screen(kind, me, msg) {
     css();
     var el = document.getElementById('clg') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'clg' }));
-    var head = '<h1>CLEANLINE</h1><div class="pg">' + esc(PAGE_NAME[st.page] || '') + '</div>';
+    var head = '<h1>CLEANLINE</h1><div class="pg">' + esc((PAGE_NAME[st.page] || '').replace('CLEANLINE ', '')) + '</div>';
     var who = st.me ? (st.me.picture ? '<img class="av" alt="" src="' + esc(st.me.picture) + '" onerror="this.remove()">' : '') + '<p><b>' + esc(st.me.name) + '</b><br><span style="font-size:13px">' + esc(st.me.email) + '</span></p>' : '';
     return new Promise(function (res) {
       if (kind === 'login') {
