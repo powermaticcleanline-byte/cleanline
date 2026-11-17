@@ -3733,14 +3733,20 @@ async function runImport(file){
     const prods=[];const ls=wb.Sheets['LIST'];
     if(ls){const L=XLSX.utils.sheet_to_json(ls,{header:1,raw:true,defval:null});for(let i=1;i<L.length;i++)CATS.forEach((c,ci)=>{let m=xs((L[i]||[])[ci]);if(m){m=m.replace(/^SMD/i,'SDM');prods.push({id:pid(c,m),category:c,model:m})}})}
     const tasks=[];
-    prods.forEach(p=>tasks.push(()=>S.db.doc('products/'+p.id).set({category:p.category,model:p.model})));
+    prods.filter(p=>!S.products[p.id]).forEach(p=>tasks.push(['products/'+p.id,{category:p.category,model:p.model}]));
     items.forEach(it=>{
-      tasks.push(()=>S.db.doc('customers/c'+it.id).set(it.customer));
-      tasks.push(()=>S.db.doc('sites/s'+it.id).set(it.site));
-      tasks.push(()=>S.db.doc('jobs/'+it.id).set(it.job));
+      tasks.push(['customers/c'+it.id,it.customer]);
+      tasks.push(['sites/s'+it.id,it.site]);
+      tasks.push(['jobs/'+it.id,it.job]);
     });
     const pg=(d,t)=>{out.innerHTML=`<div class="bar"><i id="xbar" style="width:${t?d/t*100:0}%"></i></div><div class="sub" id="xtxt">เขียนแล้ว ${d} / ${t}</div>`};pg(0,tasks.length);
-    await pool(tasks,pg);
+    if(S.db.batch){
+      const N=45;let done=0;
+      for(let i=0;i<tasks.length;i+=N){const part=tasks.slice(i,i+N);
+        for(let a=0;;a++){try{const b=S.db.batch();part.forEach(([p,d])=>b.set(S.db.doc(p),d));await b.commit();break}
+          catch(e){if(a<4&&['busy','network'].includes(e?.code)){await new Promise(r=>setTimeout(r,2000*(a+1)));continue}throw e}}
+        done+=part.length;pg(done,tasks.length)}
+    }else await pool(tasks.map(([p,d])=>()=>S.db.doc(p).set(d)),pg);
     const c={active:0,lost:0,done:0};items.forEach(x=>c[x.job.status]++);
     logRaw('import',`นำเข้า Excel ${file.name||''}: ${items.length} งาน · ${prods.length} รุ่นสินค้า`);
     const nos={};items.forEach(x=>{if(x.job.jobNo)nos[x.job.jobNo]=(nos[x.job.jobNo]||0)+1});
