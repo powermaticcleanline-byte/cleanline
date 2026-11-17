@@ -253,7 +253,7 @@
       '#clg .b{display:inline-block;border:0;border-radius:999px;padding:12px 22px;font:inherit;font-size:15px;cursor:pointer;background:#15230f;color:#fff;text-decoration:none;margin:4px}' +
       '#clg .b.l{background:#eef2e6;color:#15230f}#clg .av{width:56px;height:56px;border-radius:50%;margin:0 auto 10px;display:block;background:#eef2e6}' +
       '#clg-btn{display:flex;justify-content:center;min-height:44px;margin:6px 0 10px}' +
-      '#clg-bn{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:99998;background:#f0b23a;color:#15230f;border-radius:999px;padding:8px 16px;font:600 14px Prompt,"Noto Sans Thai",sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:92vw;text-align:center}';
+      '#clg-bn{position:fixed;right:20px;bottom:20px;z-index:99998;background:#f0b23a;color:#15230f;border-radius:999px;padding:8px 16px;font:600 14px Prompt,"Noto Sans Thai",sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:92vw;text-align:center}';
     document.head.appendChild(s);
   }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
