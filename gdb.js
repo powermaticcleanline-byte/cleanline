@@ -111,12 +111,33 @@
   Doc.prototype.delete = function () { return write(this, 'delete', null); };
   Doc.prototype.onSnapshot = function (fn, err) { return sub(this.c, { fn: fn, err: err, doc: this.id }); };
 
+  // แถบ "กำลังบันทึก…" เมื่อรอนานเกินครึ่งวินาที
+  var pending = 0, pendT = null;
+  function saving(on) {
+    pending += on ? 1 : -1;
+    clearTimeout(pendT);
+    if (pending > 0) pendT = setTimeout(function () { banner('save', 'กำลังบันทึก…'); }, 500);
+    else banner('save', '');
+  }
+  function track(p) { saving(true); return p.then(function (r) { saving(false); return r; }, function (e) { saving(false); throw e; }); }
   function write(ref, mode, data) {
-    return api({ op: 'write', mode: mode, path: ref.path, data: clone(data) }).then(function (r) {
+    return track(api({ op: 'write', mode: mode, path: ref.path, data: clone(data) })).then(function (r) {
       if (!r.skipped) applyLocal(ref.c, ref.id, r.doc, r.ver);
       schedule(300);
     });
   }
+  // เขียนหลายรายการครั้งเดียว (แบบ Firestore writeBatch)
+  function Batch() { this.ops = []; }
+  Batch.prototype.set = function (ref, d) { this.ops.push({ mode: 'set', path: ref.path, data: clone(d) }); return this; };
+  Batch.prototype.update = function (ref, d) { this.ops.push({ mode: 'update', path: ref.path, data: clone(d) }); return this; };
+  Batch.prototype.delete = function (ref) { this.ops.push({ mode: 'delete', path: ref.path, data: null }); return this; };
+  Batch.prototype.commit = function () {
+    return track(api({ op: 'batch', ops: this.ops })).then(function (r) {
+      (r.results || []).forEach(function (x) { var a = x.path.split('/'); var m = st.data[a[0]] || (st.data[a[0]] = {}); if (x.doc) m[a[1]] = x.doc; else delete m[a[1]]; });
+      var cs = {}; (r.results || []).forEach(function (x) { cs[x.path.split('/')[0]] = 1; }); Object.keys(cs).forEach(emit);
+      schedule(300);
+    });
+  };
   function applyLocal(c, id, doc, ver) {
     var m = st.data[c] || (st.data[c] = {});
     if (doc) m[id] = doc; else delete m[id];
@@ -125,11 +146,12 @@
   // รูป: ส่งไฟล์เต็มไป Drive · เก็บรูปย่อไว้แสดงเร็ว
   function uploadPhoto(ref, d) {
     var full = d.dataRef, mime = (full.match(/^data:([^;,]+)/) || [])[1] || 'image/webp';
+    saving(true);
     return thumb(full, 360).then(function (t) {
       var doc = clone(d); doc.dataRef = t;
       return api({ op: 'upload', path: ref.path, data: doc, b64: full.split(',')[1], mime: mime,
         name: (d.kind || 'photo') + '-' + ref.id + (mime === 'image/png' ? '.png' : mime === 'image/jpeg' ? '.jpg' : '.webp') });
-    }).then(function (r) { applyLocal('photos', ref.id, r.doc, r.ver); schedule(300); });
+    }).then(function (r) { saving(false); applyLocal('photos', ref.id, r.doc, r.ver); schedule(300); }, function (e) { saving(false); throw e; });
   }
   function thumb(src, max) {
     return new Promise(function (res) {
@@ -149,6 +171,7 @@
   var db = {
     collection: function (c) { return new Query(c); },
     doc: function (p) { var a = String(p).split('/'); return new Doc(a[0], a[1]); },
+    batch: function () { return new Batch(); },
     // เพิ่มเติม (ไม่มีใน Firestore)
     file: function (fileId) { return api({ op: 'file', fileId: fileId }).then(function (r) { return 'data:' + r.mime + ';base64,' + r.b64; }); },
     folder: function (jobId) { return api({ op: 'folder', jobId: jobId }); },

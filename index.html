@@ -2028,6 +2028,7 @@ const isDispatch=()=>myRole()==='dispatch';
 const F_ASSIGN=['surveyTeam','surveyor','supervisor','installTeam'];
 const F_SURVEY_SECS=['site','req','survey'];
 function fieldLocked(sec,k){if(isDispatch())return !(F_ASSIGN.includes(k)||k==='woNote');if(F_ASSIGN.includes(k))return true;return false}
+function canAct(j){if(!j)return false;const r=myRole();if(j.stage===ST.ACCEPT)return r==='admin'||r==='dispatch';const st=STAGES[j.stage];return !!st&&st.role===r}
 function secEditable(sec,j){
   if(isDispatch())return sec.id==='install'||sec.id==='wo';
   if(F_SURVEY_SECS.includes(sec.id))return false;
@@ -2037,13 +2038,7 @@ function secEditable(sec,j){
 function canDraw(){return ['eng','lead'].includes(myGroup())}
 function myGroup(){const r=myRole();return r?ROLES[r]?.[1]:null}
 function myTeam(){return ''}
-function canAct(j){
-  /* สิทธิ์ตามบทบาทเท่านั้น: เจ้าของระบบที่ยังไม่มีบทบาทถึงจะทำแทนได้ */
-  if(!myRole())return !!S.me.owner;
-  const st=STAGES[j.stage];if(!st||myGroup()!==st.role)return false;
-  if(myRole()==='sales_pm')return j.salesTeam===myTeam();
-  return true;
-}
+
 function visibleJobs(){let a=Object.values(S.jobs);if(myRole()==='sales_pm'){const t=myTeam();a=a.filter(j=>j.salesTeam===t)}return a}
 function mineJobs(){const g=myGroup();if(!g)return [];return visibleJobs().filter(j=>j.status==='active'&&STAGES[j.stage].role===g&&!(g==='admin'&&j.stage===ST.DOCS))}
 const cOf=j=>S.customers[j.customerId]||{};
@@ -3118,7 +3113,7 @@ function acceptCard(j,act){
     <label class="fld" for="acc-note">หมายเหตุใบงาน (ไม่บังคับ)<input id="acc-note" value="${esc(j.woNote||'')}" ${act?'':'disabled'}></label>
     <span class="sub">กดแล้วระบบออกเลขใบงาน ${esc(j.jobNo||nextJobNo())} ตั้งชื่อโฟลเดอร์งาน และส่งงานถึงทีมสำรวจทันที</span>
     <div class="btns"><button class="btn dk" data-act="accept" ${act?'':'disabled'}>ส่งงานให้ทีมสำรวจ</button><button class="btn" data-act="decline" ${act?'':'disabled'}>ทีมไม่ว่าง ขอแอดมินเปลี่ยนวัน</button></div>
-    ${act?'':`<span class="sub">รอหัวหน้าจัดงานเลือกทีม</span>`}
+    ${act?'<span class="sub">เลือกทีมตามที่คุยกับหัวหน้าไว้ · ย้ายทีมทีหลังได้โดยหัวหน้าจัดงาน</span>':`<span class="sub">รอแอดมิน/หัวหน้าจัดงานเลือกทีม</span>`}
   </section>`;
 }
 function svCard(j,c,s,act){
@@ -3581,10 +3576,14 @@ function nextJobNo(){
   return pre+String(mx+1).padStart(3,'0');
 }
 async function doAct(a,jid){
+  const key=a+'|'+(jid||route());S.actBusy=S.actBusy||{};if(S.actBusy[key])return toast('กำลังบันทึก รอสักครู่…');S.actBusy[key]=1;
+  try{return await doAct0(a,jid)}finally{delete S.actBusy[key]}
+}
+async function doAct0(a,jid){
   const j=S.jobs[jid||route().slice(4)];if(!j)return;const n=j.stage;const now=Date.now();
   if(a==='note'){const v=$('#note').value.trim();if(!v)return;await pushHist(j,ev('note',v));return}
   if(a==='accept'){
-    const eng=(($('#acc-eng-'+j.id)||$('#acc-eng'))?.value||'').trim();if(!eng)return toast('เลือกทีมสำรวจก่อน');if(!isDispatch()&&S.me.role)return toast('หัวหน้าจัดงานเป็นคนเลือกทีม');if(SV_TEAMS.includes(eng)&&j.queueDate&&!teamSlots(eng,j.queueDate,j.id))return toast(eng+' '+teamWhy(eng,j.queueDate,j.id)+' เลือกทีมอื่น');
+    const eng=(($('#acc-eng-'+j.id)||$('#acc-eng'))?.value||'').trim();if(!eng)return toast('เลือกทีมสำรวจก่อน');if(SV_TEAMS.includes(eng)&&j.queueDate&&!teamSlots(eng,j.queueDate,j.id))return toast(eng+' '+teamWhy(eng,j.queueDate,j.id)+' เลือกทีมอื่น');
     const no=j.jobNo||await claimJobNo(j.id);const wn=(($('#acc-note-'+j.id)||$('#acc-note'))?.value||'').trim();
     await pushHist(j,ev('handoff',`จัดทีมสำรวจ ${fd(j.queueDate)} ${j.queueTime||''} ส่งใบงาน ${no} ให้ ${eng}`,{from:ST.ACCEPT,to:ST.SURVEY}),{jobNo:no,surveyor:eng,surveyTeam:SV_TEAMS.includes(eng)?eng:'',surveyDate:j.queueDate,woNote:wn,stage:ST.SURVEY,stageSince:now});
     toast('ส่งใบงาน '+no+' ให้ '+eng+' แล้ว');return}
@@ -3634,23 +3633,35 @@ function ask(title,label){return new Promise(res=>{
   $('#askc').onclick=()=>done(null);
 })}
 async function createJob(mode){
+  if(S.creating)return toast('กำลังบันทึก รอสักครู่…');S.creating=true;
+  const bt=[...document.querySelectorAll('#newForm button[type=submit],#newForm button:not([type])')];bt.forEach(b=>{b.disabled=true;b.dataset.t0=b.textContent;b.textContent='กำลังบันทึก…'});
+  try{return await createJob0(mode)}finally{S.creating=false;bt.forEach(b=>{if(b.isConnected){b.disabled=false;b.textContent=b.dataset.t0}})}
+}
+/* เขียนหลายรายการครั้งเดียว (ตัวกลาง Google) · โหมดตัวอย่างเขียนทีละรายการ */
+async function wMany(list){
+  if(!S.db.batch){for(const [p,d,m] of list)await w(p,d,m);return}
+  const b=S.db.batch();list.forEach(([p,d,m])=>{const r=S.db.doc(p);if(m==='set')b.set(r,d);else if(m==='delete')b.delete(r);else b.update(r,d)});
+  try{await b.commit()}catch(e){toast(['denied','not-found','busy','network','maintenance'].includes(e?.code)?'บันทึกไม่ได้: '+e.message:'บันทึกไม่สำเร็จ ลองอีกครั้ง');throw e}
+}
+async function createJob0(mode){
   const f=nfRead();const r=nfReady();
   if(!r.ok){nfRefresh();return toast('ยังขาด: '+r.miss.join(', '))}
   const di=dayInfo(f.date);if(di.closed||di.left<1||di.taken.includes(f.time)){f.time='';nfRefresh();return toast('คิวนี้ถูกจองไปแล้ว เลือกเวลาใหม่')}
   const now=Date.now();const name=`คุณ${f.first} ${f.last}`;
   try{
     const cid=S.db.collection('customers').doc().id;
-    await w('customers/'+cid,{firstName:f.first,lastName:f.last,name:f.first+' '+f.last,type:'บุคคล',phone:f.phone,email:f.email,address:f.addr,createdAt:now},'set');
+    const W3=[['customers/'+cid,{firstName:f.first,lastName:f.last,name:f.first+' '+f.last,type:'บุคคล',phone:f.phone,email:f.email,address:f.addr,createdAt:now},'set']];
     const sid=S.db.collection('sites').doc().id;
-    await w('sites/'+sid,{customerId:cid,label:name,mapLink:normUrl(f.map),address:f.addr,createdAt:now},'set');
+    W3.push(['sites/'+sid,{customerId:cid,label:name,mapLink:normUrl(f.map),address:f.addr,createdAt:now},'set']);
     const jid=S.db.collection('jobs').doc().id;
-    await w('jobs/'+jid,{type:'solar',customerId:cid,siteId:sid,title:name,salesTeam:f.team,salesPerson:f.person,queueDate:f.date,queueTime:f.time,salesNote:f.note,
+    W3.push(['jobs/'+jid,{type:'solar',customerId:cid,siteId:sid,title:name,salesTeam:f.team,salesPerson:f.person,queueDate:f.date,queueTime:f.time,salesNote:f.note,
       status:'active',stage:ST.ACCEPT,stageSince:now,createdAt:now,updatedAt:now,
-      history:[ev('create',`แจ้งงานสำรวจ ${name}`),ev('handoff',`จองคิวสำรวจ ${fd(f.date)} ${f.time} รอหัวหน้าจัดงานเลือกทีม`,{from:ST.BOOK,to:ST.ACCEPT})]},'set');
+      history:[ev('create',`แจ้งงานสำรวจ ${name}`),ev('handoff',`จองคิวสำรวจ ${fd(f.date)} ${f.time} รอเลือกทีมสำรวจ`,{from:ST.BOOK,to:ST.ACCEPT})]},'set']);
+    await wMany(W3);
     if(f.meter){const to=isoAdd(f.date,(f.mdays||7)-1);const dev=freeMeters(f.date,to)[0];
       await w('meters/'+S.db.collection('meters').doc().id,{device:dev||'',from:f.date,to,jobId:jid,title:name,phone:f.phone,team:f.team,person:f.person,source:'job',status:'booked',createdAt:now},'set');
       if(!dev)toast('ช่วงวันนั้นสมาร์ทมิเตอร์ไม่ว่าง บันทึกเป็นคำขอรอจัดเครื่อง')}
-    S.nf={};toast('จองคิวแล้ว · สร้างโฟลเดอร์งานแล้ว · รอหัวหน้าจัดงานเลือกทีม');location.hash='job-'+jid;
+    S.nf={};toast('จองคิวแล้ว · สร้างโฟลเดอร์งานแล้ว · เลือกทีมสำรวจต่อได้เลย');location.hash='job-'+jid;
   }catch(e){}
 }
 let us=0;async function userSearch(q){
