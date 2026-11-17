@@ -3643,7 +3643,9 @@ async function createJob(mode){
 async function wMany(list){
   if(!S.db.batch){for(const [p,d,m] of list)await w(p,d,m);return}
   const b=S.db.batch();list.forEach(([p,d,m])=>{const r=S.db.doc(p);if(m==='set')b.set(r,d);else if(m==='delete')b.delete(r);else b.update(r,d)});
-  try{await b.commit()}catch(e){toast(['denied','not-found','busy','network','maintenance'].includes(e?.code)?'บันทึกไม่ได้: '+e.message:'บันทึกไม่สำเร็จ ลองอีกครั้ง');throw e}
+  try{await b.commit()}catch(e){
+    if(e?.code==='bad'&&/batch/.test(e.message||'')){for(const [p,d,m] of list)await w(p,d,m);return} /* ตัวกลางรุ่นเก่ายังไม่รู้จักการเขียนรวด → เขียนทีละรายการ */
+    toast('บันทึกไม่ได้: '+(e?.message||'ลองอีกครั้ง'));throw e}
 }
 async function createJob0(mode){
   const f=nfRead();const r=nfReady();
