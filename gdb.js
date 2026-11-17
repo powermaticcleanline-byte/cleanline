@@ -20,8 +20,13 @@
     var to = setTimeout(function () { ctl && ctl.abort(); }, req.op === 'batch' || req.op === 'upload' ? 180000 : 60000);
     return fetch(CFG.api, { method: 'POST', body: JSON.stringify(req), redirect: 'follow',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, signal: ctl ? ctl.signal : undefined })
-      .then(function (r) { return r.json(); })
       .catch(function () { throw mkErr('network', 'เชื่อมต่อไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่'); })
+      .then(function (r) {
+        if (r && r.code === 'network') throw r;
+        return r.text().then(function (t) {
+          try { return JSON.parse(t); } catch (e) { throw mkErr('server', 'ตัวกลางตอบกลับผิดปกติ (HTTP ' + r.status + ') — ลองเปิดลิงก์ตัวกลาง /exec ดูว่าขึ้น "พร้อมใช้งาน" ไหม'); }
+        });
+      })
       .then(function (r) {
         clearTimeout(to);
         if (r && r.ok) return r;
