@@ -69,7 +69,6 @@ input[type=text],input[type=tel]{width:150px}
 const ROLE = {admin:'แอดมิน',dispatch:'หัวหน้าจัดงาน',lead:'หัวหน้าตรวจแบบ',eng:'วิศวกร'};
 const ROLE_PAGE = {admin:'Management · ดูโฟลเดอร์',dispatch:'Management · ดูโฟลเดอร์',lead:'Man · แก้ไขโฟลเดอร์',eng:'Man · แก้ไขโฟลเดอร์'};
 const QUEUE = [['regular','ประจำ'],['approval','ต้องขออนุมัติ'],['none','ไม่ลงคิว']];
-const qOf=(m)=>m.queue||(m.role==='eng'?'regular':m.role==='lead'?'approval':'none');
 const COLN = {jobs:'งาน',customers:'ลูกค้า',sites:'ไซต์',products:'สินค้า',members:'ผู้ใช้',services:'งานบริการ',messages:'ข้อความ',photos:'รูป',meters:'มิเตอร์',config:'ตั้งค่า',jobnos:'เลขใบงาน',forms:'แบบฟอร์ม',articles:'บทความ'};
 const FN = {name:'ชื่อ',phone:'เบอร์',role:'บทบาท',team:'ทีม',status:'สถานะ',title:'ชื่องาน',stage:'ขั้นงาน',history:'ประวัติ',surveyTeam:'ทีมสำรวจ',surveyor:'ผู้สำรวจ',supervisor:'ผู้คุมงาน',installTeam:'ทีมติดตั้ง',jobNo:'เลขใบงาน',queueDate:'วันนัด',queueTime:'เวลานัด',installDate:'วันติดตั้ง',sv:'ขั้นย่อยสำรวจ',request:'ความต้องการลูกค้า',proposals:'ที่เสนอ',equipment:'อุปกรณ์ที่ติด',checkins:'เช็กอิน',file:'ไฟล์',text:'ข้อความ',kind:'ประเภท',folderId:'โฟลเดอร์',folderUrl:'โฟลเดอร์'};
 const ACT = {new:'เพิ่ม',edit:'แก้ไข',del:'ลบ',login:'เข้าสู่ระบบ',import:'บันทึกรวด'};
