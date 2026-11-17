@@ -537,6 +537,9 @@ function svSteps(j,s){
 }
 const COLS=['jobs','customers','sites','products','members','services','meters','messages','photos'];
 class ConflictError extends Error{constructor(){super('งานนี้มีคนดำเนินการไปแล้ว');this.code='conflict'}}
+/* งานสำรวจเป็นของฉันไหม: มี surveyorId → ตรง id · ไม่มี → ตรงชื่อ หรือส่งให้ทีมของฉัน (ข้อมูลแบบเดิม) */
+function svMine(j,u){if(!j||!u)return false;if(j.surveyorId)return j.surveyorId===u.id;
+  return (!!j.surveyor&&j.surveyor===u.name)||(!!u.team&&j.surveyTeam===u.team&&(!j.surveyor||j.surveyor===j.surveyTeam||/^ทีม \d/.test(j.surveyor)))}
 class BaseAdapter{
   constructor(){this.c={};COLS.forEach(k=>this.c[k]={});this.subs=new Set();this.user=null}
   cache(){return this.c}
@@ -547,7 +550,7 @@ class BaseAdapter{
     u=u||this.user;if(!u||!j)return false;
     if(u.role==='lead'||u.role==='admin')return true;
     const n=u.name;
-    return j.surveyor===n||j.supervisor===n||j.installTeam===n||(!!u.team&&j.surveyTeam===u.team&&(!j.surveyor||j.surveyor===j.surveyTeam||/^ทีม \d/.test(j.surveyor)));
+    return svMine(j,u)||j.supervisor===n||j.installTeam===n;
   }
   listMyJobs(userId){const u=userId===this.user?.id?this.user:this.userById(userId);return Object.values(this.c.jobs).filter(j=>this.isMine(j,u))}
   listAllJobs(){return Object.values(this.c.jobs)}
@@ -740,7 +743,7 @@ function waitingMe(j,u=me()){
   if(j.status!=='active')return false;
   if(u.role==='lead')return j.stage===ST.INSTALL;
   if(!S.api.isMine(j,u))return false;
-  if(j.stage===ST.SURVEY)return j.surveyor===u.name||(!!u.team&&j.surveyTeam===u.team&&(!j.surveyor||j.surveyor===j.surveyTeam||/^ทีม \d/.test(j.surveyor)));
+  if(j.stage===ST.SURVEY)return svMine(j,u);
   if(j.stage===ST.INSTALL||j.stage===ST.COMM)return j.supervisor===u.name||j.installTeam===u.name;
   return false;
 }
@@ -768,7 +771,7 @@ function progressOf(j){
 }
 const assignee=j=>j.stage<=ST.SURVEY?(j.surveyor||j.surveyTeam||''):(j.supervisor||j.installTeam||'');
 const actionable=j=>j.status==='active'&&[ST.SURVEY,ST.INSTALL,ST.COMM].includes(j.stage);
-function ownedByMe(j){const u=me();if(u.role==='lead')return false;return j.stage<=ST.SURVEY?(j.surveyor===u.name||(!!u.team&&j.surveyTeam===u.team&&(!j.surveyor||j.surveyor===j.surveyTeam||/^ทีม \d/.test(j.surveyor)))):(j.supervisor===u.name||j.installTeam===u.name)}
+function ownedByMe(j){const u=me();if(u.role==='lead')return false;return j.stage<=ST.SURVEY?svMine(j,u):(j.supervisor===u.name||j.installTeam===u.name)}
 const canTake=j=>actionable(j)&&me().role==='eng'&&!ownedByMe(j);
 const unread=j=>waitingMe(j)&&!S.seen.has(j.id+':'+j.stage);
 const mapUrl=j=>{const s=sOf(j);return safeUrl(s.mapLink)||(s.address?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.address):'')};
@@ -2043,7 +2046,7 @@ async function takeOver(id){
   const j=C().jobs[id];if(!j||!canTake(j))return;
   const u=me(),prev=assignee(j)||'ยังไม่ระบุ';
   if(!await ask('รับงานต่อจาก '+prev+'?','งานนี้จะย้ายมาเป็นชื่อคุณ ('+u.name+') และบันทึกในประวัติ แอดมินเห็นทันที',{ok:'รับงานต่อ'}))return;
-  const patch=j.stage<=ST.SURVEY?{surveyor:u.name,surveyTeam:u.team||j.surveyTeam||''}:{supervisor:u.name};
+  const patch=j.stage<=ST.SURVEY?(S.api.mode==='live'?{surveyor:u.name,surveyorId:u.id,surveyTeam:u.name}:{surveyor:u.name,surveyTeam:u.team||j.surveyTeam||''}):{supervisor:u.name};
   try{await S.api.updateJob(id,patch,{kind:'edit',text:`${u.name} รับงานต่อจาก ${prev}`},{stage:j.stage,status:'active'});toast('รับงานต่อแล้ว งานนี้เป็นของคุณ')}
   catch(e){toast(e.code==='conflict'?e.message:'บันทึกไม่สำเร็จ ลองอีกครั้ง')}
 }
