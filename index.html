@@ -1868,10 +1868,28 @@ const STAGES=[null,
  {name:'เอกสารขนานไฟฟ้า',role:'admin'}];
 const LAST=STAGES.length-1;
 const ST={BOOK:1,ACCEPT:2,SURVEY:3,OFFER:4,INSREQ:5,INSTALL:6,COMM:7,DOCS:8};
-const SLOTS=['09:00','10:00','11:00','13:00','14:00','15:00'];
+const SLOTS=['09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30'];
 const PWM_ADDR='บริษัท เพาเวอร์เมติค จำกัด 50/1 ซอยติวานนท์ 40 ถนนติวานนท์ ตำบลท่าทราย อำเภอเมืองนนทบุรี นนทบุรี 11000';
 const FOLDER_ROOT='\\\\PWM-SERVER\\Energy\\Solar';
-const SV_TEAMS=['ทีม 1','ทีม 2','ทีม 3','ทีม 4'],PER_TEAM=2; /* ทีมสำรวจ 4 ทีม ทีมละ 2 ที่ต่อวัน ออกสำรวจวันไหน วันถัดไปไม่ออก */
+let SV_TEAMS=['ทีม 1','ทีม 2','ทีม 3','ทีม 4'],SV_APPROVAL=[];const PER_TEAM=2;
+/* คนลงคิวสำรวจ (ตั้งใน Console): ประจำ = เลือกได้ · ขออนุมัติ = สีเทา ต้องขอใช้ทีละงาน */
+function svPeopleSync(){if(!S.me||!S.me.role)return;const L=Object.entries(S.members||{}).map(([id,m])=>({id,...m})).filter(m=>m.status!=='suspended'&&m.name);
+  const q=m=>m.queue||(m.role==='eng'?'regular':m.role==='lead'?'approval':'none');
+  const reg=L.filter(m=>q(m)==='regular').map(m=>m.name).sort((a,b)=>a.localeCompare(b,'th')),apr=L.filter(m=>q(m)==='approval').map(m=>m.name).sort((a,b)=>a.localeCompare(b,'th'));
+  SV_TEAMS=[...reg,...apr];SV_APPROVAL=apr}
+const halfOf=t=>t&&t<'12:00'?'am':'pm';
+const drawLimit=()=>+((S.config&&S.config.queue&&S.config.queue.drawLimit)||3);
+const pendDraw=t=>Object.values(S.jobs).filter(j=>j.status==='active'&&j.stage===ST.SURVEY&&(j.surveyTeam===t||j.surveyor===t)&&j.sv&&j.sv.sign&&!j.sv.cad).length;
+const svJobsOn=(t,k,ex)=>Object.values(S.jobs).filter(j=>j.id!==ex&&!['lost','cancelled'].includes(j.status)&&(j.surveyTeam||'')===t&&(j.surveyDate||j.queueDate)===k);
+/* เหตุผลที่เลือกคนนี้ไม่ได้ (ว่าง = เลือกได้) · time = เวลานัดของงาน (ใช้เช็กเช้า/บ่าย) */
+function teamBlock(t,k,ex,time,job){
+  const on=svJobsOn(t,k,ex),c=on.length,w=n=>svJobsOn(t,isoAdd(k,n),ex).length>0;
+  if(SV_APPROVAL.includes(t)&&!(job&&job.queueUnlock===t))return 'ต้องขออนุมัติ';
+  if(c>=PER_TEAM)return 'เต็มวันนี้';
+  if(time&&on.some(j=>halfOf(j.queueTime)===halfOf(time)))return halfOf(time)==='am'?'เช้ามีงานแล้ว':'บ่ายมีงานแล้ว';
+  if(!c&&((w(-1)&&w(-2))||(w(1)&&w(2))||(w(-1)&&w(1))))return 'ออกติดกันเกิน 2 วัน';
+  const pd=pendDraw(t);if(!c&&pd>=drawLimit())return 'รอวาดแบบ '+pd+' งาน';
+  return ''} /* ทีมสำรวจ 4 ทีม ทีมละ 2 ที่ต่อวัน ออกสำรวจวันไหน วันถัดไปไม่ออก */
 const GROUP={sales:'เซลส์',admin:'แอดมิน',dispatch:'หัวหน้าจัดงาน',lead:'หัวหน้าตรวจแบบ',eng:'วิศวกร / ผู้คุมงาน'};
 const ROLES={sales_en:['เซลส์ EN','sales'],sales_pm:['เซลส์ Powermatic','sales'],admin:['แอดมิน','admin'],dispatch:['หัวหน้าจัดงาน','dispatch'],lead:['หัวหน้าตรวจแบบ','lead'],eng:['วิศวกร / ผู้คุมงาน','eng'],exec:['ผู้บริหาร','exec']};
 const TEAMS=['EN','SA-D1','SA-D2','SA-D3','SA-D4','SA-D5','SA-DD','SA-DP'];
@@ -1888,8 +1906,8 @@ const SECTIONS=[
   ['salesTeam','ทีมขาย','sel',TEAMS],['salesPerson','ชื่อเซลส์','text'],
   ['queueDate','วันที่นัดสำรวจ','date'],['queueTime','เวลานัดหมาย','sel',SLOTS],['salesNote','หมายเหตุถึงทีมสำรวจ','area',{full:1}]]},
  {id:'wo',title:'ใบงาน',tgt:'job',stages:[3],noForm:true,fields:[
-  ['jobNo','เลขที่ใบงาน (YYMMNNN)','text'],['surveyor','วิศวกรผู้ปฏิบัติงาน','text'],['woNote','หมายเหตุใบงาน','area',{full:1}]]},
- {id:'site',title:'ข้อมูลไซต์ตามใบเซอร์เวย์ FM-EN-028-A (วิศวกรกรอก)',tgt:'site',stages:[3],fields:[
+  ['jobNo','เลขที่ใบงาน (YYMMNNN)','text'],['surveyor','คนสำรวจ','text'],['surveyHelpers','คนไปด้วย','text'],['woNote','หมายเหตุใบงาน','area',{full:1}]]},
+ {id:'site',title:'ข้อมูลไซต์ตามใบเซอร์เวย์ FM-EN-028-A',tgt:'site',stages:[3],fields:[
   ['phase','ประเภทไฟฟ้า','sel',['1','3']],['utility','ไฟฟ้าพื้นที่','sel',['MEA','PEA']],
   ['meterSize','ขนาดมิเตอร์','sel',['15(45)','30(100)','อื่นๆ']],['meterNo','หมายเลขมิเตอร์','text'],
   ['mainBreaker','เมนเบรกเกอร์','text'],['wireSize','ขนาดสายเมน (sq.mm.)','text'],
@@ -1950,8 +1968,8 @@ function closedDays(){return (S.config&&S.config.survey&&S.config.survey.closed)
 const isoAdd=(k,n)=>{const d=new Date(k+'T00:00:00');d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 function teamCount(team,k,exceptId){return Object.values(S.jobs).filter(j=>j.id!==exceptId&&j.status!=='lost'&&(j.surveyTeam||'')===team&&(j.surveyDate||j.queueDate)===k).length}
 /* ทีมนี้รับเพิ่มได้กี่ที่ในวัน k (ห้ามออกสองวันติดกัน) */
-function teamSlots(team,k,exceptId){const c=teamCount(team,k,exceptId);if(c>=PER_TEAM)return 0;if(!c&&(teamCount(team,isoAdd(k,-1),exceptId)||teamCount(team,isoAdd(k,1),exceptId)))return 0;return PER_TEAM-c}
-function teamWhy(team,k,exceptId){const c=teamCount(team,k,exceptId);if(c>=PER_TEAM)return 'เต็ม '+PER_TEAM+' ที่แล้ว';if(!c&&teamCount(team,isoAdd(k,-1),exceptId))return 'ออกสำรวจเมื่อวาน';if(!c&&teamCount(team,isoAdd(k,1),exceptId))return 'ออกสำรวจวันถัดไป';return 'ว่าง '+(PER_TEAM-c)+' ที่'}
+function teamSlots(team,k,exceptId){if(S.me&&S.me.role){if(teamBlock(team,k,exceptId))return 0;return PER_TEAM-svJobsOn(team,k,exceptId).length}const c=teamCount(team,k,exceptId);if(c>=PER_TEAM)return 0;if(!c&&(teamCount(team,isoAdd(k,-1),exceptId)||teamCount(team,isoAdd(k,1),exceptId)))return 0;return PER_TEAM-c}
+function teamWhy(team,k,exceptId,time,job){if(S.me&&S.me.role){const b=teamBlock(team,k,exceptId,time,job);return b||('ว่าง '+(PER_TEAM-svJobsOn(team,k,exceptId).length)+' ที่')}const c=teamCount(team,k,exceptId);if(c>=PER_TEAM)return 'เต็ม '+PER_TEAM+' ที่แล้ว';if(!c&&teamCount(team,isoAdd(k,-1),exceptId))return 'ออกสำรวจเมื่อวาน';if(!c&&teamCount(team,isoAdd(k,1),exceptId))return 'ออกสำรวจวันถัดไป';return 'ว่าง '+(PER_TEAM-c)+' ที่'}
 function dayInfo(k,exceptId){
   const d=new Date(k+'T00:00:00');const sun=d.getDay()===0;const cl=closedDays()[k];
   const L=Object.values(S.jobs).filter(j=>j.id!==exceptId&&j.status==='active'&&j.stage<=ST.SURVEY&&(j.surveyDate||j.queueDate)===k);
@@ -1959,7 +1977,9 @@ function dayInfo(k,exceptId){
   const free=Math.max(0,slots-noTeam);const cap=L.length+free;
   const byT={};L.forEach(j=>{if(j.queueTime)byT[j.queueTime]=(byT[j.queueTime]||0)+1});
   const teamsOpen=SV_TEAMS.filter(t=>teamSlots(t,k,exceptId)>0||teamCount(t,k,exceptId)>0).length;
-  const taken=Object.keys(byT).filter(t=>byT[t]>=Math.max(1,teamsOpen));
+  let taken=Object.keys(byT).filter(t=>byT[t]>=Math.max(1,teamsOpen));
+  if(S.me&&S.me.role){const reg=SV_TEAMS.filter(t=>!SV_APPROVAL.includes(t));
+    taken=SLOTS.filter(tm=>{const h=halfOf(tm);const avail=reg.filter(t=>!teamBlock(t,k,exceptId,tm)).length;const un=L.filter(j=>!j.surveyTeam&&halfOf(j.queueTime)===h).length;return avail-un<=0})}
   return {sun,closed:sun?'วันหยุด':cl||'',L,taken,left:free,cap,used:L.length};
 }
 /* PM: ครบ 1 ปีนับจากวันติดตั้ง (หรือจาก PM ครั้งล่าสุด) */
@@ -2135,6 +2155,7 @@ let rq=0;function schedule(){cancelAnimationFrame(rq);rq=requestAnimationFrame(r
 /* ---------- render ---------- */
 function route(){return (location.hash||'#today').slice(1)}
 function render(){
+  svPeopleSync();
   const r=route();
   if(r==='sites'||r.startsWith('site-')){const jj=r.startsWith('site-')?mainJob(r.slice(5)):null;if(jj){S.sel=jj.id;S.dtab='hist';document.body.classList.add('dlock')}else S.f.sst='installed';location.replace('#service');return}
   if((r==='kb-new'||r.startsWith('kb-edit-'))&&S.kbDirty&&document.getElementById('kbForm'))return;
@@ -2284,7 +2305,7 @@ function renderSide(r){
   const lg=document.querySelector('.side .logo img');
   const SN=(k,h,ic,t,x='',n='')=>`<a href="${h}" class="snv ${navIs(r,k)?'on':''}" title="${t}" ${navIs(r,k)?'aria-current="page"':''} ${x}>${svg(ic,'currentColor',2)}<span>${t}</span>${n?`<i>${n}</i>`:''}</a>`;
   const SG=(t,items)=>`<div class="sgp"><div class="sgt">${t}</div>${items}</div>`;
-  $('#nav1').innerHTML=`<a class="sbr" href="#today" aria-label="CLEANLINE หน้าภาพรวม">${lg?`<img src="${lg.src}" alt="CLEANLINE">`:'<b>CLEANLINE</b>'}<small>Energy · ระบบงานโซลาร์</small><em class="sbm" aria-hidden="true">CL</em></a>
+  $('#nav1').innerHTML=`<a class="sbr" href="#today" aria-label="CLEANLINE หน้าภาพรวม">${lg?`<img src="${lg.src}" alt="CLEANLINE">`:'<b>CLEANLINE</b>'}<small>Management</small><em class="sbm" aria-hidden="true">CL</em></a>
     ${SN('today','#today','home','ภาพรวม')}
     ${SG('งานโซลาร์',SN('queue','#queue','cal','ปฏิทินงาน')+SN('jobs','#jobs','list','รายการงาน','data-mine="0"')+SN('mine','#jobs','inbox','งานที่รอดำเนินการ','data-mine="1"',mine))}
     ${SG('หลังการขาย',SN('service','#service','wrench','งานบริการ'))}
@@ -3020,7 +3041,7 @@ function viewJob(id){
       <div><h2>${n===LAST?'ปิดงาน':'ส่งต่อให้'+esc(nextRole)}</h2><span class="sub">ครบ ${done} จาก ${nd.length}</span></div>
       ${nd.length?`<div class="pbar"><i style="width:${Math.round(done/nd.length*100)}%"></i></div><ul class="need">${nd.map(x=>`<li class="${x.ok?'ok':''}"><span class="k">${x.ok?'✓':''}</span>${esc(x.l)}</li>`).join('')}</ul>`:''}
       <div class="btns">${btns}</div>
-      ${act?'':`<span class="sub">รอ${GROUP[st.role]}ดำเนินการ${myGroup()?'':' · คุณยังไม่มีโรล'}</span>`}
+      ${act?'':`<span class="sub">รอ${esc(ownerOf(j))}ดำเนินการ</span>`}
     </section>`;
   }else if(j.status==='lost'){
     right=`<section class="act"><h2>ลูกค้ายังไม่ตกลง</h2><span class="sub">${esc(j.lostReason||'')}</span><span class="sub">ลูกค้ากลับมาตกลงเมื่อไร เปิดงานต่อได้ทันที</span><button class="btn dk" data-act="reopen">ลูกค้าตกลงแล้ว เปิดงานต่อ</button></section>`;
@@ -3042,7 +3063,7 @@ function viewJob(id){
     <div class="jsc"><span class="sub">ขั้นปัจจุบัน</span><span class="pill ${PHC2[phaseOf(n)?.k]||'gy'} big">${esc(st.name)}</span></div>
     <div class="jsc"><span class="sub">ผู้รับผิดชอบ</span><b>${mineNow?'คุณ':esc(ownerOf(j))}</b></div>
     <div class="jsc"><span class="sub">อยู่ขั้นนี้มา</span><b class="${dd>30?'tcrit':dd>14?'twarn':''}">${dd} วัน</b></div>
-    <div class="jsc grow"><span class="sub">${n<LAST?`ถัดไป: ${esc(STAGES[n+1].name)} โดย${GROUP[STAGES[n+1].role]}`:'ขั้นสุดท้าย'}</span>
+    <div class="jsc grow"><span class="sub">${n<LAST?`ถัดไป: ${esc(STAGES[n+1].name)}`:'ขั้นสุดท้าย'}</span>
       <div class="jprog" role="progressbar" aria-valuemin="0" aria-valuemax="${LAST}" aria-valuenow="${n-1}">${STAGES.slice(1).map((x,i)=>`<i class="${i+1<n?'d':i+1===n?'c':''}" title="${esc(x.name)}"></i>`).join('')}</div></div>
   </section>`:`<section class="card jst"><div class="jsc"><span class="sub">สถานะ</span>${j.status==='lost'?'<span class="pill gy big">ลูกค้ายังไม่ตกลง</span>':'<span class="pill ok big">ปิดงานแล้ว · ดูแลหลังการขาย</span>'}</div></section>`}
   <div class="banner" id="heldNote" hidden>งานนี้มีการอัปเดตระหว่างแก้ไข บันทึกหรือยกเลิกเพื่อดูข้อมูลล่าสุด</div>
@@ -3083,10 +3104,10 @@ function bookPanel(){
   const engs=engList();
   const wd=k=>k?`${TD[new Date(k+'T00:00:00').getDay()]} ${fd(k)}`:'ยังไม่ระบุ';
   const cust=j=>{const c=cOf(j);const rn=realName(c);return `<a class="bkn" href="#job-${esc(j.id)}"><b>${esc(j.title||c.name)}</b><span>${esc(rn||'ยังไม่มีชื่อลูกค้า')}${c.phone?' · '+esc(c.phone):''}</span></a>`};
-  const svRow=j=>{const di=j.queueDate?dayInfo(j.queueDate,j.id):null;const st=!j.queueDate?['gy','ยังไม่ระบุวัน']:di.closed?['r','วันปิดรับคิว']:di.left<=0?['o','ทุกทีมเต็มแล้ว']:['ok','ว่าง '+di.left+' ที่'];
+  const svRow=j=>{const di=j.queueDate?dayInfo(j.queueDate,j.id):null;const st=!j.queueDate?['gy','ยังไม่ระบุวัน']:di.closed?['r','วันปิดรับคิว']:di.left<=0?['o','คิวเต็มแล้ว']:['ok','ว่าง '+di.left+' ที่'];
     return `<div class="bt sv">${cust(j)}<span>${teamTag(j.salesTeam)||'—'}<small>${esc(j.salesPerson||'')}</small></span>
       <span><b>${wd(j.queueDate)}</b><small>${esc(j.queueTime||'')}</small></span><span><span class="pill ${st[0]==='r'?'rd':st[0]}">${st[1]}</span></span>
-      <select class="bki" id="acc-eng-${esc(j.id)}" aria-label="ทีมสำรวจ" ${j.queueDate?'':'disabled'}><option value="">เลือกทีมสำรวจ</option>${j.queueDate?SV_TEAMS.map(t=>{const n=teamSlots(t,j.queueDate,j.id);return `<option value="${t}" ${n?'':'disabled'} ${j.surveyTeam===t?'selected':''}>${t} · ${teamWhy(t,j.queueDate,j.id)}</option>`}).join(''):''}</select>
+      <select class="bki" id="acc-eng-${esc(j.id)}" aria-label="คนสำรวจ" ${j.queueDate?'':'disabled'}><option value="">เลือกคนสำรวจ</option>${j.queueDate?SV_TEAMS.map(t=>{const b=S.me.role?teamBlock(t,j.queueDate,j.id,j.queueTime,j):(teamSlots(t,j.queueDate,j.id)?'':'เต็ม');return `<option value="${esc(t)}" ${b?'disabled':''} ${j.surveyTeam===t?'selected':''}>${esc(t)} · ${esc(b||teamWhy(t,j.queueDate,j.id,j.queueTime,j))}</option>`}).join(''):''}</select>
       <span class="bkb"><button class="btn sm pri" data-act="accept" data-jid="${esc(j.id)}">ตอบรับ</button><button class="btn sm" data-act="decline" data-jid="${esc(j.id)}">ขอเปลี่ยนวัน</button></span></div>`};
   const insRow=j=>{const d0=j.wantInstallDate||'';const L=d0?installsOn(d0,j.id):[];
     return `<div class="bt in">${cust(j)}<span><b>${j.proposedKw?esc(j.proposedKw)+' kW':'—'}</b><small>${esc(j.salesTeam||'')}</small></span>
@@ -3107,16 +3128,19 @@ function bookPanel(){
 function acceptCard(j,act){
   const di=dayInfo(j.queueDate,j.id);const clash=j.queueTime&&di.taken.includes(j.queueTime);
   const cur=SV_TEAMS.includes(j.surveyTeam)?j.surveyTeam:'';
-  const opts=SV_TEAMS.map(t=>{const ok=!j.queueDate||teamSlots(t,j.queueDate,j.id);return `<option value="${t}" ${cur===t?'selected':''} ${ok?'':'disabled'}>${t}${j.queueDate?' · '+esc(teamWhy(t,j.queueDate,j.id)):''}</option>`}).join('');
+  const opts=SV_TEAMS.map(t=>{const b=j.queueDate?(S.me.role?teamBlock(t,j.queueDate,j.id,j.queueTime,j):(teamSlots(t,j.queueDate,j.id)?'':'เต็ม')):'';return `<option value="${esc(t)}" ${cur===t?'selected':''} ${b?'disabled':''}>${esc(t)}${j.queueDate?' · '+esc(b||teamWhy(t,j.queueDate,j.id,j.queueTime,j)):''}</option>`}).join('');
+  const locked=SV_APPROVAL.filter(t=>j.queueUnlock!==t);
   return `<section class="act" aria-label="จัดทีมสำรวจ">
-    <div><h2>จัดทีมสำรวจ</h2><span class="sub">${esc(j.salesPerson||'เซลส์')} ${j.salesTeam?'('+esc(j.salesTeam)+')':''} · แอดมินจองคิวแล้ว</span></div>
+    <div><h2>ส่งใบงานสำรวจ</h2><span class="sub">${esc(j.salesPerson||'เซลส์')} ${j.salesTeam?'('+esc(j.salesTeam)+')':''} · แอดมินจองคิวแล้ว</span></div>
     <div class="qreq"><b>${j.queueDate?`${TD[new Date(j.queueDate+'T00:00:00').getDay()]} ${fd(j.queueDate)}`:'ยังไม่ระบุวัน'}</b><span>${esc(j.queueTime||'')}</span></div>
     ${di.closed?`<span class="tag crit" style="height:auto;padding:6px 10px">วันนั้นปิดรับคิว: ${esc(di.closed)}</span>`:clash?'<span class="tag crit" style="height:auto;padding:6px 10px">เวลานี้มีคิวอื่นแล้ว</span>':`<span class="sub">วันนั้นมีคิวอื่น ${di.L.length} งาน${di.L.length?': '+di.L.map(x=>esc(x.queueTime+' '+(x.title||''))).join(' · '):''}</span>`}
-    <label class="fld" for="acc-eng">ทีมสำรวจ<select id="acc-eng" class="sel" ${act?'':'disabled'}><option value="">— เลือกทีม —</option>${opts}</select></label>
+    <label class="fld" for="acc-eng">คนสำรวจ<select id="acc-eng" class="sel" ${act?'':'disabled'}><option value="">— เลือก —</option>${opts}</select></label>
+    ${S.me.role&&act&&locked.length?`<button class="lnk" type="button" data-unlock="${esc(j.id)}" style="align-self:flex-start">ขอใช้ ${locked.map(esc).join(' / ')}</button>`:''}
+    ${S.me.role?`<label class="fld" for="acc-help">คนไปด้วย (ไม่บังคับ)<input id="acc-help" value="${esc(j.surveyHelpers||'')}" placeholder="เช่น ปอ" ${act?'':'disabled'}></label>`:''}
     <label class="fld" for="acc-note">หมายเหตุใบงาน (ไม่บังคับ)<input id="acc-note" value="${esc(j.woNote||'')}" ${act?'':'disabled'}></label>
-    <span class="sub">กดแล้วระบบออกเลขใบงาน ${esc(j.jobNo||nextJobNo())} ตั้งชื่อโฟลเดอร์งาน และส่งงานถึงทีมสำรวจทันที</span>
-    <div class="btns"><button class="btn dk" data-act="accept" ${act?'':'disabled'}>ส่งงานให้ทีมสำรวจ</button><button class="btn" data-act="decline" ${act?'':'disabled'}>ทีมไม่ว่าง ขอแอดมินเปลี่ยนวัน</button></div>
-    ${act?'<span class="sub">เลือกทีมตามที่คุยกับหัวหน้าไว้ · ย้ายทีมทีหลังได้โดยหัวหน้าจัดงาน</span>':`<span class="sub">รอแอดมิน/หัวหน้าจัดงานเลือกทีม</span>`}
+    <span class="sub">เลขใบงาน ${esc(j.jobNo||nextJobNo())}</span>
+    <div class="btns"><button class="btn dk" data-act="accept" ${act?'':'disabled'}>ส่งใบงาน</button><button class="btn" data-act="decline" ${act?'':'disabled'}>ขอเปลี่ยนวัน</button></div>
+
   </section>`;
 }
 function svCard(j,c,s,act){
@@ -3141,9 +3165,9 @@ function svCard(j,c,s,act){
       ${x.k==='sign'&&v.sign?.img?`<img class="sigimg" src="${esc(v.sign.img)}" alt="ลายเซ็นลูกค้า">`:''}
       ${ctl(x,i)?`<div class="svc">${ctl(x,i)}</div>`:''}</div></li>`).join('')}</ol>
     ${allOk&&!designOk?'<span class="sub">ใส่ขนาดที่เสนอและรุ่นอินเวอร์เตอร์ในส่วน "ผลสำรวจและแบบ" ก่อนปิดงาน</span>':''}
-    <div class="btns"><button class="btn dk" data-act="svclose" ${act&&allOk&&designOk?'':'disabled'}>ปิดงานสำรวจ ส่งข้อมูลให้เซลส์</button>
+    <div class="btns"><button class="btn dk" data-act="svclose" ${act&&allOk&&designOk?'':'disabled'}>ปิดงานสำรวจ</button>
     ${act&&done?`<button class="btn sm" data-act="sv:undo" style="box-shadow:none;color:var(--mut)">ยกเลิกขั้นล่าสุด</button>`:''}</div>
-    ${act?'':`<span class="sub">รอวิศวกร${j.surveyor?' '+esc(j.surveyor):''}ดำเนินการ</span>`}
+    ${act?'':`<span class="sub">รอ${j.surveyor?' '+esc(j.surveyor):'คนสำรวจ'}ดำเนินการ</span>`}
   </section>`;
 }
 function signPad(c){return new Promise(res=>{
@@ -3189,7 +3213,7 @@ function summaryCard(j,c,s,curSecs){
     const obj=getT(sec.tgt,j,c,s);
     const rows=sec.fields.map(f=>{const v=showVal(f,obj[f[0]]);return v==null?'':`<div class="kv ${f[2]==='area'||(f[3]&&f[3].full)?'full':''}"><span>${esc(f[1])}</span><b>${esc(v)}</b></div>`}).join('');
     const canEd=!!S.db&&secEditable(sec,j);
-    return `<div class="sblk"><div class="sh"><h3>${esc(sec.title)}${sec.owner?`<span class="sub" style="font-weight:400;margin-left:8px">${GROUP[sec.owner]}กรอก</span>`:''}</h3>${canEd?`<button class="lnk" data-edit="${sec.id}">แก้ไข</button>`:''}</div>${rows?`<div class="kvg">${rows}</div>`:'<span class="sub">ยังไม่มีข้อมูล</span>'}</div>`;
+    return `<div class="sblk"><div class="sh"><h3>${esc(sec.title)}</h3>${canEd?`<button class="lnk" data-edit="${sec.id}">แก้ไข</button>`:''}</div>${rows?`<div class="kvg">${rows}</div>`:'<span class="sub">ยังไม่มีข้อมูล</span>'}</div>`;
   }).join('');
   return `<section class="card pad sumcard" aria-label="ข้อมูลงาน"><h2 style="margin:0;font-size:16px">ข้อมูลงาน${j.status==='active'?'<span class="sub" style="font-weight:400;margin-left:8px">จากขั้นที่ผ่านมา</span>':''}</h2>${blocks}</section>`;
 }
@@ -3324,7 +3348,7 @@ function viewQueue(){
       ${cols.map(o=>`<div class="tgc ${o.d.getDay()===0?'sun':''} ${o.k===t?'t':''}" style="--hn:${HN}">${o.tm.map(x=>evt(x)).join('')}${o.k===t&&nowH>=H0&&nowH<H1?`<i class="tgnow" style="top:${(nowH-H0)/HN*100}%"></i>`:''}</div>`).join('')}</div></div>`};
   const weekGrid=tgrid(wd);
   const dayList=tgrid([sd]);
-  return pageHead('ปฏิทินงาน',`สำรวจ <b>${mS}</b> นัด · ติดตั้ง <b>${mI}</b> งาน ในเดือนนี้ · ทีมสำรวจ ${SV_TEAMS.length} ทีม ทีมละ ${PER_TEAM} ที่ต่อวัน`,qv==='month'?monthNav('qm'):stepNav)+`
+  return pageHead('ปฏิทินงาน',`สำรวจ <b>${mS}</b> นัด · ติดตั้ง <b>${mI}</b> งาน ในเดือนนี้ · ${S.me.role?'คนสำรวจ '+(SV_TEAMS.length-SV_APPROVAL.length)+' คน · เช้า 1 บ่าย 1':'ทีมสำรวจ '+SV_TEAMS.length+' ทีม ทีมละ '+PER_TEAM+' ที่ต่อวัน'}`,qv==='month'?monthNav('qm'):stepNav)+`
   <div class="kwrap">
   <section class="card kcal">
     <div class="kcalb">${vsg}<div class="seg" role="group" aria-label="แสดง">${segs.map(([k,x])=>`<button class="${kf===k?'on':''}" data-qk="${k}" aria-pressed="${kf===k}">${x}</button>`).join('')}</div>
@@ -3600,10 +3624,11 @@ async function doAct0(a,jid){
   const j=S.jobs[jid||route().slice(4)];if(!j)return;const n=j.stage;const now=Date.now();
   if(a==='note'){const v=$('#note').value.trim();if(!v)return;await pushHist(j,ev('note',v));return}
   if(a==='accept'){
-    const eng=(($('#acc-eng-'+j.id)||$('#acc-eng'))?.value||'').trim();if(!eng)return toast('เลือกทีมสำรวจก่อน');if(SV_TEAMS.includes(eng)&&j.queueDate&&!teamSlots(eng,j.queueDate,j.id))return toast(eng+' '+teamWhy(eng,j.queueDate,j.id)+' เลือกทีมอื่น');
+    const eng=(($('#acc-eng-'+j.id)||$('#acc-eng'))?.value||'').trim();if(!eng)return toast('เลือกคนสำรวจก่อน');if(SV_TEAMS.includes(eng)&&j.queueDate){const b=S.me.role?teamBlock(eng,j.queueDate,j.id,j.queueTime,j):(teamSlots(eng,j.queueDate,j.id)?'':teamWhy(eng,j.queueDate,j.id));if(b)return toast(eng+' · '+b)}
+    const who=Object.entries(S.members||{}).find(([,m])=>m.name===eng);const help=(($('#acc-help'))?.value||'').trim();
     const no=j.jobNo||await claimJobNo(j.id);const wn=(($('#acc-note-'+j.id)||$('#acc-note'))?.value||'').trim();
-    await pushHist(j,ev('handoff',`จัดทีมสำรวจ ${fd(j.queueDate)} ${j.queueTime||''} ส่งใบงาน ${no} ให้ ${eng}`,{from:ST.ACCEPT,to:ST.SURVEY}),{jobNo:no,surveyor:eng,surveyTeam:SV_TEAMS.includes(eng)?eng:'',surveyDate:j.queueDate,woNote:wn,stage:ST.SURVEY,stageSince:now});
-    toast('ส่งใบงาน '+no+' ให้ '+eng+' แล้ว');return}
+    await pushHist(j,ev('handoff',`ส่งใบงาน ${no} · สำรวจ ${fd(j.queueDate)} ${j.queueTime||''} · ${eng}${help?' + '+help:''}`,{from:ST.ACCEPT,to:ST.SURVEY}),{jobNo:no,surveyor:eng,surveyTeam:SV_TEAMS.includes(eng)?eng:'',...(S.me.role?{surveyorId:who?who[0]:'',surveyHelpers:help}:{}),surveyDate:j.queueDate,woNote:wn,stage:ST.SURVEY,stageSince:now});
+    toast('ส่งใบงาน '+no+' ให้ '+eng+(help?' + '+help:'')+' แล้ว');return}
   if(a==='bookins'){
     const d=(($('#ins-d-'+j.id)||$('#ins-d'))?.value||'').trim();if(!d)return toast('เลือกวันเริ่มติดตั้งก่อน');
     let e2=(($('#ins-e-'+j.id))?.value||'').trim();if(e2&&e2<d)return toast('วันสุดท้ายต้องไม่ก่อนวันเริ่มติดตั้ง');if(e2===d)e2='';
@@ -3844,8 +3869,11 @@ document.addEventListener('click',e=>{if(document.body.classList.contains('rocat
 document.addEventListener('change',async e=>{if(e.target.id==='pfphoto'){const f=e.target.files[0];e.target.value='';if(!f)return;try{S.pfn=$('#pfname')?.value;S.pf2=await shrinkImg(f,256);render()}catch(x){toast('อ่านรูปไม่ได้')}}});
 document.addEventListener('input',e=>{if(e.target.id==='pfname')S.pfn=e.target.value});
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('#signout,[data-mkfolder],#pfsave,#pfdelphoto');if(!t)return;
+  const t=e.target.closest('#signout,[data-mkfolder],#pfsave,#pfdelphoto,[data-unlock]');if(!t)return;
   if(t.id==='pfsave'){t.disabled=true;await saveProfile();return}
+  if(t.dataset.unlock){const j=S.jobs[t.dataset.unlock];const L=SV_APPROVAL.filter(x=>j.queueUnlock!==x);const who=L.length===1?L[0]:await ask('ขอใช้ใคร','พิมพ์ชื่อ: '+L.join(' / '));if(!who)return;if(!L.includes(who))return toast('ไม่พบชื่อ '+who);
+    const why=await ask('ขอใช้ '+who+' สำหรับงานนี้','เหตุผล (บันทึกไว้ในประวัติงาน)');if(!why)return;
+    try{await pushHist(j,ev('edit','ขอใช้ '+who+' สำรวจงานนี้: '+why),{queueUnlock:who});toast('ปลดให้เลือก '+who+' แล้ว (เฉพาะงานนี้)')}catch(x){}return}
   if(t.id==='pfdelphoto'){await saveProfile('');return}
   if(t.id==='signout'){CLGDB.user.signOut();return}
   if(t.dataset.mkfolder){t.disabled=true;try{const r=await S.db.folder(t.dataset.mkfolder);toast('สร้างโฟลเดอร์งานแล้ว');S.db.refresh();if(r.url)window.open(r.url,'_blank','noopener')}catch(x){toast(x.message);t.disabled=false}}
