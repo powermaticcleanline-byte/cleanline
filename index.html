@@ -1859,7 +1859,7 @@ html,body{overflow-anchor:none}
 /* ---------- definitions ---------- */
 const STAGES=[null,
  {name:'จองคิวสำรวจ',role:'admin'},
- {name:'รอจัดทีมสำรวจ',role:'dispatch'},
+ {name:'รอจัดคนสำรวจ',role:'dispatch'},
  {name:'สำรวจ ออกแบบ',role:'eng'},
  {name:'เสนอลูกค้า',role:'admin'},
  {name:'จองคิวติดตั้ง',role:'admin'},
@@ -1904,7 +1904,7 @@ const SECTIONS=[
   ['mapLink','ลิงก์ Google Maps ตำแหน่งลูกค้า','url',{full:1}]]},
  {id:'order',title:'ผู้แจ้งงานและคิวสำรวจ',tgt:'job',stages:[1],owner:'sales',fields:[
   ['salesTeam','ทีมขาย','sel',TEAMS],['salesPerson','ชื่อเซลส์','text'],
-  ['queueDate','วันที่นัดสำรวจ','date'],['queueTime','เวลานัดหมาย','sel',SLOTS],['salesNote','หมายเหตุถึงทีมสำรวจ','area',{full:1}]]},
+  ['queueDate','วันที่นัดสำรวจ','date'],['queueTime','เวลานัดหมาย','sel',SLOTS],['salesNote','หมายเหตุถึงคนสำรวจ','area',{full:1}]]},
  {id:'wo',title:'ใบงาน',tgt:'job',stages:[3],noForm:true,fields:[
   ['jobNo','เลขที่ใบงาน (YYMMNNN)','text'],['surveyor','คนสำรวจ','text'],['surveyHelpers','คนไปด้วย','text'],['woNote','หมายเหตุใบงาน','area',{full:1}]]},
  {id:'site',title:'ข้อมูลไซต์ตามใบเซอร์เวย์ FM-EN-028-A',tgt:'site',stages:[3],fields:[
@@ -1925,7 +1925,7 @@ const SECTIONS=[
   ['proposedModel','รุ่นอินเวอร์เตอร์ที่เสนอ','model','INVERTER'],['proposedNote','หมายเหตุขนาด','text'],['quoter','ผู้ออกราคา (CC)','text']]},
  {id:'install',title:'ตกลงและนัดติดตั้ง',tgt:'job',stages:[4,5,6],fields:[
   ['agreedDate','วันที่ลูกค้าตกลง','date'],['wantInstallDate','วันที่ลูกค้าสะดวกติดตั้ง','date'],
-  ['installDate','วันเริ่มติดตั้ง (แอดมินจองคิว)','date'],['installEnd','ติดตั้งถึงวันที่ (ถ้าหลายวัน)','date'],
+  ['installDate','วันเริ่มติดตั้ง','date'],['installEnd','ติดตั้งถึงวันที่ (ถ้าหลายวัน)','date'],
   ['installTeam','ผู้รับเหมา / ทีมช่าง','text'],['supervisor','ผู้คุมงาน','text']]},
  {id:'eq',title:'อุปกรณ์ที่ติดตั้ง',tgt:'job.equipment',stages:[7],fields:[
   ['commissionDate','วันที่ติดตั้งเสร็จ','date'],['model','รุ่นอินเวอร์เตอร์','model','INVERTER'],['sn','S/N เครื่อง','text'],['wifiSn','S/N WiFi','text'],
@@ -2063,7 +2063,7 @@ async function askResurvey(j){const d=svAge(j);if(d<=RESURVEY_DAYS)return false;
 /* ช่องที่แต่ละบทบาทแก้ไม่ได้ (ตัวกลางตรวจซ้ำทุกครั้ง) */
 const F_ASSIGN=['surveyTeam','surveyor','supervisor','installTeam'];
 const F_SURVEY_SECS=['site','req','survey'];
-function fieldLocked(sec,k){if(isDispatch())return !(F_ASSIGN.includes(k)||k==='woNote');if(F_ASSIGN.includes(k))return true;return false}
+function fieldLocked(sec,k){if(isDispatch())return !(F_ASSIGN.includes(k)||k==='woNote');if(F_ASSIGN.includes(k)&&k!=='installTeam')return true;return false}
 function canAct(j){if(!j)return false;const r=myRole();if(j.stage===ST.ACCEPT)return r==='admin'||r==='dispatch';const st=STAGES[j.stage];return !!st&&st.role===r}
 function secEditable(sec,j){
   if(isDispatch())return sec.id==='install'||sec.id==='wo';
@@ -2082,10 +2082,16 @@ const sOf=j=>S.sites[j.siteId]||{};
 const phaseOf=n=>PHASES.find(p=>p.st.includes(n));
 const teamTag=t=>t?`<span class="team ${t.startsWith('SA-')?'pm':''}">${esc(t)}</span>`:'';
 const realName=c=>[c.firstName,c.lastName].filter(Boolean).join(' ');
+function roleWho(r){const L=Object.values(S.members||{}).filter(m=>m&&m.status!=='suspended'&&(m.role===r)).map(m=>m.name).filter(Boolean);
+  return L.length?L.join(' / '):({admin:'ออฟฟิศ',dispatch:'คนจัดงาน',lead:'คนตรวจแบบ',eng:'คนหน้างาน',sales:'เซลส์'}[r]||'')}
+/* ขั้นถัดไปเป็นของใคร (ชื่อคน) */
+function nextWho(j,to){const r=STAGES[to]?.role;if(r==='eng')return (to===ST.COMM?(j.supervisor||j.surveyor):j.surveyor)||roleWho('eng');if(r==='sales')return j.salesPerson||'เซลส์';return roleWho(r)}
+/* ประวัติเก่าที่เขียนชื่อตำแหน่งไว้ → แสดงเป็นชื่อคน */
+function deRole(t){return String(t||'').replace(/หัวหน้าจัดงาน/g,roleWho('dispatch')).replace(/หัวหน้าตรวจแบบ/g,roleWho('lead')).replace(/หัวหน้าช่าง/g,roleWho('dispatch')).replace(/แอดมิน/g,roleWho('admin')).replace(/ทีมสำรวจ/g,'คนสำรวจ').replace(/วิศวกร \/ ผู้คุมงาน|วิศวกร/g,'คนหน้างาน')}
 function ownerOf(j){const r=STAGES[j.stage]?.role;
-  if(r==='eng')return (j.stage===ST.COMM?(j.supervisor||j.surveyor):j.surveyor)||'วิศวกร';
+  if(r==='eng')return (j.stage===ST.COMM?(j.supervisor||j.surveyor):j.surveyor)||roleWho('eng');
   if(r==='sales')return j.salesPerson||(j.salesTeam?'เซลส์ '+j.salesTeam:'เซลส์');
-  if(r==='admin')return 'แอดมิน';if(r==='dispatch')return 'หัวหน้าจัดงาน';if(r==='lead')return 'หัวหน้าตรวจแบบ';return ''}
+  return roleWho(r)}
 function ageTag(j){if(j.status!=='active')return '';const d=days(j.stageSince);return `<span class="tag ${ageCls(d)}">${svg('clock','currentColor',2.6).replace('<svg','<svg width="11" height="11"')}${d} วัน</span>`}
 async function names(ids){ids=[...new Set(ids.filter(i=>i&&!String(i).startsWith('demo:')))].filter(i=>!(i in S.names));if(!ids.length||!S.user?.profiles)return;try{const p=await S.user.profiles(ids);for(const i of ids)S.names[i]=p?.[i]?.name||''}catch(e){}}
 const nm=id=>id?(String(id).startsWith('demo:')?id.slice(5):(S.names[id]||'ผู้ใช้')):'ระบบ';
@@ -2335,7 +2341,7 @@ function newBtn(){return ['eng','lead'].includes(myGroup())?'':`<a class="btn pr
 
 /* ---------- today ---------- */
 /* feed: each role sees only what it acts on */
-const hText=t=>String(t||'').replace(/→ ขั้น (\d+)/,(m,n)=>'→ '+(STAGES[n]?.name||'')).replace(/\(ขั้น \d+ ([^)]*)\)/,'($1)').replace(/ขั้น (\d+)(?=[ :])/,(m,n)=>STAGES[n]?.name||m);
+const hText=t=>deRole(t).replace(/→ ขั้น (\d+)/,(m,n)=>'→ '+(STAGES[n]?.name||'')).replace(/\(ขั้น \d+ ([^)]*)\)/,'($1)').replace(/ขั้น (\d+)(?=[ :])/,(m,n)=>STAGES[n]?.name||m);
 /* ปฏิทินเดือนนี้ (เล็ก) */
 /* งานของวันที่เลือก (ค่าเริ่มต้น = วันนี้) */
 /* แจ้งเตือนงานบริการที่กำลังจะมาถึง: แจ้งซ่อมค้าง + ครบตรวจเช็กใน 60 วัน (รวมที่เลยกำหนด) */
@@ -2513,7 +2519,7 @@ function viewJobs(mode){
         const view=ib('eye','ดูรายละเอียด',`data-sel="${esc(j.id)}"`);
         const acts=svc?[view,ib('wrench','บันทึกแจ้งซ่อม',`data-svnew="CM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('check','บันทึกตรวจเช็ก',`data-svnew="PM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('copy','คัดลอก S/N',`data-cpy="${esc(sn)}"`,sn?'':'ยังไม่มี S/N')]
           :[view,ib('pen','แก้ไขข้อมูล',`data-regedit="${esc(j.id)}"`),ib('trash','ลบงานนี้',`data-jdel="${esc(j.id)}"`),ib('file','คัดลอกที่อยู่โฟลเดอร์',`data-cpy="${esc(j.folderPath||'')}"`,j.folderPath?'':'ยังไม่มีที่อยู่โฟลเดอร์')];
-        const now=j.status==='active'?`${j.stage===ST.DOCS?'รอเอกสารขนานไฟ':'รอ'+(GROUP[STAGES[j.stage].role]||'')} · ${days(j.stageSince)} วัน`:j.status==='lost'?(j.lostReason||''):j.status==='cancelled'?(j.cancelReason||''):'';
+        const now=j.status==='active'?`${j.stage===ST.DOCS?'รอเอกสารขนานไฟ':'รอ'+ownerOf(j)} · ${days(j.stageSince)} วัน`:j.status==='lost'?(j.lostReason||''):j.status==='cancelled'?(j.cancelReason||''):'';
         const st=svc||isInstalled(j)&&j.status==='done'?(careTags(j)||jobPill(j)):jobPill(j);
         const T=(v,cls)=>v?`<td class="${cls||''}" title="${esc(v)}">${esc(v)}</td>`:`<td class="${cls||''}"><span class="nil">—</span></td>`;
         return `<tr data-sel="${esc(j.id)}" tabindex="0" class="${S.sel===j.id?'on':''}" aria-label="ดูรายละเอียด ${esc(nm)}">
@@ -3023,7 +3029,7 @@ async function kbSave(form,mode){
 function getT(tgt,j,c,s){if(tgt==='customer')return c;if(tgt==='site')return s;if(tgt==='job')return j;return j[tgt.split('.')[1]]||{}}
 function fieldHtml(sec,fl,obj,pre){
   const h=fieldHtml0(sec,fl,obj,pre);if(!fieldLocked(sec,fl[0])||fl[2]==='h')return h;
-  return h.replace(/<(input|select|textarea)(?![^>]*type="hidden")/g,'<$1 disabled title="'+(isDispatch()?'แอดมินเป็นคนแก้ช่องนี้':'หัวหน้าจัดงานเป็นคนแก้ช่องนี้')+'"')}
+  return h.replace(/<(input|select|textarea)(?![^>]*type="hidden")/g,'<$1 disabled title="'+(isDispatch()?roleWho('admin'):roleWho('dispatch'))+' เป็นคนแก้ช่องนี้"')}
 function fieldHtml0(sec,[k,l,t,o],obj,pre){
   const id=`${pre}-${sec.id}-${k}`;const v=obj[k];const full=(o&&o.full)||t==='area';
   if(t==='h')return `<div class="formh">${esc(l)}</div>`;
@@ -3055,9 +3061,9 @@ function viewJob(id){
   const curSecs=new Set(j.status==='active'&&act?SECTIONS.filter(x=>!x.noForm&&x.stages.includes(n)&&secEditable(x,j)).map(x=>x.id):[]);
   let right='';
   if(j.status==='active'){
-    const nextRole=n<LAST?GROUP[STAGES[n+1].role]:'';
+    const nextRole=n<LAST?nextWho(j,n+1):'';
     let btns='';
-    if(n===ST.OFFER)btns=`<button class="btn dk" data-act="next" ${act&&ready?'':'disabled'}>ลูกค้าตกลง ส่งให้แอดมินนัดติดตั้ง</button><button class="btn" data-act="lost" ${act?'':'disabled'}>ลูกค้ายังไม่ตกลง</button>`;
+    if(n===ST.OFFER)btns=`<button class="btn dk" data-act="next" ${act&&ready?'':'disabled'}>ลูกค้าตกลง ไปนัดติดตั้ง</button><button class="btn" data-act="lost" ${act?'':'disabled'}>ลูกค้ายังไม่ตกลง</button>`;
     else if(n===LAST)btns=`<button class="btn dk" data-act="done" ${act&&ready?'':'disabled'}>ยื่นเสร็จ ปิดงาน</button>`;
     else btns=`<button class="btn dk" data-act="next" ${act&&ready?'':'disabled'}>${ready?'ส่งต่อให้'+esc(nextRole):`ส่งต่อ · ขาดอีก ${nd.length-done} รายการ`}</button>`;
     if(n>1&&act&&n!==ST.ACCEPT&&n!==ST.SURVEY)btns+=`<button class="btn sm" data-act="back" style="align-self:flex-start;box-shadow:none;color:var(--mut)">ย้อนกลับขั้นก่อนหน้า</button>`;
@@ -3079,7 +3085,7 @@ function viewJob(id){
   }else if(j.status==='done'){
     const due=pmDue(j),dl=due?dLeft(due):null;
     right=`<section class="act"><div><h2>ตรวจเช็กประจำปี</h2><span class="sub">${due?'ครบกำหนด '+fd(due)+(dl<0?' · เลยมา '+(-dl)+' วัน':' · อีก '+dl+' วัน'):'ยังไม่มีวันติดตั้ง จึงคำนวณวันครบกำหนดไม่ได้'}</span></div>
-      <span class="sub">นับ 1 ปีจาก${j.lastPm?'วันตรวจเช็กครั้งล่าสุด '+fd(j.lastPm):'วันติดตั้ง '+fd(j.installDate)} ระบบจะแจ้งแอดมินล่วงหน้า 30 วัน</span>
+      <span class="sub">นับ 1 ปีจาก${j.lastPm?'วันตรวจเช็กครั้งล่าสุด '+fd(j.lastPm):'วันติดตั้ง '+fd(j.installDate)} ระบบจะเตือนล่วงหน้า 30 วัน</span>
       ${due?`<div class="btns"><button class="btn dk" data-act="pmdone">บันทึกว่าตรวจเช็กแล้ววันนี้</button></div>`:''}</section>`;
     if(myRole()==='admin')right+=`<section class="act"><div><h2>ติดตั้งเพิ่ม</h2><span class="sub">ไซต์เดิม เริ่มที่จองคิวสำรวจ</span></div><div class="btns"><button class="btn" data-act="addon">ขอติดตั้งเพิ่ม</button></div></section>`;
   }
@@ -3124,9 +3130,10 @@ function insCard(j,act){
   return `<section class="act" aria-label="จองคิวติดตั้ง">
     <div><h2>จองคิวติดตั้ง</h2><span class="sub">ลูกค้าตกลง ${j.agreedDate?fd(j.agreedDate):''}${j.wantInstallDate?' · สะดวก '+fd(j.wantInstallDate):''}</span></div>
     <div class="fld">วันติดตั้ง${act?dateCtl('ins-d',d0,today(),'วันติดตั้ง'):`<b>${d0?fd(d0):'—'}</b>`}</div>
-    <span class="sub">${L.length?`วันนั้นมีงานติดตั้งแล้ว ${L.length} งาน: ${L.map(x=>esc(x.title)).join(' · ')}`:'เลือกวันแล้วกดจอง หัวหน้าช่างจะนัดผู้รับเหมาต่อ'}</span>
-    <div class="btns"><button class="btn dk" data-act="bookins" ${act?'':'disabled'}>จองคิวติดตั้ง ส่งให้หัวหน้าช่าง</button></div>
-    ${act?'':'<span class="sub">รอแอดมินจองคิว</span>'}</section>`;
+    <label class="fld" for="ins-t">ผู้รับเหมา<input id="ins-t" value="${esc(j.installTeam||'')}" placeholder="ชื่อผู้รับเหมา / ทีมช่าง" ${act?'':'disabled'}></label>
+    <span class="sub">${L.length?`วันนั้นมีงานติดตั้งแล้ว ${L.length} งาน: ${L.map(x=>esc(x.title)).join(' · ')}`:'เลือกวัน ใส่ผู้รับเหมา แล้วกดจอง'}</span>
+    <div class="btns"><button class="btn dk" data-act="bookins" ${act?'':'disabled'}>จองคิวติดตั้ง</button></div>
+    ${act?'':`<span class="sub">รอ${esc(ownerOf(j))}จองคิว</span>`}</section>`;
 }
 function dateCtl(id,val,min,label){return `<label class="dctl" for="${id}"><span>${val?fd(val):'เลือกวัน'}</span>${svg('cal','#6b6e76',2)}<input type="date" id="${id}" value="${esc(val||'')}" ${min?`min="${min}"`:''} aria-label="${esc(label||'วันที่')}"></label>`}
 function bookPanel(){
@@ -3147,7 +3154,7 @@ function bookPanel(){
       <span><b>${d0?wd(d0):'ไม่ระบุ'}</b><small>ตกลง ${j.agreedDate?fd(j.agreedDate):'—'}</small></span><span><span class="pill ${L.length?'o':'ok'}">${L.length?`มีติดตั้ง ${L.length} งาน`:'ว่าง'}</span></span>
       <span class="insr">${dateCtl('ins-d-'+j.id,d0,today(),'วันเริ่มติดตั้ง')}<em>ถึง</em>${dateCtl('ins-e-'+j.id,j.wantInstallEnd||'',today(),'ติดตั้งถึงวันที่')}</span>
       <span class="bkb"><button class="btn sm pri" data-act="bookins" data-jid="${esc(j.id)}">จองคิวติดตั้ง</button></span></div>`};
-  const head=tab==='sv'?['ไซต์ / ลูกค้า','ทีมขาย','วันเวลาที่ขอ','ความพร้อม','ทีมสำรวจ','จัดการ']:['ไซต์ / ลูกค้า','ขนาด','วันที่ลูกค้าสะดวก','ความพร้อม','วันติดตั้ง','จัดการ'];
+  const head=tab==='sv'?['ไซต์ / ลูกค้า','ทีมขาย','วันเวลาที่ขอ','ความพร้อม','คนสำรวจ','จัดการ']:['ไซต์ / ลูกค้า','ขนาด','วันที่ลูกค้าสะดวก','ความพร้อม','วันติดตั้ง','จัดการ'];
   const rows=tab==='sv'?sv:ins;
   return `<datalist id="dl-engs">${engs.map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
   <section class="card bkc" aria-label="จองคิว">
@@ -3164,7 +3171,7 @@ function acceptCard(j,act){
   const opts=SV_TEAMS.map(t=>{const b=j.queueDate?(S.me.role?teamBlock(t,j.queueDate,j.id,j.queueTime,j):(teamSlots(t,j.queueDate,j.id)?'':'เต็ม')):'';return `<option value="${esc(t)}" ${cur===t?'selected':''} ${b?'disabled':''}>${esc(t)}${j.queueDate?' · '+esc(b||teamWhy(t,j.queueDate,j.id,j.queueTime,j)):''}</option>`}).join('');
   const locked=SV_APPROVAL.filter(t=>j.queueUnlock!==t);
   return `<section class="act" aria-label="จัดทีมสำรวจ">
-    <div><h2>ส่งใบงานสำรวจ</h2><span class="sub">${esc(j.salesPerson||'เซลส์')} ${j.salesTeam?'('+esc(j.salesTeam)+')':''} · แอดมินจองคิวแล้ว</span></div>
+    <div><h2>ส่งใบงานสำรวจ</h2><span class="sub">${esc(j.salesPerson||'เซลส์')} ${j.salesTeam?'('+esc(j.salesTeam)+')':''} · จองคิวแล้ว</span></div>
     <div class="qreq"><b>${j.queueDate?`${TD[new Date(j.queueDate+'T00:00:00').getDay()]} ${fd(j.queueDate)}`:'ยังไม่ระบุวัน'}</b><span>${esc(j.queueTime||'')}</span></div>
     ${di.closed?`<span class="tag crit" style="height:auto;padding:6px 10px">วันนั้นปิดรับคิว: ${esc(di.closed)}</span>`:clash?'<span class="tag crit" style="height:auto;padding:6px 10px">เวลานี้มีคิวอื่นแล้ว</span>':`<span class="sub">วันนั้นมีคิวอื่น ${di.L.length} งาน${di.L.length?': '+di.L.map(x=>esc(x.queueTime+' '+(x.title||''))).join(' · '):''}</span>`}
     <label class="fld" for="acc-eng">คนสำรวจ<select id="acc-eng" class="sel" ${act?'':'disabled'}><option value="">— เลือก —</option>${opts}</select></label>
@@ -3278,7 +3285,7 @@ function viewNew(){
       <div class="ngrp"><h2>สมาร์ทมิเตอร์ <span class="opt">เครื่องวัดพฤติกรรมไฟ · ไม่บังคับ</span></h2>
         <label class="mchk"><input type="checkbox" id="n-meter" ${f.meter?'checked':''}><span>ขอติดตั้งสมาร์ทมิเตอร์ในวันสำรวจ</span></label>
         <div id="n-mtbox">${mtBox(f)}</div></div>
-      <div class="ngrp"><h2>หมายเหตุถึงทีมสำรวจ <span class="opt">ไม่บังคับ</span></h2><textarea id="n-note" rows="2" aria-label="หมายเหตุถึงทีมสำรวจ" placeholder="เช่น ลูกค้าสะดวกช่วงบ่าย ต้องการระบบแบตเตอรี่">${esc(f.note||'')}</textarea></div>
+      <div class="ngrp"><h2>หมายเหตุถึงคนสำรวจ <span class="opt">ไม่บังคับ</span></h2><textarea id="n-note" rows="2" aria-label="หมายเหตุถึงคนสำรวจ" placeholder="เช่น ลูกค้าสะดวกช่วงบ่าย ต้องการระบบแบตเตอรี่">${esc(f.note||'')}</textarea></div>
     </section>
     <section class="card pad ncal" aria-label="เลือกวันสำรวจ">${calHtml()}</section>
   </form>`;
@@ -3300,7 +3307,7 @@ function calHtml(){
   return `<div class="nch"><h2>เลือกวันสำรวจ</h2>
     <div class="mnav"><button type="button" data-nm="-1" aria-label="เดือนก่อนหน้า" ${(f.mo||0)<=0?'disabled':''}>${svg('chev','#16171a',2.2)}</button><span class="mlab">${TMF[m]} ${y+543}</span><button type="button" data-nm="1" aria-label="เดือนถัดไป">${svg('chev','#16171a',2.2)}</button></div></div>
   <div class="cgrid">${['จ','อ','พ','พฤ','ศ','ส','อา'].map(x=>`<span class="cw">${x}</span>`).join('')}${cells}</div>
-  <div class="clg"><span><i class="free"></i>ว่าง</span><span><i class="one"></i>เหลือ 1 คิว</span><span><i class="full"></i>เต็ม</span><span><i class="off"></i>ทีมสำรวจไม่ทำงาน</span></div>
+  <div class="clg"><span><i class="free"></i>ว่าง</span><span><i class="one"></i>เหลือ 1 คิว</span><span><i class="full"></i>เต็ม</span><span><i class="off"></i>ปิดรับคิว</span></div>
   <div class="cslot">${f.date?`<b>${TD[new Date(f.date+'T00:00:00').getDay()]} ${fd(f.date)} · เลือกเวลา</b>
     <div class="slots">${SLOTS.map(s=>{const tk=sel.taken.includes(s);return `<button type="button" class="slot ${f.time===s?'on':''}" ${tk?'disabled':`data-nt="${s}"`}>${s}${tk?'<small>จองแล้ว</small>':''}</button>`}).join('')}</div>`
     :'<span class="sub">เลือกวันที่ว่างในปฏิทินก่อน แล้วเลือกเวลา</span>'}</div>
@@ -3670,11 +3677,11 @@ async function doAct0(a,jid){
   if(a==='bookins'){
     const d=(($('#ins-d-'+j.id)||$('#ins-d'))?.value||'').trim();if(!d)return toast('เลือกวันเริ่มติดตั้งก่อน');
     let e2=(($('#ins-e-'+j.id))?.value||'').trim();if(e2&&e2<d)return toast('วันสุดท้ายต้องไม่ก่อนวันเริ่มติดตั้ง');if(e2===d)e2='';
-    const lb=e2?`${fd(d)} – ${fd(e2)}`:fd(d);
-    await pushHist(j,ev('handoff',`จองคิวติดตั้ง ${lb} ส่งให้หัวหน้าจัดงานมอบงานติดตั้ง`,{from:ST.INSREQ,to:ST.INSTALL}),{installDate:d,installEnd:e2,stage:ST.INSTALL,stageSince:now});
+    const lb=e2?`${fd(d)} – ${fd(e2)}`:fd(d);const tm=(($('#ins-t'))?.value||'').trim();
+    await pushHist(j,ev('handoff',`จองคิวติดตั้ง ${lb}${tm?' · ผู้รับเหมา '+tm:''}`,{from:ST.INSREQ,to:ST.INSTALL}),{installDate:d,installEnd:e2,...(tm?{installTeam:tm}:{}),stage:ST.INSTALL,stageSince:now});
     toast('จองคิวติดตั้ง '+lb+' แล้ว');return}
-  if(a==='decline'){const r=await ask('ขอแอดมินเปลี่ยนวันสำรวจ','เหตุผล เช่น ทีมสำรวจไม่ว่างวันนั้น');if(r==null)return;
-    await pushHist(j,ev('back','หัวหน้าจัดงานขอเปลี่ยนวันสำรวจ: '+r,{from:ST.ACCEPT,to:ST.BOOK}),{stage:ST.BOOK,stageSince:now});return}
+  if(a==='decline'){const r=await ask('ขอเปลี่ยนวันสำรวจ','เหตุผล เช่น คนสำรวจไม่ว่างวันนั้น');if(r==null)return;
+    await pushHist(j,ev('back','ขอเปลี่ยนวันสำรวจ: '+r,{from:ST.ACCEPT,to:ST.BOOK}),{stage:ST.BOOK,stageSince:now});return}
   if(a.startsWith('sv:')){
     const k=a.slice(3);const v={...(j.sv||{})};let txt='',kind='edit';
     if(k==='accepted'){v.accepted=now;txt='ตอบรับใบงาน '+(j.jobNo||'')}
@@ -3690,7 +3697,7 @@ async function doAct0(a,jid){
     await pushHist(j,ev('handoff',`ปิดงานสำรวจ ส่งข้อมูลและแบบ ${j.proposedKw?j.proposedKw+' kW ':''}ให้เซลส์${j.quoter?' CC '+j.quoter:''}`,{from:ST.SURVEY,to:ST.OFFER}),{stage:ST.OFFER,stageSince:now,designSentDate:today()});
     toast('ส่งข้อมูลให้เซลส์แล้ว');return}
   if((a==='next'&&n===ST.OFFER)||a==='reopen'){const r=await askResurvey(j);if(r!==false)return}
-  if(a==='next'){const to=n+1;await pushHist(j,ev('handoff',`ส่งต่อให้${GROUP[STAGES[to].role]} (${STAGES[to].name})`,{from:n,to}),{stage:to,stageSince:now});toast('ส่งต่อแล้ว');return}
+  if(a==='next'){const to=n+1;await pushHist(j,ev('handoff',`ส่งต่อให้${nextWho(j,to)} (${STAGES[to].name})`,{from:n,to}),{stage:to,stageSince:now});toast('ส่งต่อแล้ว');return}
     if(a==='pmdone'){const d=today();await pushHist(j,ev('edit','ตรวจเช็กประจำปีแล้ว '+fd(d)),{lastPm:d});toast('บันทึกแล้ว ครบกำหนดครั้งถัดไป '+fd(pmDue({...j,lastPm:d})));return}
   if(a==='done'){await pushHist(j,ev('handoff','ยื่นขนานไฟฟ้าเสร็จ ปิดงาน ครบตรวจเช็กประจำปี '+fd(pmDue(j)),{from:LAST}),{status:'done',stageSince:now});return}
   if(a==='cancel'){const r=await ask('ยกเลิกคิวสำรวจ','เหตุผล');if(!r)return;
@@ -3701,7 +3708,7 @@ async function doAct0(a,jid){
   if(a==='resume'){await pushHist(j,ev('handoff','เปิดงานต่อ ('+STAGES[n].name+')'),{status:'active',stageSince:now,cancelReason:'',cancelledAt:null,autoCancelled:false});toast('เปิดงานต่อแล้ว');return}
   if(a==='rebook'){if(!await confirmBox('จองใหม่','ใช้ข้อมูลเดิม แล้วเลือกวันสำรวจใหม่','จองใหม่','dk'))return;
     await pushHist(j,ev('handoff','จองใหม่ (ข้อมูลเดิม)',{to:ST.BOOK}),{status:'active',stage:ST.BOOK,stageSince:now,cancelReason:'',cancelledAt:null,autoCancelled:false,surveyTeam:'',surveyor:'',surveyorId:'',surveyHelpers:'',queueUnlock:''});toast('เปิดงานแล้ว เลือกวันใหม่');return}
-  if(a==='reopen'){await pushHist(j,ev('handoff','ลูกค้าตกลง ส่งให้แอดมินนัดติดตั้ง',{to:ST.INSREQ}),{status:'active',stage:ST.INSREQ,stageSince:now,lostReason:''});return}
+  if(a==='reopen'){await pushHist(j,ev('handoff','ลูกค้าตกลง ไปนัดติดตั้ง',{to:ST.INSREQ}),{status:'active',stage:ST.INSREQ,stageSince:now,lostReason:''});return}
   if(a==='lost'||a==='back'){
     const title={lost:'ลูกค้ายังไม่ตกลง',back:`ย้อนกลับไป${STAGES[n-1].name}`}[a];
     const r=await ask(title,'เหตุผล');if(r==null)return;
@@ -3750,7 +3757,7 @@ async function createJob0(mode){
     const jid=S.db.collection('jobs').doc().id;
     W3.push(['jobs/'+jid,{type:ad?'addon':'solar',...(ad?{parentJobId:ad.id}:{}),customerId:cid,siteId:sid,title:ad?(ad.title||name)+' · ติดตั้งเพิ่ม':name,salesTeam:f.team,salesPerson:f.person,queueDate:f.date,queueTime:f.time,salesNote:f.note,
       status:'active',stage:ST.ACCEPT,stageSince:now,createdAt:now,updatedAt:now,
-      history:[ev('create',ad?`ขอติดตั้งเพิ่ม (ไซต์เดิม ${ad.jobNo?'#'+ad.jobNo:ad.title||''})`:`แจ้งงานสำรวจ ${name}`),ev('handoff',`จองคิวสำรวจ ${fd(f.date)} ${f.time} รอเลือกทีมสำรวจ`,{from:ST.BOOK,to:ST.ACCEPT})]},'set']);
+      history:[ev('create',ad?`ขอติดตั้งเพิ่ม (ไซต์เดิม ${ad.jobNo?'#'+ad.jobNo:ad.title||''})`:`แจ้งงานสำรวจ ${name}`),ev('handoff',`จองคิวสำรวจ ${fd(f.date)} ${f.time} รอเลือกคนสำรวจ`,{from:ST.BOOK,to:ST.ACCEPT})]},'set']);
     await wMany(W3);
     if(f.meter){const to=isoAdd(f.date,(f.mdays||7)-1);const dev=freeMeters(f.date,to)[0];
       await w('meters/'+S.db.collection('meters').doc().id,{device:dev||'',from:f.date,to,jobId:jid,title:name,phone:f.phone,team:f.team,person:f.person,source:'job',status:'booked',createdAt:now},'set');
