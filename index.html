@@ -1838,7 +1838,7 @@ html,body{overflow-anchor:none}
 /* แจ้งเตือน: ตัวเลขสีแดง แสดงเฉพาะเรื่องใหม่ */
 .nb,.nb.new{background:#e5484d!important;color:#fff!important}
 </style>
-</head>
+<style>body.rocat [data-fmnew],body.rocat [data-fmedit],body.rocat [data-fmdel],body.rocat [data-eqnew],body.rocat [data-eqedit],body.rocat [data-eqdel],body.rocat label[for="eqxfile"]{display:none!important}</style></head>
 <body>
 <div class="shell">
   <aside class="side" aria-label="เมนู">
@@ -2185,6 +2185,7 @@ document.addEventListener('click',e=>{
   if(S.apps&&!e.target.closest('.apppan')){S.apps=false;render()}
   if(e.target.closest('#navtog')){S.navOff=!S.navOff;document.body.classList.toggle('navoff',S.navOff);render();return}
   if(e.target.closest('#pfbtn')){S.pf=!S.pf;S.bell=false;S.apps=false;render();return}
+  if(e.target.closest('#pfout')&&S.me.role){S.pf=false;render();confirmBox('ออกจากระบบ?','ครั้งหน้าต้องลงชื่อเข้าใช้ด้วยบัญชี Google อีกครั้ง','ออกจากระบบ','pri').then(y=>{if(y)CLGDB.user.signOut()});return}
   if(e.target.closest('#pfout')){S.pf=false;render();confirmBox('ออกจากระบบ','ตอนนี้ระบบต้นแบบเข้าด้วยบัญชี Claude ของคุณ ออกจากระบบได้โดยออกจากบัญชีที่ claude.ai เมื่อไอทีทำระบบล็อกอินของบริษัท ปุ่มนี้จะออกจากระบบได้ทันที','เข้าใจแล้ว');return}
   if(S.pf&&!e.target.closest('.pfm')){S.pf=false;render()}
   if(e.target.closest('#bellbtn')){S.pf=false;S.apps=false;if(S.bell){S.bell=false}else{S.bell=true;S.bellSeenAt=bellSeen();try{localStorage.setItem('cl.bellSeen',String(Date.now()))}catch(x){}}render();if(S.bell)setTimeout(()=>document.querySelector('.ntp a')?.focus(),0);return}
@@ -2205,8 +2206,8 @@ function hdr(r){
     <div class="gsw wide" role="search"><label class="gs" title="ค้นหา">${svg('search','currentColor',2)}<input id="gq" type="search" placeholder="ค้นหาชื่อ Site, เลขงาน, เบอร์โทร, S/N…" aria-label="ค้นหางานทั้งหมด" autocomplete="off" aria-controls="gqr"></label><div class="gqr" id="gqr" role="listbox" hidden></div></div>
     <div class="tbr"><div class="appw" id="appw"></div><div class="ntw">${bellBtn()}${S.bell?bellPanel():''}</div>
     <div class="pfw"><button type="button" class="tav" id="pfbtn" aria-haspopup="menu" aria-expanded="${!!S.pf}" title="${esc(name)}" style="padding:0;overflow:hidden">${avImg()}</button>
-    ${S.pf?`<div class="pfm" role="menu"><div class="pfh"><span class="tav" style="padding:0;overflow:hidden">${avImg()}</span><span><b>${esc(name||'ผู้ใช้')}</b><small>แอดมิน · แผนก Energy</small></span></div>
-    <a role="menuitem" href="#settings" class="pfi">${svg('gear','currentColor',2)}ตั้งค่า</a>
+    ${S.pf?`<div class="pfm" role="menu"><div class="pfh"><span class="tav" style="padding:0;overflow:hidden">${avImg()}</span><span><b>${esc(name||'ผู้ใช้')}</b><small>${esc(isSys()?'ผู้ดูแลระบบ':(ROLES[myRole()]||['แอดมิน'])[0])} · แผนก Energy</small></span></div>
+    ${isSys()?`<a role="menuitem" href="console.html" class="pfi">${svg('gear','currentColor',2)}เปิดหลังบ้าน</a>`:''}${!S.me.role||isSys()?`<a role="menuitem" href="#settings" class="pfi">${svg('file','currentColor',2)}${S.me.role?'นำเข้าตารางงาน':'ตั้งค่า'}</a>`:''}
     <button role="menuitem" type="button" class="pfi" id="pfout">${svg('arrow','currentColor',2)}ออกจากระบบ</button></div>`:''}</div></div></header>`;
 }
 /* ตัวเลือกเดือน: ลูกศรอยู่กับที่ (ช่องกลางกว้างคงที่) + เลือกเดือนเองได้จากรายการ */
@@ -3386,11 +3387,9 @@ function viewCustomers(){
 /* ---------- settings ---------- */
 function viewSettings(){
   const adm=S.me.owner||S.me.edit;const mem=Object.values(S.members);
-  return pageHead('ตั้งค่า',S.me.role?'บัญชีของคุณ และการนำเข้าข้อมูล':'ผู้ใช้และบทบาท และการนำเข้าข้อมูล')+`
+  return pageHead('ตั้งค่า',S.me.role?'นำเข้าข้อมูล':'ผู้ใช้และบทบาท และการนำเข้าข้อมูล')+`
 
-  ${S.me.role?`<section class="card pad" style="display:flex;flex-direction:column;gap:8px"><h2 style="margin:0;font-size:16px">ผู้ใช้ สิทธิ์ และบันทึกการใช้งาน</h2>
-    <p class="sub" style="margin:0">ย้ายไปอยู่ที่หน้า "หลังบ้าน" ซึ่งผู้ดูแลระบบเท่านั้นเปิดได้ · ตอนนี้คุณเข้าใช้ในฐานะ <b>${esc(isSys()?'ผู้ดูแลระบบ':ROLES[myRole()][0])}</b> (${esc(S.me.email||'')})</p>
-    <div style="display:flex;gap:8px">${isSys()?'<a class="btn pri" href="console.html">เปิดหลังบ้าน</a>':''}<button class="btn" id="signout" type="button">ออกจากระบบ</button></div></section>`:`<section class="card"><div class="hd"><h2>ผู้ใช้และบทบาท</h2></div><p class="sub" style="margin:0 20px 16px">โหมดตัวอย่าง · ของจริงจัดการผู้ใช้ที่หน้า "หลังบ้าน"</p></section>`}
+  ${S.me.role&&!isSys()?'<section class="card empty">ไม่มีการตั้งค่าสำหรับบทบาทนี้</section>':''}
   ${(S.me.role?isSys():adm)?`<section class="card pad" style="display:flex;flex-direction:column;gap:12px"><h2 style="margin:0;font-size:16px">นำเข้าจาก Excel</h2>
     <p class="sub" style="margin:0">เลือกไฟล์ "ตารางงานดู Site ติดตั้ง Solar" ระบบอ่านชีต ตารางงาน และ LIST แล้วสร้างลูกค้า ไซต์ และงาน 1 งานต่อ 1 แถว ขั้นของงานคำนวณจากช่องที่กรอกไว้ งานที่ส่งแบบแล้วไม่มีข้อมูลต่อเกิน 60 วันจะเป็น "ยังไม่ตกลง" นำเข้าซ้ำได้ แถวเดิมจะถูกเขียนทับ</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><label class="filein" for="xfile">${svg('file','#16171a',2)}<span id="xfname">เลือกไฟล์ .xlsx</span><input type="file" id="xfile" accept=".xlsx"></label><button class="btn pri" id="ximport">นำเข้า</button></div><div id="xprog">${S.xprog||''}</div></section>`:''}
@@ -3796,7 +3795,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-demo]'))startDe
   if(window.CLEANLINE_CONFIG&&CLEANLINE_CONFIG.api&&window.CLGDB&&!/[?&]demo\b/.test(location.search)){
     try{
       const {db,user,me}=await CLGDB.connect('admin');
-      S.db=db;S.user=user;S.me.id=me.id;S.me.owner=!!me.owner;S.me.edit=['admin','sysadmin'].includes(me.role);S.me.role=me.role;S.me.email=me.email;S.me.name=me.name;
+      document.body.classList.add('rocat');S.db=db;S.user=user;S.me.id=me.id;S.me.owner=!!me.owner;S.me.edit=['admin','sysadmin'].includes(me.role);S.me.role=me.role;S.me.email=me.email;S.me.name=me.name;
       ['jobs','customers','sites','products','members','config','articles','services','forms','meters','messages','photos'].forEach(subscribe);
       names([S.me.id]).then(schedule);render();
     }catch(e){toast(e.message||'เชื่อมต่อไม่สำเร็จ');S.noDb=true;render()}
@@ -3818,6 +3817,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-demo]'))startDe
 render();
 
 /* ลิงก์ภายใน (#...) เปลี่ยนหน้าด้วย JS: บางหน้าตัวอย่าง/iframe ดักการคลิกลิงก์ ทำให้ปุ่มอย่าง "เปิดหน้างาน" ไม่ไป */
+document.addEventListener('click',e=>{if(document.body.classList.contains('rocat')&&e.target.closest('[data-fmnew],[data-fmedit],[data-fmdel],[data-eqnew],[data-eqedit],[data-eqdel],label[for="eqxfile"]')){e.preventDefault();e.stopImmediatePropagation();toast('เพิ่ม/แก้ เอกสารและแคตตาล็อก ทำได้ที่หน้าหลังบ้าน (ผู้ดูแลระบบ)')}},true);
 document.addEventListener('click',async e=>{
   const t=e.target.closest('#signout,[data-mkfolder]');if(!t)return;
   if(t.id==='signout'){CLGDB.user.signOut();return}

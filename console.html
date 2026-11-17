@@ -46,7 +46,8 @@ input[type=text],input[type=tel]{width:150px}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:10px 20px;font-size:14px;z-index:50;display:none}
 #toast.bad{background:var(--bad)}
 #modal{position:fixed;inset:0;background:rgba(21,35,15,.45);display:none;align-items:center;justify-content:center;z-index:40}
-#modal .bx{background:#fff;border-radius:22px;padding:24px;max-width:440px;width:92%}#modal h3{margin:0 0 8px}#modal p{color:var(--sub);margin:0 0 14px}
+#modal .bx{background:#fff;border-radius:22px;padding:24px;max-width:440px;width:92%;max-height:90vh;overflow:auto}#modal .bx.wide{max-width:680px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fg label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--sub)}.fg input,.fg select,.fg textarea{width:100%;font:inherit;font-size:14px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;color:var(--ink)}#modal h3{margin:0 0 8px}#modal p{color:var(--sub);margin:0 0 14px}
 .mut{color:var(--sub);font-size:13px}a{color:var(--acc)}
 </style>
 </head>
@@ -71,8 +72,21 @@ const TEAMS = ['ทีม 1','ทีม 2','ทีม 3','ทีม 4'];
 const COLN = {jobs:'งาน',customers:'ลูกค้า',sites:'ไซต์',products:'สินค้า',members:'ผู้ใช้',services:'งานบริการ',messages:'ข้อความ',photos:'รูป',meters:'มิเตอร์',config:'ตั้งค่า',jobnos:'เลขใบงาน',forms:'แบบฟอร์ม',articles:'บทความ'};
 const FN = {name:'ชื่อ',phone:'เบอร์',role:'บทบาท',team:'ทีม',status:'สถานะ',title:'ชื่องาน',stage:'ขั้นงาน',history:'ประวัติ',surveyTeam:'ทีมสำรวจ',surveyor:'ผู้สำรวจ',supervisor:'ผู้คุมงาน',installTeam:'ทีมติดตั้ง',jobNo:'เลขใบงาน',queueDate:'วันนัด',queueTime:'เวลานัด',installDate:'วันติดตั้ง',sv:'ขั้นย่อยสำรวจ',request:'ความต้องการลูกค้า',proposals:'ที่เสนอ',equipment:'อุปกรณ์ที่ติด',checkins:'เช็กอิน',file:'ไฟล์',text:'ข้อความ',kind:'ประเภท',folderId:'โฟลเดอร์',folderUrl:'โฟลเดอร์'};
 const ACT = {new:'เพิ่ม',edit:'แก้ไข',del:'ลบ',login:'เข้าสู่ระบบ'};
-const TABS = [['users','ผู้ใช้และสิทธิ์'],['logs','บันทึกการใช้งาน'],['backup','สำรอง / กู้ข้อมูล'],['system','ระบบ']];
-const S = {tab:'users', members:{}, joinreq:{}, logs:{}, me:null, db:null, health:null, backups:null, sys:{}, lq:'', lcol:'', lby:'', llim:150, edit:{}, busy:false, shares:null};
+const TABS = [['users','ผู้ใช้และสิทธิ์'],['docs','เอกสาร'],['cat','แคตตาล็อกสินค้า'],['logs','บันทึกการใช้งาน'],['backup','สำรอง / กู้ข้อมูล'],['system','ระบบ']];
+/* เอกสาร (แบบฟอร์ม) และแคตตาล็อก — ช่องเหมือนเว็บแอดมินเดิม */
+const FMC=['งานสำรวจ','งานติดตั้ง','เอกสารขนานไฟฟ้า','ตรวจเช็ก / แจ้งซ่อม','อื่น ๆ'];
+const FMF=[['code','รหัสแบบฟอร์ม','text',{ph:'เช่น FM-EN-028-A'}],['rev','ฉบับที่ / Rev.','text',{ph:'เช่น Rev.03'}],['name','ชื่อเอกสาร','text',{req:1,full:1}],['cat','หมวด','sel',FMC],['used','ใช้ตอนไหน','text',{ph:'เช่น ตอนเซลส์แจ้งงานสำรวจ'}],
+  ['file','ลิงก์ไฟล์ หรือที่อยู่ไฟล์','text',{full:1,ph:'https://...  หรือ  \\\\192.168.200.249\\...'}],['note','หมายเหตุ','area',{full:1}]];
+const LNK=[['img','ลิงก์รูปสินค้า','url',{full:1,ph:'https://... (ไม่ใส่ก็ได้)'}],['note','รายละเอียด','area',{full:1}],['datasheet','ลิงก์ Datasheet','url',{full:1,ph:'https://...'}],['manual','ลิงก์คู่มือ','url',{full:1}],['other','ลิงก์เอกสารอื่น','url',{full:1}]];
+const EQT=[['INVERTER','อินเวอร์เตอร์'],['BATTERY','แบตเตอรี่'],['SOLAR PANEL','แผงโซลาร์']];
+const EQF={
+ 'INVERTER':[['model','รุ่น','text',{req:1}],['brand','ยี่ห้อ','text'],['kw','กำลัง (kW)','number'],['phase','ประเภทไฟฟ้า (เฟส)','sel',['1','3']],['type','ประเภทระบบ','sel',['On Grid','Hybrid']],...LNK,
+   ['meters','Smart meter ที่ใช้คู่ (คั่นด้วย ,)','text',{full:1,ph:'DDSU666, SDM120CT'}],['cts','CT ที่ใช้คู่ (คั่นด้วย ,)','text',{full:1,ph:'100/40mA, 100/5A'}]],
+ 'BATTERY':[['model','รุ่น','text',{req:1}],['brand','ยี่ห้อ','text'],['kwh','ความจุ (kWh)','number'],['volt','แรงดัน','sel',['LV','HV']],...LNK],
+ 'SOLAR PANEL':[['model','รุ่น','text',{req:1}],['brand','ยี่ห้อ','text'],['watt','กำลัง (W)','number'],['cell','ชนิดเซลล์','text'],...LNK]};
+const pid=(c,m)=>(c+'-'+m).replace(/[^A-Za-z0-9_.-]+/g,'-').replace(/^[.]+/,'').slice(0,120);
+const eqSpec=p=>p.category==='INVERTER'?[p.kw?p.kw+' kW':'',p.phase?p.phase+' เฟส':'',p.type].filter(Boolean).join(' · '):p.category==='BATTERY'?[p.kwh?p.kwh+' kWh':'',p.volt].filter(Boolean).join(' · '):[p.watt?p.watt+' W':'',p.cell].filter(Boolean).join(' · ');
+const S = {tab:'users', members:{}, joinreq:{}, logs:{}, forms:{}, products:{}, eqc:'INVERTER', dq:'', eqq:'', me:null, db:null, health:null, backups:null, sys:{}, lq:'', lcol:'', lby:'', llim:150, edit:{}, busy:false, shares:null};
 const $ = s => document.querySelector(s);
 const esc = t => String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fdt = ms => { if(!ms) return '-'; const d=new Date(ms); return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}); };
@@ -100,7 +114,7 @@ function render(){
   const pend=Object.keys(S.joinreq).length;
   $('#nav').innerHTML=TABS.map(([k,l])=>`<button data-tab="${k}" class="${S.tab===k?'on':''}">${l}${k==='users'&&pend?`<span class="n">${pend}</span>`:''}</button>`).join('');
   $('#me').innerHTML=`<b>${esc(S.me.name)}</b>${esc(S.me.email)}<div style="margin-top:8px"><a href="index.html">เปิดเว็บแอดมิน</a><button id="out">ออกจากระบบ</button></div>`;
-  $('#main').innerHTML=({users:vUsers,logs:vLogs,backup:vBackup,system:vSystem})[S.tab]();
+  $('#main').innerHTML=({users:vUsers,docs:vDocs,cat:vCat,logs:vLogs,backup:vBackup,system:vSystem})[S.tab]();
 }
 function memberRows(){return Object.entries(S.members).map(([id,m])=>({id,...m})).sort((a,b)=>(a.status==='suspended')-(b.status==='suspended')||Object.keys(ROLE).indexOf(a.role)-Object.keys(ROLE).indexOf(b.role)||String(a.name).localeCompare(String(b.name),'th'))}
 function who(m){return `<div class="who">${m.picture?`<img src="${esc(m.picture)}" alt="" onerror="this.outerHTML='<div class=av>${esc(ini(m.name))}</div>'">`:`<div class="av">${esc(ini(m.name||m.email))}</div>`}<div>${esc(m.name||'-')}<small>${esc(m.email||'')}</small></div></div>`}
@@ -129,6 +143,77 @@ function vUsers(){
       <button class="btn l sm" data-sus="${m.id}" ${S.busy?'disabled':''}>${sus?'เปิดใช้':'ระงับ'}</button><button class="btn l sm" data-del="${m.id}" title="ลบผู้ใช้" ${S.busy?'disabled':''}>ลบ</button></td></tr>`}).join('')}
   </tbody></table>`:'<div class="empty">ยังไม่มีผู้ใช้</div>'}
   <p class="mut" style="margin:12px 0 0">คุณ (${esc(S.me.email)}) เป็นผู้ดูแลระบบคนเดียว ไม่อยู่ในตารางนี้ · ทีม 1–4 ใช้กับวิศวกร/หัวหน้าตรวจแบบ (ระบบส่งงานสำรวจตามทีม)</p></section>`;
+}
+function vDocs(){
+  const q=S.dq.trim().toLowerCase();
+  const L=Object.entries(S.forms).map(([id,x])=>({id,...x})).filter(x=>!q||[x.code,x.name,x.cat,x.used,x.note].join(' ').toLowerCase().includes(q))
+    .sort((a,b)=>FMC.indexOf(a.cat)-FMC.indexOf(b.cat)||String(a.code||a.name).localeCompare(String(b.code||b.name),'th',{numeric:true}));
+  return `<h1>เอกสาร</h1><p class="lead">แบบฟอร์มฉบับล่าสุดที่ทีมใช้ · เพิ่ม แก้ ลบ ได้ที่นี่ที่เดียว (เว็บแอดมินดูและเปิดไฟล์ได้อย่างเดียว)</p>
+  <section class="card"><div class="row" style="margin-bottom:12px"><input type="search" id="dq" placeholder="ค้นหา: รหัส ชื่อเอกสาร" value="${esc(S.dq)}" style="width:280px"><span class="sp"></span><span class="mut">${L.length} รายการ</span><button class="btn g sm" data-dnew>+ เพิ่มเอกสาร</button></div>
+  ${L.length?`<table><thead><tr><th>รหัส</th><th>ชื่อเอกสาร</th><th>หมวด</th><th>ใช้ตอนไหน</th><th>ไฟล์</th><th></th></tr></thead><tbody>
+  ${L.map(x=>`<tr><td style="white-space:nowrap"><b>${esc(x.code||'—')}</b> <span class="mut">${esc(x.rev||'')}</span></td><td>${esc(x.name||'')}</td><td class="mut">${esc(x.cat||'')}</td><td class="mut">${esc(x.used||'')}</td>
+    <td>${/^https?:\/\//i.test(x.file||'')?`<a href="${esc(x.file)}" target="_blank" rel="noopener">เปิด</a>`:`<span class="mut" style="font-size:12.5px">${esc(x.file||'—')}</span>`}</td>
+    <td class="row" style="flex-wrap:nowrap;justify-content:flex-end"><button class="btn l sm" data-dedit="${esc(x.id)}">แก้ไข</button><button class="btn l sm" data-ddel="${esc(x.id)}">ลบ</button></td></tr>`).join('')}
+  </tbody></table>`:'<div class="empty">ยังไม่มีเอกสาร กด "เพิ่มเอกสาร"</div>'}</section>`;
+}
+function vCat(){
+  const cat=S.eqc,q=S.eqq.trim().toLowerCase(),all=Object.entries(S.products).map(([id,p])=>({id,...p}));
+  const L=all.filter(p=>p.category===cat&&(!q||[p.model,p.brand,p.type,p.note].join(' ').toLowerCase().includes(q))).sort((a,b)=>String(a.model).localeCompare(String(b.model),'en',{numeric:true}));
+  return `<h1>แคตตาล็อกสินค้า</h1><p class="lead">รุ่นที่เลือกได้ในใบสำรวจ/ใบงาน · เพิ่ม แก้ ลบ ได้ที่นี่ที่เดียว · <b>อินเวอร์เตอร์ต้องมีเฟสและประเภทระบบ</b> แอปวิศวกรถึงจะกรองรุ่นให้ถูก</p>
+  <section class="card"><div class="row" style="margin-bottom:12px">
+    ${EQT.map(([k,t])=>`<button class="btn ${cat===k?'':'l'} sm" data-eqc="${k}">${t} <span style="opacity:.7">${all.filter(p=>p.category===k).length}</span></button>`).join('')}
+    <input type="search" id="eqq" placeholder="รุ่น หรือยี่ห้อ" value="${esc(S.eqq)}" style="width:200px"><span class="sp"></span>
+    <label class="btn l sm" style="cursor:pointer">นำเข้าจาก Excel<input type="file" id="eqx" accept=".xlsx" hidden></label><button class="btn g sm" data-pnew>+ เพิ่มรุ่น</button></div>
+  ${L.length?`<table><thead><tr><th>รุ่น</th><th>ยี่ห้อ</th><th>สเปก</th><th>Datasheet</th><th></th></tr></thead><tbody>
+  ${L.map(p=>{const miss=cat==='INVERTER'&&(!p.phase||!p.type);return `<tr><td><b>${esc(p.model)}</b>${miss?' <span class="pill warn">ขาดเฟส/ระบบ</span>':''}</td><td class="mut">${esc(p.brand||'')}</td><td>${esc(eqSpec(p))}</td>
+    <td>${/^https?:\/\//i.test(p.datasheet||'')?`<a href="${esc(p.datasheet)}" target="_blank" rel="noopener">เปิด</a>`:'<span class="mut">—</span>'}</td>
+    <td class="row" style="flex-wrap:nowrap;justify-content:flex-end"><button class="btn l sm" data-pedit="${esc(p.id)}">แก้ไข</button><button class="btn l sm" data-pdel="${esc(p.id)}">ลบ</button></td></tr>`}).join('')}
+  </tbody></table>`:'<div class="empty">ยังไม่มีรุ่นในหมวดนี้</div>'}</section>`;
+}
+/* ฟอร์มในหน้าต่าง: คืนค่าที่กรอก หรือ null ถ้ายกเลิก */
+function formBox(title,F,v){
+  return new Promise(res=>{
+    const fld=([k,l,t,o])=>{o=o||{};const val=v[k]??'';const st=o.full?'grid-column:1/-1':'';
+      if(t==='sel')return `<label style="${st}"><span>${esc(l)}</span><select data-f="${k}"><option value="">—</option>${(Array.isArray(o)?o:[]).map(x=>`<option ${String(val)===x?'selected':''}>${esc(x)}</option>`).join('')}</select></label>`;
+      if(t==='area')return `<label style="${st}"><span>${esc(l)}</span><textarea data-f="${k}" rows="3">${esc(val)}</textarea></label>`;
+      return `<label style="${st}"><span>${esc(l)}${o.req?' *':''}</span><input type="${t==='number'?'number':'text'}" step="any" data-f="${k}" value="${esc(val)}" placeholder="${esc(o.ph||'')}"></label>`};
+    $('#mbx').innerHTML=`<h3>${esc(title)}</h3><div class="fg">${F.map(fld).join('')}</div><p class="mut" id="ferr" style="color:var(--bad);min-height:18px;margin:8px 0 0"></p>
+      <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn l" id="mno">ยกเลิก</button><button class="btn g" id="mok">บันทึก</button></div>`;
+    $('#mbx').classList.add('wide');$('#modal').style.display='flex';
+    const done=x=>{$('#modal').style.display='none';$('#mbx').classList.remove('wide');res(x)};
+    $('#mno').onclick=()=>done(null);
+    $('#mok').onclick=()=>{const o={};F.forEach(([k,,t])=>{const el=document.querySelector(`#mbx [data-f="${k}"]`);if(!el)return;let x=el.value.trim();if(t==='number'&&x!=='')x=Number(x);o[k]=x});
+      const miss=F.find(([k,,,op])=>op&&op.req&&!o[k]);if(miss){$('#ferr').textContent='ใส่ '+miss[1]+' ก่อน';return}
+      const badUrl=F.find(([k,,t])=>t==='url'&&o[k]&&!/^(https?:\/\/|\\\\)/i.test(o[k]));if(badUrl){$('#ferr').textContent=badUrl[1]+' ต้องขึ้นต้นด้วย https://';return}
+      done(o)};
+  });
+}
+/* นำเข้าแคตตาล็อกจาก Excel (Catalog.xlsx: สินค้า ยี่ห้อ รุ่น เฟส กำลังผลิต Smart Meter CT หมายเหตุ) */
+const catNum=v=>{const m=String(v??'').replace(/,/g,'').match(/\d+(?:\.\d+)?/);return m?Number(m[0]):''};
+function catParse(rows){
+  const hi=rows.findIndex(r=>(r||[]).some(c=>String(c??'').trim()==='สินค้า'));if(hi<0)throw new Error('ไม่พบหัวตาราง "สินค้า" ในไฟล์');
+  const H=rows[hi].map(c=>String(c??'').trim());const col=t=>H.findIndex(x=>x===t);
+  const C={cat:col('สินค้า'),brand:col('ยี่ห้อ'),model:col('รุ่น'),phase:col('เฟส'),pow:col('กำลังผลิต'),sm:H.findIndex(x=>/smart\s*meter/i.test(x)),ct:col('CT'),note:col('หมายเหตุ')};
+  if(C.model<0)throw new Error('ไม่พบคอลัมน์ "รุ่น"');
+  const v=(r,k)=>C[k]<0?'':String(r[C[k]]??'').trim();const out=[],bad=[];
+  rows.slice(hi+1).forEach((r,i)=>{r=r||[];const t=v(r,'cat'),model=v(r,'model');if(!t||!model)return;
+    const cat=/แผง|panel/i.test(t)?'SOLAR PANEL':/อินเวอร์เตอร์|inverter/i.test(t)?'INVERTER':/แบต|battery/i.test(t)?'BATTERY':'';
+    if(!cat){bad.push(`แถว ${hi+i+2}: ไม่รู้จักประเภท "${t}"`);return}
+    const d={category:cat,model,brand:v(r,'brand')};const pw=catNum(v(r,'pow'));
+    if(cat==='INVERTER'){Object.assign(d,{kw:pw,phase:String(catNum(v(r,'phase'))||''),type:/hybrid/i.test(v(r,'note'))?'Hybrid':/on.?grid/i.test(v(r,'note'))?'On Grid':''});
+      const smB=C.sm<0?'':String(r[C.sm]??'').trim(),smM=C.sm<0?'':String(r[C.sm+1]??'').trim();if(smM)d.meters=smM;if(v(r,'ct'))d.cts=v(r,'ct');if(smM)d.note=`Smart meter ${[smB,smM].filter(Boolean).join(' ')}${d.cts?' · CT '+d.cts:''}`}
+    else if(cat==='BATTERY')d.kwh=pw;else d.watt=pw;
+    Object.keys(d).forEach(k=>{if(d[k]===''||d[k]==null)delete d[k]});out.push(d)});
+  return {out,bad};
+}
+function loadXLSX(){return new Promise((res,rej)=>{if(window.XLSX)return res();const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=res;s.onerror=()=>rej(new Error('โหลดตัวอ่าน Excel ไม่ได้'));document.head.appendChild(s)})}
+async function catImport(file){
+  let r;try{await loadXLSX();const wb=XLSX.read(await file.arrayBuffer());const ws=wb.Sheets[wb.SheetNames[0]];r=catParse(XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:null}))}catch(e){return toast('อ่านไฟล์ไม่ได้: '+(e.message||e),true)}
+  const have=S.products,seen=new Set(),L=[];r.out.forEach(d=>{const id=pid(d.category,d.model);if(seen.has(id))return;seen.add(id);L.push({id,d,upd:!!have[id]})});
+  if(!L.length)return toast('ไม่พบรุ่นในไฟล์',true);
+  const nN=L.filter(x=>!x.upd).length,nU=L.length-nN;
+  if(!await ask('นำเข้าแคตตาล็อก: '+file.name,`เพิ่มใหม่ <b>${nN}</b> รุ่น · อัปเดต <b>${nU}</b> รุ่น${r.bad.length?'<br><span style="color:var(--bad)">ข้าม '+r.bad.length+' แถว: '+esc(r.bad.slice(0,3).join(' · '))+'</span>':''}<br>รุ่นเดิมที่ไม่อยู่ในไฟล์จะไม่ถูกลบ`,'นำเข้า'))return;
+  await run(async()=>{for(let i=0;i<L.length;i+=40){const b=S.db.batch();L.slice(i,i+40).forEach(x=>{const ref=S.db.doc('products/'+x.id);if(x.upd)b.update(ref,{...x.d,updatedAt:Date.now()});else b.set(ref,{...x.d,updatedAt:Date.now()})});await b.commit()}},`นำเข้าแล้ว ${L.length} รุ่น`);
 }
 function vLogs(){
   const all=Object.entries(S.logs).map(([id,l])=>({id,...l})).sort((a,b)=>b.at-a.at);
@@ -191,6 +276,16 @@ document.addEventListener('click',async e=>{
     await run(()=>S.db.call('approve',{uid:d.del,member:null}).then(()=>S.db.refresh()),'ลบแล้ว');return}
   if(d.shares!==undefined){S.shares=await run(()=>S.db.call('syncShares').then(r=>r.report),'ตรวจสิทธิ์โฟลเดอร์แล้ว')||S.shares;render();return}
   if(d.lmore!==undefined){S.llim+=150;render();return}
+  if(d.dnew!==undefined||d.dedit){const id=d.dedit,cur=id?S.forms[id]:{cat:FMC[0]};const v=await formBox(id?'แก้ไขเอกสาร':'เพิ่มเอกสาร',FMF,cur);if(!v)return;
+    await run(()=>S.db.doc('forms/'+(id||('fm'+Date.now().toString(36)))).set({...(id?cur:{}),...v,updatedAt:Date.now()}),'บันทึกแล้ว');return}
+  if(d.ddel){const x=S.forms[d.ddel];if(!await ask('ลบเอกสารนี้?',`"${esc(x.name||x.code)}" จะหายจากรายการในเว็บแอดมิน (ไฟล์จริงไม่ถูกลบ)`,'ลบ',true))return;
+    await run(()=>S.db.doc('forms/'+d.ddel).delete(),'ลบแล้ว');return}
+  if(d.eqc){S.eqc=d.eqc;render();return}
+  if(d.pnew!==undefined||d.pedit){const id=d.pedit,cur=id?S.products[id]:{},cat=id?cur.category:S.eqc;const v=await formBox((id?'แก้ไขรุ่น · ':'เพิ่มรุ่น · ')+(EQT.find(x=>x[0]===cat)||[,cat])[1],EQF[cat]||EQF.INVERTER,cur);if(!v)return;
+    const nid=id||pid(cat,v.model);if(!id&&S.products[nid])return toast('มีรุ่นนี้อยู่แล้ว',true);
+    await run(()=>S.db.doc('products/'+nid).set({...(id?cur:{}),...v,category:cat,updatedAt:Date.now()}),'บันทึกแล้ว');return}
+  if(d.pdel){const p=S.products[d.pdel];if(!await ask('ลบรุ่นนี้?',`"${esc(p.model)}" จะหายจากตัวเลือกในใบสำรวจ งานที่เคยเลือกรุ่นนี้ไว้ไม่ได้รับผลกระทบ`,'ลบ',true))return;
+    await run(()=>S.db.doc('products/'+d.pdel).delete(),'ลบแล้ว');return}
   if(d.bknow!==undefined){await run(()=>S.db.call('backup').then(loadBackups),'สำรองแล้ว');return}
   if(d.restore){if(!await ask('กู้ข้อมูลจากชุดนี้?',`<b>${esc(d.rname)}</b><br>ข้อมูลที่บันทึกหลังจากเวลานั้นจะหายจากระบบ (ระบบสำรองข้อมูลปัจจุบันให้ก่อน 1 ชุด เผื่อเปลี่ยนใจ) · แนะนำเปิด "ปิดปรับปรุง" ก่อน`,'กู้ข้อมูล',true,'กู้'))return;
     await run(()=>S.db.call('restore',{fileId:d.restore}).then(()=>{loadBackups();S.db.refresh()}),'กู้ข้อมูลแล้ว ทุกเครื่องจะโหลดใหม่');return}
@@ -206,6 +301,7 @@ document.addEventListener('change',async e=>{
   if(d.mteam)return set(d.mteam,'team',t.value);
   if(t.id==='lby'){S.lby=t.value;S.llim=150;render();return}
   if(t.id==='lcol'){S.lcol=t.value;S.llim=150;render();return}
+  if(t.id==='eqx'){const f=t.files[0];t.value='';if(f)catImport(f);return}
   if(t.id==='mt'){const on=t.checked,msg=$('#mmsg').value;
     if(on&&!await ask('ปิดปรับปรุงระบบ?','ทุกคนจะบันทึกอะไรไม่ได้จนกว่าคุณจะเปิดกลับ','ปิดปรับปรุง',true)){t.checked=false;return}
     await run(()=>S.db.call('setSys',{flags:{maintenance:on,msg}}).then(r=>S.sys=r.sys),on?'ปิดปรับปรุงแล้ว':'เปิดใช้งานปกติแล้ว');return}
@@ -218,6 +314,8 @@ document.addEventListener('input',e=>{
   if(d.mphone){keep(d.mphone,'phone');return softRender(t)}
   if(t.id==='lq'){S.lq=t.value;S.llim=150;softRender(t)}
   if(t.id==='mmsg')S.mmsg=t.value;
+  if(t.id==='dq'){S.dq=t.value;softRender(t)}
+  if(t.id==='eqq'){S.eqq=t.value;softRender(t)}
 });
 // วาดใหม่โดยไม่เสียตำแหน่งเคอร์เซอร์
 function softRender(el){const sel=el.selectionStart,key=[...el.attributes].filter(a=>a.name.startsWith('data-')||a.name==='id').map(a=>`[${a.name}="${a.value}"]`).join('');render();const n=document.querySelector(key);if(n){n.focus();try{n.setSelectionRange(sel,sel)}catch(x){}}}
@@ -229,7 +327,7 @@ CLGDB.connect('console').then(({db,me})=>{
   S.db=db;S.me=me;$('#app').hidden=false;
   const live=(col)=>db.collection(col).onSnapshot(s=>{const o={};s.docs.forEach(x=>o[x.id]=x.data());S[col]=o;
     const a=document.activeElement;if(a&&/INPUT|SELECT/.test(a.tagName)&&a.closest('main'))return; render()},e=>toast(e.message,true));
-  live('members');live('joinreq');live('logs');
+  live('members');live('joinreq');live('logs');live('forms');live('products');
   render();
 }).catch(e=>{document.body.insertAdjacentHTML('beforeend',`<p style="padding:40px;text-align:center">${esc(e.message)}</p>`)});
 </script>
