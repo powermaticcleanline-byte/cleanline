@@ -927,7 +927,7 @@ function viewJob(id){
       ${pv.map((p,k)=>`<div class="slp"><div class="slph"><span>${pv.length>1?'แบบที่ '+(k+1)+' · ':''}${esc(p.systemType||'')}</span><b>${p.kw?esc(p.kw)+' kW':'—'}</b></div>
        ${quoteItems(j,p).map(x=>`<div class="sr it"><span>${esc(x.t)}</span><b>${x.approx?'~':''}${esc(x.q)} <em>${x.u}</em></b></div>`).join('')}</div>`).join('')}</section>`:''}
     <section class="card jc2"><div class="jh"><b>ลูกค้าและไซต์</b></div>${row('ลูกค้า',esc(c.name||'—'))}${row('โทร',esc(c.phone||''))}${row('ที่อยู่',esc(s.address||''))}${row('ทีมขาย',esc([j.salesTeam,j.salesPerson].filter(Boolean).join(' · ')))}</section>
-    <section class="card jc2"><div class="jh"><b>นัดหมาย</b></div>${appt}${j.folderUrl&&safeUrl(j.folderUrl)?`<div class="sr"><span>โฟลเดอร์งาน</span><b><button class="lk" style="min-height:0;padding:0" data-open="${esc(j.folderUrl)}">เปิดใน Google Drive</button></b></div>`:''}
+    <section class="card jc2"><div class="jh"><b>นัดหมาย</b></div>${appt}${j.folderUrl&&safeUrl(j.folderUrl)?`<div class="sr"><span>โฟลเดอร์งาน</span><b><button class="lk" style="min-height:0;padding:0" data-open="${esc(j.folderUrl)}">เปิดใน Google Drive</button> · <button class="lk" style="min-height:0;padding:0" data-fname="${esc(j.id)}">เปลี่ยนชื่อ</button></b></div>`:''}
      ${r.systemType||r.wantKwp?row('ลูกค้าอยากได้',esc([r.systemType,r.wantKwp?r.wantKwp+' kWp':''].filter(Boolean).join(' · '))):''}
      ${j.salesNote?`<div class="jnote"><small>หมายเหตุจากเซลส์</small>${esc(j.salesNote)}</div>`:''}${j.woNote?`<div class="jnote"><small>หมายเหตุใบงาน</small>${esc(j.woNote)}</div>`:''}</section>
     ${chatCard(j)}
@@ -1358,7 +1358,8 @@ function viewNs(id){
     <section class="card"><h2>${ic('today')}นัดสำรวจ</h2><div class="nsbig">${fd(j.surveyDate||j.queueDate)}${j.queueTime?' · '+esc(j.queueTime):''}</div>
      <p class="hint" style="margin:4px 0 0">ลูกค้า ${esc(c.name||'—')}${c.phone?' · '+esc(c.phone):''}${j.salesTeam?' · ทีมขาย '+esc(j.salesTeam):''}</p>
      ${j.salesNote?`<div class="notec"><h4>${ic('doc')}จากเซลส์</h4><p>${esc(j.salesNote)}</p></div>`:''}${j.woNote?`<div class="notec warm"><h4>${ic('doc')}ใบงาน</h4><p>${esc(j.woNote)}</p></div>`:''}</section>
-    <section class="card nsstart"><b>กด "เริ่มสำรวจ" เมื่อถึงหน้างาน</b><ul><li>${ic('check')}ตอบรับใบงาน</li><li>${ic('check')}สร้างชื่อโฟลเดอร์งานให้อัตโนมัติ</li><li>${ic('check')}เช็กอิน บันทึกเวลาและพิกัด</li></ul></section></main>
+    <section class="card nsstart"><b>กด "เริ่มสำรวจ" เมื่อถึงหน้างาน</b><ul><li>${ic('check')}ตอบรับใบงาน</li><li>${ic('check')}${j.folderId?'ตั้งชื่อโฟลเดอร์งาน':'สร้างชื่อโฟลเดอร์งานให้อัตโนมัติ'}</li><li>${ic('check')}เช็กอิน บันทึกเวลาและพิกัด</li></ul>
+     ${j.folderId&&!j.sv?.onsite?`<label style="display:grid;gap:6px;margin-top:12px;font-size:14px">ชื่อโฟลเดอร์งาน (แก้ได้)<input id="ns-fname" value="${esc(fnameOf(j))}" style="font:inherit;padding:10px 12px;border:1px solid #ccd;border-radius:10px;background:#fff"></label>`:''}</section></main>
     <div class="abar"><div class="in"><button class="btn pri" data-nsstart ${S.busy?'disabled':''}>${S.busy?'กำลังเช็กอิน…':'เริ่มสำรวจ · เช็กอิน'}</button></div></div>`;
   const steps=`<div class="nst" role="tablist">${NS_PAGES.map((t,i)=>{const k=i+1,done=!m[k].length;return `<button role="tab" aria-selected="${k===pg}" class="${k===pg?'on':''} ${done?'ok':''}" data-nsgo="${k}"><span>${done?ic('check'):k}</span><small>${t}</small></button>`}).join('')}</div>`;
   const miss=m[pg].length?`<div class="nsmiss">${ic('doc')}<span>ยังขาด: ${esc(m[pg].join(', '))}</span></div>`:'';
@@ -1420,11 +1421,12 @@ async function nsGo(id,to){
 }
 async function nsStart(id){
   const j=C().jobs[id];if(!j||!canAct(j)||S.busy)return;
+  const fnIn=document.getElementById('ns-fname');const fn=fnIn?fnameClean(fnIn.value):'';if(fnIn&&!fn){toast('ใส่ชื่อโฟลเดอร์งาน');return}
   const d=draftOf(j),now=Date.now(),v={...(j.sv||{})};
   S.busy=true;render();const g=await geo();S.busy=false;
   if(!v.accepted)v.accepted=now;if(!v.folder){v.folder=String(d.folder||'').trim();v.folderAt=now}v.onsite=now;
   const ci={kind:'onsite',at:now,lat:g?.lat??null,lng:g?.lng??null};
-  const ok=await svSave(id,{sv:v,checkins:[...(j.checkins||[]),ci]},{kind:'edit',text:'เริ่มสำรวจ: ตอบรับใบงาน · สร้างโฟลเดอร์ '+v.folder+' · ถึงหน้างาน'+(g?'':' (ไม่ได้พิกัด)')},g?'เช็กอินแล้ว เริ่มกรอกได้เลย':'เช็กอินแล้ว (ไม่ได้พิกัด)');
+  const ok=await svSave(id,{sv:v,checkins:[...(j.checkins||[]),ci],...(fn&&fn!==(j.folderName||'')?{folderName:fn}:{})},{kind:'edit',text:'เริ่มสำรวจ: ตอบรับใบงาน · '+(fn?'โฟลเดอร์ '+fn:'สร้างโฟลเดอร์ '+v.folder)+' · ถึงหน้างาน'+(g?'':' (ไม่ได้พิกัด)')},g?'เช็กอินแล้ว เริ่มกรอกได้เลย':'เช็กอินแล้ว (ไม่ได้พิกัด)');
   if(ok){(S.nsPage=S.nsPage||{})[id]=1;render()}
 }
 async function nsCad(id,k,on){
@@ -1432,6 +1434,16 @@ async function nsCad(id,k,on){
   if(on){if(k==='cadFiled'&&!v.cad){toast('ติ๊ก "วาดแบบแล้ว" ก่อน');render();return}v[k]=Date.now()}else{if(k==='cad'&&v.cadFiled){toast('เอาติ๊ก "เก็บไฟล์แบบ" ออกก่อน');render();return}delete v[k]}
   await svSave(id,{sv:v},{kind:'edit',text:(on?'':'ยกเลิก: ')+(k==='cad'?'วาดแบบใน CADabra เสร็จ':'เก็บไฟล์แบบในโฟลเดอร์แล้ว')},on?'บันทึกแล้ว':'ยกเลิกแล้ว');
 }
+const fnameOf=j=>j.folderName||[j.jobNo,j.surveyDate||j.queueDate,j.title].filter(Boolean).join(' ');
+const fnameClean=v=>String(v||'').replace(/[\/\\]+/g,'-').replace(/\s+/g,' ').trim().slice(0,120);
+function askText(title,label,val){return new Promise(res=>{const m=$('#modal');
+  m.innerHTML=`<div class="ov" data-ov><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mt"><h3 id="mt">${esc(title)}</h3><label style="display:grid;gap:6px;font-size:14px">${esc(label)}<input id="at-v" value="${esc(val||'')}" style="font:inherit;padding:10px 12px;border:1px solid #ccd;border-radius:10px"></label>
+   <div class="acts"><button class="btn" data-no>ยกเลิก</button><button class="btn pri" data-yes>บันทึก</button></div></div></div>`;
+  const done=v=>{m.innerHTML='';res(v)};m.querySelector('[data-yes]').onclick=()=>done(m.querySelector('#at-v').value);m.querySelector('[data-no]').onclick=()=>done(null);
+  m.querySelector('[data-ov]').onclick=e=>{if(e.target.dataset.ov!==undefined)done(null)};m.querySelector('#at-v').focus()})}
+async function renameFolder(id){const j=C().jobs[id];if(!j||!j.folderId)return;
+  const v=await askText('เปลี่ยนชื่อโฟลเดอร์งาน','ชื่อโฟลเดอร์',fnameOf(j));if(v==null)return;const n=fnameClean(v);if(!n)return toast('ใส่ชื่อโฟลเดอร์');if(n===j.folderName)return;
+  try{await S.api.updateJob(id,{folderName:n},{kind:'edit',text:'เปลี่ยนชื่อโฟลเดอร์: '+n});toast('เปลี่ยนชื่อโฟลเดอร์แล้ว')}catch(e){toast(e.message||'บันทึกไม่สำเร็จ')}}
 const destOf=j=>j.stage===ST.SURVEY&&canAct(j)?'#ns-'+j.id:j.stage===ST.COMM&&icCan(j)?'#ic-'+j.id:'#job-'+j.id;
 function nextJob(){
   const u=me(),T=today();
@@ -2069,6 +2081,7 @@ document.addEventListener('click',e=>{
   if(d.view){viewPhoto(d.view);return}
   if(d.nsgo!==undefined){nsGo(route().slice(3),+d.nsgo);return}
   if('nsstart' in d){nsStart(route().slice(3));return}
+  if('fname' in d){renameFolder(d.fname);return}
   if('nsresign' in d){S.nsResign=route().slice(3);S.sig=null;render();return}
   if(d.slipimg){saveSlipImage(d.slipimg);return}
   if(d.copyquote){copyQuote(d.copyquote);return}

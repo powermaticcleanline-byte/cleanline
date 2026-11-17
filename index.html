@@ -3081,7 +3081,7 @@ function viewJob(id){
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>
       <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p></div>
-    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${myRole()==='admin'&&S.db?`<button class="btn" data-jdel="${esc(j.id)}" style="color:#c2343a">${svg('trash','#c2343a')}ลบงาน</button>`:''}</div></div>
+    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>${myRole()==='admin'&&j.folderId?`<button class="btn" data-fname="${esc(j.id)}">เปลี่ยนชื่อโฟลเดอร์</button>`:''}`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${myRole()==='admin'&&S.db?`<button class="btn" data-jdel="${esc(j.id)}" style="color:#c2343a">${svg('trash','#c2343a')}ลบงาน</button>`:''}</div></div>
   ${j.status==='active'?`<section class="card jst">
     <div class="jsc"><span class="sub">ขั้นปัจจุบัน</span><span class="pill ${PHC2[phaseOf(n)?.k]||'gy'} big">${esc(st.name)}</span></div>
     <div class="jsc"><span class="sub">ผู้รับผิดชอบ</span><b>${mineNow?'คุณ':esc(ownerOf(j))}</b></div>
@@ -3699,6 +3699,7 @@ function confirmBox(title,msg,ok,cls){return new Promise(res=>{
   const done=v=>{m.innerHTML='';document.removeEventListener('keydown',k,true);res(v)};const k=e=>{if(e.key==='Escape'){e.stopPropagation();done(false)}};
   document.addEventListener('keydown',k,true);$('#cfN').onclick=()=>done(false);$('#cfY').onclick=()=>done(true);$('#cfN').focus();
 })}
+function askVal(title,label,val){return new Promise(res=>{ask(title,label).then(res);const i=$('#askv');if(i){i.value=val||'';i.select()}})}
 function ask(title,label){return new Promise(res=>{
   const m=$('#modal');m.innerHTML=`<div class="modalbg"><form class="modal" id="askf"><h2 style="margin:0;font-size:17px">${esc(title)}</h2><label class="fld" for="askv">${esc(label)}<input type="text" id="askv" required></label><div style="display:flex;gap:8px"><button class="btn dk" type="submit">ยืนยัน</button><button class="btn" type="button" id="askc">ยกเลิก</button></div></form></div>`;
   const done=v=>{m.innerHTML='';document.removeEventListener('keydown',k,true);res(v)};const k=e=>{if(e.key==='Escape'){e.stopPropagation();done(null)}};
@@ -3903,7 +3904,10 @@ document.addEventListener('click',e=>{if(document.body.classList.contains('rocat
 document.addEventListener('change',async e=>{if(e.target.id==='pfphoto'){const f=e.target.files[0];e.target.value='';if(!f)return;try{S.pfn=$('#pfname')?.value;S.pf2=await shrinkImg(f,256);render()}catch(x){toast('อ่านรูปไม่ได้')}}});
 document.addEventListener('input',e=>{if(e.target.id==='pfname')S.pfn=e.target.value});
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('#signout,[data-mkfolder],#pfsave,#pfdelphoto,[data-unlock]');if(!t)return;
+  const t=e.target.closest('#signout,[data-mkfolder],#pfsave,#pfdelphoto,[data-unlock],[data-fname]');if(!t)return;
+  if(t.dataset.fname){const j=S.jobs[t.dataset.fname];if(!j)return;const cur=j.folderName||[j.jobNo,j.queueDate||j.surveyDate,j.title].filter(Boolean).join(' ');
+    const v=await askVal('เปลี่ยนชื่อโฟลเดอร์งาน','ชื่อโฟลเดอร์',cur);if(v==null)return;const n=String(v).replace(/[\/\\]+/g,'-').replace(/\s+/g,' ').trim().slice(0,120);if(!n||n===j.folderName)return;
+    try{await pushHist(j,ev('edit','เปลี่ยนชื่อโฟลเดอร์: '+n),{folderName:n});toast('เปลี่ยนชื่อโฟลเดอร์แล้ว')}catch(x){}return}
   if(t.id==='pfsave'){t.disabled=true;await saveProfile();return}
   if(t.dataset.unlock){const j=S.jobs[t.dataset.unlock];const L=SV_APPROVAL.filter(x=>j.queueUnlock!==x);const who=L.length===1?L[0]:await ask('ขอใช้ใคร','พิมพ์ชื่อ: '+L.join(' / '));if(!who)return;if(!L.includes(who))return toast('ไม่พบชื่อ '+who);
     const why=await ask('ขอใช้ '+who+' สำหรับงานนี้','เหตุผล (บันทึกไว้ในประวัติงาน)');if(!why)return;
