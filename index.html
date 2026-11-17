@@ -2597,6 +2597,7 @@ function jobDrawer(j){
       <button class="btn sm ghost drx" data-dclose="1" aria-label="ปิด">ปิด ✕</button>
     </header>
     ${facts}
+    ${(()=>{const sj=j.siteId?siteJobs(j.siteId):[];return sj.length>1?`<div class="dsc" style="margin:0 20px 12px"><h4>งานของไซต์นี้ ${sj.length} งาน</h4>${sj.map(x=>`<a href="#job-${esc(x.id)}" style="display:flex;justify-content:space-between;gap:8px;padding:4px 0"><span>${esc(x.jobNo?'#'+x.jobNo:'ยังไม่มีเลข')} · ${esc(x.type==='addon'?'ติดตั้งเพิ่ม':'งานแรก')}${x.id===j.id?' (งานนี้)':''}</span>${jobPill(x)}</a>`).join('')}</div>`:''})()}
     <div class="dra">
       <a class="btn sm lime" href="#job-${esc(j.id)}">เปิดหน้างาน</a>
       ${inst&&j.siteId?`<button class="btn sm dk" data-svnew="CM" data-sid="${esc(j.siteId)}">${svg('wrench','#fff',2)}บันทึกแจ้งซ่อม</button><button class="btn sm" data-svnew="PM" data-sid="${esc(j.siteId)}">${svg('check','currentColor',2.2)}บันทึกตรวจเช็ก</button>`:''}
@@ -3070,7 +3071,9 @@ function viewJob(id){
     right=`<section class="act"><div><h2>ตรวจเช็กประจำปี</h2><span class="sub">${due?'ครบกำหนด '+fd(due)+(dl<0?' · เลยมา '+(-dl)+' วัน':' · อีก '+dl+' วัน'):'ยังไม่มีวันติดตั้ง จึงคำนวณวันครบกำหนดไม่ได้'}</span></div>
       <span class="sub">นับ 1 ปีจาก${j.lastPm?'วันตรวจเช็กครั้งล่าสุด '+fd(j.lastPm):'วันติดตั้ง '+fd(j.installDate)} ระบบจะแจ้งแอดมินล่วงหน้า 30 วัน</span>
       ${due?`<div class="btns"><button class="btn dk" data-act="pmdone">บันทึกว่าตรวจเช็กแล้ววันนี้</button></div>`:''}</section>`;
+    if(myRole()==='admin')right+=`<section class="act"><div><h2>ติดตั้งเพิ่ม</h2><span class="sub">ไซต์เดิม เริ่มที่จองคิวสำรวจ</span></div><div class="btns"><button class="btn" data-act="addon">ขอติดตั้งเพิ่ม</button></div></section>`;
   }
+  {const sj=j.siteId?siteJobs(j.siteId).filter(x=>x.id!==j.id):[];if(sj.length)right+=`<section class="act" aria-label="งานของไซต์นี้"><h2>งานของไซต์นี้</h2>${sj.map(x=>`<a href="#job-${esc(x.id)}" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(x.jobNo?'#'+x.jobNo:'ยังไม่มีเลข')} · ${esc(x.type==='addon'?'ติดตั้งเพิ่ม':'งานแรก')}</span>${jobPill(x)}</a>`).join('')}</section>`}
   const hist=[...(j.history||[])].reverse();
   const PHC2={pre:'b',offer:'g',ins:'o',post:'v'};
   return `${datalists()}
@@ -3244,20 +3247,20 @@ function viewNew(){
   const team=myTeam()||(myRole()==='sales_en'?'EN':'');const f=S.nf||(S.nf={});
   if(S.f.qd&&!f.date){f.date=S.f.qd}
   return `<div class="top"><nav class="crumb"><a href="#today">วันนี้</a><span>/</span><b>แจ้งงานสำรวจ</b></nav></div>
-  ${pageHead('จองคิวสำรวจ','ข้อมูลลูกค้าตามแบบฟอร์ม FM-EN-028-A')}
+  ${f.parent&&S.jobs[f.parent]?pageHead('จองคิวสำรวจ · ติดตั้งเพิ่ม','ไซต์เดิม '+(S.jobs[f.parent].jobNo?'#'+S.jobs[f.parent].jobNo+' ':'')+(S.jobs[f.parent].title||'')):pageHead('จองคิวสำรวจ','ข้อมูลลูกค้าตามแบบฟอร์ม FM-EN-028-A')}
   <form id="newForm" class="nsplit" autocomplete="off">
     <section class="card pad nform" aria-label="ข้อมูลแจ้งงาน">
       <div class="ngrp"><h2>ผู้แจ้งงาน</h2><div class="fgrid">
         <label class="fld" for="n-team">ทีมขาย<select id="n-team" ${myRole()==='sales_pm'?'disabled':''}><option value="">—</option>${TEAMS.map(t=>`<option ${(f.team||team)===t?'selected':''}>${t}</option>`).join('')}</select></label>
         <label class="fld" for="n-person">ชื่อเซลส์<input type="text" id="n-person" value="${esc(f.person||'')}"></label></div></div>
       <div class="ngrp"><h2>ลูกค้า</h2><div class="fgrid">
-        <label class="fld" for="n-first">ชื่อ<input id="n-first" value="${esc(f.first||'')}" autocomplete="off"></label>
-        <label class="fld" for="n-last">นามสกุล<input id="n-last" value="${esc(f.last||'')}"></label>
-        <label class="fld" for="n-phone">เบอร์ติดต่อ<input id="n-phone" type="tel" inputmode="tel" value="${esc(f.phone||'')}" placeholder="08x-xxx-xxxx"></label>
-        <label class="fld" for="n-email">อีเมล (ไม่บังคับ)<input id="n-email" type="email" value="${esc(f.email||'')}"></label>
-        <label class="fld full" for="n-addr">ที่อยู่ลูกค้า (ไม่บังคับ)<textarea id="n-addr" rows="2">${esc(f.addr||'')}</textarea></label></div></div>
+        <label class="fld" for="n-first">ชื่อ<input id="n-first" ${f.parent&&f._ro&&f._ro.first?'readonly':''} value="${esc(f.first||'')}" autocomplete="off"></label>
+        <label class="fld" for="n-last">นามสกุล<input id="n-last" ${f.parent&&f._ro&&f._ro.last?'readonly':''} value="${esc(f.last||'')}"></label>
+        <label class="fld" for="n-phone">เบอร์ติดต่อ<input id="n-phone" ${f.parent&&f._ro&&f._ro.phone?'readonly':''} type="tel" inputmode="tel" value="${esc(f.phone||'')}" placeholder="08x-xxx-xxxx"></label>
+        <label class="fld" for="n-email">อีเมล (ไม่บังคับ)<input id="n-email" ${f.parent&&f._ro&&f._ro.email?'readonly':''} type="email" value="${esc(f.email||'')}"></label>
+        <label class="fld full" for="n-addr">ที่อยู่ลูกค้า (ไม่บังคับ)<textarea id="n-addr" ${f.parent&&f._ro&&f._ro.addr?'readonly':''} rows="2">${esc(f.addr||'')}</textarea></label></div></div>
       <div class="ngrp"><h2>Location</h2>
-        <label class="fld" for="n-map">ลิงก์ Google Maps ตำแหน่งลูกค้า<input id="n-map" type="url" value="${esc(f.map||'')}" placeholder="https://maps.app.goo.gl/..."></label>
+        <label class="fld" for="n-map">ลิงก์ Google Maps ตำแหน่งลูกค้า<input id="n-map" ${f.parent&&f._ro&&f._ro.map?'readonly':''} type="url" value="${esc(f.map||'')}" placeholder="https://maps.app.goo.gl/..."></label>
         <div class="maphelp"><a class="btn sm" href="${mapsDir(f.addr||'')}" target="_blank" rel="noopener" id="n-mapbtn">${svg('pin','#16171a').replace('<svg','<svg width="14" height="14"')}เปิด Google Maps เส้นทางจากเพาเวอร์เมติค</a>
         <span class="sub">ปักหมุดบ้านลูกค้า กดแชร์ แล้ววางลิงก์ในช่องด้านบน</span>${f.map&&!/^https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|(www\.)?google\.[a-z.]+\/maps)/.test(f.map)?'<span class="tag warn">ลิงก์นี้ไม่ใช่ Google Maps</span>':''}</div></div>
       <div class="ngrp"><h2>สมาร์ทมิเตอร์ <span class="opt">เครื่องวัดพฤติกรรมไฟ · ไม่บังคับ</span></h2>
@@ -3677,6 +3680,9 @@ async function doAct0(a,jid){
   if(a==='done'){await pushHist(j,ev('handoff','ยื่นขนานไฟฟ้าเสร็จ ปิดงาน ครบตรวจเช็กประจำปี '+fd(pmDue(j)),{from:LAST}),{status:'done',stageSince:now});return}
   if(a==='cancel'){const r=await ask('ยกเลิกคิวสำรวจ','เหตุผล');if(!r)return;
     await pushHist(j,ev('lost','ยกเลิกคิว: '+r),{status:'cancelled',cancelReason:r,cancelledAt:now,stageSince:now});toast('ยกเลิกแล้ว คิวว่างให้งานอื่น');return}
+  if(a==='addon'){const c=cOf(j),s=sOf(j);
+    S.nf={parent:j.id,first:c.firstName||c.name||'',last:c.lastName||'-',phone:c.phone||'',email:c.email||'',addr:c.address||s.address||'',map:s.mapLink||'',team:j.salesTeam||'',person:j.salesPerson||'',note:'ติดตั้งเพิ่ม'};S.nf._ro=Object.fromEntries(['first','last','phone','email','addr','map'].map(k=>[k,!!S.nf[k]]));
+    location.hash='new';return}
   if(a==='resume'){await pushHist(j,ev('handoff','เปิดงานต่อ ('+STAGES[n].name+')'),{status:'active',stageSince:now,cancelReason:'',cancelledAt:null,autoCancelled:false});toast('เปิดงานต่อแล้ว');return}
   if(a==='rebook'){if(!await confirmBox('จองใหม่','ใช้ข้อมูลเดิม แล้วเลือกวันสำรวจใหม่','จองใหม่','dk'))return;
     await pushHist(j,ev('handoff','จองใหม่ (ข้อมูลเดิม)',{to:ST.BOOK}),{status:'active',stage:ST.BOOK,stageSince:now,cancelReason:'',cancelledAt:null,autoCancelled:false,surveyTeam:'',surveyor:'',surveyorId:'',surveyHelpers:'',queueUnlock:''});toast('เปิดงานแล้ว เลือกวันใหม่');return}
@@ -3719,14 +3725,16 @@ async function createJob0(mode){
   const di=dayInfo(f.date);if(di.closed||di.left<1||di.taken.includes(f.time)){f.time='';nfRefresh();return toast('คิวนี้ถูกจองไปแล้ว เลือกเวลาใหม่')}
   const now=Date.now();const name=`คุณ${f.first} ${f.last}`;
   try{
-    const cid=S.db.collection('customers').doc().id;
-    const W3=[['customers/'+cid,{firstName:f.first,lastName:f.last,name:f.first+' '+f.last,type:'บุคคล',phone:f.phone,email:f.email,address:f.addr,createdAt:now},'set']];
-    const sid=S.db.collection('sites').doc().id;
-    W3.push(['sites/'+sid,{customerId:cid,label:name,mapLink:normUrl(f.map),address:f.addr,createdAt:now},'set']);
+    const ad=f.parent?S.jobs[f.parent]:null;
+    const cid=ad?ad.customerId:S.db.collection('customers').doc().id;
+    const W3=ad?[]:[['customers/'+cid,{firstName:f.first,lastName:f.last,name:f.first+' '+f.last,type:'บุคคล',phone:f.phone,email:f.email,address:f.addr,createdAt:now},'set']];
+    const sid=ad?ad.siteId:S.db.collection('sites').doc().id;
+    if(ad){const oc=cOf(ad),os=sOf(ad);if(f.phone&&f.phone!==(oc.phone||''))W3.push(['customers/'+cid,{phone:f.phone},'update']);if(normUrl(f.map)&&normUrl(f.map)!==(os.mapLink||''))W3.push(['sites/'+sid,{mapLink:normUrl(f.map)},'update'])}
+    if(!ad)W3.push(['sites/'+sid,{customerId:cid,label:name,mapLink:normUrl(f.map),address:f.addr,createdAt:now},'set']);
     const jid=S.db.collection('jobs').doc().id;
-    W3.push(['jobs/'+jid,{type:'solar',customerId:cid,siteId:sid,title:name,salesTeam:f.team,salesPerson:f.person,queueDate:f.date,queueTime:f.time,salesNote:f.note,
+    W3.push(['jobs/'+jid,{type:ad?'addon':'solar',...(ad?{parentJobId:ad.id}:{}),customerId:cid,siteId:sid,title:ad?(ad.title||name)+' · ติดตั้งเพิ่ม':name,salesTeam:f.team,salesPerson:f.person,queueDate:f.date,queueTime:f.time,salesNote:f.note,
       status:'active',stage:ST.ACCEPT,stageSince:now,createdAt:now,updatedAt:now,
-      history:[ev('create',`แจ้งงานสำรวจ ${name}`),ev('handoff',`จองคิวสำรวจ ${fd(f.date)} ${f.time} รอเลือกทีมสำรวจ`,{from:ST.BOOK,to:ST.ACCEPT})]},'set']);
+      history:[ev('create',ad?`ขอติดตั้งเพิ่ม (ไซต์เดิม ${ad.jobNo?'#'+ad.jobNo:ad.title||''})`:`แจ้งงานสำรวจ ${name}`),ev('handoff',`จองคิวสำรวจ ${fd(f.date)} ${f.time} รอเลือกทีมสำรวจ`,{from:ST.BOOK,to:ST.ACCEPT})]},'set']);
     await wMany(W3);
     if(f.meter){const to=isoAdd(f.date,(f.mdays||7)-1);const dev=freeMeters(f.date,to)[0];
       await w('meters/'+S.db.collection('meters').doc().id,{device:dev||'',from:f.date,to,jobId:jid,title:name,phone:f.phone,team:f.team,person:f.person,source:'job',status:'booked',createdAt:now},'set');
