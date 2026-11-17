@@ -1,0 +1,18 @@
+{
+  "id": "./engineer.html",
+  "name": "CLEANLINE Man",
+  "short_name": "CLEANLINE Man",
+  "description": "งานสำรวจและติดตั้งของคุณ ครบในมือถือ",
+  "lang": "th",
+  "start_url": "./engineer.html",
+  "scope": "./engineer.html",
+  "display": "standalone",
+  "theme_color": "#4f9a12",
+  "background_color": "#4f9a12",
+  "icons": [
+    { "src": "icon-man-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-man-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-man-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-man-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

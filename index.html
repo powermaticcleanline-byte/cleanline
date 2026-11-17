@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CLEANLINE Management</title>
+<link rel="manifest" href="manifest-management.webmanifest">
+<meta name="theme-color" content="#e6e8ec">
+<link rel="apple-touch-icon" href="apple-touch-icon-mg.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Management">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%23636469'/%3E%3Cpath d='M12 34V21a6 6 0 0 1 6-6h3a6 6 0 0 1 6 6v6a6 6 0 0 0 6 6h4' fill='none' stroke='%2394d30a' stroke-width='5.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
 <style>
@@ -1837,6 +1844,36 @@ html,body{overflow-anchor:none}
 .btn.kbdel svg,.btn.svdel svg{width:15px;height:15px;margin-right:4px;vertical-align:-2px}
 /* แจ้งเตือน: ตัวเลขสีแดง แสดงเฉพาะเรื่องใหม่ */
 .nb,.nb.new{background:#e5484d!important;color:#fff!important}
+
+/* ===== ระบบปุ่ม (รอบ 3a) =====
+   หลัก .pri/.dk = ดำ (1 ปุ่มต่อจุด) · รอง .btn = ขาวขอบเทา · ข้อความ .ghost
+   อันตรายแบบอ่อน .dangero (ปุ่มบนหน้า) · อันตรายแบบทึบ .danger (ปุ่มยืนยันในกล่อง) */
+.btn{height:38px!important;padding:0 16px!important;border-radius:999px!important;font-size:14px!important;font-weight:600!important;background:#fff!important;color:#1b1d22!important;border:1px solid #d5d9e0!important;box-shadow:0 1px 2px rgba(16,24,40,.06)!important;transform:none!important;transition:background .15s,border-color .15s,box-shadow .15s,color .15s!important}
+.btn svg{width:16px;height:16px;flex:none}
+.btn:hover{background:#f3f4f6!important;border-color:#b8bec8!important;box-shadow:0 1px 2px rgba(16,24,40,.08)!important}
+.btn:active{background:#eceef1!important}
+.btn:focus-visible{outline:3px solid rgba(31,111,235,.35)!important;outline-offset:2px!important}
+.btn.sm{height:34px!important;padding:0 13px!important;font-size:13.5px!important}
+.btn.pri,.btn.dk{background:#111214!important;color:#fff!important;border-color:#111214!important;box-shadow:0 1px 2px rgba(16,24,40,.2),0 8px 16px -10px rgba(0,0,0,.6)!important}
+.btn.pri:hover,.btn.dk:hover{background:#2c2e33!important;border-color:#2c2e33!important}
+.btn.pri:active,.btn.dk:active{background:#000!important}
+.btn.ghost{background:transparent!important;border-color:transparent!important;box-shadow:none!important;color:#4b5058!important}
+.btn.ghost:hover{background:#f1f2f4!important;color:#1b1d22!important}
+.btn.dangero,.btn.kbdel,.btn.svdel,.btn.ghost.kbdel{background:#fef3f2!important;color:#b42318!important;border-color:#fecdca!important;box-shadow:none!important}
+.btn.dangero:hover,.btn.kbdel:hover,.btn.svdel:hover,.btn.ghost.kbdel:hover{background:#fee4e2!important;border-color:#fda29b!important;color:#912018!important}
+.btn.danger,.btn.ddy{background:#d92d20!important;color:#fff!important;border-color:#d92d20!important;box-shadow:0 1px 2px rgba(16,24,40,.12),0 8px 16px -10px rgba(217,45,32,.8)!important}
+.btn.danger:hover,.btn.ddy:hover{background:#b42318!important;border-color:#b42318!important}
+.btn.danger:focus-visible,.btn.dangero:focus-visible,.btn.ddy:focus-visible{outline-color:rgba(217,45,32,.35)!important}
+.btn:disabled,.btn[disabled],.btn.ddy:disabled,.btn.pri:disabled,.btn.dk:disabled,.btn.danger:disabled{background:#f2f4f7!important;color:#98a2b3!important;border-color:#e4e7ec!important;box-shadow:none!important;cursor:not-allowed!important}
+.pha{flex-wrap:wrap!important;justify-content:flex-end;row-gap:8px}
+.pha-sep{width:1px;height:24px;background:#d5d9e0;margin:0 4px;flex:none}
+.mft{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.cfi{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#fee4e2;color:#d92d20;box-shadow:0 0 0 7px #fef3f2;margin:4px 0 6px 6px}
+.cfi svg{width:22px;height:22px}
+.jt2 .ibs .ib{background:#fff!important;color:#344054!important;box-shadow:inset 0 0 0 1px #e4e7ec!important;filter:none!important}
+.jt2 .ibs .ib:not(:disabled):hover{background:#f3f4f6!important;transform:none!important;box-shadow:inset 0 0 0 1px #c4cad3!important}
+.jt2 .ibs .ib.del{color:#d92d20!important;margin-left:6px;box-shadow:inset 0 0 0 1px #fecdca!important}
+.jt2 .ibs .ib.del:not(:disabled):hover{background:#fef3f2!important;box-shadow:inset 0 0 0 1px #fda29b!important}
 </style>
 <style>body.rocat [data-fmnew],body.rocat [data-fmedit],body.rocat [data-fmdel],body.rocat [data-eqnew],body.rocat [data-eqedit],body.rocat [data-eqdel],body.rocat label[for="eqxfile"]{display:none!important}</style></head>
 <body>
@@ -2020,6 +2057,7 @@ const IC={
  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'
 };
+IC.xc='<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>';
 const svg=(k,c='currentColor',w=1.9)=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
 const SWOOSH='<svg class="sw" width="520" height="230" viewBox="0 0 560 260" aria-hidden="true"><path d="M20 230 V150 Q20 100 70 100 H180 Q230 100 230 150 V170 Q230 220 280 220 H540" fill="none" stroke="#1f6feb" stroke-opacity=".18" stroke-width="22" stroke-linecap="round"/><path d="M20 230 V150 Q20 100 70 100 H180 Q230 100 230 150 V170 Q230 220 280 220 H540" fill="none" stroke="#dcfce7" stroke-opacity=".5" stroke-width="2"/></svg>';
 
@@ -2518,7 +2556,7 @@ function viewJobs(mode){
         const tel=c.phone?`<a class="ib" href="tel:${esc(String(c.phone).replace(/[^\d+]/g,''))}" aria-label="โทร ${esc(c.phone)}" title="โทร ${esc(c.phone)}">${svg('phone','currentColor',2)}</a>`:ib('phone','','','ยังไม่มีเบอร์โทร');
         const view=ib('eye','ดูรายละเอียด',`data-sel="${esc(j.id)}"`);
         const acts=svc?[view,ib('wrench','บันทึกแจ้งซ่อม',`data-svnew="CM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('check','บันทึกตรวจเช็ก',`data-svnew="PM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('copy','คัดลอก S/N',`data-cpy="${esc(sn)}"`,sn?'':'ยังไม่มี S/N')]
-          :[view,ib('pen','แก้ไขข้อมูล',`data-regedit="${esc(j.id)}"`),ib('trash','ลบงานนี้',`data-jdel="${esc(j.id)}"`),ib('file','คัดลอกที่อยู่โฟลเดอร์',`data-cpy="${esc(j.folderPath||'')}"`,j.folderPath?'':'ยังไม่มีที่อยู่โฟลเดอร์')];
+          :[view,ib('pen','แก้ไขข้อมูล',`data-regedit="${esc(j.id)}"`),ib('file','คัดลอกที่อยู่โฟลเดอร์',`data-cpy="${esc(j.folderPath||'')}"`,j.folderPath?'':'ยังไม่มีที่อยู่โฟลเดอร์'),ib('trash','ลบงานนี้',`data-jdel="${esc(j.id)}"`).replace('class="ib"','class="ib del"')];
         const now=j.status==='active'?`${j.stage===ST.DOCS?'รอเอกสารขนานไฟ':'รอ'+ownerOf(j)} · ${days(j.stageSince)} วัน`:j.status==='lost'?(j.lostReason||''):j.status==='cancelled'?(j.cancelReason||''):'';
         const st=svc||isInstalled(j)&&j.status==='done'?(careTags(j)||jobPill(j)):jobPill(j);
         const T=(v,cls)=>v?`<td class="${cls||''}" title="${esc(v)}">${esc(v)}</td>`:`<td class="${cls||''}"><span class="nil">—</span></td>`;
@@ -2628,7 +2666,7 @@ function eqSync(e){if(!e||!Array.isArray(e.units)||!e.units.length)return e;cons
 const unitSns=e=>invUnits(e).flatMap(u=>[u.sn,u.wifiSn]).filter(Boolean).join(' ');
 const slaveRow=(u,i)=>`<div class="eqsl" style="display:grid;grid-template-columns:90px 1fr 1fr 1fr auto;gap:8px;align-items:end;margin-top:8px"><b style="font-size:13px;padding-bottom:10px">Slave <i>${i+1}</i></b>
   <label class="fld">รุ่น<input data-uk="model" value="${esc(u.model||'')}" list="dl-INVERTER"></label><label class="fld">S/N เครื่อง<input data-uk="sn" value="${esc(u.sn||'')}"></label><label class="fld">S/N WiFi<input data-uk="wifiSn" value="${esc(u.wifiSn||'')}"></label>
-  <button class="btn sm" type="button" data-eqsdel="1" style="margin-bottom:4px">ลบ</button></div>`;
+  <button class="btn sm dangero" type="button" data-eqsdel="1" style="margin-bottom:4px">ลบ</button></div>`;
 document.addEventListener('click',e=>{const t=e.target.closest('[data-eqsadd],[data-eqsdel]');if(!t)return;const sec=t.closest('[data-sec]');if(!sec)return;const box=sec.querySelector('.eqsls');
   if(t.dataset.eqsadd){const m=sec.querySelector('[data-k="model"]');box.insertAdjacentHTML('beforeend',slaveRow({model:m?m.value:''},box.children.length))}else t.closest('.eqsl').remove();
   [...box.children].forEach((r,i)=>{const x=r.querySelector('b i');if(x)x.textContent=i+1})});
@@ -3077,7 +3115,6 @@ function viewJob(id){
       ${act?'':`<span class="sub">รอ${esc(ownerOf(j))}ดำเนินการ</span>`}
     </section>`;
     if(j.resurvey&&n<=ST.SURVEY)right=`<span class="tag warn" style="height:auto;padding:6px 10px;align-self:flex-start">สำรวจซ้ำ · เดิมสำรวจไว้ ${j.resurvey.days} วัน</span>`+right;
-    if(n<=ST.SURVEY&&canCancel())right+=`<button class="btn sm" data-act="cancel" style="align-self:flex-start;box-shadow:none;color:var(--mut)">ยกเลิกคิว</button>`;
   }else if(j.status==='cancelled'){
     right=`<section class="act"><h2>ยกเลิก</h2><span class="sub">${esc(j.cancelReason||'')}${j.cancelledAt?' · '+fdt(j.cancelledAt):''}</span>${canCancel()?(j.autoCancelled?'<button class="btn dk" data-act="resume">เปิดงานต่อ</button><button class="btn" data-act="rebook">จองใหม่</button>':'<button class="btn dk" data-act="rebook">จองใหม่</button>'):''}</section>`;
   }else if(j.status==='lost'){
@@ -3097,7 +3134,7 @@ function viewJob(id){
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>
       <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p></div>
-    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>${myRole()==='admin'&&j.folderId?`<button class="btn" data-fname="${esc(j.id)}">เปลี่ยนชื่อโฟลเดอร์</button>`:''}`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${myRole()==='admin'&&S.db?`<button class="btn" data-jdel="${esc(j.id)}" style="color:#c2343a">${svg('trash','#c2343a')}ลบงาน</button>`:''}</div></div>
+    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>${myRole()==='admin'&&j.folderId?`<button class="btn" data-fname="${esc(j.id)}">เปลี่ยนชื่อโฟลเดอร์</button>`:''}`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;return cx||dx?`<span class="pha-sep" aria-hidden="true"></span>${cx?`<button class="btn dangero" data-act="cancel">${svg('xc','currentColor',2)}ยกเลิกคิว</button>`:''}${dx?`<button class="btn dangero" data-jdel="${esc(j.id)}">${svg('trash','currentColor',2)}ลบงาน</button>`:''}`:''})()}</div></div>
   ${j.status==='active'?`<section class="card jst">
     <div class="jsc"><span class="sub">ขั้นปัจจุบัน</span><span class="pill ${PHC2[phaseOf(n)?.k]||'gy'} big">${esc(st.name)}</span></div>
     <div class="jsc"><span class="sub">ผู้รับผิดชอบ</span><b>${mineNow?'คุณ':esc(ownerOf(j))}</b></div>
@@ -3700,7 +3737,7 @@ async function doAct0(a,jid){
   if(a==='next'){const to=n+1;await pushHist(j,ev('handoff',`ส่งต่อให้${nextWho(j,to)} (${STAGES[to].name})`,{from:n,to}),{stage:to,stageSince:now});toast('ส่งต่อแล้ว');return}
     if(a==='pmdone'){const d=today();await pushHist(j,ev('edit','ตรวจเช็กประจำปีแล้ว '+fd(d)),{lastPm:d});toast('บันทึกแล้ว ครบกำหนดครั้งถัดไป '+fd(pmDue({...j,lastPm:d})));return}
   if(a==='done'){await pushHist(j,ev('handoff','ยื่นขนานไฟฟ้าเสร็จ ปิดงาน ครบตรวจเช็กประจำปี '+fd(pmDue(j)),{from:LAST}),{status:'done',stageSince:now});return}
-  if(a==='cancel'){const r=await ask('ยกเลิกคิวสำรวจ','เหตุผล');if(!r)return;
+  if(a==='cancel'){const r=await ask('ยกเลิกคิวสำรวจนี้?','เหตุผล',{danger:true,icon:'xc',ok:'ยกเลิกคิว',no:'กลับ',msg:'คิวจะว่างให้งานอื่นทันที จองใหม่ได้ภายหลัง'});if(!r)return;
     await pushHist(j,ev('lost','ยกเลิกคิว: '+r),{status:'cancelled',cancelReason:r,cancelledAt:now,stageSince:now});toast('ยกเลิกแล้ว คิวว่างให้งานอื่น');return}
   if(a==='addon'){const c=cOf(j),s=sOf(j);
     S.nf={parent:j.id,first:c.firstName||c.name||'',last:c.lastName||'-',phone:c.phone||'',email:c.email||'',addr:c.address||s.address||'',map:s.mapLink||'',team:j.salesTeam||'',person:j.salesPerson||'',note:'ติดตั้งเพิ่ม'};S.nf._ro=Object.fromEntries(['first','last','phone','email','addr','map'].map(k=>[k,!!S.nf[k]]));
@@ -3717,13 +3754,13 @@ async function doAct0(a,jid){
   }
 }
 function confirmBox(title,msg,ok,cls){return new Promise(res=>{
-  const m=$('#modal');m.innerHTML=`<div class="modalbg"><div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="cfT" aria-describedby="cfM"><h2 id="cfT" style="margin:0;font-size:17px">${esc(title)}</h2><p id="cfM" style="margin:0;color:var(--mut);font-size:14px;line-height:1.6">${esc(msg)}</p><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="cfN" type="button">ยกเลิก</button><button class="btn ${cls||'danger'}" id="cfY" type="button">${esc(ok)}</button></div></div></div>`;
+  const m=$('#modal');m.innerHTML=`<div class="modalbg"><div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="cfT" aria-describedby="cfM">${!cls||cls==='danger'?`<span class="cfi">${svg(/ยกเลิก/.test(ok)?'xc':'trash','currentColor',2)}</span>`:''}<h2 id="cfT" style="margin:0;font-size:17px">${esc(title)}</h2><p id="cfM" style="margin:0;color:var(--mut);font-size:14px;line-height:1.6">${esc(msg)}</p><div class="mft"><button class="btn" id="cfN" type="button">${/ยกเลิก/.test(ok)?'กลับ':'ยกเลิก'}</button><button class="btn ${cls||'danger'}" id="cfY" type="button">${esc(ok)}</button></div></div></div>`;
   const done=v=>{m.innerHTML='';document.removeEventListener('keydown',k,true);res(v)};const k=e=>{if(e.key==='Escape'){e.stopPropagation();done(false)}};
   document.addEventListener('keydown',k,true);$('#cfN').onclick=()=>done(false);$('#cfY').onclick=()=>done(true);$('#cfN').focus();
 })}
 function askVal(title,label,val){return new Promise(res=>{ask(title,label).then(res);const i=$('#askv');if(i){i.value=val||'';i.select()}})}
-function ask(title,label){return new Promise(res=>{
-  const m=$('#modal');m.innerHTML=`<div class="modalbg"><form class="modal" id="askf"><h2 style="margin:0;font-size:17px">${esc(title)}</h2><label class="fld" for="askv">${esc(label)}<input type="text" id="askv" required></label><div style="display:flex;gap:8px"><button class="btn dk" type="submit">ยืนยัน</button><button class="btn" type="button" id="askc">ยกเลิก</button></div></form></div>`;
+function ask(title,label,o={}){return new Promise(res=>{
+  const m=$('#modal');m.innerHTML=`<div class="modalbg"><form class="modal" id="askf">${o.danger?`<span class="cfi">${svg(o.icon||'warn','currentColor',2)}</span>`:''}<h2 style="margin:0;font-size:17px">${esc(title)}</h2>${o.msg?`<p style="margin:0;color:var(--mut);font-size:14px;line-height:1.6">${esc(o.msg)}</p>`:''}<label class="fld" for="askv">${esc(label)}<input type="text" id="askv" required></label><div class="mft"><button class="btn" type="button" id="askc">${esc(o.no||'ยกเลิก')}</button><button class="btn ${o.danger?'danger':'dk'}" type="submit">${esc(o.ok||'ยืนยัน')}</button></div></form></div>`;
   const done=v=>{m.innerHTML='';document.removeEventListener('keydown',k,true);res(v)};const k=e=>{if(e.key==='Escape'){e.stopPropagation();done(null)}};
   document.addEventListener('keydown',k,true);$('#askv').focus();
   $('#askf').onsubmit=e=>{e.preventDefault();done($('#askv').value.trim())};
