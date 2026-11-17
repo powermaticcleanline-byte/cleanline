@@ -46,15 +46,19 @@
     var since = {}; cols().forEach(function (c) { since[c] = st.ver[c] || 0; });
     return api({ op: 'pull', cols: Object.keys(since), since: since, epoch: st.epoch })
       .then(function (r) {
-        st.fails = 0; banner('net', '');
+        st.fails = 0; banner('net', ''); st.lastPull = Date.now();
         if (r.reset) { st.data = {}; st.loaded = {}; }
         st.epoch = r.epoch;
         setSys(r.sys || {});
         var changed = {};
         Object.keys(r.ver).forEach(function (c) {
           var m = st.data[c] || (st.data[c] = {});
-          (r.changes[c] || []).forEach(function (x) { if (x.deleted) delete m[x.id]; else m[x.id] = x.d; });
-          if ((r.changes[c] || []).length || !st.loaded[c] || r.reset) changed[c] = 1;
+          var diff = false;
+          (r.changes[c] || []).forEach(function (x) {
+            if (x.deleted) { if (x.id in m) { delete m[x.id]; diff = true; } return; }
+            if (JSON.stringify(m[x.id] || null) !== JSON.stringify(x.d)) { m[x.id] = x.d; diff = true; } // ของที่เราเพิ่งบันทึกเอง ไม่ต้องวาดใหม่
+          });
+          if (diff || !st.loaded[c] || r.reset) changed[c] = 1;
           st.ver[c] = r.ver[c]; st.loaded[c] = true;
         });
         Object.keys(changed).forEach(emit);
@@ -100,6 +104,11 @@
   function Doc(c, id) { this.c = c; this.id = id; this.path = c + '/' + id; }
   Doc.prototype.get = function () {
     var c = this.c, id = this.id;
+    // ข้อมูลในเครื่องเพิ่งอัปเดต (ไม่เกิน 6 วิ) → ใช้เลย ไม่ต้องรอตัวกลาง (ตัวกลางรวมประวัติงานให้ไม่ทับกัน)
+    if (st.loaded[c] && !pending && st.lastPull && Date.now() - st.lastPull < 6000) {
+      var d0 = (st.data[c] || {})[id];
+      return Promise.resolve({ id: id, exists: !!d0, data: function () { return d0 ? clone(d0) : undefined; } });
+    }
     return api({ op: 'get', path: this.path }).then(function (r) {
       var m = st.data[c] || (st.data[c] = {});
       if (r.doc) m[id] = r.doc; else delete m[id];
@@ -120,11 +129,36 @@
     else banner('save', '');
   }
   function track(p) { saving(true); return p.then(function (r) { saving(false); return r; }, function (e) { saving(false); throw e; }); }
+  // แสดงผลทันทีในเครื่อง (ไม่ต้องรอตัวกลาง) · ถ้าตัวกลางไม่ยอม → คืนค่าเดิม
+  function localAfter(c, id, mode, data) {
+    var cur = (st.data[c] || {})[id];
+    if (mode === 'delete') return null;
+    if (mode === 'set') return clone(data);
+    var o = clone(cur) || {};
+    Object.keys(data || {}).forEach(function (k) {
+      if (k.indexOf('.') < 0) { o[k] = clone(data[k]); return; }
+      var ks = k.split('.'), x = o; for (var i = 0; i < ks.length - 1; i++) { if (typeof x[ks[i]] !== 'object' || !x[ks[i]]) x[ks[i]] = {}; x = x[ks[i]]; } x[ks[ks.length - 1]] = clone(data[k]);
+    });
+    return o;
+  }
+  function optimistic(list) {
+    var undo = [];
+    list.forEach(function (w) {
+      if (w.c === 'logs') return;
+      var m = st.data[w.c] || (st.data[w.c] = {}), had = w.id in m;
+      undo.push({ c: w.c, id: w.id, had: had, v: m[w.id] });
+      var a = localAfter(w.c, w.id, w.mode, w.data);
+      if (a) m[w.id] = a; else delete m[w.id];
+    });
+    var cs = {}; undo.forEach(function (u) { cs[u.c] = 1; }); Object.keys(cs).forEach(emit);
+    return function () { undo.reverse().forEach(function (u) { var m = st.data[u.c] || {}; if (u.had) m[u.id] = u.v; else delete m[u.id]; }); Object.keys(cs).forEach(emit); };
+  }
   function write(ref, mode, data) {
+    var revert = (mode === 'update' && !((st.data[ref.c] || {})[ref.id])) ? function () {} : optimistic([{ c: ref.c, id: ref.id, mode: mode, data: data }]);
     return track(api({ op: 'write', mode: mode, path: ref.path, data: clone(data) })).then(function (r) {
       if (!r.skipped) applyLocal(ref.c, ref.id, r.doc, r.ver);
       schedule(300);
-    });
+    }, function (e) { revert(); throw e; });
   }
   // เขียนหลายรายการครั้งเดียว (แบบ Firestore writeBatch)
   function Batch() { this.ops = []; }
@@ -132,14 +166,18 @@
   Batch.prototype.update = function (ref, d) { this.ops.push({ mode: 'update', path: ref.path, data: clone(d) }); return this; };
   Batch.prototype.delete = function (ref) { this.ops.push({ mode: 'delete', path: ref.path, data: null }); return this; };
   Batch.prototype.commit = function () {
-    return track(api({ op: 'batch', ops: this.ops })).then(function (r) {
-      (r.results || []).forEach(function (x) { var a = x.path.split('/'); var m = st.data[a[0]] || (st.data[a[0]] = {}); if (x.doc) m[a[1]] = x.doc; else delete m[a[1]]; });
-      var cs = {}; (r.results || []).forEach(function (x) { cs[x.path.split('/')[0]] = 1; }); Object.keys(cs).forEach(emit);
+    var revert = optimistic(this.ops.map(function (o) { var a = o.path.split('/'); return { c: a[0], id: a[1], mode: o.mode, data: o.data }; }));
+    return track(api({ op: 'batch', ops: this.ops })).catch(function (e) { revert(); throw e; }).then(function (r) {
+      var cs = {};
+      (r.results || []).forEach(function (x) { var a = x.path.split('/'); var m = st.data[a[0]] || (st.data[a[0]] = {});
+        if (JSON.stringify(m[a[1]] || null) === JSON.stringify(x.doc || null)) return; cs[a[0]] = 1; if (x.doc) m[a[1]] = x.doc; else delete m[a[1]]; });
+      Object.keys(cs).forEach(emit);
       schedule(300);
     });
   };
   function applyLocal(c, id, doc, ver) {
     var m = st.data[c] || (st.data[c] = {});
+    if (JSON.stringify(m[id] || null) === JSON.stringify(doc || null)) return; // เหมือนที่แสดงไปแล้ว ไม่ต้องวาดใหม่
     if (doc) m[id] = doc; else delete m[id];
     emit(c);
   }
