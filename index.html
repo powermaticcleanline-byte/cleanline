@@ -2633,12 +2633,14 @@ function delJobBox(j){return new Promise(res=>{
 async function deleteJob(jid){const j=S.jobs[jid];if(!j)return;closeModal();
   if(!await delJobBox(j))return;
   try{
-    for(const b of Object.values(S.meters||{}).filter(b=>b.jobId===jid))await w('meters/'+b.id,null,'delete');
-    for(const x of Object.values(S.services||{}).filter(x=>x.jobId===jid))await w('services/'+x.id,null,'delete');
+    const L=[],seen=new Set(),del=p=>{if(!seen.has(p)){seen.add(p);L.push([p,null,'delete'])}};
+    for(const b of Object.values(S.meters||{}).filter(b=>b.jobId===jid))del('meters/'+b.id);
+    for(const x of Object.values(S.services||{}).filter(x=>x.jobId===jid))del('services/'+x.id);
     const others=Object.values(S.jobs).filter(o=>o.id!==jid);
-    await w('jobs/'+jid,null,'delete');
-    if(j.siteId&&!others.some(o=>o.siteId===j.siteId)){await w('sites/'+j.siteId,null,'delete').catch(()=>{});for(const x of Object.values(S.services||{}).filter(x=>x.siteId===j.siteId))await w('services/'+x.id,null,'delete').catch(()=>{})}
-    if(j.customerId&&!others.some(o=>o.customerId===j.customerId))await w('customers/'+j.customerId,null,'delete').catch(()=>{});
+    del('jobs/'+jid);
+    if(j.siteId&&!others.some(o=>o.siteId===j.siteId)){del('sites/'+j.siteId);for(const x of Object.values(S.services||{}).filter(x=>x.siteId===j.siteId))del('services/'+x.id)}
+    if(j.customerId&&!others.some(o=>o.customerId===j.customerId))del('customers/'+j.customerId);
+    await wMany(L);
     S.sel=null;document.body.classList.remove('dlock');if(route().startsWith('job-'))location.hash='jobs';else render();toast('ลบงานแล้ว');
   }catch(e){}
 }
@@ -3034,7 +3036,7 @@ function viewJob(id){
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>
       <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p></div>
-    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}</div></div>
+    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${myRole()==='admin'&&S.db?`<button class="btn" data-jdel="${esc(j.id)}" style="color:#c2343a">${svg('trash','#c2343a')}ลบงาน</button>`:''}</div></div>
   ${j.status==='active'?`<section class="card jst">
     <div class="jsc"><span class="sub">ขั้นปัจจุบัน</span><span class="pill ${PHC2[phaseOf(n)?.k]||'gy'} big">${esc(st.name)}</span></div>
     <div class="jsc"><span class="sub">ผู้รับผิดชอบ</span><b>${mineNow?'คุณ':esc(ownerOf(j))}</b></div>
