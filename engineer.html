@@ -329,7 +329,20 @@ html.framed.bandjob .sbar{background:#3c7f0e;color:#fff}
 .ubtn .av{width:42px;height:42px;font-size:17px}
 .ubtn b{display:block;font-weight:600}.ubtn span{font-size:13.5px;color:var(--mut)}
 .prof{text-align:center;padding:8px 0 4px}.prof .av{width:84px;height:84px;font-size:34px;margin:0 auto 10px;box-shadow:0 0 0 4px #fff,0 10px 24px -10px rgba(80,90,200,.6)}
-.prof b{display:block;font-size:22px;font-weight:600}.icu{border:1px solid #e3e6ea;border-radius:14px;padding:10px 12px 2px;margin:6px 0 4px;background:#fafbfc}.icuh{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.icu input{width:100%;font:inherit;padding:10px 12px;border:1px solid #ccd;border-radius:10px;background:#fff}.pfav{width:56px!important;height:56px!important;font-size:22px!important;margin:0!important;border-radius:50%}.prof img.av{border-radius:50%;display:block}.prof span{color:var(--mut)}
+.prof b{display:block;font-size:22px;font-weight:600}
+.fbar{display:flex;gap:8px;align-items:center;margin:0 0 10px}
+.fsel{flex:1;display:flex;align-items:center;gap:8px;min-height:46px;padding:0 14px 0 16px;border-radius:14px;background:var(--sf);box-shadow:inset 0 0 0 1.5px var(--ln);font-size:15px;color:var(--ink2);text-align:left}
+.fsel span{color:var(--mut)}.fsel b{font-weight:600;color:var(--ink)}.fsel em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--mut);background:var(--bg);border-radius:99px;padding:1px 8px}
+.fsel svg:last-child{margin-left:auto;color:var(--mut)}.fsel.on{box-shadow:inset 0 0 0 2px var(--acc)}.fsel.on b{color:var(--acc)}
+.fclr{min-height:46px;padding:0 14px;border-radius:14px;font-size:14.5px;font-weight:600;color:var(--ink2);background:transparent}
+.fsel:focus-visible,.fclr:focus-visible,.fso:focus-visible{outline:3px solid rgba(79,154,18,.45);outline-offset:2px}
+.stsheet{padding-top:10px}.stsheet .grab{width:40px;height:5px;border-radius:9px;background:#d6d9df;margin:0 auto 12px}.stsheet h3{margin:0 4px 6px}
+.fsg{font-size:12.5px;font-weight:600;color:var(--mut);margin:14px 6px 6px}
+.fsl{border-radius:16px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+.fsl .fso{flex:none;width:100%;white-space:nowrap}
+.fso{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:0 16px;font-size:15.5px;color:var(--ink);text-align:left;background:transparent}
+.fso+.fso{box-shadow:0 -1px 0 var(--ln)}.fso i{width:10px;height:10px;border-radius:50%;flex:none}.fso em{margin-left:auto;font-style:normal;color:var(--mut);font-size:14px}
+.fso.on{font-weight:600;background:var(--accBg)}.fso.on svg{color:var(--acc)}.fso:active{background:var(--hv)}.icu{border:1px solid #e3e6ea;border-radius:14px;padding:10px 12px 2px;margin:6px 0 4px;background:#fafbfc}.icuh{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.icu input{width:100%;font:inherit;padding:10px 12px;border:1px solid #ccd;border-radius:10px;background:#fff}.pfav{width:56px!important;height:56px!important;font-size:22px!important;margin:0!important;border-radius:50%}.prof img.av{border-radius:50%;display:block}.prof span{color:var(--mut)}
 .ov{position:fixed;inset:0;z-index:60;background:rgba(17,18,24,.45);display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--sf);width:100%;max-width:480px;border-radius:28px 28px 0 0;padding:22px 18px calc(18px + var(--safe))}
 .sheet h3{margin:0 0 6px;font-size:19px;font-weight:600}.sheet p{margin:0 0 16px;color:var(--ink2)}
@@ -514,6 +527,8 @@ const clone=o=>o==null?o:JSON.parse(JSON.stringify(o));
 function lsGet(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const I={
+ filter:'<path d="M4 6h16M7 12h10M10 18h4"/>',
+ down:'<path d="m6 9 6 6 6-6"/>',
  out:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/>',
  today:'<path d="M3 9h18M7 3v4M17 3v4"/><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 14h3v3H8z"/>',
  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/>',
@@ -802,6 +817,18 @@ function topBar(title,{back=false,right=''}={}){
 }
 function emptyBox(t,d,icon='check'){return `<div class="card empty"><div class="eic">${ic(icon)}</div><b>${t}</b>${d||''}</div>`}
 function mineJob(j,u=me()){return svMine(j,u)||(!!u.name&&(j.supervisor===u.name||j.installTeam===u.name))}
+const ST_GRP=[['','',['all']],['กำลังทำ','',['sv','offer','ins']],['จบแล้ว','',['done']],['หยุดไว้','',['lost','cancelled']]];
+const ST_DOT={all:'#9aa0aa',sv:'#4f9a12',offer:'#ea8a0c',ins:'#7c5cff',done:'#16a34a',lost:'#9aa0aa',cancelled:'#c4c8cf'};
+function openStSheet(){
+  const q=S.q.trim().toLowerCase(),f=S.allSt||'all';let L=S.api.listAllJobs();
+  if(q)L=L.filter(j=>[j.title,j.jobNo,sOf(j).area,sOf(j).address,cOf(j).name,cOf(j).phone,j.surveyor,j.supervisor,j.salesTeam,...snOf(j)].join(' ').toLowerCase().includes(q));
+  const cnt=Object.fromEntries(ALL_ST.map(([k,,fn])=>[k,L.filter(fn).length]));const nm=Object.fromEntries(ALL_ST.map(([k,t])=>[k,t]));
+  const m=$('#modal');m.innerHTML=`<div class="ov" data-ov><div class="sheet stsheet" role="dialog" aria-modal="true" aria-labelledby="stT"><div class="grab"></div><h3 id="stT">แสดงงาน</h3>
+   ${ST_GRP.map(([g,,ks])=>`${g?`<div class="fsg">${g}</div>`:''}<div class="fsl">${ks.map(k=>`<button class="fso ${k===f?'on':''}" data-allst="${k}" aria-pressed="${k===f}"><i style="background:${ST_DOT[k]}"></i><span>${esc(nm[k])}</span><em>${cnt[k]}</em>${k===f?ic('check'):''}</button>`).join('')}</div>`).join('')}</div></div>`;
+  const done=()=>{m.innerHTML='';document.removeEventListener('keydown',kd)};const kd=e=>{if(e.key==='Escape')done()};document.addEventListener('keydown',kd);
+  m.querySelector('[data-ov]').onclick=e=>{if(e.target.dataset.ov!==undefined)done()};
+  const on=m.querySelector('.fso.on');if(on)on.focus();
+}
 function viewMine(){
   const u=me(),q=S.q.trim().toLowerCase(),f=S.allSt||'all',lim=S.allLim||40;
   let L=S.api.listAllJobs();
@@ -816,7 +843,7 @@ function viewMine(){
   return `<div class="glow"></div><main class="wrap" style="padding-top:16px">
    <div class="shd" style="margin-bottom:12px"><div class="pagehead" style="margin:0"><h1>งาน</h1></div>${modeChip()}</div>
    <label class="search">${ic('search')}<input id="q" type="search" placeholder="ค้นหา: ชื่อ เลขงาน ที่อยู่ เบอร์ S/N" value="${esc(S.q)}" aria-label="ค้นหางาน"></label>
-   <div class="chips2">${ALL_ST.map(([k,t])=>`<button class="${k===f?'on':''}" data-allst="${k}">${t} <span>${cnt[k]}</span></button>`).join('')}</div>
+   ${(()=>{const cur=ALL_ST.find(x=>x[0]===f)||ALL_ST[0];return `<div class="fbar"><button class="fsel ${f!=='all'?'on':''}" data-fopen aria-haspopup="dialog">${ic('filter')}<span>สถานะ</span><b>${esc(cur[1])}</b><em>${cnt[cur[0]]}</em>${ic('down')}</button>${f!=='all'?`<button class="fclr" data-allst="all">ล้าง</button>`:''}</div>`})()}
    <p class="hint" style="margin:0 4px 8px"><i class="mdot"></i> งานของ ${esc(u.name||'คุณ')} ${nMine} งาน · ทั้งหมด ${list.length} งาน</p>
    <section class="ls">${show.length?groups.map(g=>`<div class="dg">${esc(mlabel(g.k))} · ${mcount(g.k)} งาน</div>${g.a.map(j=>arow(j,mineJob(j,u))).join('')}`).join(''):`<div class="lse">${q?'ไม่พบงานที่ค้นหา':'ไม่มีงานในหมวดนี้'}</div>`}</section>
    ${list.length>lim?`<button class="btn" style="width:100%" data-allmore>แสดงเพิ่ม (เหลืออีก ${list.length-lim} งาน)</button>`:''}
@@ -1604,9 +1631,9 @@ const jobDateOf=j=>j.surveyDate||j.queueDate||j.installDate||(j.createdAt?isoOf(
 function arow(j,mine){
   const s=sOf(j),stt=statusOf(j),d=jobDateOf(j),pv=hasSurvey(j)?propsView(j)[0]:null;
   return `<button class="jr ar" data-go="${hasSurvey(j)?'#rpt-':'#job-'}${esc(j.id)}"><span class="jrm"><b>${esc(j.title||s.label||'')}${mine?' <i class="mdot" title="งานของคุณ"></i>':''}</b>
-   <small>#${esc(j.jobNo||'—')} · ${d?fd(d):'—'} · ${esc(s.area||'')}${j.surveyor?' · '+esc(j.surveyor.split(' ')[0]):''}</small>
+   <small>${['#'+esc(j.jobNo||'—'),d?fd(d):'',esc(s.area||''),j.surveyor?esc(j.surveyor.split(' ')[0]):''].filter(Boolean).join(' · ')}</small>
    ${pv&&pv.kw?`<small class="arp">${esc(pv.systemType||'')} ${esc(pv.kw)} kW${pv.proposedModel?' · '+esc(pv.proposedModel):''}</small>`:''}</span>
-   <span class="jrr"><em class="pill ${stt.c==='f-grn'?'g':stt.c==='f-red'?'r':stt.c==='f-org'?'o':stt.c==='f-vio'?'v':'m'}">${esc(stt.t.replace(' · ดูแลหลังการขาย','').replace(/^ขั้น \d · /,''))}</em></span></button>`;
+   <span class="jrr"><em class="pill ${j.status==='cancelled'||j.status==='lost'?'m':stt.c==='f-grn'?'g':stt.c==='f-red'?'r':stt.c==='f-org'?'o':stt.c==='f-vio'?'v':'m'}">${esc(stt.t.replace(' · ดูแลหลังการขาย','').replace(/^ขั้น \d · /,''))}</em></span></button>`;
 }
 
 function demoBulk(n){
@@ -2103,7 +2130,8 @@ document.addEventListener('click',e=>{
   if(d.stepf){const el=document.querySelector(`[data-f="${d.stepf}"]`);if(el){const mn=+d.min||0;el.value=Math.max(mn,(+el.value||0)+(+d.d));el.dispatchEvent(new Event('input',{bubbles:true}))}return}
   if('nextjob' in d){const n=nextJob();if(n)go(destOf(n));else toast('ไม่มีงานนัดที่รออยู่');return}
   if(d.minecat){S.mineCat=d.minecat;render();window.scrollTo(0,0);return}
-  if(d.allst){S.allSt=d.allst;S.allLim=40;render();return}
+  if('fopen' in d){openStSheet();return}
+  if(d.allst){S.allSt=d.allst;S.allLim=40;const m=$('#modal');if(m&&m.querySelector('.stsheet'))m.innerHTML='';render();return}
   if('allmore' in d){S.allLim=(S.allLim||40)+40;render();return}
   if(d.minetab){S.allLim=40;S.mineTab=d.minetab;render();return}
   if('samplephotos' in d){samplePhotos(route().slice(3));return}
