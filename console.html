@@ -213,7 +213,11 @@ async function catImport(file){
   if(!L.length)return toast('ไม่พบรุ่นในไฟล์',true);
   const nN=L.filter(x=>!x.upd).length,nU=L.length-nN;
   if(!await ask('นำเข้าแคตตาล็อก: '+file.name,`เพิ่มใหม่ <b>${nN}</b> รุ่น · อัปเดต <b>${nU}</b> รุ่น${r.bad.length?'<br><span style="color:var(--bad)">ข้าม '+r.bad.length+' แถว: '+esc(r.bad.slice(0,3).join(' · '))+'</span>':''}<br>รุ่นเดิมที่ไม่อยู่ในไฟล์จะไม่ถูกลบ`,'นำเข้า'))return;
-  await run(async()=>{for(let i=0;i<L.length;i+=40){const b=S.db.batch();L.slice(i,i+40).forEach(x=>{const ref=S.db.doc('products/'+x.id);if(x.upd)b.update(ref,{...x.d,updatedAt:Date.now()});else b.set(ref,{...x.d,updatedAt:Date.now()})});await b.commit()}},`นำเข้าแล้ว ${L.length} รุ่น`);
+  await run(async()=>{
+    const one=x=>{const ref=S.db.doc('products/'+x.id),d={...x.d,updatedAt:Date.now()};return x.upd?ref.update(d):ref.set(d)};
+    for(let i=0;i<L.length;i+=40){const part=L.slice(i,i+40);const b=S.db.batch();part.forEach(x=>{const ref=S.db.doc('products/'+x.id),d={...x.d,updatedAt:Date.now()};if(x.upd)b.update(ref,d);else b.set(ref,d)});
+      try{await b.commit()}catch(e){if(e.code==='bad'&&/batch/.test(e.message||'')){for(const x of part)await one(x)}else throw e}} /* ตัวกลางรุ่นเก่า → ทีละรุ่น */
+  },`นำเข้าแล้ว ${L.length} รุ่น`);
 }
 function vLogs(){
   const all=Object.entries(S.logs).map(([id,l])=>({id,...l})).sort((a,b)=>b.at-a.at);
