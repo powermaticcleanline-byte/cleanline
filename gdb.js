@@ -264,7 +264,7 @@
           } });
         screen('login', null, msg);
         var b = document.getElementById('clg-btn');
-        if (b) google.accounts.id.renderButton(b, { theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with', locale: 'th', width: 280 });
+        if (b) google.accounts.id.renderButton(b, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signin_with', locale: 'th', width: 300 });
         google.accounts.id.prompt();
       });
     });
@@ -285,44 +285,141 @@
     });
   }
 
-  /* ---------- หน้าจอเข้าสู่ระบบ / รออนุมัติ / ผิดหน้า ---------- */
+  /* ---------- หน้าจอเข้าสู่ระบบ / รออนุมัติ / ผิดหน้า ----------
+   * ฉากบ้านติดแผงโซลาร์ · ดวงอาทิตย์อยู่ตามเวลาจริงของเครื่อง (กลางคืน = พระจันทร์ + ดาว)
+   * จอกว้าง: ฉากซ้าย การ์ดขวา · มือถือ: ฉากบน การ์ดล่าง */
+  var PAGE_TAG = { admin: 'จัดคิวสำรวจ ติดตามงาน ดูแลลูกค้า', engineer: 'งานสำรวจและติดตั้งของคุณ ครบในมือถือ', console: 'ตั้งค่าระบบและผู้ใช้' };
   function css() {
     if (document.getElementById('clg-css')) return;
     var s = document.createElement('style'); s.id = 'clg-css';
-    s.textContent = '#clg{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#f2f5ec;font-family:Prompt,"Noto Sans Thai",Sarabun,system-ui,sans-serif;color:#15230f;padding:20px}' +
-      '#clg .bx{background:#fff;border-radius:24px;box-shadow:0 10px 40px rgba(21,35,15,.12);padding:32px 28px;max-width:380px;width:100%;text-align:center}' +
-      '#clg h1{font-size:22px;margin:0 0 4px;letter-spacing:.5px}#clg .pg{font-size:14px;color:#4f9a12;margin:0 0 20px;font-weight:600}' +
-      '#clg p{font-size:15px;line-height:1.6;margin:0 0 16px;color:#3a4535}#clg .m{min-height:22px;font-size:14px;color:#3a4535}#clg .m.bad{color:#c62828}' +
-      '#clg .b{display:inline-block;border:0;border-radius:999px;padding:12px 22px;font:inherit;font-size:15px;cursor:pointer;background:#15230f;color:#fff;text-decoration:none;margin:4px}' +
-      '#clg .b.l{background:#eef2e6;color:#15230f}#clg .av{width:56px;height:56px;border-radius:50%;margin:0 auto 10px;display:block;background:#eef2e6}' +
-      '#clg-btn{display:flex;justify-content:center;min-height:44px;margin:6px 0 10px}' +
-      '#clg-bn{position:fixed;right:20px;bottom:20px;z-index:99998;background:#f0b23a;color:#15230f;border-radius:999px;padding:8px 16px;font:600 14px Prompt,"Noto Sans Thai",sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:92vw;text-align:center}';
+    s.textContent =
+      '#clg{position:fixed;inset:0;z-index:99999;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(380px,1fr);background:#fff;color:#15230f;' +
+        'font-family:Inter,"Noto Sans Thai",Prompt,Sarabun,system-ui,sans-serif;overflow-y:auto}' +
+      '#clg .cg-sc{position:relative;margin:14px 0 14px 14px;border-radius:28px;overflow:hidden;min-height:320px;background:#6fb6ea}' +
+      '#clg .cg-sc svg{position:absolute;inset:0;width:100%;height:100%;display:block}' +
+      '#clg .cg-hi{position:absolute;left:clamp(22px,4vw,48px);top:clamp(22px,5vh,52px);color:#fff;text-shadow:0 1px 18px rgba(10,30,60,.25)}' +
+      '#clg .cg-hi b{display:block;font-size:clamp(30px,4.2vw,54px);font-weight:700;letter-spacing:-.02em;line-height:1.08}' +
+      '#clg .cg-hi span{display:block;margin-top:8px;font-size:15px;opacity:.92}' +
+      '#clg .cg-bx{display:flex;flex-direction:column;justify-content:center;padding:48px clamp(28px,5vw,76px);max-width:520px;width:100%;box-sizing:border-box}' +
+      '#clg .cg-lg{height:22px;width:auto;align-self:flex-start;margin:0 0 30px}#clg .cg-lgt{font-weight:800;letter-spacing:.12em;color:#5d6466;margin:0 0 30px}' +
+      '#clg .cg-h{font-size:46px;font-weight:700;letter-spacing:-.025em;line-height:1.02;margin:0}' +
+      '#clg .cg-tg{font-size:16px;color:#5b6656;margin:10px 0 34px;line-height:1.5}' +
+      '#clg .cg-p{font-size:15px;line-height:1.6;margin:0 0 14px;color:#3a4535}' +
+      '#clg .cg-m{min-height:22px;font-size:14px;color:#3a4535;margin-top:4px}#clg .cg-m.bad{color:#b3261e}' +
+      '#clg .b{display:inline-block;border:0;border-radius:999px;padding:12px 22px;font:inherit;font-size:15px;font-weight:600;cursor:pointer;background:#15230f;color:#fff;text-decoration:none;margin:4px 8px 4px 0}' +
+      '#clg .b.l{background:#eef2e6;color:#15230f}#clg .b:focus-visible{outline:3px solid #8cc63f;outline-offset:2px}' +
+      '#clg .cg-who{display:flex;gap:12px;align-items:center;margin:0 0 18px}#clg .cg-av{width:48px;height:48px;border-radius:50%;background:#eef2e6;flex:none}' +
+      '#clg .cg-who b{display:block;font-size:16px}#clg .cg-who span{font-size:13px;color:#6b7566}' +
+      '#clg-btn{display:flex;justify-content:flex-start;min-height:44px;margin:4px 0 6px}' +
+      '#clg .cg-ft{margin-top:46px;font-size:13px;color:#8a9484}' +
+      '@media (max-width:820px){#clg{grid-template-columns:1fr;grid-template-rows:minmax(300px,46vh) auto}' +
+        '#clg .cg-sc{margin:10px 10px 0;border-radius:24px}#clg .cg-bx{padding:30px 26px 34px;max-width:none}#clg .cg-h{font-size:38px}#clg .cg-lg{margin-bottom:22px}#clg .cg-ft{margin-top:28px}}' +
+      '#clg-bn{position:fixed;right:20px;bottom:20px;z-index:99998;background:#f0b23a;color:#15230f;border-radius:999px;padding:8px 16px;font:600 14px Inter,"Noto Sans Thai",Prompt,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:92vw;text-align:center}';
     document.head.appendChild(s);
   }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  // เวลาตอนนี้ → ตำแหน่งดวงอาทิตย์บนโค้ง (0 = ขึ้น 06:00, 1 = ตก 18:30) · นอกช่วง = กลางคืน
+  function sunNow() {
+    var d = new Date(), h = d.getHours() + d.getMinutes() / 60, t = (h - 6) / 12.5;
+    return { t: t, night: t < 0 || t > 1, hh: ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2), h: h };
+  }
+  function mix(a, b, k) {
+    var x = function (c, i) { return parseInt(c.substr(1 + i * 2, 2), 16); };
+    return '#' + [0, 1, 2].map(function (i) { return ('0' + Math.round(x(a, i) + (x(b, i) - x(a, i)) * k).toString(16)).slice(-2); }).join('');
+  }
+  var ARC = { x0: 140, y0: 520, cx: 400, cy: 60, x1: 660 };
+  function arcAt(t) { var u = 1 - t; return { x: u * u * ARC.x0 + 2 * u * t * ARC.cx + t * t * ARC.x1, y: u * u * ARC.y0 + 2 * u * t * ARC.cy + t * t * ARC.y0 }; }
+  function sceneSvg(sn) {
+    var night = sn.night, alt = night ? 0 : Math.sin(Math.PI * sn.t);
+    var top = night ? '#0e1d33' : mix('#8fb9e6', '#5aa7e6', alt), bot = night ? '#24406a' : mix('#fbcf8a', '#dff0fb', Math.min(1, alt * 1.6));
+    var hill = night ? '#28452a' : mix('#a9c98a', '#bfe0a0', alt), hill2 = night ? '#1f381f' : mix('#8fb874', '#a7d488', alt);
+    var wall = night ? '#c9d2dc' : '#f4f6f8', roof = night ? '#3b4654' : '#56616e';
+    var p = arcAt(night ? 0.5 : sn.t), stars = '';
+    if (night) [[90, 70], [180, 140], [260, 60], [520, 90], [610, 170], [700, 60], [380, 120], [150, 230], [660, 260], [460, 40]].forEach(function (s, i) {
+      stars += '<circle cx="' + s[0] + '" cy="' + s[1] + '" r="' + (i % 3 ? 1.6 : 2.4) + '" fill="#fff" opacity="' + (i % 2 ? .7 : .95) + '"/>';
+    });
+    // หลังคาหันหน้า (สี่เหลี่ยมคางหมู) + แผง 6×2 วางบนหลังคาแบบมีมุมมอง
+    var R = { tl: 46, tr: 244, bl: 0, br: 290, ty: 388, by: 456 };
+    var pt = function (u, v) { var l = R.tl + (R.bl - R.tl) * v, r = R.tr + (R.br - R.tr) * v; return (l + (r - l) * u).toFixed(1) + ',' + (R.ty + (R.by - R.ty) * v).toFixed(1); };
+    var cells = '';
+    for (var r = 0; r < 2; r++) for (var c = 0; c < 6; c++) {
+      var u0 = .1 + c * .135, u1 = u0 + .125, v0 = .14 + r * .38, v1 = v0 + .34;
+      cells += '<polygon points="' + [pt(u0, v0), pt(u1, v0), pt(u1, v1), pt(u0, v1)].join(' ') + '" fill="#1d3554" stroke="#7d9cc0" stroke-width="1"/>';
+    }
+    var band = '<polygon id="clg-shine" points="' + [pt(.18, 0), pt(.36, 0), pt(.26, 1), pt(.08, 1)].join(' ') + '" fill="#fff" opacity="' + (alt * .32).toFixed(2) + '"/>';
+    return '<svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true">' +
+      '<defs><linearGradient id="clgsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + top + '"/><stop offset="1" stop-color="' + bot + '"/></linearGradient>' +
+      '<mask id="clgmoon"><rect x="-40" y="-40" width="80" height="80" fill="#fff"/><circle cx="10" cy="-7" r="19" fill="#000"/></mask>' +
+      '<radialGradient id="clgglow"><stop offset="0" stop-color="' + (night ? '#e8eef8' : '#ffd36b') + '" stop-opacity="' + (night ? .22 : .55) + '"/><stop offset="1" stop-color="' + (night ? '#e8eef8' : '#ffd36b') + '" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="clgshine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>' +
+      '<rect width="800" height="600" fill="url(#clgsky)"/>' + stars +
+      '<path d="M' + ARC.x0 + ',' + ARC.y0 + ' Q' + ARC.cx + ',' + ARC.cy + ' ' + ARC.x1 + ',' + ARC.y0 + '" fill="none" stroke="#fff" stroke-opacity="' + (night ? .18 : .45) + '" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round"/>' +
+      '<g id="clg-sun" transform="translate(' + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ')"><circle r="74" fill="url(#clgglow)"/>' +
+        (night ? '<circle r="22" fill="#f1f4f9" mask="url(#clgmoon)"/>' : '<circle r="25" fill="#f8b73a"/><circle r="25" fill="none" stroke="#ffe3a3" stroke-width="3" opacity=".7"/>') +
+        (night ? '' : '<text y="' + (p.y > 420 ? -40 : 52) + '" text-anchor="middle" font-size="15" font-weight="600" fill="#fff" style="font-family:inherit">' + sn.hh + '</text>') + '</g>' +
+      '<path d="M0,520 C140,486 260,500 400,512 C540,524 660,492 800,500 L800,600 L0,600Z" fill="' + hill2 + '"/>' +
+      '<path d="M0,548 C160,522 300,540 420,546 C560,552 680,530 800,538 L800,600 L0,600Z" fill="' + hill + '"/>' +
+      '<g transform="translate(250,0)">' +
+        '<circle cx="-60" cy="488" r="34" fill="' + (night ? '#244a2a' : '#5f9a3c') + '"/><circle cx="-34" cy="470" r="26" fill="' + (night ? '#2c5631' : '#74b04a') + '"/><rect x="-50" y="500" width="7" height="44" fill="#6b5338"/>' +
+        '<rect x="20" y="452" width="250" height="96" fill="' + wall + '"/>' +
+        '<rect x="54" y="478" width="44" height="34" rx="3" fill="' + (night ? '#f7d27a' : '#a9c7e3') + '"/><rect x="186" y="478" width="44" height="34" rx="3" fill="' + (night ? '#f7d27a' : '#a9c7e3') + '"/>' +
+        '<rect x="122" y="490" width="34" height="58" rx="3" fill="' + (night ? '#5b4a3a' : '#8a6b4c') + '"/>' +
+        '<polygon points="' + [pt(0, 0), pt(1, 0), pt(1, 1), pt(0, 1)].join(' ') + '" fill="' + roof + '"/>' +
+        '<polygon points="' + [pt(0, 1), pt(1, 1), (R.br - 4) + ',' + (R.by + 6), (R.bl + 4) + ',' + (R.by + 6)].join(' ') + '" fill="' + (night ? '#2a323d' : '#3d4651') + '"/>' +
+        '<clipPath id="clgroof"><polygon points="' + [pt(0, 0), pt(1, 0), pt(1, 1), pt(0, 1)].join(' ') + '"/></clipPath>' +
+        cells + '<g clip-path="url(#clgroof)">' + band + '</g>' +
+      '</g></svg>';
+  }
+  function greet(h) { return h < 4.5 ? 'ดึกแล้ว' : h < 12 ? 'สวัสดีตอนเช้า' : h < 16.5 ? 'สวัสดีตอนบ่าย' : h < 19 ? 'สวัสดีตอนเย็น' : 'สวัสดีตอนค่ำ'; }
+  function skyLine(sn) { return sn.night ? 'ตอนนี้ ' + sn.hh + ' แผงพัก รอแดดพรุ่งนี้' : 'ตอนนี้ ' + sn.hh + (Math.sin(Math.PI * sn.t) > .6 ? ' แดดกำลังดี' : ''); }
+  // ดวงอาทิตย์ขึ้นจากขอบฟ้ามาที่ตำแหน่งตอนนี้ (ครั้งเดียวตอนเปิด)
+  function riseSun(sn) {
+    if (sn.night) return;
+    try { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) {}
+    var g = document.getElementById('clg-sun'), sh = document.getElementById('clg-shine'); if (!g || !window.requestAnimationFrame) return;
+    var t0 = null, dur = 1500;
+    function f(ts) {
+      if (!document.getElementById('clg-sun')) return;
+      t0 = t0 || ts; var k = Math.min(1, (ts - t0) / dur), e = 1 - Math.pow(1 - k, 3), t = sn.t * e, q = arcAt(t);
+      g.setAttribute('transform', 'translate(' + q.x.toFixed(1) + ',' + q.y.toFixed(1) + ')');
+      if (sh) sh.setAttribute('opacity', (Math.sin(Math.PI * t) * .32).toFixed(2));
+      if (k < 1) requestAnimationFrame(f);
+    }
+    requestAnimationFrame(f);
+  }
   function screen(kind, me, msg) {
     css();
     var el = document.getElementById('clg') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'clg' }));
-    var head = '<h1>CLEANLINE</h1><div class="pg">' + esc((PAGE_NAME[st.page] || '').replace('CLEANLINE ', '')) + '</div>';
-    var who = st.me ? (st.me.picture ? '<img class="av" alt="" src="' + esc(st.me.picture) + '" onerror="this.remove()">' : '') + '<p><b>' + esc(st.me.name) + '</b><br><span style="font-size:13px">' + esc(st.me.email) + '</span></p>' : '';
+    var sn = sunNow(), nm = (PAGE_NAME[st.page] || 'CLEANLINE').replace('CLEANLINE ', '');
+    var frame = function (body) {
+      return '<div class="cg-sc">' + sceneSvg(sn) + '<div class="cg-hi"><b>' + greet(sn.h) + '</b><span>' + esc(skyLine(sn)) + '</span></div></div>' +
+        '<div class="cg-bx"><img class="cg-lg" src="logo.webp" alt="CLEANLINE" onerror="this.outerHTML=\'<div class=cg-lgt>CLEANLINE</div>\'">' +
+        '<div class="cg-h" role="heading" aria-level="1">' + esc(nm) + '</div><div class="cg-tg">' + esc(PAGE_TAG[st.page] || '') + '</div>' + body +
+        '<div class="cg-ft">แผนก Energy เพาเวอร์เมติค</div></div>';
+    };
+    var who = st.me ? '<div class="cg-who">' + (st.me.picture ? '<img class="cg-av" alt="" src="' + esc(st.me.picture) + '" onerror="this.remove()">' : '') +
+      '<div><b>' + esc(st.me.name) + '</b><span>' + esc(st.me.email) + '</span></div></div>' : '';
     return new Promise(function (res) {
       if (kind === 'login') {
-        el.innerHTML = '<div class="bx">' + head + '<p>เข้าสู่ระบบด้วยบัญชี Google</p><div id="clg-btn"></div><div class="m" id="clg-m">' + esc(msg || '') + '</div></div>';
+        el.innerHTML = frame('<div id="clg-btn"></div><div class="cg-m" id="clg-m">' + esc(msg || '') + '</div>');
+        riseSun(sn);
         return;
       }
       if (kind === 'pending') {
-        el.innerHTML = '<div class="bx">' + head + who + '<p>ส่งคำขอเข้าใช้แล้ว<br>รอผู้ดูแลระบบอนุมัติ</p><button class="b" id="clg-re">ตรวจอีกครั้ง</button><button class="b l" id="clg-out">เปลี่ยนบัญชี</button><div class="m" id="clg-m"></div></div>';
+        el.innerHTML = frame(who + '<p class="cg-p">ส่งคำขอเข้าใช้แล้ว รอผู้ดูแลระบบอนุมัติ</p><div><button class="b" id="clg-re">ตรวจอีกครั้ง</button><button class="b l" id="clg-out">เปลี่ยนบัญชี</button></div><div class="cg-m" id="clg-m"></div>');
       } else {
         var pages = (me.pages || []);
-        el.innerHTML = '<div class="bx">' + head + who + '<p>บัญชีนี้ใช้หน้า<b> ' + esc(pages.map(function (p) { return PAGE_NAME[p]; }).join(' / ') || '-') + '</b><br>เปิดหน้านี้ไม่ได้</p>' +
-          pages.map(function (p) { return '<a class="b" href="' + PAGE_URL[p] + '">ไป' + esc(PAGE_NAME[p]) + '</a>'; }).join('') +
-          '<button class="b l" id="clg-out">เปลี่ยนบัญชี</button></div>';
+        el.innerHTML = frame(who + '<p class="cg-p">บัญชีนี้ใช้ <b>' + esc(pages.map(function (p) { return PAGE_NAME[p]; }).join(' / ') || '-') + '</b> เปิดหน้านี้ไม่ได้</p><div>' +
+          pages.map(function (p) { return '<a class="b" href="' + PAGE_URL[p] + '">ไป ' + esc(PAGE_NAME[p]) + '</a>'; }).join('') +
+          '<button class="b l" id="clg-out">เปลี่ยนบัญชี</button></div>');
       }
+      riseSun(sn);
       var re = document.getElementById('clg-re'); if (re) re.onclick = function () { setScreenMsg('กำลังตรวจ…'); res(); };
       document.getElementById('clg-out').onclick = function () { signOut(); location.reload(); };
     });
   }
-  function setScreenMsg(t, bad) { var m = document.getElementById('clg-m'); if (m) { m.textContent = t; m.className = 'm' + (bad ? ' bad' : ''); } }
+  function setScreenMsg(t, bad) { var m = document.getElementById('clg-m'); if (m) { m.textContent = t; m.className = 'cg-m' + (bad ? ' bad' : ''); } }
   function hideScreen() { var el = typeof document !== 'undefined' && document.getElementById('clg'); if (el) el.remove(); }
   var banners = {};
   function banner(k, t) {
