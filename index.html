@@ -2045,6 +2045,21 @@ function myRole(){const r=S.me&&S.me.role;return r==='sysadmin'?'admin':(r==='di
 const isSys=()=>!!(S.me&&S.me.role==='sysadmin');
 const isDispatch=()=>myRole()==='dispatch';
 const canCancel=()=>['admin','dispatch'].includes(myRole());
+const RESURVEY_DAYS=60;
+/* สำรวจมาแล้วกี่วัน (ลูกค้าเซ็นปิดสำรวจ → วันส่งแบบ → วันสำรวจ) */
+function svAge(j){const t=j.surveyDoneAt||(j.designSentDate?Date.parse(j.designSentDate+'T00:00:00'):0)||(j.surveyDate?Date.parse(j.surveyDate+'T00:00:00'):0);return t?Math.floor((Date.now()-t)/864e5):0}
+function choose(title,msg,opts){return new Promise(res=>{
+  const m=$('#modal');m.innerHTML=`<div class="modalbg"><div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="chT"><h2 id="chT" style="margin:0;font-size:17px">${esc(title)}</h2><p style="margin:0;color:var(--mut);font-size:14px;line-height:1.6">${esc(msg)}</p><div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="btn" type="button" data-ch="-1">ยกเลิก</button>${opts.map((o,i)=>`<button class="btn ${i===0?'dk':''}" type="button" data-ch="${i}">${esc(o)}</button>`).join('')}</div></div></div>`;
+  const done=v=>{m.innerHTML='';document.removeEventListener('keydown',k,true);res(v)};const k=e=>{if(e.key==='Escape'){e.stopPropagation();done(null)}};
+  document.addEventListener('keydown',k,true);m.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{const v=+b.dataset.ch;done(v<0?null:v)});m.querySelector('[data-ch="0"]').focus();
+})}
+/* ถามสำรวจซ้ำ: true = ส่งไปสำรวจซ้ำแล้ว (หยุด) · false = ไปต่อ · null = ยกเลิก */
+async function askResurvey(j){const d=svAge(j);if(d<=RESURVEY_DAYS)return false;
+  const c=await choose('สำรวจไว้ '+d+' วันแล้ว','สำรวจซ้ำก่อนติดตั้งไหม? ข้อมูลเดิมยังอยู่ คนสำรวจยืนยันหรือแก้ได้',['สำรวจซ้ำ','ไปต่อ ไม่สำรวจซ้ำ']);
+  if(c==null)return null;if(c===1)return false;
+  const v=j.sv||{},keep={};if(v.folder){keep.folder=v.folder;if(v.folderAt)keep.folderAt=v.folderAt}
+  await pushHist(j,ev('back','สำรวจซ้ำ (สำรวจไว้ '+d+' วัน) · เลือกวันนัดใหม่',{from:j.stage,to:ST.BOOK}),{status:'active',lostReason:'',stage:ST.BOOK,stageSince:Date.now(),queueDate:'',queueTime:'',sv:keep,svPrev:v,resurvey:{at:Date.now(),days:d,prevDone:j.surveyDoneAt||null}});
+  toast('ส่งไปสำรวจซ้ำแล้ว เลือกวันนัดใหม่');return true}
 /* ช่องที่แต่ละบทบาทแก้ไม่ได้ (ตัวกลางตรวจซ้ำทุกครั้ง) */
 const F_ASSIGN=['surveyTeam','surveyor','supervisor','installTeam'];
 const F_SURVEY_SECS=['site','req','survey'];
@@ -3044,6 +3059,7 @@ function viewJob(id){
       <div class="btns">${btns}</div>
       ${act?'':`<span class="sub">รอ${esc(ownerOf(j))}ดำเนินการ</span>`}
     </section>`;
+    if(j.resurvey&&n<=ST.SURVEY)right=`<span class="tag warn" style="height:auto;padding:6px 10px;align-self:flex-start">สำรวจซ้ำ · เดิมสำรวจไว้ ${j.resurvey.days} วัน</span>`+right;
     if(n<=ST.SURVEY&&canCancel())right+=`<button class="btn sm" data-act="cancel" style="align-self:flex-start;box-shadow:none;color:var(--mut)">ยกเลิกคิว</button>`;
   }else if(j.status==='cancelled'){
     right=`<section class="act"><h2>ยกเลิก</h2><span class="sub">${esc(j.cancelReason||'')}${j.cancelledAt?' · '+fdt(j.cancelledAt):''}</span>${canCancel()?(j.autoCancelled?'<button class="btn dk" data-act="resume">เปิดงานต่อ</button><button class="btn" data-act="rebook">จองใหม่</button>':'<button class="btn dk" data-act="rebook">จองใหม่</button>'):''}</section>`;
@@ -3655,6 +3671,7 @@ async function doAct0(a,jid){
   if(a==='svclose'){
     await pushHist(j,ev('handoff',`ปิดงานสำรวจ ส่งข้อมูลและแบบ ${j.proposedKw?j.proposedKw+' kW ':''}ให้เซลส์${j.quoter?' CC '+j.quoter:''}`,{from:ST.SURVEY,to:ST.OFFER}),{stage:ST.OFFER,stageSince:now,designSentDate:today()});
     toast('ส่งข้อมูลให้เซลส์แล้ว');return}
+  if((a==='next'&&n===ST.OFFER)||a==='reopen'){const r=await askResurvey(j);if(r!==false)return}
   if(a==='next'){const to=n+1;await pushHist(j,ev('handoff',`ส่งต่อให้${GROUP[STAGES[to].role]} (${STAGES[to].name})`,{from:n,to}),{stage:to,stageSince:now});toast('ส่งต่อแล้ว');return}
     if(a==='pmdone'){const d=today();await pushHist(j,ev('edit','ตรวจเช็กประจำปีแล้ว '+fd(d)),{lastPm:d});toast('บันทึกแล้ว ครบกำหนดครั้งถัดไป '+fd(pmDue({...j,lastPm:d})));return}
   if(a==='done'){await pushHist(j,ev('handoff','ยื่นขนานไฟฟ้าเสร็จ ปิดงาน ครบตรวจเช็กประจำปี '+fd(pmDue(j)),{from:LAST}),{status:'done',stageSince:now});return}
