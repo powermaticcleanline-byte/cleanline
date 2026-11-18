@@ -1972,6 +1972,14 @@ details.mnu[open]>summary{background:#f3f4f6}
 .fld input,.fld select,.fld textarea{box-shadow:inset 0 0 0 1px #80858f}
 .ngrp>textarea{background:#fff;box-shadow:inset 0 0 0 1px #80858f}
 .ddq input,.slci textarea{border-color:#80858f}
+
+/* รอบ 5b: หน้าค้นไม่เจอ */
+.emf{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0}
+.emf-i{width:44px;height:44px;border-radius:50%;background:#e9ebef;display:grid;place-items:center;color:#5b6070}
+.emf-i svg{width:22px;height:22px}
+.emf b{font-size:16px;color:var(--ink);margin-top:4px}
+.emf>span:not(.emf-i){font-size:14px;color:#5b6070}
+.emf .btn{margin-top:8px}
 </style></head>
 <body>
 <div class="shell">
@@ -2437,6 +2445,10 @@ function bellPanel(){
 const DOTS='<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
 function mnu(items,label,cls){items=items.filter(Boolean);if(!items.length)return '';return `<details class="mnu"><summary class="${cls||'btn'}" aria-label="${label?'':'เพิ่มเติม'}" title="${label?'':'เพิ่มเติม'}">${DOTS}${label||''}</summary><div class="mnu-p" role="menu">${items.join('')}</div></details>`}
 function mi(attrs,ic,txt,dg){return `<button type="button" class="mi${dg?' mdg':''}" role="menuitem" ${attrs}>${ic?svg(ic,'currentColor',2):''}${txt}</button>`}
+function emptyFilt(all,f,mon){const q=(f.q||'').trim();
+  const t=q?`ไม่เจองานที่ตรงกับ “${esc(q)}”`:all?'ไม่มีงานที่ตรงกับตัวกรอง':'ไม่มีงานที่ตรงกับตัวกรองในเดือน'+mon;
+  const h=q?(all?'ค้นจากทุกเดือนแล้ว ':'')+'ลองค้นด้วยชื่อลูกค้า เลขงาน เบอร์โทร หรือ S/N':all?'ลองล้างตัวกรองเพื่อดูงานทั้งหมด':'ลองเปลี่ยนเดือน หรือล้างตัวกรอง';
+  return `<div class="emf"><span class="emf-i">${svg('search','currentColor',2)}</span><b>${t}</b><span>${h}</span><button type="button" class="btn" data-clear="1">${q?'ล้างคำค้นและตัวกรอง':'ล้างตัวกรอง'}</button></div>`}
 function pageHead(title,sub,actions=''){return `<div class="ph"><div><h1>${title}</h1>${sub?`<p>${sub}</p>`:''}</div>${actions?`<div class="pha">${actions}</div>`:''}</div>`}
 /* ค้นหาจากแถบบน: ผลลัพธ์ทันที 6 รายการ, Enter = ดูผลทั้งหมดในหน้างาน */
 function gMatch(q){q=q.trim().toLowerCase();if(!q)return [];return visibleJobs().filter(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),e.sn,e.wifiSn,unitSns(e),e.plantName].join(' ').toLowerCase().includes(q)}).sort((a,b)=>svDate(b).localeCompare(svDate(a)))}
@@ -2673,7 +2685,7 @@ function viewJobs(mode){
           :`<td class="c-tm">${teamTag(j.salesTeam)||'<span class="nil">—</span>'}</td>`+T(dd(svDate(j)),'c-dt m')+T(kw?kw+' kW':'','c-kw m')}
         <td class="c-st">${st}${!svc&&now&&j.status==='active'?`<em>${days(j.stageSince)} วัน</em>`:''}</td>
         <td class="c-act"><div class="ibs">${acts.join('')}</div></td></tr>`}).join('')}</tbody></table></div>`
-    :`<div class="empty">${status==='cm'?'ไม่มีแจ้งซ่อมค้าง':status==='pm'?'ไม่มีไซต์ที่ครบตรวจเช็กใน 30 วัน':status==='care'?'ไม่มีไซต์ที่ต้องดูแลตอนนี้':status==='installed'?'ยังไม่มีไซต์ที่ติดตั้ง':allMonths?'ไม่มีงานที่ตรงกับคำค้น':filtered?'ไม่มีงานที่ตรงกับตัวกรองในเดือน'+mLabel(curK):'ไม่มีไซต์ที่สำรวจในเดือน'+mLabel(curK)}</div>`}
+    :`<div class="empty">${status==='cm'?'ไม่มีแจ้งซ่อมค้าง':status==='pm'?'ไม่มีไซต์ที่ครบตรวจเช็กใน 30 วัน':status==='care'?'ไม่มีไซต์ที่ต้องดูแลตอนนี้':status==='installed'?'ยังไม่มีไซต์ที่ติดตั้ง':allMonths||filtered?emptyFilt(allMonths,f,mLabel(curK)):'ไม่มีไซต์ที่สำรวจในเดือน'+mLabel(curK)}</div>`}
     ${!BOARD&&list.length>10?`<div class="pgf"><label class="pgper">แถวต่อหน้า <select id="jper" aria-label="แถวต่อหน้า">${[10,20,50].map(n=>`<option ${per===n?'selected':''}>${n}</option>`).join('')}</select></label><span class="pgc">${p0+1}–${p0+shown.length} จาก ${list.length}</span><span class="pgn"><button class="ib" data-pg="-1" ${f.pg===0?'disabled':''} aria-label="หน้าก่อน">${svg('chev','currentColor',2)}</button>${Array.from({length:pages},(_,i)=>i).filter(i=>pages<=7||i===0||i===pages-1||Math.abs(i-f.pg)<=1).map((i,k,a)=>`${k&&i-a[k-1]>1?'<em>…</em>':''}<button class="pgb ${i===f.pg?'on':''}" data-pgto="${i}" ${i===f.pg?'aria-current="page"':''}>${i+1}</button>`).join('')}<button class="ib nx" data-pg="1" ${f.pg>=pages-1?'disabled':''} aria-label="หน้าถัดไป">${svg('chev','currentColor',2)}</button></span></div>`:''}
   </section>
   ${noDate&&!allMonths&&!BOARD?`<p class="sub" style="margin:0">มี ${noDate} งานที่ยังไม่มีวันสำรวจ จึงไม่อยู่ในเดือนไหน ค้นหาด้วยชื่อหรือเลขงานได้</p>`:''}
