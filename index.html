@@ -1964,8 +1964,8 @@ details.mnu[open]>summary{background:#f3f4f6}
 .mnu-p .mi{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;border:0;background:none;border-radius:10px;font:inherit;font-size:15.5px;font-weight:500;color:#16171d;text-align:left;cursor:pointer;white-space:nowrap}
 .mnu-p .mi svg{width:18px;height:18px;flex:none}
 .mnu-p .mi:hover,.mnu-p .mi:focus-visible{background:#f3f4f6;outline:0}
-.mnu-p .mi.dg{color:#c81e1e}
-.mnu-p .mi.dg:hover,.mnu-p .mi.dg:focus-visible{background:#fff1f1}
+.mnu-p .mi.mdg{color:#c81e1e}
+.mnu-p .mi.mdg:hover,.mnu-p .mi.mdg:focus-visible{background:#fff1f1}
 .mnu-p hr{border:0;height:1px;background:#eceef1;margin:6px 4px}
 
 /* รอบ 4z: ขอบช่องกรอกเห็นชัด */
@@ -2436,7 +2436,7 @@ function bellPanel(){
 }
 const DOTS='<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
 function mnu(items,label,cls){items=items.filter(Boolean);if(!items.length)return '';return `<details class="mnu"><summary class="${cls||'btn'}" aria-label="${label?'':'เพิ่มเติม'}" title="${label?'':'เพิ่มเติม'}">${DOTS}${label||''}</summary><div class="mnu-p" role="menu">${items.join('')}</div></details>`}
-function mi(attrs,ic,txt,dg){return `<button type="button" class="mi${dg?' dg':''}" role="menuitem" ${attrs}>${ic?svg(ic,'currentColor',2):''}${txt}</button>`}
+function mi(attrs,ic,txt,dg){return `<button type="button" class="mi${dg?' mdg':''}" role="menuitem" ${attrs}>${ic?svg(ic,'currentColor',2):''}${txt}</button>`}
 function pageHead(title,sub,actions=''){return `<div class="ph"><div><h1>${title}</h1>${sub?`<p>${sub}</p>`:''}</div>${actions?`<div class="pha">${actions}</div>`:''}</div>`}
 /* ค้นหาจากแถบบน: ผลลัพธ์ทันที 6 รายการ, Enter = ดูผลทั้งหมดในหน้างาน */
 function gMatch(q){q=q.trim().toLowerCase();if(!q)return [];return visibleJobs().filter(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),e.sn,e.wifiSn,unitSns(e),e.plantName].join(' ').toLowerCase().includes(q)}).sort((a,b)=>svDate(b).localeCompare(svDate(a)))}
