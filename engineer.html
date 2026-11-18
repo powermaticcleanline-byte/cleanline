@@ -831,7 +831,7 @@ function progressOf(j){
 const assignee=j=>j.stage<=ST.SURVEY?(j.surveyor||j.surveyTeam||''):(j.supervisor||j.installTeam||'');
 const actionable=j=>j.status==='active'&&[ST.SURVEY,ST.INSTALL,ST.COMM].includes(j.stage);
 function ownedByMe(j){const u=me();if(u.role==='lead')return false;return j.stage<=ST.SURVEY?svMine(j,u):(supMine(j,u)||j.installTeam===u.name)}
-const canTake=j=>actionable(j)&&me().role==='eng'&&!ownedByMe(j);
+const canTake=j=>actionable(j)&&me().role==='eng'&&!ownedByMe(j)&&!bfMine(j);
 const unread=j=>waitingMe(j)&&!S.seen.has(j.id+':'+j.stage);
 const mapUrl=j=>{const s=sOf(j);return safeUrl(s.mapLink)||(s.address?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.address):'')};
 const telOf=j=>String(cOf(j).phone||'').replace(/[^\d+]/g,'');
@@ -1076,7 +1076,8 @@ function draftOf(j){
     folder:j.sv?.folder||j.folderUrl||`${FOLDER_ROOT}\\${beYear(j.surveyDate||j.queueDate)}\\${j.jobNo||''} ${j.title||s.label||''}`.trim(),
     signWho:'ลูกค้า',signName:c.name||'',signRel:''};
 }
-const canAct=j=>actionable(j)&&j.stage===ST.SURVEY&&(ownedByMe(j)||me().role==='lead');
+const bfMine=j=>/^x\d+$/.test(String(j&&j.id||''))&&!!j.sv?.backfillBy&&j.sv.backfillBy===me().id;
+const canAct=j=>actionable(j)&&j.stage===ST.SURVEY&&(ownedByMe(j)||me().role==='lead'||bfMine(j));
 const needDraw=j=>j.stage===ST.SURVEY&&!!j.sv?.sign&&!(j.sv?.cad&&j.sv?.cadFiled);
 function fld(path,label,type,opts,req,ph,val){
   const id='f-'+path.replace(/\./g,'-');const star=req?' <em class="req">*</em>':'';
@@ -1482,22 +1483,23 @@ async function nsGo(id,to){
   render();window.scrollTo(0,0);const sc=$('#screen');if(sc)sc.scrollTop=0;
 }
 /* กรอกย้อนหลัง: งานที่สำรวจไปแล้วจริง (เช่น นำเข้าจาก Excel) — ไม่เช็กอิน/ไม่ขอพิกัด · เวลาตอบรับ/ถึงหน้างาน = วันสำรวจจริง */
-async function nsBackfill(id,dayIn){
-  const j=C().jobs[id];if(!j||!canAct(j)||S.busy)return;const day=dayIn||j.surveyDate||j.queueDate;if(!day)return;
+async function nsBackfill(id,dayIn,other){
+  const j=C().jobs[id];if(!j||!(canAct(j)||other)||S.busy)return;const day=dayIn||j.surveyDate||j.queueDate;if(!day)return;
   const fnIn=document.getElementById('ns-fname');const fn=fnIn?fnameClean(fnIn.value):'';if(fnIn&&!fn){toast('ใส่ชื่อโฟลเดอร์งาน');return}
   const at=new Date(day+'T'+(/^\d\d:\d\d$/.test(j.queueTime||'')?j.queueTime:'09:00')+':00').getTime()||Date.now();
-  const d=draftOf(j),v={...(j.sv||{})};if(!v.accepted)v.accepted=at;if(!v.folder){v.folder=String(d.folder||'').trim();v.folderAt=at}v.onsite=at;v.backfill=Date.now();
-  const ok=await svSave(id,{sv:v,...(fn&&fn!==(j.folderName||'')?{folderName:fn}:{})},{kind:'edit',text:'กรอกย้อนหลัง (สำรวจวันที่ '+fd(day)+') · '+(fn?'โฟลเดอร์ '+fn:'โฟลเดอร์ '+v.folder)},'เริ่มกรอกย้อนหลังได้เลย · รูปและลายเซ็นไม่บังคับ');
+  const d=draftOf(j),v={...(j.sv||{})};if(!v.accepted)v.accepted=at;if(!v.folder){v.folder=String(d.folder||'').trim();v.folderAt=at}v.onsite=at;v.backfill=Date.now();v.backfillBy=me().id;v.backfillName=me().name;
+  const ok=await svSave(id,{sv:v,...(fn&&fn!==(j.folderName||'')?{folderName:fn}:{})},{kind:'edit',text:'กรอกย้อนหลังโดย '+me().name+(other?' (แทน '+(assignee(j)||'—')+')':'')+' · สำรวจวันที่ '+fd(day)+' · '+(fn?'โฟลเดอร์ '+fn:'โฟลเดอร์ '+v.folder)},'เริ่มกรอกย้อนหลังได้เลย · รูปและลายเซ็นไม่บังคับ');
   if(ok){(S.nsPage=S.nsPage||{})[id]=1;if(route()!=='#ns-'+id)go('#ns-'+id);else render()}
 }
 const isImp=j=>/^x\d+$/.test(String(j&&j.id||''));
 const canBack=j=>!!j&&j.stage===ST.SURVEY&&!j.sv?.onsite&&(canAct(j)||canTake(j))&&(isImp(j)||((j.surveyDate||j.queueDate)&&(j.surveyDate||j.queueDate)<today()));
 async function backFrom(id){
   let j=C().jobs[id];if(!canBack(j)||S.busy)return;
-  if(canTake(j)){if(!await takeOver(id))return;j=C().jobs[id];if(!canAct(j))return}
+  const other=!canAct(j),who=assignee(j)||'—';
+  if(other&&!await ask('กรอกแทน '+who+'?','ชื่อผู้สำรวจยังเป็น '+who+' เหมือนเดิม ประวัติงานจะบันทึกว่า '+me().name+' เป็นคนกรอก',{ok:'กรอกแทน'}))return;
   let day=j.surveyDate||j.queueDate;
   if(!day||day>=today()){const v=await askText('สำรวจวันไหน','วันที่ไปสำรวจจริง',day&&day<today()?day:'','date');if(v==null)return;if(!/^\d{4}-\d\d-\d\d$/.test(v)||v>today())return toast('เลือกวันที่สำรวจ (ไม่เกินวันนี้)');day=v}
-  nsBackfill(id,day)}
+  nsBackfill(id,day,other)}
 async function nsStart(id){
   const j=C().jobs[id];if(!j||!canAct(j)||S.busy)return;
   const fnIn=document.getElementById('ns-fname');const fn=fnIn?fnameClean(fnIn.value):'';if(fnIn&&!fn){toast('ใส่ชื่อโฟลเดอร์งาน');return}
