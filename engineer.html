@@ -502,6 +502,15 @@ label.pill input:checked+span{color:#fff}
 /* รอบ 4z: ขอบช่องกรอกเห็นชัด */
 .fl input,.fl select,.fl textarea,.cpy input,.ifq input,.ifg input{background:#fff;box-shadow:inset 0 0 0 1px #80858f}
 .min textarea,.drot input[type=date],.icu input{border-color:#80858f}
+
+/* รอบ 5c */
+.nav button{isolation:isolate}
+.nav button.on::after{display:none}
+.nav button.on::before{content:'';position:absolute;inset:8px 6px;border-radius:16px;background:#eaf5dc;z-index:-1}
+.nav button.on svg{fill:currentColor;fill-opacity:.22}
+.qa:not(.jqa) .ki{background:#eef0f4;color:var(--accTx)}
+.irow .ic.st-on{background:#e6f6ec;color:#117d39}
+.irow .ic.st-off{background:#fdecec;color:#c81e1e}
 </style>
 </head>
 <body>
@@ -935,8 +944,8 @@ function viewMe(){
     <label style="display:grid;gap:6px;font-size:14px">ชื่อที่แสดง<input id="pf-name" maxlength="40" value="${esc(S.pfName!=null?S.pfName:u.name)}" style="font:inherit;padding:10px 12px;border:1px solid #ccd;border-radius:10px"></label>
     <div style="display:flex;gap:10px;align-items:center;margin-top:12px">${pfAv(u,'pfav')}<label class="btn" style="cursor:pointer">${ic('cam')}เปลี่ยนรูป<input type="file" accept="image/*" id="pf-photo" hidden></label>${myPhoto(u)||S.pfPhoto?`<button class="btn red" data-pfdel>${ic('trash')}ลบรูป</button>`:''}</div>
     <button class="btn pri" style="width:100%;margin-top:12px" data-pfsave>บันทึกโปรไฟล์</button></div>`}
-   <div class="card"><h2>การเชื่อมต่อ</h2><div class="rows">
-    <div class="irow"><span class="ic">${ic('cloud')}</span><div><small>โหมด</small><b>${demo?'ข้อมูลตัวอย่าง (จำไว้ในเครื่องนี้เท่านั้น)':'ฐานข้อมูลออนไลน์'}</b></div></div>
+   <div class="card"><h2>สถานะ</h2><div class="rows">
+    ${(()=>{const off=!demo&&navigator.onLine===false,[k,t,v]=demo?['','ข้อมูลตัวอย่าง','จำไว้ในเครื่องนี้เท่านั้น']:off?['off','ออฟไลน์','ต่ออินเทอร์เน็ตก่อนบันทึกงาน']:['on','ออนไลน์','บันทึกแล้วส่งถึงออฟฟิศทันที'];return `<div class="irow"><span class="ic st-${k}">${ic('cloud')}</span><div><small>${t}</small><b>${v}</b></div></div>`})()}
     ${C().members[u.id]?.phone?`<div class="irow"><span class="ic">${ic('phone')}</span><div><small>เบอร์โทร</small><b>${esc(C().members[u.id].phone)}</b></div></div>`:''}</div></div>
    ${demo?`<button class="btn" style="width:100%;margin-bottom:10px" data-switch>${ic('swap')}เปลี่ยนผู้ใช้ (ดูตัวอย่าง)</button><button class="btn red" style="width:100%;margin-bottom:10px" data-demoreset>${ic('trash')}ล้างข้อมูลที่กรอกในโหมดตัวอย่าง</button>`:''}
    ${demo?'':`<button class="btn red out" data-signout>${ic('out')}ออกจากระบบ</button>`}<p style="text-align:center;color:var(--mut);font-size:13px">CLEANLINE Man</p></main>`;
@@ -2450,6 +2459,9 @@ boot();
 /* ปุ่มที่ปิดอยู่ไม่รับการกด → ให้ทะลุ (pointer-events:none) ลงแถบล่าง แล้วดูว่าจุดที่กดอยู่บนปุ่มไหม */
 document.addEventListener('click',e=>{const bar=e.target.closest&&e.target.closest('.abar');if(!bar)return;const t=bar.querySelector('button[data-try][disabled]');if(!t)return;
   const r=t.getBoundingClientRect();if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){e.stopPropagation();go(t)}},true);})();
+
+/* รอบ 5c: สัญญาณเน็ตเปลี่ยน → วาดหน้า "ฉัน" ใหม่ให้สถานะตรง */
+addEventListener('online',()=>{if(location.hash==='#me')render()});addEventListener('offline',()=>{if(location.hash==='#me')render()});
 </script>
 </body>
 </html>
