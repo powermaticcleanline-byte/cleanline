@@ -1800,11 +1800,14 @@ async function saveSlipImage(id){
 }
 const ALL_ST=[['all','ทั้งหมด',()=>true],['sv','กำลังสำรวจ',j=>j.status==='active'&&j.stage<=ST.SURVEY],['offer','ส่งเซลส์แล้ว',j=>j.status==='active'&&j.stage===ST.OFFER],
   ['ins','รอติดตั้ง',j=>j.status==='active'&&(j.stage===ST.INSREQ||j.stage===ST.INSTALL)],['inst','กำลังติดตั้ง',j=>j.status==='active'&&j.stage===ST.COMM],['docs','ติดตั้งแล้ว',j=>j.status==='active'&&j.stage===ST.DOCS],['done','ปิดงานแล้ว',j=>j.status==='done'],['lost','ไม่ตกลง',j=>j.status==='lost'],['cancelled','ยกเลิก',j=>j.status==='cancelled']];
-const jobDateOf=j=>j.surveyDate||j.queueDate||j.installDate||(j.createdAt?isoOf(new Date(j.createdAt)):'');
+const jobNoMonth=j=>{const m=String(j.jobNo||'').match(/^(\d\d)(\d\d)\d{3}$/);if(!m||+m[2]<1||+m[2]>12)return '';return (2500+(+m[1])-543)+'-'+m[2]};
+const isLegacy=j=>j.legacyRow!=null||/^x\d+$/.test(String(j.id||''));
+const jobDateOf=j=>j.surveyDate||j.queueDate||j.installDate||(isLegacy(j)?(j.agreedDate||j.designSentDate||j.logStart||jobNoMonth(j)||''):(j.createdAt?isoOf(new Date(j.createdAt)):''));
+const fdJ=d=>d.length===7?TM[+d.slice(5,7)-1]+' '+String(+d.slice(0,4)+543).slice(2):fd(d);
 function arow(j,mine){
   const s=sOf(j),stt=statusOf(j),d=jobDateOf(j),pv=hasSurvey(j)?propsView(j)[0]:null;
   return `<button class="jr ar" data-go="#job-${esc(j.id)}"><span class="jrm"><b>${esc(j.title||s.label||'')}${mine?' <i class="mdot" title="งานของคุณ"></i>':''}</b>
-   <small>${['#'+esc(j.jobNo||'—'),d?fd(d):'',esc(s.area||''),j.surveyor?esc(j.surveyor.split(' ')[0]):''].filter(Boolean).join(' · ')}</small>
+   <small>${['#'+esc(j.jobNo||'—'),d?fdJ(d):'',esc(s.area||''),j.surveyor?esc(j.surveyor.split(' ')[0]):''].filter(Boolean).join(' · ')}</small>
    ${pv&&pv.kw?`<small class="arp">${esc(pv.systemType||'')} ${esc(pv.kw)} kW${pv.proposedModel?' · '+esc(pv.proposedModel):''}</small>`:''}</span>
    <span class="jrr"><em class="pill ${j.status==='cancelled'||j.status==='lost'?'m':stt.c==='f-grn'?'g':stt.c==='f-red'?'r':stt.c==='f-org'?'o':stt.c==='f-vio'?'v':'m'}">${esc(stt.t.replace(' · ดูแลหลังการขาย','').replace(/^ขั้น \d · /,''))}</em></span></button>`;
 }
