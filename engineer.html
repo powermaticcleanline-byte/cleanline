@@ -536,7 +536,7 @@ const STAGES=[null,
  {name:'เสนอลูกค้า',role:'sales'},
  {name:'จองคิวติดตั้ง',role:'admin'},
  {name:'นัดผู้รับเหมา ติดตั้ง',role:'lead'},
- {name:'ติดตั้งเสร็จ · Single Line ตามจริง',role:'eng'},
+ {name:'กำลังติดตั้ง',role:'eng'},
  {name:'เอกสารขนานไฟฟ้า',role:'admin'}];
 const ST={BOOK:1,ACCEPT:2,SURVEY:3,OFFER:4,INSREQ:5,INSTALL:6,COMM:7,DOCS:8};
 const FOLDER_ROOT='\\\\PWM-SERVER\\Energy\\Solar';
@@ -822,7 +822,7 @@ function onDay(j,k){
 function kindOf(j){
   if(j.stage===ST.SURVEY)return {t:'สำรวจ',c:''};
   if(j.stage===ST.INSTALL)return {t:'ติดตั้ง',c:'ins'};
-  if(j.stage===ST.COMM)return {t:'ปิดงานติดตั้ง',c:'cls'};
+  if(j.stage===ST.COMM)return {t:'กำลังติดตั้ง',c:'cls'};
   return {t:STAGES[j.stage]?.name||'',c:'mut'};
 }
 function timeOf(j){
@@ -854,8 +854,8 @@ function topBar(title,{back=false,right=''}={}){
 function emptyBox(t,d,icon='check'){return `<div class="card empty"><div class="eic">${ic(icon)}</div><b>${t}</b>${d||''}</div>`}
 function supMine(j,u){if(!u||!j)return false;return j.supervisorId?j.supervisorId===u.id:(!!u.name&&j.supervisor===u.name)}
 function mineJob(j,u=me()){return svMine(j,u)||(!!u.name&&(supMine(j,u)||j.installTeam===u.name))}
-const ST_GRP=[['','',['all']],['กำลังทำ','',['sv','offer','ins']],['จบแล้ว','',['done']],['หยุดไว้','',['lost','cancelled']]];
-const ST_DOT={all:'#9aa0aa',sv:'#4f9a12',offer:'#ea8a0c',ins:'#7c5cff',done:'#16a34a',lost:'#9aa0aa',cancelled:'#c4c8cf'};
+const ST_GRP=[['','',['all']],['กำลังทำ','',['sv','offer','ins','inst','docs']],['จบแล้ว','',['done']],['หยุดไว้','',['lost','cancelled']]];
+const ST_DOT={all:'#9aa0aa',sv:'#4f9a12',offer:'#ea8a0c',ins:'#7c5cff',inst:'#2e90fa',docs:'#0e9384',done:'#16a34a',lost:'#9aa0aa',cancelled:'#c4c8cf'};
 function openStSheet(){
   const q=S.q.trim().toLowerCase(),f=S.allSt||'all';let L=S.api.listAllJobs();
   if(q)L=L.filter(j=>[j.title,j.jobNo,sOf(j).area,sOf(j).address,cOf(j).name,cOf(j).phone,j.surveyor,j.supervisor,j.salesTeam,...snOf(j)].join(' ').toLowerCase().includes(q));
@@ -975,7 +975,7 @@ function viewJob(id){
   const appt=j.stage<=ST.SURVEY?row('วันนัดสำรวจ',fd(j.surveyDate||j.queueDate)+(j.queueTime?' · '+esc(j.queueTime):''))+row('ผู้สำรวจ',esc([j.surveyor||'ยังไม่ระบุ',j.surveyTeam].filter(Boolean).join(' · ')))
     :row('วันติดตั้ง',j.installDate?fdRange(j.installDate,j.installEnd):'ยังไม่กำหนด')+row('ผู้คุมงาน',esc(j.supervisor||'ยังไม่ระบุ'))+row('ทีมติดตั้ง',esc(j.installTeam||'ยังไม่ระบุ'))+row('ผู้สำรวจ',esc(j.surveyor||''));
   const cta=j.stage===ST.SURVEY?(canTake(j)?`<button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ แล้วสำรวจ</button>`:canAct(j)?`<button class="btn pri" data-go="#ns-${esc(j.id)}">${ic('play')}${j.sv?.onsite?'สำรวจต่อ':'เริ่มสำรวจ'}</button>`:'')
-    :j.stage===ST.COMM?(canTake(j)?`<button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ แล้วปิดงานติดตั้ง</button>`:icCan(j)?`<button class="btn pri" data-go="#ic-${esc(j.id)}">${ic('check')}ปิดงานติดตั้ง</button>`:'')
+    :j.stage===ST.COMM?(canTake(j)?`<button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ แล้วเปิดใบงานติดตั้ง</button>`:icCan(j)?`<button class="btn pri" data-go="#ic-${esc(j.id)}">${ic('doc')}ใบงานติดตั้ง</button>`:'')
     :j.stage===ST.INSTALL&&j.status==='active'&&me().role==='lead'?`<button class="btn pri" data-lead="${esc(j.id)}">${ic('users')}มอบงานติดตั้ง</button>`:'';
   return `<div class="jb"><div class="hbin">
     <div class="jbt"><button class="jbk" data-back aria-label="ย้อนกลับ">${ic('back')}</button><span class="jbn">#${esc(j.jobNo||'—')}</span>${S.api.mode==='demo'?'<span class="hbm">ข้อมูลตัวอย่าง</span>':''}</div>
@@ -1271,18 +1271,18 @@ const icCan=j=>actionable(j)&&j.stage===ST.COMM&&(ownedByMe(j)||me().role==='lea
 function icMissing(j){const d=icDraft(j),P=S.api.listPhotos(j.id),m=[];if(!d.model)m.push('รุ่นอินเวอร์เตอร์');if(!d.sn)m.push('S/N เครื่อง');(d.slaves||[]).forEach((u,i)=>{if(!String(u.sn||'').trim())m.push('S/N Slave '+(i+1))});if(!(+d.panels>0))m.push('จำนวนแผง');
   IC_KINDS.forEach(([k,t,r])=>{if(r&&!P.some(p=>p.kind===k))m.push('รูป '+t)});return m.concat(ifMissing(j))}
 function viewIc(id){
-  const j=C().jobs[id];if(!j)return topBar('ปิดงานติดตั้ง',{back:true})+`<main class="wrap">${emptyBox('ไม่พบงานนี้','','x')}</main>`;
+  const j=C().jobs[id];if(!j)return topBar('ใบงานติดตั้ง',{back:true})+`<main class="wrap">${emptyBox('ไม่พบงานนี้','','x')}</main>`;
   const s=sOf(j),c=cOf(j),done=j.stage>ST.COMM||j.status==='done';
   const head=`<div class="nsh"><h1>${esc(j.title||s.label||'')}</h1><div class="nsm">${esc(s.address||'')}</div>
     <div class="nsa"><button class="rb" data-map="${esc(j.id)}" aria-label="นำทาง" ${mapUrl(j)?'':'disabled'}>${ic('nav')}</button><button class="rb" data-tel="${esc(j.id)}" aria-label="โทรลูกค้า" ${telOf(j)?'':'disabled'}>${ic('phone')}</button><button class="lk" data-go="#job-${esc(j.id)}">รายละเอียดงาน</button></div></div>`+reqAlerts(j.id);
-  if(done)return topBar('ปิดงานติดตั้ง',{back:true})+`<div class="glow"></div><main class="wrap">${head}${icSummary(j)}</main>`;
-  if(!icCan(j))return topBar('ปิดงานติดตั้ง',{back:true})+`<div class="glow"></div><main class="wrap ${canTake(j)?'hasbar':''}">${head}${canTake(j)?`<div class="take"><b>งานนี้ของ ${esc(assignee(j)||'ยังไม่ระบุ')}</b><p>กดรับงานต่อแล้วปิดงานแทนได้ทันที</p></div>`:emptyBox('ดูอย่างเดียว','','doc')}</main>${canTake(j)?`<div class="abar"><div class="in"><button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ</button></div></div>`:''}`;
+  if(done)return topBar('ใบงานติดตั้ง',{back:true})+`<div class="glow"></div><main class="wrap">${head}${icSummary(j)}</main>`;
+  if(!icCan(j))return topBar('ใบงานติดตั้ง',{back:true})+`<div class="glow"></div><main class="wrap ${canTake(j)?'hasbar':''}">${head}${canTake(j)?`<div class="take"><b>งานนี้ของ ${esc(assignee(j)||'ยังไม่ระบุ')}</b><p>กดรับงานต่อแล้วปิดงานแทนได้ทันที</p></div>`:emptyBox('ดูอย่างเดียว','','doc')}</main>${canTake(j)?`<div class="abar"><div class="in"><button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ</button></div></div>`:''}`;
   const d=icDraft(j),P=S.api.listProducts(),ph=String(s.phase||''),invs=P.filter(p=>p.category==='INVERTER'&&(!ph||String(p.phase)===ph)).sort((a,b)=>a.kw-b.kw),inv=P.find(p=>p.model===d.model);
   if(inv&&!d.meter&&inv.meters&&!String(inv.meters).includes(','))d.meter=String(inv.meters).trim();
   const bats=P.filter(p=>p.category==='BATTERY'),m=icMissing(j),chip=(k,v,t)=>`<button class="cc2 ${String(d[k])===String(v)?'on':''}" data-icset="${k}" data-v="${esc(v)}">${esc(t)}</button>`;
   const inp=(k,lab,ph2,scan,type='text')=>`<label class="fl"><span>${lab}</span><span class="icin"><input id="ic-${k}" data-ic="${k}" type="${type}" value="${esc(d[k])}" placeholder="${esc(ph2||'')}" ${type==='text'?'autocapitalize="characters" autocomplete="off"':''}>${scan?`<label class="icscan" aria-label="สแกนบาร์โค้ด${esc(lab)}">${ic('cam')}<input type="file" accept="image/*" capture="environment" data-icscan="${k}"></label>`:''}</span></label>`;
   const plan=[j.proposedModel&&`${j.proposedModel}${j.inverterQty>1?' ×'+j.inverterQty:''}`,j.proposedBatteryModel&&`แบต ${j.proposedBatteryModel}`,j.proposedPanelQty&&`แผง ${j.proposedPanelQty}`].filter(Boolean).join(' · ');
-  return topBar('ปิดงานติดตั้ง',{back:true})+`<div class="glow"></div><main class="wrap hasbar">${head}
+  return topBar('ใบงานติดตั้ง',{back:true})+`<div class="glow"></div><main class="wrap hasbar">${head}
    <section class="card icplan">${ic('doc')}<div><small>ตามที่เสนอลูกค้า</small><b>${esc(plan||'—')}</b></div><span class="pill ${j.installDate?'':'m'}">${j.installDate?esc(fdRange(j.installDate,j.installEnd)):'ไม่มีวันติดตั้ง'}</span></section>
    <section class="card"><h2>${ic('bolt')}อินเวอร์เตอร์ที่ติดตั้งจริง</h2>
     <div class="ccs2">${invs.map(p=>chip('model',p.model,p.model)).join('')}</div>${inv?`<p class="hint" style="margin:6px 0 10px">${inv.kw} kW · ${inv.phase} เฟส · ${esc(inv.type)}</p>`:''}
@@ -1389,7 +1389,7 @@ function notiItems(){
     (j.history||[]).forEach(h=>{
       if(h.at<since||h.by===u.id)return;
       if(h.kind==='handoff'&&[ST.SURVEY,ST.INSTALL,ST.COMM].includes(h.to)&&h.to===j.stage&&mineJ(j))
-        out.push({at:h.at,j,icon:'bell',c:'t-blu',t:h.to===ST.SURVEY?'ได้รับใบงานสำรวจใหม่':h.to===ST.INSTALL?'มีงานติดตั้งใหม่':'รอปิดงานติดตั้ง',d:h.text});
+        out.push({at:h.at,j,icon:'bell',c:'t-blu',t:h.to===ST.SURVEY?'ได้รับใบงานสำรวจใหม่':h.to===ST.INSTALL?'มีงานติดตั้งใหม่':'ได้รับใบงานติดตั้ง',d:h.text});
       else if(h.kind==='back'&&mineJ(j))out.push({at:h.at,j,icon:'back',c:'t-red',t:'งานถูกส่งกลับ',d:h.text});
       else if(h.kind==='edit'&&u.name&&String(h.text).includes('รับงานต่อจาก '+u.name))out.push({at:h.at,j,icon:'swap',c:'t-org',t:'มีคนรับงานของคุณไปทำต่อ',d:h.text});
     });
@@ -1799,11 +1799,11 @@ async function saveSlipImage(id){
   };
 }
 const ALL_ST=[['all','ทั้งหมด',()=>true],['sv','กำลังสำรวจ',j=>j.status==='active'&&j.stage<=ST.SURVEY],['offer','ส่งเซลส์แล้ว',j=>j.status==='active'&&j.stage===ST.OFFER],
-  ['ins','รอติดตั้ง',j=>j.status==='active'&&j.stage>=ST.INSREQ],['done','ปิดงานแล้ว',j=>j.status==='done'],['lost','ไม่ตกลง',j=>j.status==='lost'],['cancelled','ยกเลิก',j=>j.status==='cancelled']];
+  ['ins','รอติดตั้ง',j=>j.status==='active'&&(j.stage===ST.INSREQ||j.stage===ST.INSTALL)],['inst','กำลังติดตั้ง',j=>j.status==='active'&&j.stage===ST.COMM],['docs','ติดตั้งแล้ว',j=>j.status==='active'&&j.stage===ST.DOCS],['done','ปิดงานแล้ว',j=>j.status==='done'],['lost','ไม่ตกลง',j=>j.status==='lost'],['cancelled','ยกเลิก',j=>j.status==='cancelled']];
 const jobDateOf=j=>j.surveyDate||j.queueDate||j.installDate||(j.createdAt?isoOf(new Date(j.createdAt)):'');
 function arow(j,mine){
   const s=sOf(j),stt=statusOf(j),d=jobDateOf(j),pv=hasSurvey(j)?propsView(j)[0]:null;
-  return `<button class="jr ar" data-go="${hasSurvey(j)?'#rpt-':'#job-'}${esc(j.id)}"><span class="jrm"><b>${esc(j.title||s.label||'')}${mine?' <i class="mdot" title="งานของคุณ"></i>':''}</b>
+  return `<button class="jr ar" data-go="#job-${esc(j.id)}"><span class="jrm"><b>${esc(j.title||s.label||'')}${mine?' <i class="mdot" title="งานของคุณ"></i>':''}</b>
    <small>${['#'+esc(j.jobNo||'—'),d?fd(d):'',esc(s.area||''),j.surveyor?esc(j.surveyor.split(' ')[0]):''].filter(Boolean).join(' · ')}</small>
    ${pv&&pv.kw?`<small class="arp">${esc(pv.systemType||'')} ${esc(pv.kw)} kW${pv.proposedModel?' · '+esc(pv.proposedModel):''}</small>`:''}</span>
    <span class="jrr"><em class="pill ${j.status==='cancelled'||j.status==='lost'?'m':stt.c==='f-grn'?'g':stt.c==='f-red'?'r':stt.c==='f-org'?'o':stt.c==='f-vio'?'v':'m'}">${esc(stt.t.replace(' · ดูแลหลังการขาย','').replace(/^ขั้น \d · /,''))}</em></span></button>`;
@@ -2300,7 +2300,7 @@ document.addEventListener('click',e=>{
   if('nsresign' in d){S.nsResign=route().slice(3);S.sig=null;render();return}
   if(d.slipimg){saveSlipImage(d.slipimg);return}
   if(d.copyquote){copyQuote(d.copyquote);return}
-  if(d.qa){const h=d.qa;if(h[0]==='@'){S.allSt={sv:'sv',draw:'sv',ins:'ins',comm:'ins'}[h.slice(1)]||'all';S.allLim=40;S.q='';go('#mine')}else if(h==='#all'||h==='#past'){S.allSt='all';S.allLim=40;S.q='';go('#mine')}else if(h==='#find'){S.mineTab='now';go('#mine');setTimeout(()=>{const q=$('#q');if(q){q.focus();q.select()}},80)}
+  if(d.qa){const h=d.qa;if(h[0]==='@'){S.allSt={sv:'sv',draw:'sv',ins:'ins',comm:'inst'}[h.slice(1)]||'all';S.allLim=40;S.q='';go('#mine')}else if(h==='#all'||h==='#past'){S.allSt='all';S.allLim=40;S.q='';go('#mine')}else if(h==='#find'){S.mineTab='now';go('#mine');setTimeout(()=>{const q=$('#q');if(q){q.focus();q.select()}},80)}
     else if(h==='#scope'){S.scope=S.scope==='all'?'mine':'all';lsSet('cle.scope2',S.scope);render()}else{if(h==='#mine')S.mineTab='now';go(h)}return}
   if(d.stepf){const el=document.querySelector(`[data-f="${d.stepf}"]`);if(el){const mn=+d.min||0;el.value=Math.max(mn,(+el.value||0)+(+d.d));el.dispatchEvent(new Event('input',{bubbles:true}))}return}
   if('nextjob' in d){const n=nextJob();if(n)go(destOf(n));else toast('ไม่มีงานนัดที่รออยู่');return}
