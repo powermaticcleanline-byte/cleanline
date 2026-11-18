@@ -1934,6 +1934,12 @@ html,body{overflow-anchor:none}
 @media (max-width:900px){.sltl{grid-template-columns:1fr 1fr}.slnew,.sljob{grid-template-columns:minmax(0,1fr)}.slkv{grid-template-columns:96px minmax(0,1fr)}.slkv span{word-break:break-word}.slds{gap:4px}.slr{grid-template-columns:1fr auto;gap:6px 12px}.slr2{grid-column:1/-1;order:3}.slr3{display:none}.slh h1{font-size:26px}}
 @media (max-width:600px){.sltl{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.slt{padding:12px;gap:10px}.slt .hti{width:34px;height:34px;border-radius:11px}.slt .hti svg{width:16px;height:16px}.slt b{font-size:21px}.slt small{font-size:12px;line-height:1.3}
 .slr{grid-template-columns:minmax(0,1fr);padding:12px 4px}.slr4{display:none}.slc1.card.pad,.slq.card.pad,.sljob .card.pad,.slnew .card.pad{padding:16px}}
+
+/* ===== รอบ 4b มอบงานติดตั้ง ===== */
+.asgp{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:6px}
+.asgc{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:1px solid #d5d9e0;border-radius:12px;background:#fff;padding:9px 12px;font:inherit;cursor:pointer;color:#16171d}
+.asgc b{font-size:14px;font-weight:600}.asgc small{font-size:11.5px;color:#15803d}.asgc.busy small{color:#b54708}
+.asgc.on{border:2px solid #4f9a12;background:#f5faee;padding:8px 11px}.asgc:disabled{cursor:default;opacity:.7}
 </style>
 <style>body.rocat [data-fmnew],body.rocat [data-fmedit],body.rocat [data-fmdel],body.rocat [data-eqnew],body.rocat [data-eqedit],body.rocat [data-eqdel],body.rocat label[for="eqxfile"]{display:none!important}</style></head>
 <body>
@@ -2810,7 +2816,7 @@ async function saveReg(){
   }catch(e){}
 }
 const CMF=[['date','วันที่แจ้ง','date',{req:1}],['channel','แจ้งทาง','sel',CM_CH],['symptom','อาการ / ปัญหา','area',{req:1,full:1}],['action','วิธีแก้','area',{full:1}],['parts','อะไหล่ที่เปลี่ยน','text',{full:1}],['by','ผู้ไปหน้างาน','text'],['status','สถานะ','sel',['กำลังดำเนินการ','ปิดงานแล้ว']]];
-const PMF=[['date','วันที่ตรวจเช็ก','date',{req:1}],['by','ผู้ไปหน้างาน','text'],['result','ผลตรวจ / สิ่งที่ทำ','area',{full:1}],['parts','อะไหล่ที่เปลี่ยน','text',{full:1}]];
+const PMF=[['date','วันที่ตรวจเช็ก (ย้อนหลังได้)','date',{req:1}],['by','ผู้ไปหน้างาน','text'],['result','ผลตรวจ / สิ่งที่ทำ','area',{full:1}],['parts','อะไหล่ที่เปลี่ยน','text',{full:1}]];
 function openSvc(type,svid,sid){
   const x=svid?S.services[svid]:null;type=x?x.type:type;
   const vals=x?{...x,status:x.status==='closed'?'ปิดงานแล้ว':'กำลังดำเนินการ'}:{date:today(),status:'กำลังดำเนินการ'};
@@ -2820,6 +2826,7 @@ function openSvc(type,svid,sid){
 async function saveSvc(){
   const f=$('#svF');const v=readF('svF');const type=f.dataset.type;const sid=f.dataset.sid;
   if(!v.date){$('#svFE').textContent='ใส่วันที่ก่อน';return}
+  if(type==='PM'&&v.date>today()){$('#svFE').textContent='ใส่วันที่ตรวจจริง (ล่วงหน้าไม่ได้)';return}
   if(type==='CM'&&!v.symptom){$('#svFE').textContent='ใส่อาการหรือปัญหาก่อน';$('#svF-symptom').focus();return}
   const now=Date.now();const j=mainJob(sid);
   const d={...v,type,siteId:sid,jobId:j?.id||null,updatedAt:now,by:v.by};
@@ -2995,7 +3002,7 @@ async function saveForm(){const f=$('#fmF');const v=readF('fmF');if(!v.name){$('
   const id=f.dataset.id||('fm'+Date.now().toString(36));try{await w('forms/'+id,{...v,updatedAt:Date.now()},f.dataset.id?'update':'set');closeModal();toast('บันทึกแล้ว')}catch(e){}}
 /* ===== สมาร์ทมิเตอร์ (เครื่องวัดพฤติกรรมไฟ) : มี 3 เครื่อง ===== */
 const METERS=['A','B','C'];
-const mtEnd=b=>b.status==='returned'&&b.returnedAt?b.returnedAt:b.to;
+const mtEnd=b=>b.status==='returned'&&b.returnedAt?b.returnedAt:(b.status==='out'&&b.to<today()?today():b.to);
 function mtActive(){return Object.values(S.meters||{}).filter(b=>b.status!=='cancel')}
 function meterFree(dev,from,to,except){return !mtActive().some(b=>b.id!==except&&b.device===dev&&b.from<=to&&mtEnd(b)>=from)}
 function freeMeters(from,to,except){return from&&to?METERS.filter(d=>meterFree(d,from,to,except)):[]}
@@ -3033,7 +3040,7 @@ function viewMeter(){
   const list=all.filter(b=>b.status!=='returned'||mtEnd(b)>=isoAdd(t,-14)).sort((a,b)=>a.from.localeCompare(b.from));
   const st=b=>!b.device?['o','รอจัดเครื่อง']:b.status==='returned'?['gy','คืนแล้ว']:b.status==='out'?(b.to<t?['rd','เลยวันเก็บ']:['b','ติดตั้งอยู่']):b.from<=t?['o','ถึงวันติดตั้ง']:['ok','จองแล้ว'];
   const ib=(ic,lab,attr,off)=>`<button type="button" class="ib" ${off?'disabled':attr} aria-label="${lab}" title="${off||lab}">${svg(ic,'currentColor',2)}</button>`;
-  return pageHead('สมาร์ทมิเตอร์','เครื่องวัดพฤติกรรมไฟ 3 เครื่อง',`<button class="btn pri" data-mtnew="1">${svg('plus','#fff',2.4)}จองเครื่อง</button>`)+`
+  return pageHead('สมาร์ทมิเตอร์','เครื่องวัดพฤติกรรมไฟ 3 เครื่อง',`<button class="btn" data-mtnow="1">บันทึกเครื่องที่ใช้อยู่</button><button class="btn pri" data-mtnew="1">${svg('plus','#fff',2.4)}จองเครื่อง</button>`)+`
   <div class="mtcs">${METERS.map(card).join('')}</div>
   ${wait.length?`<section class="card sal"><div class="phd"><div class="ptl">${svg('bell','currentColor',2)}คำขอรอจัดเครื่อง<span class="tdn">${wait.length}</span></div><span class="sub">ช่วงที่ขอไม่มีเครื่องว่าง กดแก้ไขเพื่อเลื่อนวันหรือเลือกเครื่อง</span></div></section>`:''}
   <section class="card"><div class="phd"><div class="ptl">${svg('cal','currentColor',2)}ตารางการใช้เครื่อง 6 สัปดาห์</div><div class="mlg"><span><i class="booked"></i>จองแล้ว</span><span><i class="out"></i>ติดตั้งอยู่</span><span><i class="returned"></i>คืนแล้ว</span></div></div>${tl}</section>
@@ -3168,6 +3175,7 @@ function viewJob(id){
     if(n===ST.ACCEPT){right=acceptCard(j,act);}
     else if(n===ST.SURVEY){right=svCard(j,c,s,act);}
     else if(n===ST.INSREQ){right=insCard(j,act);}
+    else if(n===ST.INSTALL){right=asgCard(j,act);}
     else    right=`<section class="act" aria-label="ขั้นปัจจุบัน">
       <div><h2>${n===LAST?'ปิดงาน':'ส่งต่อให้'+esc(nextRole)}</h2><span class="sub">ครบ ${done} จาก ${nd.length}</span></div>
       ${nd.length?`<div class="pbar"><i style="width:${Math.round(done/nd.length*100)}%"></i></div><ul class="need">${nd.map(x=>`<li class="${x.ok?'ok':''}"><span class="k">${x.ok?'✓':''}</span>${esc(x.l)}</li>`).join('')}</ul>`:''}
@@ -3726,6 +3734,56 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-sld],[data
   if(t.dataset.slsend){slSend();return}
   if(t.dataset.chsend){chSend(t.dataset.chsend);return}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&e.target.id?.startsWith('chat-')){e.preventDefault();chSend(e.target.id.slice(5))}});
+
+
+/* ===== รอบ 4b: มอบงานติดตั้ง ===== */
+function insPeople(){return Object.entries(S.members||{}).filter(([,m])=>m&&m.status!=='suspended'&&(m.role==='eng'||m.role==='lead')).map(([id,m])=>({id,name:nm(id)||m.name||''})).filter(x=>x.name).sort((a,b)=>a.name.localeCompare(b.name,'th'))}
+function insBusy(p,j){const D=insDays(j);if(!D.length)return '';
+  const sup=Object.values(S.jobs).find(x=>x.id!==j.id&&x.status==='active'&&(x.stage===ST.INSTALL||x.stage===ST.COMM)&&(x.supervisorId?x.supervisorId===p.id:x.supervisor===p.name)&&insDays(x).some(k=>D.includes(k)));
+  if(sup)return 'คุมงาน '+(sup.title||'');
+  const sv=Object.values(S.jobs).find(x=>x.status==='active'&&x.stage<=ST.SURVEY&&x.stage>=ST.ACCEPT&&(x.surveyorId?x.surveyorId===p.id:x.surveyor===p.name)&&D.includes(x.surveyDate||x.queueDate));
+  return sv?'สำรวจ '+fd(sv.surveyDate||sv.queueDate):''}
+function asgCard(j,act){
+  const st=asgState(j);
+  const D=insDays(j);const P=insPeople();const teams=[...new Set(Object.values(S.jobs).map(x=>x.installTeam).filter(x=>x&&x.length<60))].sort();
+  const pick=P.find(p=>p.id===st.sup);
+  return `<section class="act" aria-label="มอบงานติดตั้ง">
+    <div><h2>มอบงานติดตั้ง</h2><span class="sub">${D.length?`ติดตั้ง ${fd(D[0])}${D.length>1?' – '+fd(D[D.length-1])+' ('+D.length+' วัน)':''}`:'ยังไม่มีวันติดตั้ง'}</span></div>
+    <div class="fld"><span>ผู้คุมงาน</span><div class="asgp" role="radiogroup" aria-label="ผู้คุมงาน">${P.length?P.map(p=>{const b=insBusy(p,j);return `<button type="button" role="radio" aria-checked="${st.sup===p.id}" class="asgc ${st.sup===p.id?'on':''} ${b?'busy':''}" data-asgsup="${esc(j.id)}|${esc(p.id)}" ${act?'':'disabled'}><b>${esc(p.name)}</b><small>${b?esc(b):'ว่าง'}</small></button>`}).join(''):'<span class="sub">ยังไม่มีรายชื่อคนหน้างาน (อนุมัติใน Console)</span>'}</div></div>
+    <label class="fld" for="asg-t-${esc(j.id)}">ผู้รับเหมา / ทีมช่าง<input id="asg-t-${esc(j.id)}" data-asgteam="${esc(j.id)}" list="asg-tl" value="${esc(st.team)}" placeholder="ชื่อผู้รับเหมา" ${act?'':'disabled'}><datalist id="asg-tl">${teams.map(t=>`<option value="${esc(t)}">`).join('')}</datalist></label>
+    <div class="btns"><button class="btn dk" data-asggo="${esc(j.id)}" ${act&&st.sup&&st.team.trim()?'':'disabled'}>${pick?'มอบงาน · ส่งให้'+esc(pick.name):'มอบงาน'}</button>${act?'<button class="btn sm" data-act="back" style="box-shadow:none;color:var(--mut)">ย้อนกลับขั้นก่อนหน้า</button>':''}</div>
+    ${act?(!st.sup||!st.team.trim()?`<span class="sub">ยังขาด: ${[!st.sup&&'ผู้คุมงาน',!st.team.trim()&&'ผู้รับเหมา'].filter(Boolean).join(', ')}</span>`:''):`<span class="sub">รอ${esc(ownerOf(j))}มอบงาน</span>`}
+  </section>`}
+/* ค่าที่ผู้ใช้เลือกในการ์ด (ถ้ายังไม่แตะ ใช้ค่าจากงาน เช่น ที่กรอกในฟอร์มซ้าย) */
+function asgState(j){const u=(S.asg||{})[j.id]||{};return {sup:u.sup!==undefined?u.sup:(j.supervisorId||(insPeople().find(p=>p.name===j.supervisor)||{}).id||''),team:u.team!==undefined?u.team:(j.installTeam||'')}}
+async function asgGo(id){const j=S.jobs[id];if(!j)return;const st=asgState(j);if(!st.sup||!st.team.trim())return;
+  const p=insPeople().find(x=>x.id===st.sup);if(!p)return toast('เลือกผู้คุมงานก่อน');const b=insBusy(p,j);
+  if(b&&!await confirmBox(`${p.name} ติดงานช่วงนั้น`,`${b} · ยังจะมอบงานนี้ให้${p.name}ไหม`,'มอบงาน','pri'))return;
+  const now=Date.now();const tm=st.team.trim();
+  try{await pushHist(j,ev('handoff',`มอบงานติดตั้ง · ผู้คุมงาน ${p.name} · ผู้รับเหมา ${tm}`,{from:ST.INSTALL,to:ST.COMM}),{supervisor:p.name,supervisorId:p.id,installTeam:tm,stage:ST.COMM,stageSince:now});
+    delete S.asg[id];toast('มอบงานติดตั้งให้'+p.name+'แล้ว')}catch(e){}}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-asgsup],[data-asggo],[data-mtnow]');if(!t)return;
+  if(t.dataset.asgsup){const [jid,pid]=t.dataset.asgsup.split('|');S.asg=S.asg||{};(S.asg[jid]=S.asg[jid]||{}).sup=pid;render();return}
+  if(t.dataset.asggo){asgGo(t.dataset.asggo);return}
+  if(t.dataset.mtnow){openMeterNow();return}});
+document.addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.asgteam){const id=t.dataset.asgteam;S.asg=S.asg||{};(S.asg[id]=S.asg[id]||{}).team=t.value;
+  const g=document.querySelector(`[data-asggo="${CSS.escape(id)}"]`);if(g&&S.jobs[id])g.disabled=!(asgState(S.jobs[id]).sup&&t.value.trim())}});
+/* ===== รอบ 4b: บันทึกสมาร์ทมิเตอร์ที่ติดตั้งอยู่แล้ว (เริ่มก่อนวันนี้ได้ · การจองอัตโนมัติที่ชนจะย้ายไปเครื่องอื่น) ===== */
+const MTNF=()=>[['device','เครื่องที่ติดตั้งอยู่','sel',METERS.map(d=>'เครื่อง '+d),{req:1}],['title','ลูกค้า / ไซต์','text',{req:1,ph:'เช่น บ้านคุณสมชาย บางนา'}],['borrower','ผู้ยืม','text',{ph:'คนที่เอาเครื่องไป'}],['phone','เบอร์ติดต่อ','tel'],
+  ['from','ติดตั้งไปเมื่อ','date',{req:1}],['to','จะเก็บเครื่องวันที่','date',{req:1}],['note','หมายเหตุ','area',{full:1}]];
+function openMeterNow(){formModal('mtN','บันทึกเครื่องที่ใช้อยู่ตอนนี้',MTNF(),{from:today(),to:isoAdd(today(),6)},'บันทึก',`<p class="sub" style="margin:10px 0 0">สำหรับเครื่องที่ติดตั้งไปก่อนเริ่มใช้ระบบ · ถ้าเครื่องนี้มีคิวจองอัตโนมัติชนอยู่ ระบบจะย้ายคิวนั้นไปเครื่องที่ว่าง</p>`)}
+async function saveMeterNow(){const v=readF('mtN');const E=$('#mtNE');const dev=(v.device||'').replace('เครื่อง ','');
+  if(!dev)return E.textContent='เลือกเครื่อง';if(!v.title)return E.textContent='ใส่ชื่อลูกค้าหรือไซต์';if(!v.from||!v.to)return E.textContent='ใส่วันติดตั้งและวันเก็บเครื่อง';
+  if(v.from>today())return E.textContent='เครื่องที่ยังไม่ได้ติดตั้ง ใช้ "จองเครื่อง"';if(v.to<v.from)return E.textContent='วันเก็บต้องไม่ก่อนวันติดตั้ง';
+  const end=v.to<today()?today():v.to;const hit=mtActive().filter(b=>b.device===dev&&b.from<=end&&mtEnd(b)>=v.from);
+  const hard=hit.filter(b=>b.status!=='booked');if(hard.length){const b=hard[0];return E.textContent=`เครื่อง ${dev} มีบันทึกว่าใช้อยู่แล้ว: ${b.title||''} (${fd(b.from)} – ${fd(b.to)}) · ถ้าเครื่องคืนแล้ว กด "รับเครื่องคืน" ก่อน`}
+  const busy=d=>mtActive().some(b=>b.device===d&&!hit.includes(b)&&b.from<=end&&mtEnd(b)>=v.from);
+  const moves=hit.map(b=>{const to=METERS.find(d=>d!==dev&&!busy(d)&&!mtActive().some(x=>x.id!==b.id&&x.device===d&&x.from<=mtEnd(b)&&mtEnd(x)>=b.from));return {b,to:to||''}});
+  if(moves.length&&!await confirmBox('ย้ายคิวที่ชนกัน?',moves.map(m=>`${m.b.title||'คิว'} (${fd(m.b.from)}) → ${m.to?'เครื่อง '+m.to:'รอจัดเครื่อง'}`).join(' · '),'ย้ายและบันทึก','pri'))return;
+  const now=Date.now();const id=S.db.collection('meters').doc().id;
+  try{await wMany([...moves.map(m=>['meters/'+m.b.id,{device:m.to,updatedAt:now},'update']),['meters/'+id,{source:'direct',status:'out',outAt:v.from,createdAt:now,updatedAt:now,...v,device:dev},'set']]);
+    closeModal();toast(`บันทึกเครื่อง ${dev} ว่าติดตั้งอยู่แล้ว${moves.length?' · ย้ายคิว '+moves.length+' รายการ':''}`)}catch(e){}}
+{const _ofs=onFormSubmit;onFormSubmit=function(f,b){if(f&&f.id==='mtN')return saveMeterNow();return _ofs.apply(this,arguments)}}
 
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{

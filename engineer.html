@@ -609,7 +609,7 @@ class BaseAdapter{
     u=u||this.user;if(!u||!j)return false;
     if(u.role==='lead'||u.role==='admin')return true;
     const n=u.name;
-    return svMine(j,u)||j.supervisor===n||j.installTeam===n;
+    return svMine(j,u)||supMine(j,u)||j.installTeam===n;
   }
   listMyJobs(userId){const u=userId===this.user?.id?this.user:this.userById(userId);return Object.values(this.c.jobs).filter(j=>this.isMine(j,u))}
   listAllJobs(){return Object.values(this.c.jobs)}
@@ -803,7 +803,7 @@ function waitingMe(j,u=me()){
   if(u.role==='lead')return j.stage===ST.INSTALL;
   if(!S.api.isMine(j,u))return false;
   if(j.stage===ST.SURVEY)return svMine(j,u);
-  if(j.stage===ST.INSTALL||j.stage===ST.COMM)return j.supervisor===u.name||j.installTeam===u.name;
+  if(j.stage===ST.INSTALL||j.stage===ST.COMM)return supMine(j,u)||j.installTeam===u.name;
   return false;
 }
 function onDay(j,k){
@@ -830,7 +830,7 @@ function progressOf(j){
 }
 const assignee=j=>j.stage<=ST.SURVEY?(j.surveyor||j.surveyTeam||''):(j.supervisor||j.installTeam||'');
 const actionable=j=>j.status==='active'&&[ST.SURVEY,ST.INSTALL,ST.COMM].includes(j.stage);
-function ownedByMe(j){const u=me();if(u.role==='lead')return false;return j.stage<=ST.SURVEY?svMine(j,u):(j.supervisor===u.name||j.installTeam===u.name)}
+function ownedByMe(j){const u=me();if(u.role==='lead')return false;return j.stage<=ST.SURVEY?svMine(j,u):(supMine(j,u)||j.installTeam===u.name)}
 const canTake=j=>actionable(j)&&me().role==='eng'&&!ownedByMe(j);
 const unread=j=>waitingMe(j)&&!S.seen.has(j.id+':'+j.stage);
 const mapUrl=j=>{const s=sOf(j);return safeUrl(s.mapLink)||(s.address?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.address):'')};
@@ -844,7 +844,8 @@ function topBar(title,{back=false,right=''}={}){
    <div class="ttl">${esc(title)}</div>${right||modeChip()}</div></header>`;
 }
 function emptyBox(t,d,icon='check'){return `<div class="card empty"><div class="eic">${ic(icon)}</div><b>${t}</b>${d||''}</div>`}
-function mineJob(j,u=me()){return svMine(j,u)||(!!u.name&&(j.supervisor===u.name||j.installTeam===u.name))}
+function supMine(j,u){if(!u||!j)return false;return j.supervisorId?j.supervisorId===u.id:(!!u.name&&j.supervisor===u.name)}
+function mineJob(j,u=me()){return svMine(j,u)||(!!u.name&&(supMine(j,u)||j.installTeam===u.name))}
 const ST_GRP=[['','',['all']],['กำลังทำ','',['sv','offer','ins']],['จบแล้ว','',['done']],['หยุดไว้','',['lost','cancelled']]];
 const ST_DOT={all:'#9aa0aa',sv:'#4f9a12',offer:'#ea8a0c',ins:'#7c5cff',done:'#16a34a',lost:'#9aa0aa',cancelled:'#c4c8cf'};
 function openStSheet(){
@@ -878,7 +879,7 @@ function viewMine(){
   </main>`;
 }
 function touchedByMe(j){const u=me();if(u.role==='lead')return j.stage>=ST.INSTALL||j.status!=='active'||(j.history||[]).some(h=>h.by===u.id);
-  return j.surveyor===u.name||j.supervisor===u.name||j.installTeam===u.name||(j.history||[]).some(h=>h.by===u.id)}
+  return j.surveyor===u.name||supMine(j,u)||j.installTeam===u.name||(j.history||[]).some(h=>h.by===u.id)}
 
 function viewService(){
   const c=C(),T=today(),jobOfSite=sid=>Object.values(c.jobs).filter(j=>j.siteId===sid).sort((a,b)=>(b.status==='done')-(a.status==='done'))[0];
@@ -1211,7 +1212,7 @@ function leadAssign(id){
   const close=()=>{m.innerHTML=''};m.querySelector('[data-no]').onclick=close;m.querySelector('[data-ov]').onclick=e=>{if(e.target.dataset.ov!==undefined)close()};
   m.querySelectorAll('[data-la]').forEach(b=>b.onclick=async()=>{const team=$('#la-team').value.trim(),go2=b.dataset.la==='go';
     if(go2&&(!sup||!team)){toast(!sup?'เลือกผู้คุมงานก่อน':'ใส่ชื่อผู้รับเหมา / ทีมช่าง');return}
-    try{await S.api.updateJob(id,{supervisor:sup,installTeam:team,...(go2?{stage:ST.COMM}:{})},go2?{kind:'handoff',text:`นัดผู้รับเหมา ${team} ติดตั้ง ${j.installDate?fdRange(j.installDate,j.installEnd):''} ผู้คุมงาน ${sup}`,from:ST.INSTALL,to:ST.COMM}:{kind:'edit',text:`กำหนดผู้คุมงาน ${sup||'-'} ทีมช่าง ${team||'-'}`},{stage:ST.INSTALL,status:'active'});
+    try{await S.api.updateJob(id,{supervisor:sup,supervisorId:'',installTeam:team,...(go2?{stage:ST.COMM}:{})},go2?{kind:'handoff',text:`นัดผู้รับเหมา ${team} ติดตั้ง ${j.installDate?fdRange(j.installDate,j.installEnd):''} ผู้คุมงาน ${sup}`,from:ST.INSTALL,to:ST.COMM}:{kind:'edit',text:`กำหนดผู้คุมงาน ${sup||'-'} ทีมช่าง ${team||'-'}`},{stage:ST.INSTALL,status:'active'});
       close();toast(go2?'ส่งงานให้ '+sup+' แล้ว':'บันทึกแล้ว')}catch(err){toast(err.code==='conflict'?err.message:'บันทึกไม่สำเร็จ')}});
 }
 const PM_CHK=['ทำความสะอาดแผง','ตรวจขั้วต่อ/สาย DC','ตรวจเบรกเกอร์/กันไฟกระชาก','ตรวจอินเวอร์เตอร์ไม่มี error','ตรวจการเชื่อมต่อ WiFi/มอนิเตอร์','ตรวจโครงยึด/หลังคารั่ว'];
@@ -2121,7 +2122,7 @@ async function takeOver(id){
   const j=C().jobs[id];if(!j||!canTake(j))return;
   const u=me(),prev=assignee(j)||'ยังไม่ระบุ';
   if(!await ask('รับงานต่อจาก '+prev+'?','งานนี้จะย้ายมาเป็นชื่อคุณ ('+u.name+') และบันทึกในประวัติ ทุกคนเห็นทันที',{ok:'รับงานต่อ'}))return;
-  const patch=j.stage<=ST.SURVEY?(S.api.mode==='live'?{surveyor:u.name,surveyorId:u.id,surveyTeam:u.name}:{surveyor:u.name,surveyTeam:u.team||j.surveyTeam||''}):{supervisor:u.name};
+  const patch=j.stage<=ST.SURVEY?(S.api.mode==='live'?{surveyor:u.name,surveyorId:u.id,surveyTeam:u.name}:{surveyor:u.name,surveyTeam:u.team||j.surveyTeam||''}):(S.api.mode==='live'?{supervisor:u.name,supervisorId:u.id}:{supervisor:u.name});
   try{await S.api.updateJob(id,patch,{kind:'edit',text:`${u.name} รับงานต่อจาก ${prev}`},{stage:j.stage,status:'active'});toast('รับงานต่อแล้ว งานนี้เป็นของคุณ')}
   catch(e){toast(e.code==='conflict'?e.message:'บันทึกไม่สำเร็จ ลองอีกครั้ง')}
 }
