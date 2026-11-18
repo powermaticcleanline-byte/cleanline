@@ -264,7 +264,7 @@
           } });
         screen('login', null, msg);
         var b = document.getElementById('clg-btn');
-        if (b) google.accounts.id.renderButton(b, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signin_with', locale: 'th', width: 300 });
+        if (b) google.accounts.id.renderButton(b, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signin_with', locale: 'th', width: st.page === 'engineer' ? Math.max(240, Math.min(400, (window.innerWidth || 360) - 56)) : 300 });
         google.accounts.id.prompt();
       });
     });
@@ -314,6 +314,21 @@
       '#clg .cg-ft{margin-top:46px;font-size:13px;color:#8a9484}' +
       '@media (max-width:820px){#clg{grid-template-columns:1fr;grid-template-rows:minmax(300px,46vh) auto}' +
         '#clg .cg-sc{margin:10px 10px 0;border-radius:24px}#clg .cg-bx{padding:30px 26px 34px;max-width:none}#clg .cg-h{font-size:38px}#clg .cg-lg{margin-bottom:22px}#clg .cg-ft{margin-top:28px}}' +
+      '#clg.man{display:block;background:radial-gradient(120% 60% at 50% 0%,#b5e54a 0%,#93d209 55%,#84c40b 100%);font-family:Prompt,"Noto Sans Thai",Inter,system-ui,sans-serif;color:#16171d;overflow-x:hidden}' +
+      '#clg.man .cm{position:relative;min-height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column}' +
+      '#clg.man .cm-bl{position:absolute;border-radius:50%;background:rgba(255,255,255,.22);pointer-events:none}' +
+      '#clg.man .cm-top{position:relative;flex:1;min-height:300px;display:flex;align-items:flex-end;justify-content:center;padding-top:max(24px,env(safe-area-inset-top))}' +
+      '#clg.man .cm-m{position:relative;z-index:2;width:min(78vw,330px);height:auto;margin-bottom:-34px;transform:rotate(-3deg);filter:drop-shadow(0 10px 0 rgba(22,23,29,.10));animation:cmHop 2.4s ease-in-out infinite}' +
+      '@keyframes cmHop{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(-1deg) translateY(-8px)}}' +
+      '@media (prefers-reduced-motion:reduce){#clg.man .cm-m{animation:none}}' +
+      '#clg.man .cm-sh{position:relative;z-index:1;background:#fbf7ec;border-radius:36px 36px 0 0;border-top:3px solid #16171d;padding:30px 28px calc(28px + env(safe-area-inset-bottom))}' +
+      '#clg.man .cm-chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:2px solid #16171d;border-radius:99px;padding:4px 12px;font-size:13px;font-weight:600}' +
+      '#clg.man .cm-chip img{height:11px;width:auto}' +
+      '#clg.man .cm-h{font-size:28px;font-weight:600;line-height:1.25;margin:12px 0 6px}' +
+      '#clg.man .cm-s{font-size:15.5px;color:#4b4f59;margin:0 0 22px;line-height:1.5}' +
+      '#clg.man #clg-btn{justify-content:center;margin:0 0 4px}#clg.man .cg-m{text-align:center}' +
+      '#clg.man .cm-ft{margin-top:10px;font-size:12.5px;color:#6b6f7b;text-align:center}' +
+      '#clg.man .cg-p{font-size:15px;color:#3a3d47}#clg.man .b{background:#16171d}#clg.man .b.l{background:#eceee8;color:#16171d}' +
       '#clg-bn{position:fixed;right:20px;bottom:20px;z-index:99998;background:#f0b23a;color:#15230f;border-radius:999px;padding:8px 16px;font:600 14px Inter,"Noto Sans Thai",Prompt,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:92vw;text-align:center}';
     document.head.appendChild(s);
   }
@@ -398,6 +413,18 @@
         '<div class="cg-h" role="heading" aria-level="1">' + esc(nm) + '</div><div class="cg-tg">' + esc(PAGE_TAG[st.page] || '') + '</div>' + body +
         '<div class="cg-ft">แผนก Energy เพาเวอร์เมติค</div></div>';
     };
+    if (st.page === 'engineer') {
+      el.className = 'man';
+      var HEAD = { login: ['สวัสดี! ไปลุยงานกัน', 'ลงชื่อเข้าใช้ครั้งเดียว ใช้ได้ยาว ๆ'], pending: ['อีกนิดเดียวนะ', 'รอผู้ดูแลระบบอนุมัติบัญชีของคุณ'], wrong: ['บัญชีนี้ใช้ Man ไม่ได้', 'ลองเปลี่ยนบัญชี หรือไปหน้าที่บัญชีนี้ใช้ได้'] };
+      frame = function (body) {
+        var hd = HEAD[kind] || HEAD.login;
+        return '<div class="cm"><i class="cm-bl" style="width:260px;height:260px;left:-90px;top:40px"></i><i class="cm-bl" style="width:120px;height:120px;right:-30px;top:230px"></i>' +
+          '<div class="cm-top"><img class="cm-m" src="mascot.webp" alt="" width="330" height="335"></div>' +
+          '<div class="cm-sh"><span class="cm-chip"><img src="logo.webp" alt="CLEANLINE">Man</span>' +
+          '<div class="cm-h" role="heading" aria-level="1">' + hd[0] + '</div><p class="cm-s">' + hd[1] + '</p>' + body +
+          (kind === 'login' ? '<div class="cm-ft">ใช้บัญชี Google ของบริษัท</div>' : '') + '</div></div>';
+      };
+    } else el.className = '';
     var who = st.me ? '<div class="cg-who">' + (st.me.picture ? '<img class="cg-av" alt="" src="' + esc(st.me.picture) + '" onerror="this.remove()">' : '') +
       '<div><b>' + esc(st.me.name) + '</b><span>' + esc(st.me.email) + '</span></div></div>' : '';
     return new Promise(function (res) {
