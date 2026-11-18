@@ -66,8 +66,9 @@ input[type=text],input[type=tel]{width:150px}
 <script src="gdb.js"></script>
 <script>
 'use strict';
-const ROLE = {admin:'แอดมิน',dispatch:'หัวหน้าจัดงาน',lead:'หัวหน้าตรวจแบบ',eng:'วิศวกร'};
-const ROLE_PAGE = {admin:'Management · ดูโฟลเดอร์',dispatch:'Management · ดูโฟลเดอร์',lead:'Man · แก้ไขโฟลเดอร์',eng:'Man · แก้ไขโฟลเดอร์'};
+const ROLE = {admin:'แอดมิน',dispatch:'หัวหน้าจัดงาน',lead:'หัวหน้าตรวจแบบ',eng:'วิศวกร',sales:'เซลส์'};
+const ROLE_PAGE = {admin:'Management · ดูโฟลเดอร์',dispatch:'Management · ดูโฟลเดอร์',lead:'Man · แก้ไขโฟลเดอร์',eng:'Man · แก้ไขโฟลเดอร์',sales:'Management · เฉพาะงานที่ตัวเองแจ้ง'};
+const SALES_TEAMS = ['EN','SA-D1','SA-D2','SA-D3','SA-D4','SA-D5','SA-DD','SA-DP'];
 const QUEUE = [['regular','ประจำ'],['approval','ต้องขออนุมัติ'],['none','ไม่ลงคิว']];
 const COLN = {jobs:'งาน',customers:'ลูกค้า',sites:'ไซต์',products:'สินค้า',members:'ผู้ใช้',services:'งานบริการ',messages:'ข้อความ',photos:'รูป',meters:'มิเตอร์',config:'ตั้งค่า',jobnos:'เลขใบงาน',forms:'แบบฟอร์ม',articles:'บทความ'};
 const FN = {name:'ชื่อ',phone:'เบอร์',role:'บทบาท',team:'ทีม',status:'สถานะ',title:'ชื่องาน',stage:'ขั้นงาน',history:'ประวัติ',surveyTeam:'ทีมสำรวจ',surveyor:'ผู้สำรวจ',supervisor:'ผู้คุมงาน',installTeam:'ทีมติดตั้ง',jobNo:'เลขใบงาน',queueDate:'วันนัด',queueTime:'เวลานัด',installDate:'วันติดตั้ง',sv:'ขั้นย่อยสำรวจ',request:'ความต้องการลูกค้า',proposals:'ที่เสนอ',equipment:'อุปกรณ์ที่ติด',checkins:'เช็กอิน',file:'ไฟล์',text:'ข้อความ',kind:'ประเภท',folderId:'โฟลเดอร์',folderUrl:'โฟลเดอร์'};
@@ -119,25 +120,25 @@ function render(){
 function memberRows(){return Object.entries(S.members).filter(([id])=>id!==S.me.id).map(([id,m])=>({id,...m})).sort((a,b)=>(a.status==='suspended')-(b.status==='suspended')||Object.keys(ROLE).indexOf(a.role)-Object.keys(ROLE).indexOf(b.role)||String(a.name).localeCompare(String(b.name),'th'))}
 function who(m){return `<div class="who">${m.picture?`<img src="${esc(m.picture)}" alt="" onerror="this.outerHTML='<div class=av>${esc(ini(m.name))}</div>'">`:`<div class="av">${esc(ini(m.name||m.email))}</div>`}<div>${esc(m.name||'-')}<small>${esc(m.email||'')}</small></div></div>`}
 function roleSel(id,v,attr){return `<select ${attr}="${id}"><option value="">— เลือกบทบาท —</option>${Object.entries(ROLE).map(([k,l])=>`<option value="${k}" ${v===k?'selected':''}>${l}</option>`).join('')}</select>`}
-function teamSel(id,v,attr,role){const need=role==='eng'||role==='lead';const cur=v||(role==='eng'?'regular':role==='lead'?'approval':'none');return `<select ${attr}="${id}" ${need?'':'disabled'}>${QUEUE.map(([k,l])=>`<option value="${k}" ${cur===k?'selected':''}>${l}</option>`).join('')}</select>`}
+function teamSel(id,v,attr,role,team){if(role==='sales')return `<select ${attr.replace('team','steam')}="${id}" aria-label="ทีมขาย"><option value="">— ทีมขาย —</option>${SALES_TEAMS.map(t=>`<option ${team===t?'selected':''}>${t}</option>`).join('')}</select>`;const need=role==='eng'||role==='lead';const cur=v||(role==='eng'?'regular':role==='lead'?'approval':'none');return `<select ${attr}="${id}" ${need?'':'disabled'}>${QUEUE.map(([k,l])=>`<option value="${k}" ${cur===k?'selected':''}>${l}</option>`).join('')}</select>`}
 function vUsers(){
   const pend=Object.entries(S.joinreq).map(([id,r])=>({id,...r})).sort((a,b)=>b.at-a.at);
   const mem=memberRows();
   const P=S.edit;
   return `<h1>ผู้ใช้และสิทธิ์</h1><p class="lead">อนุมัติ ตั้งบทบาท ระงับบัญชี · สิทธิ์โฟลเดอร์ Drive ปรับตามบทบาทอัตโนมัติ</p>
   <section class="card"><h2>รออนุมัติ ${pend.length?`<span class="pill bad">${pend.length}</span>`:''}</h2>
-  ${pend.length?`<table><thead><tr><th>บัญชี Google</th><th>ขอเมื่อ</th><th>ชื่อที่แสดง</th><th>บทบาท</th><th>ลงคิวสำรวจ</th><th></th></tr></thead><tbody>
+  ${pend.length?`<table><thead><tr><th>บัญชี Google</th><th>ขอเมื่อ</th><th>ชื่อที่แสดง</th><th>บทบาท</th><th>ลงคิวสำรวจ / ทีมขาย</th><th></th></tr></thead><tbody>
   ${pend.map(r=>{const e=P[r.id]||{};const role=e.role||'';return `<tr><td>${who(r)}</td><td class="mut">${fdt(r.at)}</td>
-    <td><input type="text" data-pname="${r.id}" value="${esc(e.name??r.name??'')}"></td><td>${roleSel(r.id,role,'data-prole')}</td><td>${teamSel(r.id,e.queue||'','data-pteam',role)}</td>
+    <td><input type="text" data-pname="${r.id}" value="${esc(e.name??r.name??'')}"></td><td>${roleSel(r.id,role,'data-prole')}</td><td>${teamSel(r.id,e.queue||'','data-pteam',role,e.team||'')}</td>
     <td class="row" style="flex-wrap:nowrap"><button class="btn g sm" data-approve="${r.id}" ${role&&!S.busy?'':'disabled'}>อนุมัติ</button><button class="btn l sm" data-reject="${r.id}" ${S.busy?'disabled':''}>ไม่อนุมัติ</button></td></tr>`}).join('')}
   </tbody></table>`:`<div class="empty">ไม่มีคำขอใหม่</div>`}</section>
   <section class="card"><h2>ผู้ใช้ทั้งหมด <span class="pill gray">${mem.length} คน</span><span class="sp"></span><button class="btn l sm" data-shares ${S.busy?'disabled':''}>ตรวจสิทธิ์โฟลเดอร์ Drive</button></h2>
   ${S.shares?`<div class="ok" style="margin-bottom:12px">ตรวจแล้ว · เพิ่ม ${S.shares.added.length} · เปลี่ยน ${S.shares.changed.length} · ถอน ${S.shares.removed.length}${S.shares.removed.length?' ('+esc(S.shares.removed.join(', '))+')':''}</div>`:''}
-  ${mem.length?`<table><thead><tr><th>ผู้ใช้</th><th>ชื่อที่แสดง</th><th>เบอร์</th><th>บทบาท</th><th>ลงคิวสำรวจ</th><th>ใช้หน้า / โฟลเดอร์</th><th></th></tr></thead><tbody>
-  ${mem.map(m=>{const e=P[m.id]||{};const role=e.role??m.role;const sus=m.status==='suspended';const dirty=['name','phone','role','queue'].some(k=>k in e&&e[k]!==(m[k]||''));
+  ${mem.length?`<table><thead><tr><th>ผู้ใช้</th><th>ชื่อที่แสดง</th><th>เบอร์</th><th>บทบาท</th><th>ลงคิวสำรวจ / ทีมขาย</th><th>ใช้หน้า / โฟลเดอร์</th><th></th></tr></thead><tbody>
+  ${mem.map(m=>{const e=P[m.id]||{};const role=e.role??m.role;const sus=m.status==='suspended';const dirty=['name','phone','role','queue','team'].some(k=>k in e&&e[k]!==(m[k]||''));
     return `<tr style="${sus?'opacity:.55':''}"><td>${who(m)}</td>
     <td><input type="text" data-mname="${m.id}" value="${esc(e.name??m.name??'')}"></td><td><input type="tel" data-mphone="${m.id}" value="${esc(e.phone??m.phone??'')}" style="width:120px"></td>
-    <td>${roleSel(m.id,role,'data-mrole')}</td><td>${teamSel(m.id,e.queue??m.queue??'','data-mteam',role)}</td>
+    <td>${roleSel(m.id,role,'data-mrole')}</td><td>${teamSel(m.id,e.queue??m.queue??'','data-mteam',role,e.team??m.team??'')}</td>
     <td class="mut">${sus?'<span class="pill bad">ระงับอยู่</span>':esc(ROLE_PAGE[role]||'-')}</td>
     <td class="row" style="flex-wrap:nowrap;justify-content:flex-end">${dirty?`<button class="btn g sm" data-save="${m.id}" ${S.busy?'disabled':''}>บันทึก</button>`:''}
       <button class="btn l sm" data-sus="${m.id}" ${S.busy?'disabled':''}>${sus?'เปิดใช้':'ระงับ'}</button><button class="btn l sm" data-del="${m.id}" title="ลบผู้ใช้" ${S.busy?'disabled':''}>ลบ</button></td></tr>`}).join('')}
@@ -266,13 +267,13 @@ document.addEventListener('click',async e=>{
   if(d.tab){S.tab=d.tab;if(d.tab==='backup'&&S.backups==null)loadBackups();if(d.tab==='system')loadHealth();render();return}
   if(t.id==='out'){CLGDB.user.signOut();return}
   if(d.approve){const e2=S.edit[d.approve]||{};const r=S.joinreq[d.approve]||{};
-    await run(()=>S.db.call('approve',{uid:d.approve,member:{name:(e2.name??r.name??'').trim(),role:e2.role,queue:(e2.role==='eng'||e2.role==='lead')?(e2.queue||(e2.role==='eng'?'regular':'approval')):'none',phone:''}}).then(x=>{delete S.edit[d.approve];S.db.refresh();return x}),'อนุมัติแล้ว · แชร์โฟลเดอร์งานให้แล้ว');return}
+    await run(()=>S.db.call('approve',{uid:d.approve,member:{name:(e2.name??r.name??'').trim(),role:e2.role,queue:(e2.role==='eng'||e2.role==='lead')?(e2.queue||(e2.role==='eng'?'regular':'approval')):'none',phone:'',...(e2.role==='sales'?{team:e2.team||''}:{})}}).then(x=>{delete S.edit[d.approve];S.db.refresh();return x}),'อนุมัติแล้ว · แชร์โฟลเดอร์งานให้แล้ว');return}
   if(d.reject){if(!await ask('ไม่อนุมัติคำขอนี้?','คนนี้จะเข้าไม่ได้ ถ้าลงชื่อเข้าใช้อีกครั้งจะขึ้นคำขอใหม่','ไม่อนุมัติ',true))return;
     await run(()=>S.db.call('approve',{uid:d.reject,member:null}).then(()=>S.db.refresh()),'ลบคำขอแล้ว');return}
   if(d.save){const m=S.members[d.save],e2=S.edit[d.save]||{};const role=e2.role??m.role;
     if(!role) return toast('เลือกบทบาทก่อน',true);
     if(role!==m.role&&!await ask('เปลี่ยนบทบาท?',`${esc(m.name)}: ${esc(ROLE[m.role]||'-')} → <b>${esc(ROLE[role])}</b><br>หน้าที่ใช้ได้และสิทธิ์โฟลเดอร์จะเปลี่ยนทันที`,'เปลี่ยน'))return;
-    const mm={};['name','phone','role','queue'].forEach(k=>{if(k in e2)mm[k]=String(e2[k]).trim()});if(!(role==='eng'||role==='lead'))mm.queue='none';
+    const mm={};['name','phone','role','queue','team'].forEach(k=>{if(k in e2)mm[k]=String(e2[k]).trim()});if(!(role==='eng'||role==='lead'))mm.queue='none';
     await run(()=>S.db.call('approve',{uid:d.save,member:mm}).then(()=>{delete S.edit[d.save];S.db.refresh()}),'บันทึกแล้ว');return}
   if(d.sus){const m=S.members[d.sus];const sus=m.status==='suspended';
     if(!sus&&!await ask('ระงับบัญชีนี้?',`${esc(m.name)} จะใช้ระบบไม่ได้ทันที และถูกถอนสิทธิ์โฟลเดอร์งาน (ข้อมูลที่เคยทำยังอยู่)`,'ระงับ',true))return;
@@ -304,8 +305,10 @@ document.addEventListener('change',async e=>{
   const set=(id,k,v)=>{S.edit[id]={...(S.edit[id]||{}),[k]:v};render()};
   if(d.prole)return set(d.prole,'role',t.value);
   if(d.pteam)return set(d.pteam,'queue',t.value);
+  if(d.psteam)return set(d.psteam,'team',t.value);
   if(d.mrole)return set(d.mrole,'role',t.value);
   if(d.mteam)return set(d.mteam,'queue',t.value);
+  if(d.msteam)return set(d.msteam,'team',t.value);
   if(t.id==='lby'){S.lby=t.value;S.llim=150;render();return}
   if(t.id==='lcol'){S.lcol=t.value;S.llim=150;render();return}
   if(t.id==='eqx'){const f=t.files[0];t.value='';if(f)catImport(f);return}
