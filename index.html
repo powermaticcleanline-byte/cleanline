@@ -2177,7 +2177,7 @@ function canAct(j){if(!j)return false;const r=myRole();if(j.stage===ST.ACCEPT)re
 const isImp=j=>/^x\d+$/.test(String(j&&j.id||''));
 function secEditable(sec,j){
   if(isDispatch())return sec.id==='install'||sec.id==='wo';
-  if(F_SURVEY_SECS.includes(sec.id))return isImp(j);
+  if(F_SURVEY_SECS.includes(sec.id))return false;
   if(sec.id==='wo')return false;
   if(sec.id==='eq')return (j&&(j.stage>=ST.DOCS||j.status==='done'));
   return true}
@@ -2809,11 +2809,39 @@ async function deleteJob(jid){const j=S.jobs[jid];if(!j)return;closeModal();
     S.sel=null;document.body.classList.remove('dlock');if(route().startsWith('job-'))location.hash='jobs';else render();toast('ลบงานแล้ว');
   }catch(e){}
 }
+const impAgreed=j=>!!(j.agreedDate||j.installDate||j.status==='done'||(j.status==='active'&&j.stage>=ST.INSREQ));
+const isoD=v=>!v||/^\d{4}-\d\d-\d\d$/.test(String(v));
+function impFields(j){const dt=k=>isoD(j[k])?'date':'text';
+  return [['h','วันสำรวจ'],['surveyDate','วันที่สำรวจ',dt('surveyDate')],['queueTime','เวลานัด','text',{ph:'เช่น 09:00'}],
+    ...(impAgreed(j)?[['h','การตอบรับติดตั้ง'],['agreedDate','วันที่ลูกค้าตกลง',dt('agreedDate')],['installDate','วันติดตั้ง',dt('installDate')]]:[]),
+    ['h','วัดพฤติกรรมไฟ'],['loggerDevice','เครื่องที่ใช้วัด','text'],['logStart','เริ่มวัด',dt('logStart')],['logEnd','เก็บเครื่อง',dt('logEnd')],
+    ['h','ชื่อ ที่อยู่ เบอร์'],['name','ชื่อลูกค้า','text',{req:1}],['phone','เบอร์ติดต่อ','tel'],['area','เขต / อำเภอ','text'],['address','ที่อยู่','text',{full:1}]]}
+function openImpForm(jid){const j=S.jobs[jid];if(!j||!isImp(j))return;const c=cOf(j),s=sOf(j);
+  formModal('impF','แก้ไขข้อมูลงานนำเข้า',impFields(j),{surveyDate:j.surveyDate||j.queueDate,queueTime:j.queueTime,agreedDate:j.agreedDate,installDate:j.installDate,
+    loggerDevice:j.loggerDevice,logStart:j.logStart,logEnd:j.logEnd,name:c.name,phone:c.phone,area:s.area,address:s.address||c.address},'บันทึก',
+    `<p class="sub" style="margin:12px 0 0">ข้อมูลจากหน้างาน (ใบสำรวจ ไซต์ สิ่งที่เสนอ) ${esc(j.surveyor||'คนสำรวจ')} เป็นคนแก้ใน Man</p>`);$('#impF').dataset.jid=jid}
+async function saveImp(){
+  const v=readF('impF');const j=S.jobs[$('#impF').dataset.jid];if(!j)return closeModal();
+  if(!v.name){$('#impFE').textContent='ใส่ชื่อลูกค้าก่อน';$('#impF-name').focus();return}
+  const dif=(o,n)=>Object.fromEntries(Object.entries(n).filter(([k,x])=>x!==undefined&&String(x??'')!==String(o?.[k]??'')));
+  const jp={queueTime:v.queueTime,loggerDevice:v.loggerDevice,logStart:v.logStart,logEnd:v.logEnd,...(impAgreed(j)?{agreedDate:v.agreedDate,installDate:v.installDate}:{})};
+  const jd=dif(j,jp);if(String(v.surveyDate||'')!==String(j.surveyDate||j.queueDate||'')){jd.surveyDate=v.surveyDate;jd.queueDate=v.surveyDate}
+  const cd=j.customerId?dif(cOf(j),{name:v.name,phone:v.phone}):{},sd=j.siteId?dif(sOf(j),{area:v.area,address:v.address}):{};
+  const L={surveyDate:'วันสำรวจ',queueTime:'เวลานัด',agreedDate:'วันลูกค้าตกลง',installDate:'วันติดตั้ง',loggerDevice:'เครื่องวัดไฟ',logStart:'เริ่มวัด',logEnd:'เก็บเครื่อง',name:'ชื่อ',phone:'เบอร์',area:'เขต',address:'ที่อยู่'};
+  const ch=[...Object.keys(jd).filter(k=>k!=='queueDate'),...Object.keys(cd),...Object.keys(sd)].map(k=>L[k]||k);
+  if(!ch.length){closeModal();return toast('ไม่มีอะไรเปลี่ยน')}
+  try{
+    if(Object.keys(cd).length)await w('customers/'+j.customerId,cd);
+    if(Object.keys(sd).length)await w('sites/'+j.siteId,sd);
+    await pushHist(j,ev('edit','แก้ไขข้อมูลงานนำเข้า: '+ch.join(', ')),jd);
+    closeModal();toast('บันทึกแล้ว');
+  }catch(e){}
+}
 const regInst=j=>!!j&&(j.status==='done'||(j.status==='active'&&j.stage>=ST.DOCS));
 const REGF_SITE=()=>[...REGF.slice(0,REGF.findIndex(f=>f[0]==='h'&&f[1]==='ระบบที่ติดตั้ง')),REGF.find(f=>f[0]==='folderPath')];
 function openRegForm(jid){const j=S.jobs[jid];const inst=regInst(j);
   formModal('regF',inst?'แก้ไขข้อมูลระบบ':'แก้ไขข้อมูลไซต์',inst?REGF:REGF_SITE(),regVals(jid),'บันทึก',inst?'':`<p class="sub" style="margin:12px 0 0">ข้อมูลระบบที่ติดตั้ง (รุ่น, S/N, แผง ฯลฯ) กรอกได้หลังติดตั้งเสร็จ</p>`);$('#regF').dataset.jid=jid;
-  if(!isImp(j))['utility','phase'].forEach(k=>{const el=$('#regF-'+k);if(el){el.disabled=true;el.title='คนสำรวจเป็นคนกรอก'}})}
+  ['utility','phase'].forEach(k=>{const el=$('#regF-'+k);if(el){el.disabled=true;el.title='คนสำรวจเป็นคนกรอก'}})}
 async function saveReg(){
   const v=readF('regF');const j=S.jobs[$('#regF').dataset.jid];if(!j)return closeModal();
   if(!v.title){$('#regFE').textContent='ใส่ชื่อไซต์ก่อน';$('#regF-title').focus();return}
@@ -3213,7 +3241,7 @@ function viewJob(id){
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>
       <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p></div>
-    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>${myRole()==='admin'&&j.folderId?`<button class="btn" data-fname="${esc(j.id)}">เปลี่ยนชื่อโฟลเดอร์</button>`:''}`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;return cx||dx?`<span class="pha-sep" aria-hidden="true"></span>${cx?`<button class="btn dangero" data-act="cancel">${svg('xc','currentColor',2)}ยกเลิกคิว</button>`:''}${dx?`<button class="btn dangero" data-jdel="${esc(j.id)}">${svg('trash','currentColor',2)}ลบงาน</button>`:''}`:''})()}</div></div>
+    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>${myRole()==='admin'&&j.folderId?`<button class="btn" data-fname="${esc(j.id)}">เปลี่ยนชื่อโฟลเดอร์</button>`:''}`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;return cx||dx?`<span class="pha-sep" aria-hidden="true"></span>${cx?`<button class="btn dangero" data-act="cancel">${svg('xc','currentColor',2)}ยกเลิกคิว</button>`:''}${dx?`<button class="btn dangero" data-jdel="${esc(j.id)}">${svg('trash','currentColor',2)}ลบงาน</button>`:''}`:''})()}</div></div>
   ${j.status==='active'?`<section class="card jst">
     <div class="jsc"><span class="sub">ขั้นปัจจุบัน</span><span class="pill ${PHC2[phaseOf(n)?.k]||'gy'} big">${esc(st.name)}</span></div>
     <div class="jsc"><span class="sub">ผู้รับผิดชอบ</span><b>${mineNow?'คุณ':esc(ownerOf(j))}</b></div>
@@ -3800,7 +3828,7 @@ async function saveMeterNow(){const v=readF('mtN');const E=$('#mtNE');const dev=
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{
   if(e.target.closest('.ibs a'))return;
-  const t=e.target.closest('[data-mpop],[data-mpy],[data-mpick],[data-mn],[data-bk],[data-jmo],[data-viewas],[data-nd],[data-nt],[data-nm],[data-copy],[data-go],[data-qclose],[data-cmo],[data-cnosv],[data-cst],[data-cnn],[data-cclr],[data-cnp],[data-edit],[data-qm],[data-qd],[data-status],[data-phase],[data-mine],[data-minetoggle],[data-clear],[data-kbt],[data-eqc],[data-eqnew],[data-eqedit],[data-eqdel],[data-jdel],[data-mtnew],[data-mtedit],[data-mtout],[data-mtret],[data-mtcancel],[data-sbtog],[data-eqview],[data-cpy],[data-eqdoc],[data-eqx],[data-eqt],[data-hday],[data-qv],[data-qstep],[data-qtoday],[data-jv],[data-cday],[data-wbt],[data-fmnew],[data-fmedit],[data-fmdel],[data-fmc],[data-eqjobs],[data-qk],[data-qsel],[data-sst],[data-osel],[data-dtab],[data-regedit],[data-svnew],[data-svedit],[data-svdel],[data-cpy],[data-mclose],[data-kbc],[data-kbs],[data-kbdel],[data-dclose],[data-sel],[data-more],[data-pg],[data-pgto],[data-act],[data-save],[data-cancel],[data-mdel],[data-pdel],#padd,#ximport,[data-adduser]');
+  const t=e.target.closest('[data-mpop],[data-mpy],[data-mpick],[data-mn],[data-bk],[data-jmo],[data-viewas],[data-nd],[data-nt],[data-nm],[data-copy],[data-go],[data-qclose],[data-cmo],[data-cnosv],[data-cst],[data-cnn],[data-cclr],[data-cnp],[data-edit],[data-qm],[data-qd],[data-status],[data-phase],[data-mine],[data-minetoggle],[data-clear],[data-kbt],[data-eqc],[data-eqnew],[data-eqedit],[data-eqdel],[data-jdel],[data-mtnew],[data-mtedit],[data-mtout],[data-mtret],[data-mtcancel],[data-sbtog],[data-eqview],[data-cpy],[data-eqdoc],[data-eqx],[data-eqt],[data-hday],[data-qv],[data-qstep],[data-qtoday],[data-jv],[data-cday],[data-wbt],[data-fmnew],[data-fmedit],[data-fmdel],[data-fmc],[data-eqjobs],[data-qk],[data-qsel],[data-sst],[data-osel],[data-dtab],[data-regedit],[data-impedit],[data-svnew],[data-svedit],[data-svdel],[data-cpy],[data-mclose],[data-kbc],[data-kbs],[data-kbdel],[data-dclose],[data-sel],[data-more],[data-pg],[data-pgto],[data-act],[data-save],[data-cancel],[data-mdel],[data-pdel],#padd,#ximport,[data-adduser]');
   if(!t)return;
   if(t.dataset.cnp){S.f.cnp=!S.f.cnp;render();return}
   if(t.dataset.mpop){const k=t.dataset.mpop;if(S.mp&&S.mp.key===k){S.mp=null}else{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+(S.f[k]||0));S.mp={key:k,y:d.getFullYear()}}render();return}
@@ -3863,6 +3891,7 @@ document.addEventListener('click',async e=>{
   if(t.dataset.osel){const id=t.dataset.osel;if(route()!=='jobs'){S.sel=id;S.dtab=null;document.body.classList.add('dlock');location.hash='jobs'}else openDrawer(id);return}
   if(t.dataset.dtab){S.dtab=t.dataset.dtab;render();return}
   if(t.dataset.regedit){openRegForm(t.dataset.regedit);return}
+  if(t.dataset.impedit){openImpForm(t.dataset.impedit);return}
   if(t.dataset.svnew){openSvc(t.dataset.svnew,'',t.dataset.sid);return}
   if(t.dataset.svedit){openSvc('',t.dataset.svedit);return}
   if(t.dataset.svdel){const id=t.dataset.svdel;closeModal();if(!await confirmBox('ลบรายการนี้?','รายการนี้จะหายจากประวัติไซต์ และกู้คืนไม่ได้','ลบรายการ'))return;await w('services/'+id,null,'delete').then(()=>toast('ลบแล้ว'),()=>{});return}
@@ -3917,7 +3946,7 @@ document.addEventListener('change',async e=>{
   if(t.id==='n-pick'){const c=S.customers[t.value]||{};NEWF.cust.fields.forEach(([k])=>{const el=document.getElementById('n-cust-'+k);if(el)el.value=c[k]||(k==='type'?'บุคคล':'')});return}
   const sec=t.closest('[data-sec]');if(sec){S.dirty.add(sec.dataset.sec);sec.classList.add('dirty')}
 });
-function onFormSubmit(f,sub){const id=f.id;if(id==='mtF')return saveMeter();if(id==='fmF')return saveForm();if(id==='eqF')return saveEq();if(id==='regF')return saveReg();if(id==='svF')return saveSvc();if(id==='kbForm')return kbSave(f,sub?.dataset.mode||'draft');if(id==='newForm')return createJob(sub?.dataset.mode||'draft');if(typeof f.onsubmit==='function')f.onsubmit({preventDefault(){},target:f,submitter:sub})}
+function onFormSubmit(f,sub){const id=f.id;if(id==='mtF')return saveMeter();if(id==='fmF')return saveForm();if(id==='eqF')return saveEq();if(id==='regF')return saveReg();if(id==='impF')return saveImp();if(id==='svF')return saveSvc();if(id==='kbForm')return kbSave(f,sub?.dataset.mode||'draft');if(id==='newForm')return createJob(sub?.dataset.mode||'draft');if(typeof f.onsubmit==='function')f.onsubmit({preventDefault(){},target:f,submitter:sub})}
 document.addEventListener('submit',e=>{e.preventDefault();if(typeof e.target.onsubmit==='function')return;onFormSubmit(e.target,e.submitter)});
 /* ปุ่มบันทึกในฟอร์ม: เรียกเองแทนการ submit จริง (หน้าตัวอย่างในแชตบล็อกการ submit ฟอร์ม) · ตรวจช่องบังคับเหมือนเดิม */
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.form||b.type!=='submit')return;e.preventDefault();if(b.disabled)return;const f=b.form;if(!f.noValidate&&!f.checkValidity()){f.reportValidity();return}onFormSubmit(f,b)});
