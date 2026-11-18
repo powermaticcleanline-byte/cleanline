@@ -1953,7 +1953,21 @@ html,body{overflow-anchor:none}
  .jt2 .ibs .ib{flex:0 0 34px !important;width:34px !important;height:34px !important;min-height:34px !important;max-height:34px !important}}
 @media (max-width:600px){.hro h1{font-size:26px !important;line-height:1.25 !important}.hro-t p,.hro-t span{font-size:14px !important}.ph h1{font-size:28px !important}}
 </style>
-<style>body.rocat [data-fmnew],body.rocat [data-fmedit],body.rocat [data-fmdel],body.rocat [data-eqnew],body.rocat [data-eqedit],body.rocat [data-eqdel],body.rocat label[for="eqxfile"]{display:none!important}</style></head>
+<style>body.rocat [data-fmnew],body.rocat [data-fmedit],body.rocat [data-fmdel],body.rocat [data-eqnew],body.rocat [data-eqedit],body.rocat [data-eqdel],body.rocat label[for="eqxfile"]{display:none!important}
+/* รอบ 4w: เมนู "อื่นๆ" */
+details.mnu{position:relative;display:inline-flex}
+details.mnu>summary{list-style:none;cursor:pointer;user-select:none}
+details.mnu>summary::-webkit-details-marker{display:none}
+details.mnu>summary.btn svg{width:18px;height:18px}
+details.mnu[open]>summary{background:#f3f4f6}
+.mnu-p{position:fixed;z-index:90;min-width:220px;padding:6px;background:#fff;border-radius:14px;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 12px 32px -8px rgba(0,0,0,.25);display:flex;flex-direction:column;text-align:left}
+.mnu-p .mi{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;border:0;background:none;border-radius:10px;font:inherit;font-size:15.5px;font-weight:500;color:#16171d;text-align:left;cursor:pointer;white-space:nowrap}
+.mnu-p .mi svg{width:18px;height:18px;flex:none}
+.mnu-p .mi:hover,.mnu-p .mi:focus-visible{background:#f3f4f6;outline:0}
+.mnu-p .mi.dg{color:#c81e1e}
+.mnu-p .mi.dg:hover,.mnu-p .mi.dg:focus-visible{background:#fff1f1}
+.mnu-p hr{border:0;height:1px;background:#eceef1;margin:6px 4px}
+</style></head>
 <body>
 <div class="shell">
   <aside class="side" aria-label="เมนู">
@@ -2415,6 +2429,9 @@ function bellPanel(){
     <div class="ntb">${body||`<div class="nte">${svg('check','currentColor',2)}<b>ไม่มีงานค้าง</b><span>คิว แจ้งซ่อม และตรวจเช็กที่ต้องทำจะขึ้นที่นี่</span></div>`}</div>
     <a class="ntf" href="#jobs" data-mine="0">ดูงานทั้งหมด</a></div>`;
 }
+const DOTS='<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
+function mnu(items,label,cls){items=items.filter(Boolean);if(!items.length)return '';return `<details class="mnu"><summary class="${cls||'btn'}" aria-label="${label?'':'เพิ่มเติม'}" title="${label?'':'เพิ่มเติม'}">${DOTS}${label||''}</summary><div class="mnu-p" role="menu">${items.join('')}</div></details>`}
+function mi(attrs,ic,txt,dg){return `<button type="button" class="mi${dg?' dg':''}" role="menuitem" ${attrs}>${ic?svg(ic,'currentColor',2):''}${txt}</button>`}
 function pageHead(title,sub,actions=''){return `<div class="ph"><div><h1>${title}</h1>${sub?`<p>${sub}</p>`:''}</div>${actions?`<div class="pha">${actions}</div>`:''}</div>`}
 /* ค้นหาจากแถบบน: ผลลัพธ์ทันที 6 รายการ, Enter = ดูผลทั้งหมดในหน้างาน */
 function gMatch(q){q=q.trim().toLowerCase();if(!q)return [];return visibleJobs().filter(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),e.sn,e.wifiSn,unitSns(e),e.plantName].join(' ').toLowerCase().includes(q)}).sort((a,b)=>svDate(b).localeCompare(svDate(a)))}
@@ -2640,7 +2657,7 @@ function viewJobs(mode){
         const tel=c.phone?`<a class="ib" href="tel:${esc(String(c.phone).replace(/[^\d+]/g,''))}" aria-label="โทร ${esc(c.phone)}" title="โทร ${esc(c.phone)}">${svg('phone','currentColor',2)}</a>`:ib('phone','','','ยังไม่มีเบอร์โทร');
         const view=ib('eye','ดูรายละเอียด',`data-sel="${esc(j.id)}"`);
         const acts=svc?[view,ib('wrench','บันทึกแจ้งซ่อม',`data-svnew="CM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('check','บันทึกตรวจเช็ก',`data-svnew="PM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('copy','คัดลอก S/N',`data-cpy="${esc(sn)}"`,sn?'':'ยังไม่มี S/N')]
-          :[view,ib('pen','แก้ไขข้อมูล',`data-regedit="${esc(j.id)}"`),ib('file','คัดลอกที่อยู่โฟลเดอร์',`data-cpy="${esc(j.folderPath||'')}"`,j.folderPath?'':'ยังไม่มีที่อยู่โฟลเดอร์'),ib('trash','ลบงานนี้',`data-jdel="${esc(j.id)}"`).replace('class="ib"','class="ib del"')];
+          :[ib('pen','แก้ไขข้อมูล',`data-regedit="${esc(j.id)}"`),ib('file','คัดลอกที่อยู่โฟลเดอร์',`data-cpy="${esc(j.folderPath||'')}"`,j.folderPath?'':'ยังไม่มีที่อยู่โฟลเดอร์'),mnu([mi(`data-jdel="${esc(j.id)}"`,'trash','ลบงาน',1)],'','ib')];
         const now=j.status==='active'?`${j.stage===ST.DOCS?'รอเอกสารขนานไฟ':'รอ'+ownerOf(j)} · ${days(j.stageSince)} วัน`:j.status==='lost'?(j.lostReason||''):j.status==='cancelled'?(j.cancelReason||''):'';
         const st=svc||isInstalled(j)&&j.status==='done'?(careTags(j)||jobPill(j)):jobPill(j);
         const T=(v,cls)=>v?`<td class="${cls||''}" title="${esc(v)}">${esc(v)}</td>`:`<td class="${cls||''}"><span class="nil">—</span></td>`;
@@ -3252,7 +3269,8 @@ function viewJob(id){
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>
       <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p></div>
-    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>${myRole()==='admin'&&j.folderId?`<button class="btn" data-fname="${esc(j.id)}">เปลี่ยนชื่อโฟลเดอร์</button>`:''}`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;return cx||dx?`<span class="pha-sep" aria-hidden="true"></span>${cx?`<button class="btn dangero" data-act="cancel">${svg('xc','currentColor',2)}ยกเลิกคิว</button>`:''}${dx?`<button class="btn dangero" data-jdel="${esc(j.id)}">${svg('trash','currentColor',2)}ลบงาน</button>`:''}`:''})()}</div></div>
+    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
+      return mnu([fx?mi(`data-fname="${esc(j.id)}"`,'pen','เปลี่ยนชื่อโฟลเดอร์'):'',fx&&(cx||dx)?'<hr>':'',cx?mi('data-act="cancel"','xc','ยกเลิกคิว',1):'',dx?mi(`data-jdel="${esc(j.id)}"`,'trash','ลบงาน',1):''].filter(x=>x!=='<hr>'||fx&&(cx||dx)),'อื่นๆ')})()}</div></div>
   ${j.status==='active'?`<section class="card jst">
     <div class="jsc"><span class="sub">ขั้นปัจจุบัน</span><span class="pill ${PHC2[phaseOf(n)?.k]||'gy'} big">${esc(st.name)}</span></div>
     <div class="jsc"><span class="sub">ผู้รับผิดชอบ</span><b>${mineNow?'คุณ':esc(ownerOf(j))}</b></div>
@@ -4280,6 +4298,16 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('click',e=>{if(e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;const a=e.target.closest('a[href^="#"]');if(!a||a.target)return;const h=a.getAttribute('href');if(h.length<2)return;e.preventDefault();if(location.hash!==h)location.hash=h.slice(1);else render()});
 addEventListener('scroll',()=>{const b=document.body,y=scrollY;if(!b.classList.contains('pgsc')){if(y>160)b.classList.add('pgsc')}else if(y<24)b.classList.remove('pgsc')},{passive:true});
+
+/* รอบ 4w: เมนู "อื่นๆ" — วางแผงด้วย fixed · ปิดเมื่อคลิกนอก/เลือกรายการ/Esc/เลื่อนหน้า · กดปุ่ม ⋯ ในแถวตารางไม่เปิดแผงงาน */
+(function(){const closeAll=x=>document.querySelectorAll('details.mnu[open]').forEach(d=>{if(d!==x)d.open=false});
+document.addEventListener('toggle',e=>{const d=e.target;if(!d.matches||!d.matches('details.mnu')||!d.open)return;closeAll(d);
+  const s=d.querySelector('summary').getBoundingClientRect(),p=d.querySelector('.mnu-p'),r=p.getBoundingClientRect();
+  let top=s.bottom+6;if(top+r.height>innerHeight-8)top=Math.max(8,s.top-6-r.height);p.style.top=top+'px';p.style.left=Math.max(8,Math.min(innerWidth-r.width-8,s.right-r.width))+'px'},true);
+document.addEventListener('click',e=>{const d=e.target.closest&&e.target.closest('details.mnu');closeAll(d);if(!d)return;
+  if(e.target.closest('.mi')){d.open=false;return}if(e.target.closest('summary'))e.stopPropagation()},true);
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const d=document.querySelector('details.mnu[open]');if(!d)return;d.open=false;d.querySelector('summary').focus();e.stopPropagation()},true);
+addEventListener('scroll',()=>closeAll(null),true);addEventListener('resize',()=>closeAll(null));})();
 </script>
 </body>
 </html>
