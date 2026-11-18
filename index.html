@@ -2809,15 +2809,20 @@ async function deleteJob(jid){const j=S.jobs[jid];if(!j)return;closeModal();
     S.sel=null;document.body.classList.remove('dlock');if(route().startsWith('job-'))location.hash='jobs';else render();toast('ลบงานแล้ว');
   }catch(e){}
 }
-function openRegForm(jid){formModal('regF','แก้ไขข้อมูลระบบ',REGF,regVals(jid),'บันทึก');$('#regF').dataset.jid=jid}
+const regInst=j=>!!j&&(j.status==='done'||(j.status==='active'&&j.stage>=ST.DOCS));
+const REGF_SITE=()=>[...REGF.slice(0,REGF.findIndex(f=>f[0]==='h'&&f[1]==='ระบบที่ติดตั้ง')),REGF.find(f=>f[0]==='folderPath')];
+function openRegForm(jid){const j=S.jobs[jid];const inst=regInst(j);
+  formModal('regF',inst?'แก้ไขข้อมูลระบบ':'แก้ไขข้อมูลไซต์',inst?REGF:REGF_SITE(),regVals(jid),'บันทึก',inst?'':`<p class="sub" style="margin:12px 0 0">ข้อมูลระบบที่ติดตั้ง (รุ่น, S/N, แผง ฯลฯ) กรอกได้หลังติดตั้งเสร็จ</p>`);$('#regF').dataset.jid=jid;
+  if(!isImp(j))['utility','phase'].forEach(k=>{const el=$('#regF-'+k);if(el){el.disabled=true;el.title='คนสำรวจเป็นคนกรอก'}})}
 async function saveReg(){
   const v=readF('regF');const j=S.jobs[$('#regF').dataset.jid];if(!j)return closeModal();
   if(!v.title){$('#regFE').textContent='ใส่ชื่อไซต์ก่อน';$('#regF-title').focus();return}
   const eq={kw:v.kw,systemType:v.systemType,model:v.model,sn:v.sn,wifiSn:v.wifiSn,plantName:v.plantName,panels:v.panels,ct:v.ct,meter:v.meter,warrantyEnd:v.warrantyEnd};
   try{
-    if(j.customerId){const cu={firstName:v.firstName,lastName:v.lastName,phone:v.phone};const nm2=[v.firstName,v.lastName].filter(Boolean).join(' ');if(nm2)cu.name=nm2;await w('customers/'+j.customerId,cu)}
-    if(j.siteId)await w('sites/'+j.siteId,{label:v.title,area:v.area,utility:v.utility,phase:v.phase,address:v.address});
-    await pushHist(j,ev('edit','แก้ไขข้อมูลระบบ'),{title:v.title,installDate:v.installDate,folderPath:v.folderPath,equipment:eqSync({...(j.equipment||{}),...eq})});
+    const dif=(o,n)=>Object.fromEntries(Object.entries(n).filter(([k,x])=>String(x??'')!==String(o?.[k]??'')));
+    if(j.customerId){const cu={firstName:v.firstName,lastName:v.lastName,phone:v.phone};const nm2=[v.firstName,v.lastName].filter(Boolean).join(' ');if(nm2)cu.name=nm2;const d=dif(cOf(j),cu);if(Object.keys(d).length)await w('customers/'+j.customerId,d)}
+    if(j.siteId){const d=dif(sOf(j),{label:v.title,area:v.area,utility:v.utility,phase:v.phase,address:v.address});if(Object.keys(d).length)await w('sites/'+j.siteId,d)}
+    await pushHist(j,ev('edit',regInst(j)?'แก้ไขข้อมูลระบบ':'แก้ไขข้อมูลไซต์'),regInst(j)?{title:v.title,installDate:v.installDate,folderPath:v.folderPath,equipment:eqSync({...(j.equipment||{}),...eq})}:{title:v.title,folderPath:v.folderPath});
     closeModal();toast('บันทึกแล้ว');
   }catch(e){}
 }
