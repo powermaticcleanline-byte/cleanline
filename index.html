@@ -2562,7 +2562,9 @@ function emptyStart(){
 /* ---------- all jobs ---------- */
 const svDate=j=>[j.surveyDate,j.queueDate].find(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x))||'';
 const PHC2={pre:'b',offer:'g',ins:'o',post:'v'};
-function jobPill(j){return j.status==='cancelled'?'<span class="pill gy">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy">ยังไม่ตกลง</span>':j.status==='done'?'<span class="pill ok">ปิดงานแล้ว</span>':`<span class="pill ${PHC2[phaseOf(j.stage)?.k]||'gy'}">${esc(STAGES[j.stage].name)}</span>`}
+const xCan=j=>j.status==='lost'&&/^ยกเลิก \(จาก Excel\)/.test(j.lostReason||'');
+const stOf=j=>xCan(j)?'cancelled':j.status;
+function jobPill(j){return stOf(j)==='cancelled'?'<span class="pill gy">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy">ยังไม่ตกลง</span>':j.status==='done'?'<span class="pill ok">ปิดงานแล้ว</span>':`<span class="pill ${PHC2[phaseOf(j.stage)?.k]||'gy'}">${esc(STAGES[j.stage].name)}</span>`}
 const placeOf=(j,s,c)=>s.area||s.place||c.address||'';
 function needsCare(j){if(!isInstalled(j))return false;const d=pmDue(j);return (d&&dLeft(d)<=30)||(j.siteId&&cmOpen(j.siteId).length>0)}
 function isPm(j){if(!isInstalled(j))return false;const d=pmDue(j);return !!d&&dLeft(d)<=30}
@@ -2578,8 +2580,8 @@ function jobsList(st,svcMode){
   const inScope=allMonths?all:month;
   const qf=j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),j.surveyor,e.sn,e.wifiSn,unitSns(e),e.plantName,e.model,j.proposedModel,j.installTeam].join(' ').toLowerCase().includes(q)};
   const src=(q||mine||(f.phAll&&phase)?all:month).filter(j=>!q||qf(j));
-  const cnt={all:src.length,active:0,lost:0,done:0,installed:all.filter(isInstalled).length,care:all.filter(needsCare).length,pm:all.filter(isPm).length,cm:all.filter(isCm).length};src.forEach(j=>cnt[j.status]=(cnt[j.status]||0)+1);
-  let list=status==='all'?inScope:status==='installed'?all.filter(isInstalled):status==='care'?all.filter(needsCare):status==='pm'?all.filter(isPm):status==='cm'?all.filter(isCm):inScope.filter(j=>j.status===status);
+  const cnt={all:src.length,active:0,lost:0,done:0,installed:all.filter(isInstalled).length,care:all.filter(needsCare).length,pm:all.filter(isPm).length,cm:all.filter(isCm).length};src.forEach(j=>cnt[stOf(j)]=(cnt[stOf(j)]||0)+1);
+  let list=status==='all'?inScope:status==='installed'?all.filter(isInstalled):status==='care'?all.filter(needsCare):status==='pm'?all.filter(isPm):status==='cm'?all.filter(isCm):inScope.filter(j=>stOf(j)===status);
   if(mine){const g=myGroup();list=list.filter(j=>j.status==='active'&&STAGES[j.stage].role===g&&!(g==='admin'&&j.stage===ST.DOCS))}
   if(phase)list=list.filter(j=>j.status==='active'&&phaseOf(j.stage)?.k===phase);
   if(f.team)list=list.filter(j=>j.salesTeam===f.team);
@@ -3228,7 +3230,7 @@ function viewJob(id){
   }else if(j.status==='cancelled'){
     right=`<section class="act"><h2>ยกเลิก</h2><span class="sub">${esc(j.cancelReason||'')}${j.cancelledAt?' · '+fdt(j.cancelledAt):''}</span>${canCancel()?(j.autoCancelled?'<button class="btn dk" data-act="resume">เปิดงานต่อ</button><button class="btn" data-act="rebook">จองใหม่</button>':'<button class="btn dk" data-act="rebook">จองใหม่</button>'):''}</section>`;
   }else if(j.status==='lost'){
-    right=`<section class="act"><h2>ลูกค้ายังไม่ตกลง</h2><span class="sub">${esc(j.lostReason||'')}</span><span class="sub">ลูกค้ากลับมาตกลงเมื่อไร เปิดงานต่อได้ทันที</span><button class="btn dk" data-act="reopen">ลูกค้าตกลงแล้ว เปิดงานต่อ</button></section>`;
+    right=`<section class="act"><h2>${xCan(j)?'ยกเลิก':'ลูกค้ายังไม่ตกลง'}</h2><span class="sub">${esc(j.lostReason||'')}</span><span class="sub">ลูกค้ากลับมาตกลงเมื่อไร เปิดงานต่อได้ทันที</span><button class="btn dk" data-act="reopen">ลูกค้าตกลงแล้ว เปิดงานต่อ</button></section>`;
   }else if(j.status==='done'){
     const due=pmDue(j),dl=due?dLeft(due):null;
     right=`<section class="act"><div><h2>ตรวจเช็กประจำปี</h2><span class="sub">${due?'ครบกำหนด '+fd(due)+(dl<0?' · เลยมา '+(-dl)+' วัน':' · อีก '+dl+' วัน'):'ยังไม่มีวันติดตั้ง จึงคำนวณวันครบกำหนดไม่ได้'}</span></div>
@@ -3251,7 +3253,7 @@ function viewJob(id){
     <div class="jsc"><span class="sub">อยู่ขั้นนี้มา</span><b class="${dd>30?'tcrit':dd>14?'twarn':''}">${dd} วัน</b></div>
     <div class="jsc grow"><span class="sub">${n<LAST?`ถัดไป: ${esc(STAGES[n+1].name)}`:'ขั้นสุดท้าย'}</span>
       <div class="jprog" role="progressbar" aria-valuemin="0" aria-valuemax="${LAST}" aria-valuenow="${n-1}">${STAGES.slice(1).map((x,i)=>`<i class="${i+1<n?'d':i+1===n?'c':''}" title="${esc(x.name)}"></i>`).join('')}</div></div>
-  </section>`:`<section class="card jst"><div class="jsc"><span class="sub">สถานะ</span>${j.status==='cancelled'?'<span class="pill gy big">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy big">ลูกค้ายังไม่ตกลง</span>':'<span class="pill ok big">ปิดงานแล้ว · ดูแลหลังการขาย</span>'}</div></section>`}
+  </section>`:`<section class="card jst"><div class="jsc"><span class="sub">สถานะ</span>${stOf(j)==='cancelled'?'<span class="pill gy big">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy big">ลูกค้ายังไม่ตกลง</span>':'<span class="pill ok big">ปิดงานแล้ว · ดูแลหลังการขาย</span>'}</div></section>`}
   <div class="banner" id="heldNote" hidden>งานนี้มีการอัปเดตระหว่างแก้ไข บันทึกหรือยกเลิกเพื่อดูข้อมูลล่าสุด</div>
   <div class="cols">
     <div class="colL">${curSecs.size?[...curSecs].map(id=>{const sec=SECTIONS.find(x=>x.id===id);return secForm(sec,j,c,s,true)}).join(''):''}
@@ -3564,7 +3566,7 @@ function viewCustomers(){
   let rows=cs.map(c=>{const j=jobsBy[c.id].slice().sort((a,b)=>svd(b).localeCompare(svd(a)))[0];return {c,j,d:svd(j),n:jobsBy[c.id].length}}).sort((a,b)=>b.d.localeCompare(a.d));
   const mLabel=k=>{const [y,m]=k.split('-').map(Number);return `${TMF[m-1]} ${y+543}`};
   const cf=S.f;
-  if(cf.cst)rows=rows.filter(r=>cf.cst==='active'?r.j.status==='active':r.j.status===cf.cst);
+  if(cf.cst)rows=rows.filter(r=>cf.cst==='active'?r.j.status==='active':stOf(r.j)===cf.cst);
   if(cf.cph)rows=rows.filter(r=>r.j.status==='active'&&phaseOf(r.j.stage)?.k===cf.cph);
   if(cf.cteam)rows=rows.filter(r=>cf.cteam==='PM'?String(r.j.salesTeam||'').startsWith('SA-'):r.j.salesTeam===cf.cteam);
   const bm=new Date();bm.setDate(1);bm.setMonth(bm.getMonth()+(cf.cmo||0));
@@ -3575,7 +3577,7 @@ function viewCustomers(){
   const anyF=cf.cst||cf.cph||cf.cteam;
   const groups=[];rows.forEach(r=>{const k=r.d.slice(0,7);let g=groups[groups.length-1];if(!g||g.k!==k)groups.push(g={k,rows:[]});g.rows.push(r)});
   const PHC2={pre:'b',offer:'g',ins:'o',post:'v'};
-  const stTag=j=>j.status==='cancelled'?'<span class="pill gy">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy">ยังไม่ตกลง</span>':j.status==='done'?'<span class="pill ok">ปิดงานแล้ว</span>':`<span class="pill ${PHC2[phaseOf(j.stage)?.k]||'gy'}">${esc(STAGES[j.stage].name)}</span>`;
+  const stTag=j=>stOf(j)==='cancelled'?'<span class="pill gy">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy">ยังไม่ตกลง</span>':j.status==='done'?'<span class="pill ok">ปิดงานแล้ว</span>':`<span class="pill ${PHC2[phaseOf(j.stage)?.k]||'gy'}">${esc(STAGES[j.stage].name)}</span>`;
   return pageHead('ลูกค้า',searching?`ผลค้นหาจากทุกเดือน · พบ ${rows.length} ราย`:`แสดง ${rows.length} ราย จากทั้งหมด ${total} ราย · ตามเดือนที่สำรวจ`,searching?'':monthNav('cmo'))+`
   <section class="card tq">
   <div class="tqb" role="group" aria-label="ตัวกรองลูกค้า">

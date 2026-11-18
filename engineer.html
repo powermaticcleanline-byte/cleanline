@@ -529,6 +529,7 @@ window.__splOut=out;var iv=setInterval(function(){if(done){clearInterval(iv);ret
 <script src="gdb.js"></script>
 <script>
 'use strict';
+const xCan=j=>j.status==='lost'&&/^ยกเลิก \(จาก Excel\)/.test(j.lostReason||'');
 const STAGES=[null,
  {name:'จองคิวสำรวจ',role:'sales'},
  {name:'รอจัดคนสำรวจ',role:'admin'},
@@ -965,6 +966,7 @@ function viewJob(id){
   let now=STAGES[j.stage]?.name||'',next='',prog='';
   if(j.status==='done'){now='ปิดงานแล้ว';next='ดูแลหลังการขาย (PM/CM)'}
   else if(j.status==='cancelled'){now='ยกเลิก';next=j.cancelReason||''}
+  else if(xCan(j)){now='ยกเลิก';next=''}
   else if(j.status==='lost'){now='ลูกค้ายังไม่ตกลง';next='รอเซลส์ติดตาม'}
   else{const nx=STAGES[j.stage+1];next=nx?nx.name:'';
     if(j.stage===ST.SURVEY){const st=svSteps(j,s),n=st.filter(x=>x.ok).length;now=needDraw(j)?'รอวาดแบบที่ออฟฟิศ':'กำลังสำรวจ';
@@ -1417,6 +1419,7 @@ const hasSurvey=j=>!!(j&&(Object.keys(j.sv||{}).length||j.proposedModel||(Array.
 function statusOf(j){
   if(j.status==='done')return {t:'ปิดงานแล้ว · ดูแลหลังการขาย',c:'f-grn'};
   if(j.status==='cancelled')return {t:'ยกเลิก',c:'f-red'};
+  if(xCan(j))return {t:'ยกเลิก',c:'f-red'};
   if(j.status==='lost')return {t:'ลูกค้ายังไม่ตกลง',c:'f-red'};
   if(j.stage===ST.SURVEY)return needDraw(j)?{t:'รอวาดแบบ',c:'f-vio'}:{t:'กำลังสำรวจ',c:'f-blu'};
   return {t:'ขั้น '+j.stage+' · '+(STAGES[j.stage]?.name||''),c:j.stage===ST.OFFER?'f-org':'f-mut'};
@@ -1713,7 +1716,7 @@ function viewToday(){
 }
 function slip(j){
   const c=cOf(j),s=sOf(j),r=j.request||{},props=propsView(j),st=svSteps(j,s),nOk=st.filter(x=>x.ok).length;
-  const head=j.status==='done'?['ok','ปิดงานแล้ว']:j.status==='lost'?['no','ลูกค้ายังไม่ตกลง']:j.status==='cancelled'?['no','ยกเลิก']:j.stage>ST.SURVEY?['ok','ส่งเซลส์แล้ว']:nOk===8?['ok','สำรวจครบแล้ว']:['wip','กำลังสำรวจ '+nOk+'/8'];
+  const head=j.status==='done'?['ok','ปิดงานแล้ว']:xCan(j)?['no','ยกเลิก']:j.status==='lost'?['no','ลูกค้ายังไม่ตกลง']:j.status==='cancelled'?['no','ยกเลิก']:j.stage>ST.SURVEY?['ok','ส่งเซลส์แล้ว']:nOk===8?['ok','สำรวจครบแล้ว']:['wip','กำลังสำรวจ '+nOk+'/8'];
   const row=(l,v)=>`<div class="sr"><span>${l}</span><b>${v}</b></div>`;
   const dash='<i class="nil">—</i>',v=x=>x===undefined||x===null||x===''?dash:esc(x);
   const yn=x=>x===true?'<em class="yes">ต้องการ</em>':x===false?'ไม่ต้องการ':dash;
@@ -1799,7 +1802,7 @@ async function saveSlipImage(id){
   };
 }
 const ALL_ST=[['all','ทั้งหมด',()=>true],['sv','กำลังสำรวจ',j=>j.status==='active'&&j.stage<=ST.SURVEY],['offer','ส่งเซลส์แล้ว',j=>j.status==='active'&&j.stage===ST.OFFER],
-  ['ins','รอติดตั้ง',j=>j.status==='active'&&(j.stage===ST.INSREQ||j.stage===ST.INSTALL)],['inst','กำลังติดตั้ง',j=>j.status==='active'&&j.stage===ST.COMM],['docs','ติดตั้งแล้ว',j=>j.status==='active'&&j.stage===ST.DOCS],['done','ปิดงานแล้ว',j=>j.status==='done'],['lost','ไม่ตกลง',j=>j.status==='lost'],['cancelled','ยกเลิก',j=>j.status==='cancelled']];
+  ['ins','รอติดตั้ง',j=>j.status==='active'&&(j.stage===ST.INSREQ||j.stage===ST.INSTALL)],['inst','กำลังติดตั้ง',j=>j.status==='active'&&j.stage===ST.COMM],['docs','ติดตั้งแล้ว',j=>j.status==='active'&&j.stage===ST.DOCS],['done','ปิดงานแล้ว',j=>j.status==='done'],['lost','ไม่ตกลง',j=>j.status==='lost'&&!xCan(j)],['cancelled','ยกเลิก',j=>j.status==='cancelled'||xCan(j)]];
 const jobNoMonth=j=>{const m=String(j.jobNo||'').match(/^(\d\d)(\d\d)\d{3}$/);if(!m||+m[2]<1||+m[2]>12)return '';return (2500+(+m[1])-543)+'-'+m[2]};
 const isLegacy=j=>j.legacyRow!=null||/^x\d+$/.test(String(j.id||''));
 const jobDateOf=j=>(j.stage>=ST.INSREQ&&(j.installDate||j.agreedDate))||j.surveyDate||j.queueDate||j.installDate||(isLegacy(j)?(j.agreedDate||j.designSentDate||j.logStart||jobNoMonth(j)||''):(j.createdAt?isoOf(new Date(j.createdAt)):''));
