@@ -1802,7 +1802,7 @@ const ALL_ST=[['all','ทั้งหมด',()=>true],['sv','กำลังส
   ['ins','รอติดตั้ง',j=>j.status==='active'&&(j.stage===ST.INSREQ||j.stage===ST.INSTALL)],['inst','กำลังติดตั้ง',j=>j.status==='active'&&j.stage===ST.COMM],['docs','ติดตั้งแล้ว',j=>j.status==='active'&&j.stage===ST.DOCS],['done','ปิดงานแล้ว',j=>j.status==='done'],['lost','ไม่ตกลง',j=>j.status==='lost'],['cancelled','ยกเลิก',j=>j.status==='cancelled']];
 const jobNoMonth=j=>{const m=String(j.jobNo||'').match(/^(\d\d)(\d\d)\d{3}$/);if(!m||+m[2]<1||+m[2]>12)return '';return (2500+(+m[1])-543)+'-'+m[2]};
 const isLegacy=j=>j.legacyRow!=null||/^x\d+$/.test(String(j.id||''));
-const jobDateOf=j=>j.surveyDate||j.queueDate||j.installDate||(isLegacy(j)?(j.agreedDate||j.designSentDate||j.logStart||jobNoMonth(j)||''):(j.createdAt?isoOf(new Date(j.createdAt)):''));
+const jobDateOf=j=>(j.stage>=ST.INSREQ&&(j.installDate||j.agreedDate))||j.surveyDate||j.queueDate||j.installDate||(isLegacy(j)?(j.agreedDate||j.designSentDate||j.logStart||jobNoMonth(j)||''):(j.createdAt?isoOf(new Date(j.createdAt)):''));
 const fdJ=d=>d.length===7?TM[+d.slice(5,7)-1]+' '+String(+d.slice(0,4)+543).slice(2):fd(d);
 function arow(j,mine){
   const s=sOf(j),stt=statusOf(j),d=jobDateOf(j),pv=hasSurvey(j)?propsView(j)[0]:null;
