@@ -941,7 +941,7 @@ function chatCard(j){
   const v=(S.mdraft||{})[j.id]||'';
   return `<section class="card jc2" id="chat"><div class="jh"><b>แชตงานนี้</b>${op.length?`<span class="pill r">ค้าง ${op.length}</span>`:''}</div>
    ${L.length?`<div class="mlist">${L.map(b).join('')}</div>`:`<p class="mnone">ยังไม่มีข้อความ · ถามหรือแจ้งเรื่องงานนี้ได้ที่นี่</p>`}
-   <div class="min"><textarea id="msgin-${esc(j.id)}" data-msgin="${esc(j.id)}" rows="1" placeholder="พิมพ์ข้อความ">${esc(v)}</textarea><button class="msend" data-msgsend="${esc(j.id)}" aria-label="ส่งข้อความ" ${v.trim()?'':'disabled'}>${ic('go')}</button></div></section>`;
+   <div class="min"><textarea id="msgin-${esc(j.id)}" data-msgin="${esc(j.id)}" rows="1" placeholder="พิมพ์ข้อความ" aria-label="พิมพ์ข้อความแชตงานนี้">${esc(v)}</textarea><button class="msend" data-msgsend="${esc(j.id)}" aria-label="ส่งข้อความ" ${v.trim()?'':'disabled'}>${ic('go')}</button></div></section>`;
 }
 async function msgSend(id){const v=((S.mdraft||{})[id]||'').trim();if(!v)return;
   try{await S.api.addMessage(id,v,'msg');S.mdraft[id]='';render();toast('ส่งข้อความแล้ว')}catch(e){toast('ส่งไม่สำเร็จ ลองอีกครั้ง')}}
@@ -992,7 +992,7 @@ function viewJob(id){
       ${pv.map((p,k)=>`<div class="slp"><div class="slph"><span>${pv.length>1?'แบบที่ '+(k+1)+' · ':''}${esc(p.systemType||'')}</span><b>${p.kw?esc(p.kw)+' kW':'—'}</b></div>
        ${quoteItems(j,p).map(x=>`<div class="sr it"><span>${esc(x.t)}</span><b>${x.approx?'~':''}${esc(x.q)} <em>${x.u}</em></b></div>`).join('')}</div>`).join('')}</section>`:''}
     <section class="card jc2"><div class="jh"><b>ลูกค้าและไซต์</b></div>${row('ลูกค้า',esc(c.name||'—'))}${row('โทร',esc(c.phone||''))}${row('ที่อยู่',esc(s.address||''))}${row('ทีมขาย',esc([j.salesTeam,j.salesPerson].filter(Boolean).join(' · ')))}</section>
-    <section class="card jc2"><div class="jh"><b>นัดหมาย</b></div>${appt}${j.folderUrl&&safeUrl(j.folderUrl)?`<div class="sr"><span>โฟลเดอร์งาน</span><b><button class="lk" style="min-height:0;padding:0" data-open="${esc(j.folderUrl)}">เปิดใน Google Drive</button> · <button class="lk" style="min-height:0;padding:0" data-fname="${esc(j.id)}">เปลี่ยนชื่อ</button></b></div>`:''}
+    <section class="card jc2"><div class="jh"><b>นัดหมาย</b></div>${appt}${j.folderUrl&&safeUrl(j.folderUrl)?`<div class="sr"><span>โฟลเดอร์งาน</span><b><button class="lk" style="min-height:24px;padding:0" data-open="${esc(j.folderUrl)}">เปิดใน Google Drive</button> · <button class="lk" style="min-height:24px;padding:0" data-fname="${esc(j.id)}">เปลี่ยนชื่อ</button></b></div>`:''}
      ${r.systemType||r.wantKwp?row('ลูกค้าอยากได้',esc([r.systemType,r.wantKwp?r.wantKwp+' kWp':''].filter(Boolean).join(' · '))):''}
      ${j.salesNote?`<div class="jnote"><small>หมายเหตุจากเซลส์</small>${esc(j.salesNote)}</div>`:''}${j.woNote?`<div class="jnote"><small>หมายเหตุใบงาน</small>${esc(j.woNote)}</div>`:''}</section>
     ${chatCard(j)}
@@ -1485,8 +1485,8 @@ function viewReport(id){
    <section class="card rcard"><h2>${ic('check')}ลายเซ็นลูกค้า</h2>
     ${v.sign?`${v.sign.img&&/^data:image\/png/.test(v.sign.img)?`<div class="sigshow"><img src="${esc(v.sign.img)}" alt="ลายเซ็น"></div>`:''}<p class="rmiss" style="color:var(--ink2)">${esc(v.sign.name||'')}${v.sign.relation?' (ผู้แทน: '+esc(v.sign.relation)+')':''} · ${fdt(v.sign.at)}</p>`:'<p class="rmiss">ยังไม่ได้เซ็น</p>'}</section>
    <section class="card rcard"><h2>${ic('list')}การสำรวจ</h2>
-    <dl class="kv rk"><dt>ถึงหน้างาน</dt><dd>${ci?fdt(ci.at)+(ci.lat!=null?` · <button class="lk" style="min-height:0;padding:0" data-open="https://www.google.com/maps/search/?api=1&query=${ci.lat},${ci.lng}">ดูพิกัด</button>`:''):v.onsite?fdt(v.onsite):dash}</dd>
-     <dt>โฟลเดอร์</dt><dd>${v.folder?(/^https:/.test(v.folder)?`<button class="lk" style="min-height:0;padding:0" data-open="${esc(v.folder)}">เปิดโฟลเดอร์ใน Google Drive</button>`:`<span class="mono">${esc(v.folder)}</span>`):dash}</dd></dl>
+    <dl class="kv rk"><dt>ถึงหน้างาน</dt><dd>${ci?fdt(ci.at)+(ci.lat!=null?` · <button class="lk" style="min-height:24px;padding:0" data-open="https://www.google.com/maps/search/?api=1&query=${ci.lat},${ci.lng}">ดูพิกัด</button>`:''):v.onsite?fdt(v.onsite):dash}</dd>
+     <dt>โฟลเดอร์</dt><dd>${v.folder?(/^https:/.test(v.folder)?`<button class="lk" style="min-height:24px;padding:0" data-open="${esc(v.folder)}">เปิดโฟลเดอร์ใน Google Drive</button>`:`<span class="mono">${esc(v.folder)}</span>`):dash}</dd></dl>
     <ol class="tl" style="margin-top:12px">${st.map(x=>`<li class="${x.ok?'ok':'lock'}"><span class="dt">${x.ok?ic('check'):''}</span><b>${esc(x.t)}</b><small>${x.ok?(x.at?fdt(x.at):'ครบแล้ว'):'ยังไม่ทำ'}</small></li>`).join('')}</ol></section>
    ${j.salesNote||j.woNote?`<section class="card rcard"><h2>${ic('doc')}หมายเหตุ</h2>${j.salesNote?`<div class="notec" style="margin-top:0"><h4>จากเซลส์</h4><p>${esc(j.salesNote)}</p></div>`:''}${j.woNote?`<div class="notec warm"><h4>ใบงาน</h4><p>${esc(j.woNote)}</p></div>`:''}</section>`:''}
    ${j.stage===ST.SURVEY&&canAct(j)?`<button class="btn pri" style="width:100%" data-go="#ns-${esc(j.id)}">${ic('doc')}ไปสำรวจต่อ</button>`:''}
@@ -1572,7 +1572,7 @@ function viewNs(id){
      <button class="btn" style="width:100%;margin-bottom:10px" data-open="${CADABRA}">${ic('ne')}เปิด CADabra</button>
      <label class="nschk"><input type="checkbox" data-nscad="cad" ${v.cad?'checked':''}><span>${ic('check')}วาดแบบใน CADabra แล้ว</span></label>
      <label class="nschk"><input type="checkbox" data-nscad="cadFiled" ${v.cadFiled?'checked':''}><span>${ic('check')}เก็บไฟล์แบบในโฟลเดอร์แล้ว</span></label>
-     ${/^https:/.test(v.folder||'')?`<div style="margin-top:8px"><button class="lk" style="min-height:0;padding:0" data-open="${esc(v.folder)}">เปิดโฟลเดอร์ใน Google Drive</button></div>`:v.folder?`<div class="cpy" style="margin-top:6px"><input id="sv-folder2" value="${esc(v.folder)}" readonly><button class="rb" data-copy="sv-folder2" aria-label="คัดลอกที่อยู่">${ic('copy')}</button></div>`:''}
+     ${/^https:/.test(v.folder||'')?`<div style="margin-top:8px"><button class="lk" style="min-height:24px;padding:0" data-open="${esc(v.folder)}">เปิดโฟลเดอร์ใน Google Drive</button></div>`:v.folder?`<div class="cpy" style="margin-top:6px"><input id="sv-folder2" value="${esc(v.folder)}" readonly><button class="rb" data-copy="sv-folder2" aria-label="คัดลอกที่อยู่">${ic('copy')}</button></div>`:''}
      <div style="margin-top:12px">${fld('design.proposedNote','หมายเหตุขนาด','text',null,0,'',d.design.proposedNote)}${fld('design.quoter','ผู้ออกราคา (CC)','text',null,0,'',d.design.quoter)}</div></div>
     <div class="card"><h2>${ic('list')}ตรวจความครบ</h2><ul class="nschk2">${NS_PAGES.slice(0,4).map((t,i)=>{const x=m[i+1];return `<li class="${x.length?'no':'ok'}" data-nsgo="${i+1}"><span>${x.length?ic('x'):ic('check')}</span><div><b>${t}</b>${x.length?`<small>ขาด: ${esc(x.join(', '))}</small>`:''}</div>${ic('go')}</li>`}).join('')}</ul></div>
     ${ready?'':`<p class="hint" style="text-align:center">ครบทุกข้อแล้วจึงปิดงานได้</p>`}`;
