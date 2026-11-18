@@ -149,6 +149,14 @@ img.av.hav{border-radius:50%;display:block}
 .pill span{min-height:44px;padding:0 16px;border-radius:99px;background:var(--sf);box-shadow:inset 0 0 0 1.5px var(--ln);display:inline-flex;align-items:center;font-weight:500;font-size:15px;cursor:pointer}
 .pill input:checked+span{background:var(--ink);color:#fff;box-shadow:none}
 .pill input:focus-visible+span{outline:3px solid var(--acc);outline-offset:2px}
+.ifr{padding:10px 0;border-top:1px solid var(--ln);display:grid;gap:8px}.ifr:first-of-type{border-top:0;padding-top:0}.ifr>b{font-size:15px;font-weight:600}
+.ifq{display:flex;gap:8px;flex-wrap:wrap}.ifq label{display:flex;align-items:center;gap:6px;flex:1;min-width:120px}.ifq small{color:var(--mut);font-size:13px;white-space:nowrap}
+.ifq input,.ifg input{width:100%;min-width:0;min-height:44px;font:inherit;font-size:16px;padding:8px 12px;border:0;border-radius:12px;background:var(--hv);box-shadow:inset 0 0 0 1.5px var(--ln);outline:0}.ifq input:focus,.ifg input:focus{box-shadow:inset 0 0 0 2px var(--acc);background:#fff}
+.cc2.ifx.on{background:var(--redBg);color:var(--red);box-shadow:inset 0 0 0 1.5px var(--red)}
+.ift{padding:10px 0;border-top:1px solid var(--ln)}.ift:first-of-type{border-top:0;padding-top:0}.ifth{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.ifth b{font-size:15px;font-weight:600}
+.ifg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ifg2{grid-template-columns:1fr 1fr}.ifg label{display:grid;gap:4px}.ifg small{color:var(--mut);font-size:12.5px}
+.ifp{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--hv);color:var(--mut)}.ifp svg{width:14px;height:14px}.ifp.ok{background:var(--okBg);color:var(--ok)}.ifp.no{background:var(--redBg);color:var(--red)}
+.ifsg{padding:10px 0;border-top:1px solid var(--ln)}.ifsg:first-of-type{border-top:0;padding-top:0}
 .fl{display:block;margin:0 0 14px}.fl>span{display:block;font-size:14px;color:var(--ink2);font-weight:500;margin-bottom:6px}
 .fl input,.fl select,.fl textarea,.cpy input{width:100%;min-height:50px;border-radius:16px;border:0;background:var(--hv);box-shadow:inset 0 0 0 1.5px var(--ln);padding:12px 14px;font-size:16px;outline:0}
 .fl textarea{resize:vertical;min-height:84px}
@@ -633,9 +641,9 @@ class BaseAdapter{
   async updateSite(id,patch){await this._update('sites/'+id,{...patch,updatedAt:Date.now()});await this.log('edit','แก้ไขข้อมูลไซต์',{col:'sites',docId:id,title:this.c.sites[id]?.label||'',fields:Object.keys(patch)})}
   listPhotos(jobId){return Object.values(this.c.photos).filter(p=>p.jobId===jobId).sort((a,b)=>a.at-b.at)}
   async removePhoto(id){const p=this.c.photos[id];await this._delete('photos/'+id);await this.log('del','ลบรูป '+(p?.kind||''),{col:'photos',docId:id,title:p?.jobId||'',fields:[]})}
-  async addPhoto(jobId,kind,blob){
+  async addPhoto(jobId,kind,blob,extra){
     const dataRef=typeof blob==='string'?blob:await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob)});
-    const id=rid('ph');const doc={jobId,kind,dataRef,at:Date.now(),by:this.user?.id||null};
+    const id=rid('ph');const doc={jobId,kind,dataRef,at:Date.now(),by:this.user?.id||null,...(extra||{})};
     await this._set('photos/'+id,doc);await this.log('new','เพิ่มรูป '+kind,{col:'photos',docId:id,title:jobId,fields:['kind']});
     return {id,...doc};
   }
@@ -1145,9 +1153,123 @@ function icDraft(j){
     batteryModel:e.batteryModel||j.proposedBatteryModel||'',batterySn:e.batterySn||'',commissionDate:e.commissionDate||today(),
     slaves:invUnits(e).slice(1).map(u=>({model:u.model||'',sn:u.sn||'',wifiSn:u.wifiSn||''}))};
 }
+const IF_ITEMS=[['consumer','ตู้ Consumer',[['qty','ตู้']]],['meter','Smart Meter',[['model','รุ่น','text'],['qty','ตัว']]],['rcbo','RCBO',[['amp','A'],['qty','ตัว']]],['mcb','MCB',[['amp','A'],['qty','ตัว']]],['ac','ชุดสายไฟ AC',[['m','เมตร']]],['dc','ชุดสายไฟ DC',[['m','เมตร']]]];
+const IF_TRAIN=[['app','ติดตั้ง App'],['reg','ลงทะเบียน App'],['use','อบรมการใช้งาน App'],['maint','บำรุงรักษาเบื้องต้น']];
+function ifDraft(j){if((S.ifd=S.ifd||{})[j.id])return S.ifd[j.id];const D=JSON.parse(JSON.stringify(j.installForm||{}));
+  D.items=D.items||{};IF_ITEMS.forEach(([k])=>{D.items[k]=D.items[k]||{}});if(!D.items.meter.model)D.items.meter.model=icDraft(j).meter||'';
+  D.test=D.test||{};D.train=D.train||{};D.sign=D.sign||{};if(D.provName==null)D.provName=me().name||'';if(D.custName==null)D.custName=cOf(j).name||'';if(D.note==null)D.note='';return S.ifd[j.id]=D}
+const ifPh3=j=>{const inv=S.api.listProducts().find(p=>p.model===icDraft(j).model);return String((inv&&inv.phase)||sOf(j).phase||'')==='3'};
+const ifNum=v=>v===''||v==null||isNaN(+v)?null:+v;
+/* มาตรฐานตามแบบฟอร์ม: AC 200–240 Vac · 47–52 Hz · DC < 550 Vdc (1 เฟส) / < 1100 Vdc (3 เฟส) · ดิน < 5 Ω */
+function ifRows(j){const t=ifDraft(j).test,p3=ifPh3(j),lim=p3?1100:550,ok=(vals,f)=>vals.some(v=>v==null)?null:vals.every(f);
+  const acK=p3?['rn','sn','tn']:['rn'],ac=acK.map(k=>ifNum(t[k])),hz=ifNum(t.hz),ea=ifNum(t.earth),m2=ifNum(t.m2v)!=null||ifNum(t.m2a)!=null;
+  const dcV=[ifNum(t.m1v),ifNum(t.m1a),...(m2?[ifNum(t.m2v),ifNum(t.m2a)]:[])];
+  return {p3,lim,ac:ok(ac,v=>v>=200&&v<=240),dc:dcV.some(v=>v==null)?null:[ifNum(t.m1v),...(m2?[ifNum(t.m2v)]:[])].every(v=>v>0&&v<lim),eh:ok([ea,hz],()=>ea<5&&hz>=47&&hz<=52),acK}}
+function ifMissing(j){const d=ifDraft(j),r=ifRows(j),m=[],t=d.test,lb={rn:'R-N',sn:'S-N',tn:'T-N'};
+  r.acK.forEach(k=>{if(ifNum(t[k])==null)m.push('แรงดัน AC '+lb[k])});if(ifNum(t.m1v)==null||ifNum(t.m1a)==null)m.push('MPPT1 V/A');
+  if(ifNum(t.earth)==null)m.push('ความต้านทานดิน');if(ifNum(t.hz)==null)m.push('ความถี่');
+  const bad=[r.ac,r.dc,r.eh].some(x=>x===false)||IF_ITEMS.some(([k])=>d.items[k].ok==='0');if(bad&&!String(d.note||'').trim())m.push('หมายเหตุ (มีรายการไม่ผ่าน/ไม่เรียบร้อย)');
+  if(!d.sign.cust&&!(S.ifsig&&S.ifsig[j.id]&&S.ifsig[j.id].cust&&S.ifsig[j.id].cust.length))m.push('ลายเซ็นลูกค้า');if(!String(d.custName||'').trim())m.push('ชื่อลูกค้าที่เซ็น');return m}
+const ifPass=v=>v==null?'<span class="ifp">รอค่า</span>':v?`<span class="ifp ok">${ic('check')}ผ่าน</span>`:'<span class="ifp no">ไม่ผ่าน</span>';
+function ifSigBox(j,who,lab){const d=ifDraft(j),s=d.sign[who],re=S.ifre&&S.ifre[j.id+':'+who];
+  return `<div class="ifsg"><label class="fl"><span>${lab}</span><input data-if="${who==='cust'?'custName':'provName'}" value="${esc(who==='cust'?d.custName:d.provName)}" autocomplete="off"></label>
+   ${s&&!re?`<div class="sigshow"><img src="${esc(/^data:image\/png/.test(s.img||'')?s.img:'')}" alt="ลายเซ็น"></div><p class="hint" style="margin:0 0 8px">${esc(s.name||'')} · ${fdt(s.at)}</p><button class="btn" data-ifresign="${who}">${ic('swap')}เซ็นใหม่</button>`
+   :`<div class="sigbox"><canvas data-ifpad="${who}" aria-label="ช่องเซ็นชื่อ ${esc(lab)}"></canvas><span class="sigph" data-ifph="${who}">เซ็นในกรอบนี้</span></div><button class="btn red" style="margin-top:8px" data-ifclr="${who}">${ic('trash')}ล้าง</button>`}</div>`}
+function ifCards(j){const d=ifDraft(j),r=ifRows(j),t=d.test,num=(path,v,ph,w)=>`<input data-if="${path}" type="number" inputmode="decimal" step="any" value="${esc(v??'')}" placeholder="${esc(ph||'')}" ${w?`style="width:${w}"`:''}>`;
+  const P=S.api.listProducts(),inv=P.find(p=>p.model===icDraft(j).model),pp=panelProduct();
+  return `<section class="card"><h2>${ic('box')}อุปกรณ์และงานติดตั้ง</h2>
+    ${IF_ITEMS.map(([k,lab,fs])=>{const it=d.items[k];return `<div class="ifr"><b>${esc(lab)}</b><div class="ifq">${fs.map(([f,u,ty])=>`<label>${ty==='text'?`<input data-if="items.${k}.${f}" value="${esc(it[f]??'')}" placeholder="${esc(u)}" autocomplete="off">`:num('items.'+k+'.'+f,it[f],'')}<small>${esc(ty==='text'?'':u)}</small></label>`).join('')}</div>
+      <div class="ccs2"><button class="cc2 ${it.ok==='1'?'on':''}" data-ifset="items.${k}.ok" data-v="1">เรียบร้อย</button><button class="cc2 ifx ${it.ok==='0'?'on':''}" data-ifset="items.${k}.ok" data-v="0">ไม่เรียบร้อย</button></div></div>`}).join('')}
+    <label class="pmc" style="margin-top:10px"><input type="checkbox" data-iftog="received" ${d.received?'checked':''}><span>${ic('check')}ลูกค้าได้รับอุปกรณ์ทุกอย่างครบถ้วนแล้ว</span></label>
+    <p class="hint" style="margin:8px 0 0">อินเวอร์เตอร์ CLEANLINE ${esc(inv?inv.kw+' kW':'')} × ${1+(icDraft(j).slaves||[]).length} เครื่อง · แผง ${esc([pp.brand||'SUNPRO POWER',pp.model].filter(Boolean).join(' '))} ${esc((pp.watt||625)+' W')}</p></section>
+   <section class="card" id="if-test"><h2>${ic('bolt')}ผลตรวจระบบไฟฟ้า</h2>
+    <div class="ift"><div class="ifth"><b>แรงดัน AC (V)</b>${ifPass(r.ac)}</div><div class="ifg">${r.acK.map(k=>`<label><small>${{rn:'R-N',sn:'S-N',tn:'T-N'}[k]}</small>${num('test.'+k,t[k],'230')}</label>`).join('')}</div></div>
+    <div class="ift"><div class="ifth"><b>ระบบไฟ DC</b>${ifPass(r.dc)}</div><div class="ifg ifg2"><label><small>MPPT1 V</small>${num('test.m1v',t.m1v)}</label><label><small>MPPT1 A</small>${num('test.m1a',t.m1a)}</label><label><small>MPPT2 V</small>${num('test.m2v',t.m2v,'ถ้ามี')}</label><label><small>MPPT2 A</small>${num('test.m2a',t.m2a,'ถ้ามี')}</label></div></div>
+    <div class="ift"><div class="ifth"><b>ดิน · ความถี่</b>${ifPass(r.eh)}</div><div class="ifg ifg2"><label><small>ความต้านทานดิน (Ω)</small>${num('test.earth',t.earth)}</label><label><small>ความถี่ (Hz)</small>${num('test.hz',t.hz,'50')}</label></div></div>
+    <p class="hint" style="margin:6px 0 10px">มาตรฐาน: AC 200–240 V · 47–52 Hz · DC ไม่เกิน ${r.lim} V (${r.p3?'3':'1'} เฟส) · ดิน &lt; 5 Ω</p>
+    <label class="fl"><span>หมายเหตุ</span><textarea data-if="note" rows="2" placeholder="ถ้ามีรายการไม่ผ่าน/ไม่เรียบร้อย บอกเหตุผลและสิ่งที่แก้">${esc(d.note||'')}</textarea></label></section>
+   <section class="card"><h2>${ic('users')}อบรมการใช้งานและบำรุงรักษา</h2><div class="pmchk">${IF_TRAIN.map(([k,lab])=>`<label class="pmc"><input type="checkbox" data-iftog="train.${k}" ${d.train[k]?'checked':''}><span>${ic('check')}${esc(lab)}</span></label>`).join('')}</div></section>
+   <section class="card"><h2>${ic('doc')}ลายเซ็น</h2>${ifSigBox(j,'prov','ผู้ติดตั้ง')}${ifSigBox(j,'cust','ลูกค้า (ผู้รับบริการ)')}</section>`}
+function ifSet(o,path,v){const ks=path.split('.');let x=o;ks.slice(0,-1).forEach(k=>{x=x[k]=x[k]||{}});x[ks[ks.length-1]]=v}
+function ifInitSig(){const id=route().slice(3);document.querySelectorAll('[data-ifpad]').forEach(cv=>{const who=cv.dataset.ifpad;
+  const st=((S.ifsig=S.ifsig||{})[id]=S.ifsig[id]||{});st[who]=st[who]||[];const strokes=st[who];
+  const box=cv.parentElement,w=box.clientWidth,h=180,dpr=window.devicePixelRatio||1;cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+'px';cv.style.height=h+'px';
+  const g=cv.getContext('2d');g.scale(dpr,dpr);g.lineWidth=2.6;g.lineCap='round';g.lineJoin='round';g.strokeStyle='#111';
+  const ph=document.querySelector(`[data-ifph="${who}"]`),draw=()=>{g.clearRect(0,0,w,h);strokes.forEach(s=>{g.beginPath();s.forEach(([x,y],i)=>i?g.lineTo(x*w,y*h):g.moveTo(x*w,y*h));g.stroke()});if(ph)ph.hidden=strokes.length>0};
+  draw();let cur=null;const pt=e=>{const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
+  cv.onpointerdown=e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);cur=[pt(e)];strokes.push(cur);draw()};cv.onpointermove=e=>{if(!cur)return;cur.push(pt(e));draw()};
+  cv.onpointerup=cv.onpointercancel=()=>{if(cur){cur=null;ifRefresh()}}})}
+function ifPng(strokes){const c=document.createElement('canvas');c.width=600;c.height=180;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,600,180);
+  g.lineWidth=3;g.lineCap='round';g.lineJoin='round';g.strokeStyle='#111';strokes.forEach(s=>{g.beginPath();s.forEach(([x,y],i)=>i?g.lineTo(x*600,y*180):g.moveTo(x*600,y*180));g.stroke()});return c.toDataURL('image/png')}
+function ifPatch(j){const d=JSON.parse(JSON.stringify(ifDraft(j))),st=(S.ifsig||{})[j.id]||{},r=ifRows(j);
+  ['prov','cust'].forEach(w=>{if(st[w]&&st[w].length)d.sign[w]={name:String(w==='cust'?d.custName:d.provName).trim(),img:ifPng(st[w]),at:Date.now()};else if(d.sign[w])d.sign[w].name=String(w==='cust'?d.custName:d.provName).trim()});
+  d.pass={ac:r.ac,dc:r.dc,eh:r.eh};d.phase=r.p3?'3':'1';d.unit='Ω';d.form='FM-EN-029-A';return d}
+function ifRefresh(){const j=C().jobs[route().slice(3)];if(!j||!document.getElementById('if-test'))return;const r=ifRows(j);
+  const ths=document.querySelectorAll('#if-test .ifth');[r.ac,r.dc,r.eh].forEach((v,i)=>{const p=ths[i]&&ths[i].querySelector('.ifp');if(p)p.outerHTML=ifPass(v)});
+  const m=icMissing(j),box=document.getElementById('icm');if(box){box.className='card '+(m.length?'icmiss':'icok');box.innerHTML=m.length?`<b>${ic('doc')}ยังขาด ${m.length} รายการ</b><p>${esc(m.join(' · '))}</p>`:`<b>${ic('check')}ครบแล้ว พร้อมส่งต่อทำเอกสารขนานไฟ</b>`}
+  const b=document.querySelector('[data-icclose]');if(b)b.disabled=!!m.length||S.busy}
+function ifDt(ms){if(!ms)return '';const d=new Date(ms);return `${d.getDate()} ${TM[d.getMonth()]} ${d.getFullYear()+543} ${pad(d.getHours())}:${pad(d.getMinutes())}`}
+async function ifDrawForm(j){const f=j.installForm||{},e=j.equipment||{},c=cOf(j),s=sOf(j),pp=panelProduct(),units=invUnits(e),it=f.items||{},t=f.test||{},ps=f.pass||{},tr=f.train||{};
+  try{await document.fonts.ready}catch(x){}
+  const W=1240,H=1754,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');const FF='Prompt,"Noto Sans Thai",sans-serif';
+  g.fillStyle='#fff';g.fillRect(0,0,W,H);g.strokeStyle='#222';g.fillStyle='#111';g.textBaseline='middle';
+  const T=(x,y,str,sz=20,b=0,col='#111',al='left')=>{g.font=`${b?'600 ':''}${sz}px ${FF}`;g.fillStyle=col;g.textAlign=al;g.fillText(String(str??''),x,y)};
+  const R=(x,y,w,h,lw=1.5)=>{g.lineWidth=lw;g.strokeRect(x,y,w,h)};
+  const L=(x1,y1,x2,y2,dash)=>{g.lineWidth=1.2;g.setLineDash(dash?[3,4]:[]);g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();g.setLineDash([])};
+  const CB=(x,y,on)=>{g.lineWidth=1.8;g.strokeRect(x,y-11,22,22);if(on){g.lineWidth=3;g.beginPath();g.moveTo(x+4,y);g.lineTo(x+9,y+6);g.lineTo(x+18,y-6);g.stroke()}};
+  const V=(x,y,w,str,unit)=>{L(x,y+14,x+w,y+14,1);T(x+w/2,y,str||'',20,0,'#0b3d91','center');if(unit)T(x+w+8,y,unit,19)};
+  const M=60,CW=W-2*M,RH=36;let y=48;
+  try{const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src='logo.webp'});const h=46,w=im.width*h/im.height;g.drawImage(im,M,y,w,h)}catch(x){T(M,y+22,'CLEANLINE',32,1)}
+  T(W-M,y+12,f.form||'FM-EN-029-A',17,0,'#555','right');y+=62;
+  g.fillStyle='#16171d';g.fillRect(M,y,CW,48);T(W/2,y+24,'Installation Solar Cell',28,1,'#fff','center');y+=70;
+  T(M,y,'No.',21,1);V(M+50,y,300,j.jobNo||'');T(M+620,y,'Date.',21,1);V(M+690,y,300,e.commissionDate?fd(e.commissionDate):'');y+=30;
+  const SEC=(title,n)=>{const h=36+10+n*RH+6;R(M,y,CW,h);g.fillStyle='#eef3e6';g.fillRect(M+1,y+1,CW-2,35);L(M,y+36,M+CW,y+36);T(M+16,y+19,title,21,1);const y0=y+46+RH/2;y+=h+12;return y0};
+  let b=SEC('รายละเอียดลูกค้า',3);
+  T(M+16,b,'ชื่อ-นามสกุล');V(M+170,b,430,c.name||f.custName);T(M+640,b,'เบอร์โทร.');V(M+760,b,340,c.phone);b+=RH;
+  T(M+16,b,'ที่อยู่');V(M+170,b,930,s.address||c.address);b+=RH;T(M+16,b,'Location');V(M+170,b,930,s.mapLink||[s.lat,s.lng].filter(Boolean).join(', ')||s.area||'');
+  b=SEC('รายละเอียดสินค้า',5);
+  T(M+16,b,'Brand Inverter');V(M+200,b,260,'CLEANLINE');V(M+520,b,220,e.kw?String(e.kw):'','kW.');V(M+820,b,180,String(units.length||1),'เครื่อง');b+=RH;
+  T(M+16,b,'Model');V(M+200,b,900,[...new Set(units.length?units.map(u=>u.model):[e.model])].filter(Boolean).join(', '));b+=RH;
+  T(M+16,b,'Serial No.');V(M+200,b,900,(units.length?units.map(u=>u.sn):[e.sn]).filter(Boolean).join(', '));b+=RH;
+  T(M+16,b,'Brand PV');V(M+200,b,260,pp.brand==='SUNPRO'||!pp.brand?'SUNPRO POWER':pp.brand);V(M+520,b,220,String(pp.watt||625),'W.');V(M+820,b,180,String(e.panels||''),'แผง');b+=RH;
+  T(M+16,b,'Model');V(M+200,b,900,pp.model||'');
+  const rows=[['ตู้ Consumer',`${it.consumer?.qty||'-'} ตู้`,'consumer'],['Smart Meter',`รุ่น ${it.meter?.model||e.meter||'-'} / ${it.meter?.qty||'-'} ตัว`,'meter'],['RCBO',`${it.rcbo?.amp||'-'} A. ${it.rcbo?.qty||'-'} ตัว`,'rcbo'],['MCB',`${it.mcb?.amp||'-'} A. ${it.mcb?.qty||'-'} ตัว`,'mcb'],['ชุดสายไฟ AC',`${it.ac?.m||'-'} เมตร`,'ac'],['ชุดสายไฟ DC',`${it.dc?.m||'-'} เมตร`,'dc']];
+  b=SEC('รายละเอียดอุปกรณ์และงานติดตั้ง',rows.length+1);
+  rows.forEach(([lab,val,k])=>{T(M+16,b,lab);V(M+200,b,420,val);const ok=(it[k]||{}).ok;CB(M+680,b,ok==='1');T(M+712,b,'เรียบร้อย');CB(M+860,b,ok==='0');T(M+892,b,'ไม่เรียบร้อย',21,0,ok==='0'?'#b42318':'#111');b+=RH});
+  CB(M+16,b,!!f.received);T(M+48,b,'***ลูกค้าได้รับอุปกรณ์ทุกอย่างครบถ้วนแล้ว***',21,1);
+  const pass=(x,yy,v)=>{CB(x,yy,v===true);T(x+32,yy,'ผ่าน');if(v===false)T(x+90,yy,'(ไม่ผ่าน)',19,1,'#b42318')};const p3=f.phase==='3';
+  b=SEC('ผลการตรวจสอบระบบไฟฟ้า',4);
+  T(M+16,b,'แรงดันไฟฟ้า AC (Vac)');[['R-N','rn'],['S-N','sn'],['T-N','tn']].forEach(([l,k],i)=>{T(M+290+i*190,b,l,19);V(M+340+i*190,b,110,k==='rn'||p3?t[k]:'-')});T(M+910,b,'V.',19);pass(M+960,b,ps.ac);b+=RH;
+  T(M+16,b,'ระบบไฟฟ้า DC (Vdc/Idc)');T(M+290,b,'MPPT1',19);V(M+360,b,170,[t.m1v,t.m1a].every(x=>x!==''&&x!=null)?`${t.m1v} V / ${t.m1a} A`:'');T(M+580,b,'MPPT2',19);V(M+650,b,170,t.m2v||t.m2a?`${t.m2v||'-'} V / ${t.m2a||'-'} A`:'-');pass(M+960,b,ps.dc);b+=RH;
+  T(M+16,b,'ความต้านทานดิน (Ω)');V(M+290,b,170,t.earth);T(M+520,b,'ความถี่ (Hz)');V(M+660,b,170,t.hz);pass(M+960,b,ps.eh);b+=RH;
+  T(M+16,b,'หมายเหตุ');V(M+130,b,980,String(f.note||'').replace(/\s+/g,' ').slice(0,90));
+  b=SEC('อบรมการใช้งานและบำรุงรักษาเบื้องต้น',2);
+  [['app','ติดตั้ง App'],['reg','ลงทะเบียน App'],['use','อบรมการใช้งาน App'],['maint','บำรุงรักษาเบื้องต้น']].forEach(([k,l],i)=>{const x=M+16+(i%2)*560,yy=b+Math.floor(i/2)*RH;T(x,yy,l);CB(x+260,yy,!!tr[k]);T(x+292,yy,'เรียบร้อย')});
+  const sg=f.sign||{},sigH=120,BH=sigH+96;R(M,y,CW/2,BH);R(M+CW/2,y,CW/2,BH);
+  for(const [i,who,lab] of [[0,'prov','ผู้ให้บริการติดตั้ง'],[1,'cust','ผู้รับบริการ']]){const x=M+i*CW/2,sv=sg[who]||{};T(x+CW/4,y+22,lab,21,1,'#111','center');
+    if(sv.img){try{const im=await new Promise((ok,no)=>{const q=new Image();q.onload=()=>ok(q);q.onerror=no;q.src=sv.img});const ih=sigH-24,iw=Math.min(CW/2-80,ih*im.width/im.height);g.drawImage(im,x+CW/4-iw/2,y+40,iw,ih)}catch(z){}}
+    L(x+60,y+sigH+18,x+CW/2-60,y+sigH+18,1);T(x+CW/4,y+sigH+40,'( '+(sv.name||(who==='cust'?f.custName:f.provName)||'')+' )',20,0,'#111','center');T(x+CW/4,y+sigH+72,'วันที่ / เวลา  '+ifDt(sv.at),18,0,'#333','center')}
+  y+=BH+30;
+  T(M,y,'มาตรฐานค่าแรงดันไฟฟ้า',19,1);y+=28;
+  ['ระบบไฟฟ้า AC : แรงดันไฟฟ้าอยู่ในช่วง 200Vac - 240Vac , ค่าความถี่ไฟฟ้าอยู่ในช่วง 47Hz - 52Hz','ระบบแรงดัน DC : เครื่อง 1 เฟส < 550 Vdc , เครื่อง 3 เฟส < 1100 Vdc','ความต้านทานดิน : < 5 Ω'].forEach(x=>{T(M,y,x,17,0,'#333');y+=26});
+  y=Math.max(y+30,H-70);L(M,y-24,W-M,y-24);['บริษัท เพาเวอร์เมติค จำกัด','50/1 ซอยติวานนท์ 40 ถนนติวานนท์ ตำบลท่าทราย อำเภอเมืองนนทบุรี จังหวัดนนทบุรี 11000 · โทร.02-952-4400'].forEach((x,i)=>T(W/2,y+i*28,x,i?17:19,!i,'#333','center'));
+  return cv}
+/* PDF 1 หน้า A4 จากรูป JPEG (เขียนโครงสร้าง PDF เอง) */
+function ifPdf(jpegUrl,pw,ph){const img=atob(jpegUrl.split(',')[1]),W=595.28,H=841.89,cont=`q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`;
+  const objs=['<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [3 0 R] /Count 1 >>',`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`,
+    `<< /Type /XObject /Subtype /Image /Width ${pw} /Height ${ph} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.length} >>\nstream\n${img}\nendstream`,`<< /Length ${cont.length} >>\nstream\n${cont}\nendstream`];
+  let out='%PDF-1.4\n%\xE2\xE3\xCF\xD3\n';const off=[];objs.forEach((o,i)=>{off.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`});
+  const x=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+off.map(n=>String(n).padStart(10,'0')+' 00000 n \n').join('')+`trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${x}\n%%EOF`;
+  return 'data:application/pdf;base64,'+btoa(out)}
+async function ifMakePdf(id){const j=C().jobs[id];if(!j||!j.installForm)return false;
+  try{toast('กำลังสร้างใบงานติดตั้ง PDF…');const cv=await ifDrawForm(j);const pdf=ifPdf(cv.toDataURL('image/jpeg',.88),cv.width,cv.height);
+    const ph=await S.api.addPhoto(id,'installForm',pdf,{fileName:('ใบงานติดตั้ง '+(j.jobNo||'')+' '+(j.title||'')).replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim()+'.pdf'});let u='';for(let i=0;i<40&&!u;i++){u=(C().photos[ph.id]||{}).url||'';if(!u)await new Promise(r=>setTimeout(r,250))}
+    await S.api.updateJob(id,{installForm:{...(C().jobs[id].installForm||{}),pdf:{photoId:ph.id,url:u,at:Date.now()}}},{kind:'edit',text:'สร้างใบงานติดตั้ง (PDF) เก็บในโฟลเดอร์งาน'});
+    toast('เก็บใบงานติดตั้ง PDF ในโฟลเดอร์งานแล้ว');return true}
+  catch(err){console.warn('pdf:',err&&err.message||err);toast('สร้าง PDF ไม่สำเร็จ กด "สร้างใบงาน PDF" อีกครั้งในหน้างาน');return false}}
 const icCan=j=>actionable(j)&&j.stage===ST.COMM&&(ownedByMe(j)||me().role==='lead');
 function icMissing(j){const d=icDraft(j),P=S.api.listPhotos(j.id),m=[];if(!d.model)m.push('รุ่นอินเวอร์เตอร์');if(!d.sn)m.push('S/N เครื่อง');(d.slaves||[]).forEach((u,i)=>{if(!String(u.sn||'').trim())m.push('S/N Slave '+(i+1))});if(!(+d.panels>0))m.push('จำนวนแผง');
-  IC_KINDS.forEach(([k,t,r])=>{if(r&&!P.some(p=>p.kind===k))m.push('รูป '+t)});return m}
+  IC_KINDS.forEach(([k,t,r])=>{if(r&&!P.some(p=>p.kind===k))m.push('รูป '+t)});return m.concat(ifMissing(j))}
 function viewIc(id){
   const j=C().jobs[id];if(!j)return topBar('ปิดงานติดตั้ง',{back:true})+`<main class="wrap">${emptyBox('ไม่พบงานนี้','','x')}</main>`;
   const s=sOf(j),c=cOf(j),done=j.stage>ST.COMM||j.status==='done';
@@ -1178,11 +1300,13 @@ function viewIc(id){
     <p class="hint" style="margin:4px 0 12px">${+d.panels>0?`รวม ${kwpOf(+d.panels)} kWp${inv?` · ${Math.round(kwpOf(+d.panels)/inv.kw*100)}% ของอินเวอร์เตอร์`:''}`:'ใส่จำนวนแผงที่ติดจริง'}</p>
     ${inp('plantName','Plant name (ในแอปมอนิเตอร์)','เช่น Akkharet_Home')}${inp('commissionDate','วันที่ติดตั้งเสร็จ','',0,'date')}</section>
    <section class="card"><h2>${ic('cam')}รูปงานติดตั้ง</h2>${S.api.mode==='demo'&&IC_KINDS.some(([k,,r])=>r&&!S.api.listPhotos(j.id).some(p=>p.kind===k))?`<button class="btn" style="width:100%;margin-bottom:10px;color:var(--acc)" data-icsample>${ic('cam')}ใส่รูปตัวอย่างให้ครบ</button>`:''}${photoTiles(j,false,IC_KINDS)}</section>
-   <section class="card ${m.length?'icmiss':'icok'}">${m.length?`<b>${ic('doc')}ยังขาด ${m.length} รายการ</b><p>${esc(m.join(' · '))}</p>`:`<b>${ic('check')}ครบแล้ว พร้อมส่งต่อทำเอกสารขนานไฟ</b>`}</section></main>
+   ${ifCards(j)}
+   <section class="card ${m.length?'icmiss':'icok'}" id="icm">${m.length?`<b>${ic('doc')}ยังขาด ${m.length} รายการ</b><p>${esc(m.join(' · '))}</p>`:`<b>${ic('check')}ครบแล้ว พร้อมส่งต่อทำเอกสารขนานไฟ</b>`}</section></main>
    <div class="abar"><div class="in"><button class="btn" data-icsave ${S.busy?'disabled':''}>บันทึก</button><button class="btn pri" data-icclose ${m.length||S.busy?'disabled':''}>${ic('check')}ปิดงาน ส่งต่อ</button></div></div>`;
 }
 function icSummary(j){const e=j.equipment||{},row=(l,v)=>v?`<div class="sr"><span>${l}</span><b>${esc(v)}</b></div>`:'';
   return `<section class="card"><h2>${ic('check')}ติดตั้งเสร็จ ${e.commissionDate?fd(e.commissionDate):''}</h2><div class="slb">${row('อินเวอร์เตอร์',e.model)}${row(invUnits(e).length>1?'S/N Master':'S/N',e.sn)}${row('S/N WiFi',e.wifiSn)}${invUnits(e).slice(1).map((u,i)=>row('Slave '+(i+1),[u.model,u.sn&&'S/N '+u.sn,u.wifiSn&&'WiFi '+u.wifiSn].filter(Boolean).join(' · '))).join('')}${row('Smart meter',e.meter)}${row('CT',e.ct)}${row('แบตเตอรี่',[e.batteryModel,e.batterySn].filter(Boolean).join(' · '))}${row('แผง',e.panels?e.panels+' แผง':'')}${row('Plant name',e.plantName)}</div></section>
+   ${j.installForm?`<section class="card"><h2>${ic('doc')}ใบงานติดตั้ง</h2>${j.installForm.pdf&&j.installForm.pdf.url?`<button class="btn" style="width:100%" data-open="${esc(j.installForm.pdf.url)}">${ic('doc')}เปิดใบงาน (PDF)</button>`:`<button class="btn" style="width:100%" data-ifpdf="${esc(j.id)}" ${S.busy?'disabled':''}>${ic('doc')}สร้างใบงาน PDF</button>`}</section>`:''}
    <section class="card"><h2>${ic('cam')}รูปงานติดตั้ง</h2>${photoTiles(j,true,IC_KINDS)}</section>`}
 function icPatch(j){const d=icDraft(j),inv=S.api.listProducts().find(p=>p.model===d.model),P=S.api.listPhotos(j.id);
   return {...(j.equipment||{}),model:d.model,kw:inv?inv.kw:'',systemType:inv?inv.type:'',sn:String(d.sn).trim(),wifiSn:String(d.wifiSn).trim(),meter:d.meter,ct:d.ct,panels:+d.panels||'',plantName:String(d.plantName).trim(),
@@ -1192,8 +1316,9 @@ async function icSave(id,close){
   const j=C().jobs[id];if(!j)return;const e=icPatch(j);
   if(close&&!await ask('ปิดงานติดตั้ง',`ส่งข้อมูล ${e.model} S/N ${e.sn} ไปทำเอกสารขนานไฟ`,{ok:'ปิดงาน'}))return;
   S.busy=true;render();
-  try{await S.api.updateJob(id,close?{equipment:e,stage:ST.DOCS}:{equipment:e},close?{kind:'handoff',text:`ติดตั้งเสร็จ ${fd(e.commissionDate)} · ${e.model} S/N ${e.sn} · แผง ${e.panels} แผง · Single Line ตามจริงแล้ว`,from:ST.COMM,to:ST.DOCS}:{kind:'edit',text:`บันทึกอุปกรณ์ที่ติดตั้ง ${e.model||''}${e.sn?' S/N '+e.sn:''}`},{stage:ST.COMM,status:'active'});
-    toast(close?'ปิดงานติดตั้งแล้ว':'บันทึกแล้ว');if(close){delete S.icd[id];go('#job-'+id)}}
+  const fm=ifPatch(j);
+  try{await S.api.updateJob(id,close?{equipment:e,installForm:fm,stage:ST.DOCS}:{equipment:e,installForm:fm},close?{kind:'handoff',text:`ติดตั้งเสร็จ ${fd(e.commissionDate)} · ${e.model} S/N ${e.sn} · แผง ${e.panels} แผง · Single Line ตามจริงแล้ว`,from:ST.COMM,to:ST.DOCS}:{kind:'edit',text:`บันทึกอุปกรณ์ที่ติดตั้ง ${e.model||''}${e.sn?' S/N '+e.sn:''}`},{stage:ST.COMM,status:'active'});
+    toast(close?'ปิดงานติดตั้งแล้ว':'บันทึกแล้ว');delete S.ifd[id];if(S.ifsig)delete S.ifsig[id];S.ifre={};if(close){delete S.icd[id];go('#job-'+id);ifMakePdf(id)}}
   catch(err){toast(err.code==='conflict'?err.message:'บันทึกไม่สำเร็จ ลองอีกครั้ง')}finally{S.busy=false;render()}
 }
 async function icScan(input){
@@ -2120,7 +2245,7 @@ function render(){
   else if(r.startsWith('sv-')){location.replace('#ns-'+r.slice(3));return}
   else if(r==='mine')html=viewMine();else if(r==='service')html=viewService();else if(r==='me')html=viewMe();else{html=viewToday();nk='today'}
   $('#app').innerHTML=html+navBar(nk);document.documentElement.classList.toggle('bandtop',nk==='today'&&!r.startsWith('ns-')&&!r.startsWith('tool-')&&r!=='noti');document.documentElement.classList.toggle('bandjob',r.startsWith('job-')||r.startsWith('tool-sim'));
-  initSig();if(r.startsWith('tool-sim'))simPaint();if(r.startsWith('tool-drone')){droneDraw();droneBind()}
+  initSig();if(r.startsWith('ic-'))ifInitSig();if(r.startsWith('tool-sim'))simPaint();if(r.startsWith('tool-drone')){droneDraw();droneBind()}
   if(act){const el=document.getElementById(act);if(el){el.focus();try{el.setSelectionRange(sel,sel)}catch(e){}}}
 }
 function go(h){if(location.hash===h)render();else location.hash=h}
@@ -2208,6 +2333,10 @@ document.addEventListener('click',e=>{
   if(d.tel){const n=telOf(C().jobs[d.tel]);if(n)window.open('tel:'+n,'_blank');return}
   if(d.icset){const j=C().jobs[route().slice(3)];if(j){icDraft(j)[d.icset]=d.v;render()}return}
   if(d.icstep){const j=C().jobs[route().slice(3)];if(j){const x=icDraft(j);x.panels=Math.max(0,(+x.panels||0)+(+d.icstep));render()}return}
+  if(d.ifset){const j=C().jobs[route().slice(3)];if(j){const D=ifDraft(j),ks=d.ifset.split('.'),cur=ks.reduce((o,k)=>o&&o[k],D);ifSet(D,d.ifset,cur===d.v?'':d.v);render()}return}
+  if(d.ifpdf){if(!S.busy){S.busy=true;render();ifMakePdf(d.ifpdf).finally(()=>{S.busy=false;render()})}return}
+  if(d.ifclr){const st=(S.ifsig||{})[route().slice(3)];if(st)st[d.ifclr]=[];ifInitSig();ifRefresh();return}
+  if(d.ifresign){(S.ifre=S.ifre||{})[route().slice(3)+':'+d.ifresign]=1;const j=C().jobs[route().slice(3)];if(j)delete ifDraft(j).sign[d.ifresign];render();return}
   if('icsave' in d){icSave(route().slice(3),false);return}
   if('icclose' in d){icSave(route().slice(3),true);return}
   if('icsample' in d){samplePhotos(route().slice(3),IC_KINDS);return}
@@ -2219,7 +2348,7 @@ document.addEventListener('click',e=>{
   if(d.pick){S.api.init(d.pick).then(()=>{S.tab='today';location.hash='#today';render()});return}
 });
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('article[data-go],[data-go][tabindex]')){e.preventDefault();go(e.target.dataset.go)}});
-document.addEventListener('input',e=>{if(e.target.dataset?.msgin){(S.mdraft=S.mdraft||{})[e.target.dataset.msgin]=e.target.value;const b=document.querySelector('[data-msgsend]');if(b)b.disabled=!e.target.value.trim();e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,120)+'px';return}if(e.target.dataset?.ic){const j=C().jobs[route().slice(3)];if(j)icDraft(j)[e.target.dataset.ic]=e.target.value;return}if(e.target.dataset?.dyaw!==undefined){S.dr.yaw=+e.target.value;droneDraw();return}if(e.target.dataset?.dsh!==undefined){S.dr.sh=+e.target.value;droneDraw();return}if(e.target.dataset?.dsd!==undefined){if(e.target.value){S.dr.sd=e.target.value;droneDraw()}return}if(e.target.dataset?.simh!==undefined){S.simH=+e.target.value;simPaint();return}const tk=e.target.dataset?.t;if(tk){S.t[tk]=e.target.value;if(tk!=='price')delete S.t.opt;const r=route(),el=$('#tres');if(el&&r.startsWith('tool-calc'))el.innerHTML=calcRes(r.slice(10));return}if(e.target.id==='q'){S.q=e.target.value;clearTimeout(S.qt);S.qt=setTimeout(render,150)}});
+document.addEventListener('input',e=>{if(e.target.dataset?.msgin){(S.mdraft=S.mdraft||{})[e.target.dataset.msgin]=e.target.value;const b=document.querySelector('[data-msgsend]');if(b)b.disabled=!e.target.value.trim();e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,120)+'px';return}if(e.target.dataset?.ic){const j=C().jobs[route().slice(3)];if(j)icDraft(j)[e.target.dataset.ic]=e.target.value;return}if(e.target.dataset?.if){const j=C().jobs[route().slice(3)];if(j){ifSet(ifDraft(j),e.target.dataset.if,e.target.value);ifRefresh()}return}if(e.target.dataset?.iftog){const j=C().jobs[route().slice(3)];if(j){ifSet(ifDraft(j),e.target.dataset.iftog,e.target.checked);ifRefresh()}return}if(e.target.dataset?.dyaw!==undefined){S.dr.yaw=+e.target.value;droneDraw();return}if(e.target.dataset?.dsh!==undefined){S.dr.sh=+e.target.value;droneDraw();return}if(e.target.dataset?.dsd!==undefined){if(e.target.value){S.dr.sd=e.target.value;droneDraw()}return}if(e.target.dataset?.simh!==undefined){S.simH=+e.target.value;simPaint();return}const tk=e.target.dataset?.t;if(tk){S.t[tk]=e.target.value;if(tk!=='price')delete S.t.opt;const r=route(),el=$('#tres');if(el&&r.startsWith('tool-calc'))el.innerHTML=calcRes(r.slice(10));return}if(e.target.id==='q'){S.q=e.target.value;clearTimeout(S.qt);S.qt=setTimeout(render,150)}});
 function onField(e){const el=e.target;const f=el.dataset?.f;if(!f)return;const id=route().slice(3);const j=C().jobs[id];if(!j)return;
   if(el.type==='radio'&&!el.checked)return;const d=draftOf(j);setP(d,f,el.type==='checkbox'?el.checked:el.value);
   if(/^props\.\d+\.panelQty$/.test(f)){const h=$('#kwphint'),n=+el.value||0;if(h)h.textContent=n?`รวม ${kwpOf(n)} kWp`:'ใส่จำนวนแผง'}
