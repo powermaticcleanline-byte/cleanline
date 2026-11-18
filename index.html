@@ -2173,7 +2173,7 @@ async function askResurvey(j){const d=svAge(j);if(d<=RESURVEY_DAYS)return false;
 const F_ASSIGN=['surveyTeam','surveyor','supervisor','installTeam'];
 const F_SURVEY_SECS=['site','req','survey'];
 function fieldLocked(sec,k){if(isDispatch())return !(F_ASSIGN.includes(k)||k==='woNote');if(F_ASSIGN.includes(k)&&k!=='installTeam')return true;return false}
-function canAct(j){if(!j)return false;const r=myRole();if(j.stage===ST.ACCEPT)return r==='admin'||r==='dispatch';const st=STAGES[j.stage];return !!st&&st.role===r}
+function canAct(j){if(!j)return false;const r=myRole();if(j.stage===ST.ACCEPT||j.stage===ST.INSTALL)return r==='admin'||r==='dispatch';const st=STAGES[j.stage];return !!st&&st.role===r}
 const isImp=j=>/^x\d+$/.test(String(j&&j.id||''));
 function secEditable(sec,j){
   if(isDispatch())return sec.id==='install'||sec.id==='wo';
