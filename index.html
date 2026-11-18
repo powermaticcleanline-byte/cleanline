@@ -518,7 +518,11 @@ body.dlock{overflow:hidden}
 .drt h2{margin:4px 0 8px;font-size:21px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
 .drm{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .drx{flex:none}
-.dra{display:flex;gap:8px;padding:0 24px 16px;border-bottom:1px solid var(--ln)}
+.dra{display:flex;gap:8px;padding:0 24px 16px;border-bottom:1px solid var(--ln);align-items:center}
+.dra .dgo{flex:1;justify-content:center}.dra .dic{width:40px;padding:0;justify-content:center}
+.dmore{position:relative}.dmore summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px}.dmore summary::-webkit-details-marker{display:none}.dmore summary svg{transform:rotate(90deg)}.dmore[open] summary svg{transform:rotate(-90deg)}
+.dmm{position:absolute;right:0;top:calc(100% + 6px);z-index:5;min-width:200px;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(16,24,40,.16),0 0 0 1px rgba(16,24,40,.06);padding:6px;display:grid}
+.dmm button{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font:inherit;font-size:15px;text-align:left;background:none;border:0;color:inherit;cursor:pointer}.dmm button:hover{background:var(--hv,#f3f4f6)}.dmm svg{width:16px;height:16px}
 .drb{flex:1;overflow-y:auto;padding:8px 24px 28px;overscroll-behavior:contain}
 .dg{margin-top:18px}
 .dg h3{margin:0 0 4px;padding:8px 12px;border-radius:8px;font-size:14.5px;font-weight:700}
@@ -1972,7 +1976,7 @@ const STAGES=[null,
  {name:'เสนอลูกค้า',role:'admin'},
  {name:'จองคิวติดตั้ง',role:'admin'},
  {name:'มอบงานติดตั้ง',role:'dispatch'},
- {name:'ติดตั้งเสร็จ · Single Line ตามจริง',role:'eng'},
+ {name:'กำลังติดตั้ง',role:'eng'},
  {name:'เอกสารขนานไฟฟ้า',role:'admin'}];
 const LAST=STAGES.length-1;
 const ST={BOOK:1,ACCEPT:2,SURVEY:3,OFFER:4,INSREQ:5,INSTALL:6,COMM:7,DOCS:8};
@@ -2677,7 +2681,7 @@ function jobTimeline(j){
     return `<li><i class="${cl}"></i><div><p><span class="pill ${cl}">${t}</span><b>${esc(fd(x.d))}</b></p><p class="tt">${esc(x.t)}</p></div></li>`}).join('')}</ol>`;
 }
 function jobDrawer(j){
-  const c=cOf(j),s=sOf(j),e=j.equipment||{};const rn=realName(c);const inst=isInstalled(j);
+  const c=cOf(j),s=sOf(j),e=j.equipment||{};const rn=realName(c);const inst=isInstalled(j)&&!(j.status==='active'&&(j.stage<ST.COMM||(j.stage===ST.COMM&&!isImp(j))));
   const clean=x=>String(x).replace(/\s*\((ไม่บังคับ|วิศวกรกรอก)\)/g,'').replace(/ตามใบเซอร์เวย์ FM-EN-028-A/,' (FM-EN-028-A)').replace(/\s*\(YYMMNNN\)/,'').replace('ลิงก์ Google Maps ตำแหน่งลูกค้า','ตำแหน่งบน Google Maps');
   const steps=svSteps(j,s);const nOk=steps.filter(x=>x.ok).length;
   const agreed=j.status==='done'||(j.status==='active'&&j.stage>=ST.INSREQ);
@@ -2689,36 +2693,34 @@ function jobDrawer(j){
   const nil='<span class="nil">—</span>';
   const facts=inst?`<div class="dkf k4">
       <div class="dk key"><small>S/N อินเวอร์เตอร์</small><b class="mono">${e.sn?esc(e.sn):'ยังไม่มี'}</b>${cp(e.sn)}${invUnits(e).length>1?`<em>+ Slave ${invUnits(e).length-1} เครื่อง: ${invUnits(e).slice(1).map(u=>esc(u.sn||'—')).join(', ')}</em>`:''}</div>
-      <div class="dk"><small>อินเวอร์เตอร์</small><b>${esc(e.model||j.proposedModel||'')||nil}</b></div>
-      <div class="dk"><small>ขนาด</small><b>${e.kw||j.proposedKw?esc(e.kw||j.proposedKw)+' kW':nil}</b></div>
+      <div class="dk w2"><small>ระบบ</small><b>${[e.model||j.proposedModel,e.kw||j.proposedKw?(e.kw||j.proposedKw)+' kW':''].filter(Boolean).map(esc).join(' · ')||nil}</b></div>
       <div class="dk"><small>ติดตั้ง</small><b>${j.installDate?esc(fd(j.installDate)):nil}</b></div>
       <div class="dk"><small>ประกันถึง</small><b>${e.warrantyEnd?esc(fd(e.warrantyEnd)):nil}</b>${e.warrantyEnd?`<em class="${dLeft(e.warrantyEnd)<0?'bad':''}">${warrantyTxt(e.warrantyEnd)}</em>`:''}</div>
-      <div class="dk w2"><small>Plant name</small><b>${e.plantName?esc(e.plantName):nil}</b>${cp(e.plantName)}</div></div>`
+</div>`
     :(()=>{const g=k=>j[k]||(s&&s[k])||'';const done=steps.filter(x=>x.ok);const nx=steps.find(x=>!x.ok);
-      const who=[['ทีมขาย',[j.salesTeam,g('salesPerson')].filter(Boolean).join(' · ')],['ทีมดู Site',j.surveyor],['ทีมสำรวจ',j.surveyTeam],['นัดดู Site',svDate(j)?fd(svDate(j))+(j.queueTime?' '+j.queueTime:''):'']];
+      const who=[['ทีมขาย',[j.salesTeam,g('salesPerson')].filter(Boolean).join(' · ')],['คนสำรวจ',j.surveyor||j.surveyTeam],['วันสำรวจ',svDate(j)?fd(svDate(j))+(j.queueTime?' '+j.queueTime:''):''],...(j.stage>=ST.INSREQ||j.status!=='active'?[['วันติดตั้ง',j.installDate?fd(j.installDate)+(j.installEnd&&j.installEnd!==j.installDate?' – '+fd(j.installEnd):''):''],['ผู้คุมงาน',j.supervisor],['ผู้รับเหมา',j.installTeam]]:[])].filter(([k,v],i)=>v||i<2);
       const prop=[j.proposedKw?j.proposedKw+' kW':'',j.proposedModel,g('batteryKwh')?'แบตเตอรี่ '+g('batteryKwh')+' kWh':''].filter(Boolean);
       const notes=[['ถึงทีมสำรวจ',g('salesNote')],['ใบงาน',g('woNote')],['ขนาดที่เสนอ',g('proposedNote')],['ทั่วไป',j.note]].filter(x=>x[1]);
       return `<div class="dsum">
-      <section class="dsc"><h4>งานของใคร</h4><dl>${who.map(([k,v])=>`<div><dt>${k}</dt><dd>${v?esc(v):nil}</dd></div>`).join('')}</dl></section>
+      <section class="dsc"><h4>ใครทำ</h4><dl>${who.map(([k,v])=>`<div><dt>${k}</dt><dd>${v?esc(v):nil}</dd></div>`).join('')}</dl></section>
       <section class="dsc"><h4>เสนออะไรไป</h4>${prop.length?`<p class="dsbig">${prop.map(esc).join(' · ')}</p>`:'<p class="dsnil">ยังไม่ได้เสนอ</p>'}</section>
-      <section class="dsc"><h4>หมายเหตุ</h4>${notes.length?`<ul class="dsn">${notes.map(([k,v])=>`<li><small>${k}</small>${esc(v)}</li>`).join('')}</ul>`:'<p class="dsnil">ไม่มีหมายเหตุ</p>'}</section></div>`})();
-  const now=j.status==='active'?`<p class="dnow">ตอนนี้: <b>${esc(STAGES[j.stage].name)}</b> ${j.stage===ST.DOCS?'':' · รอ'+esc(GROUP[STAGES[j.stage].role]||'')}${ageTag(j)}</p>`:'';
+      ${notes.length?`<section class="dsc"><h4>หมายเหตุ</h4><ul class="dsn">${notes.map(([k,v])=>`<li><small>${k}</small>${esc(v)}</li>`).join('')}</ul></section>`:''}</div>`})();
+  const now=j.status==='active'?`<p class="dnow">ตอนนี้: <b>${esc(STAGES[j.stage].name)}</b> ${j.stage===ST.DOCS?'':' · รอ '+esc(ownerOf(j)||'')}${ageTag(j)}</p>`:'';
   return `<div class="dov" data-dclose="1"></div>
   <aside class="drw" role="dialog" aria-modal="true" aria-labelledby="drwT">
     <header class="drh2">
       <div class="drt"><small>${j.jobNo?'#'+esc(j.jobNo):'ยังไม่มีเลขงาน'}${placeOf(j,s,c)?' · '+esc(placeOf(j,s,c)):''}${s.utility?' · '+esc(s.utility):''}</small>
         <h2 id="drwT">${esc(j.title||c.name||'ไม่มีชื่อไซต์')}</h2>
-        <div class="drm">${jobPill(j)}${careTags(j)}${rn||c.phone?`<span class="sub">${[rn,c.phone].filter(Boolean).map(esc).join(' · ')}</span>`:''}</div>
+        <div class="drm">${jobPill(j)}${inst?careTags(j):''}${rn||c.phone?`<span class="sub">${[rn,c.phone].filter(Boolean).map(esc).join(' · ')}</span>`:''}</div>
         ${j.status==='active'?`<div class="dtrack">${stageBar(j)}</div>${now}`:''}</div>
       <button class="btn sm ghost drx" data-dclose="1" aria-label="ปิด">ปิด ✕</button>
     </header>
     ${facts}
     ${(()=>{const sj=j.siteId?siteJobs(j.siteId):[];return sj.length>1?`<div class="dsc" style="margin:0 20px 12px"><h4>งานของไซต์นี้ ${sj.length} งาน</h4>${sj.map(x=>`<a href="#job-${esc(x.id)}" style="display:flex;justify-content:space-between;gap:8px;padding:4px 0"><span>${esc(x.jobNo?'#'+x.jobNo:'ยังไม่มีเลข')} · ${esc(x.type==='addon'?'ติดตั้งเพิ่ม':'งานแรก')}${x.id===j.id?' (งานนี้)':''}</span>${jobPill(x)}</a>`).join('')}</div>`:''})()}
     <div class="dra">
-      <a class="btn sm lime" href="#job-${esc(j.id)}">เปิดหน้างาน</a>
-      ${inst&&j.siteId?`<button class="btn sm dk" data-svnew="CM" data-sid="${esc(j.siteId)}">${svg('wrench','#fff',2)}บันทึกแจ้งซ่อม</button><button class="btn sm" data-svnew="PM" data-sid="${esc(j.siteId)}">${svg('check','currentColor',2.2)}บันทึกตรวจเช็ก</button>`:''}
-      ${inst?`<button class="btn sm" data-regedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ข้อมูลระบบ</button>`:''}
-      ${c.phone?`<a class="btn sm ghost" href="tel:${esc(String(c.phone).replace(/[^\d+]/g,''))}">${svg('phone','currentColor',2)}โทร</a>`:''}${safeUrl(s.mapLink)?`<a class="btn sm ghost" href="${esc(safeUrl(s.mapLink))}" target="_blank" rel="noopener">${svg('pin','currentColor',2)}แผนที่</a>`:''}
+      <a class="btn sm dk dgo" href="#job-${esc(j.id)}">เปิดหน้างาน</a>
+      ${c.phone?`<a class="btn sm dic" href="tel:${esc(String(c.phone).replace(/[^\d+]/g,''))}" aria-label="โทร ${esc(c.phone)}" title="โทร ${esc(c.phone)}">${svg('phone','currentColor',2)}</a>`:''}${safeUrl(s.mapLink)?`<a class="btn sm dic" href="${esc(safeUrl(s.mapLink))}" target="_blank" rel="noopener" aria-label="แผนที่" title="แผนที่">${svg('pin','currentColor',2)}</a>`:''}
+      ${inst?`<details class="dmore"><summary class="btn sm">อื่นๆ ${svg('chev','currentColor',2)}</summary><div class="dmm">${j.siteId?`<button data-svnew="CM" data-sid="${esc(j.siteId)}">${svg('wrench','currentColor',2)}บันทึกแจ้งซ่อม</button><button data-svnew="PM" data-sid="${esc(j.siteId)}">${svg('check','currentColor',2.2)}บันทึกตรวจเช็ก</button>`:''}<button data-regedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ข้อมูลระบบ</button></div></details>`:''}
     </div>
     <div class="dtabs seg" role="tablist"><button role="tab" aria-selected="${tab==='hist'}" class="${tab==='hist'?'on':''}" data-dtab="hist">ประวัติ</button><button role="tab" aria-selected="${tab==='info'}" class="${tab==='info'?'on':''}" data-dtab="info">ข้อมูลทั้งหมด</button><button role="tab" aria-selected="${tab==='chat'}" class="${tab==='chat'?'on':''}" data-dtab="chat">แชต${chatN(j.id)?` <i class="slc">${chatN(j.id)}</i>`:''}</button></div>
     <div class="drb">
@@ -3215,6 +3217,7 @@ function viewJob(id){
     else if(n===ST.SURVEY){right=svCard(j,c,s,act);}
     else if(n===ST.INSREQ){right=insCard(j,act);}
     else if(n===ST.INSTALL){right=asgCard(j,act);}
+    else if(n===ST.COMM&&j.status==='active'){right=insFormCard(j,'');}
     else    right=`<section class="act" aria-label="ขั้นปัจจุบัน">
       <div><h2>${n===LAST?'ปิดงาน':'ส่งต่อให้'+esc(nextRole)}</h2><span class="sub">ครบ ${done} จาก ${nd.length}</span></div>
       ${nd.length?`<div class="pbar"><i style="width:${Math.round(done/nd.length*100)}%"></i></div><ul class="need">${nd.map(x=>`<li class="${x.ok?'ok':''}"><span class="k">${x.ok?'✓':''}</span>${esc(x.l)}</li>`).join('')}</ul>`:''}
@@ -3776,6 +3779,19 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-sld],[data
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&e.target.id?.startsWith('chat-')){e.preventDefault();chSend(e.target.id.slice(5))}});
 
 
+/* ===== รอบ 4m: ขั้นกำลังติดตั้ง — สถานะใบงานติดตั้ง (คนคุมงานกรอกใน Man) ===== */
+function insFormCard(j,btns){const f=j.installForm,e=j.equipment||{},ps=(f&&f.pass)||{},P=Object.values(S.photos||{}).filter(p=>p.jobId===j.id);
+  const D=insDays(j);const who=j.supervisor||'คนคุมงาน';
+  const nd=[['รุ่นเครื่อง + S/N',!!(e.model&&e.sn)],['จำนวนแผง',+e.panels>0],['Single Line ตามจริง',P.some(p=>p.kind==='sld')],['ผลวัดไฟ',[ps.ac,ps.dc,ps.eh].every(v=>v===true||v===false)],['ลูกค้าเซ็นใบงาน',!!(f&&f.sign&&f.sign.cust)]];
+  const done=nd.filter(x=>x[1]).length,bad=[ps.ac,ps.dc,ps.eh].some(v=>v===false);
+  return `<section class="act" aria-label="กำลังติดตั้ง">
+    <div><h2>ใบงานติดตั้ง</h2><span class="sub">${esc(who)}${j.installTeam?' · '+esc(j.installTeam):''}${D.length?' · ติดตั้ง '+fd(D[0])+(D.length>1?' – '+fd(D[D.length-1]):''):''}</span></div>
+    <div class="pbar"><i style="width:${Math.round(done/nd.length*100)}%"></i></div>
+    <ul class="need">${nd.map(([l,ok])=>`<li class="${ok?'ok':''}"><span class="k">${ok?'✓':''}</span>${esc(l)}</li>`).join('')}</ul>
+    ${bad?`<span class="sub" style="color:#b42318">ผลวัดไฟบางรายการไม่ผ่าน${f.note?' · '+esc(f.note):''}</span>`:''}
+    <span class="sub">${f?'บันทึกในใบงานแล้ว '+done+'/'+nd.length+' · ':'ยังไม่เริ่มกรอก · '}${esc(who)} กรอกและปิดใบงานใน Man</span>
+    ${btns?`<div class="btns">${btns}</div>`:''}
+  </section>`}
 /* ===== รอบ 4b: มอบงานติดตั้ง ===== */
 function insPeople(){return Object.entries(S.members||{}).filter(([,m])=>m&&m.status!=='suspended'&&(m.role==='eng'||m.role==='lead')).map(([id,m])=>({id,name:nm(id)||m.name||''})).filter(x=>x.name).sort((a,b)=>a.name.localeCompare(b.name,'th'))}
 function insBusy(p,j){const D=insDays(j);if(!D.length)return '';
