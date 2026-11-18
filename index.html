@@ -3313,14 +3313,14 @@ function bookPanel(){
   </section>`;
 }
 function acceptCard(j,act){
-  const di=dayInfo(j.queueDate,j.id);const clash=j.queueTime&&di.taken.includes(j.queueTime);
+  const di=j.queueDate?dayInfo(j.queueDate,j.id):{L:[],taken:[],closed:''};const clash=j.queueTime&&di.taken.includes(j.queueTime);
   const cur=SV_TEAMS.includes(j.surveyTeam)?j.surveyTeam:'';
   const opts=SV_TEAMS.map(t=>{const b=j.queueDate?(S.me.role?teamBlock(t,j.queueDate,j.id,j.queueTime,j):(teamSlots(t,j.queueDate,j.id)?'':'เต็ม')):'';return `<option value="${esc(t)}" ${cur===t?'selected':''} ${b?'disabled':''}>${esc(t)}${j.queueDate?' · '+esc(b||teamWhy(t,j.queueDate,j.id,j.queueTime,j)):''}</option>`}).join('');
   const locked=SV_APPROVAL.filter(t=>j.queueUnlock!==t);
   return `<section class="act" aria-label="จัดทีมสำรวจ">
     <div><h2>ส่งใบงานสำรวจ</h2><span class="sub">${esc(j.salesPerson||'เซลส์')} ${j.salesTeam?'('+esc(j.salesTeam)+')':''} · จองคิวแล้ว</span></div>
     <div class="qreq"><b>${j.queueDate?`${TD[new Date(j.queueDate+'T00:00:00').getDay()]} ${fd(j.queueDate)}`:'ยังไม่ระบุวัน'}</b><span>${esc(j.queueTime||'')}</span></div>
-    ${di.closed?`<span class="tag crit" style="height:auto;padding:6px 10px">วันนั้นปิดรับคิว: ${esc(di.closed)}</span>`:clash?'<span class="tag crit" style="height:auto;padding:6px 10px">เวลานี้มีคิวอื่นแล้ว</span>':`<span class="sub">วันนั้นมีคิวอื่น ${di.L.length} งาน${di.L.length?': '+di.L.map(x=>esc(x.queueTime+' '+(x.title||''))).join(' · '):''}</span>`}
+    ${di.closed?`<span class="tag crit" style="height:auto;padding:6px 10px">วันนั้นปิดรับคิว: ${esc(di.closed)}</span>`:clash?'<span class="tag crit" style="height:auto;padding:6px 10px">เวลานี้มีคิวอื่นแล้ว</span>':j.queueDate?`<span class="sub">วันนั้นมีคิวอื่น ${di.L.length} งาน${di.L.length?': '+di.L.map(x=>esc((x.queueTime||'')+' '+(x.title||''))).join(' · '):''}</span>`:'<span class="sub">ยังไม่มีวันคิว เลือกวันในส่วนผู้แจ้งงานและคิวสำรวจ</span>'}
     <label class="fld" for="acc-eng">คนสำรวจ<select id="acc-eng" class="sel" ${act?'':'disabled'}><option value="">— เลือก —</option>${opts}</select></label>
     ${S.me.role&&act&&locked.length?`<button class="lnk" type="button" data-unlock="${esc(j.id)}" style="align-self:flex-start">ขอใช้ ${locked.map(esc).join(' / ')}</button>`:''}
     ${S.me.role?`<label class="fld" for="acc-help">คนไปด้วย (ไม่บังคับ)<input id="acc-help" value="${esc(j.surveyHelpers||'')}" placeholder="เช่น ปอ" ${act?'':'disabled'}></label>`:''}
