@@ -589,8 +589,8 @@ function svSteps(j,s){
    {k:'folder',t:'สร้างโฟลเดอร์งาน',ok:!!v.folder,at:v.folderAt},
    {k:'onsite',t:'ออกไปสำรวจ ถึงหน้างาน',ok:!!v.onsite,at:v.onsite},
    {k:'form',t:'กรอกข้อมูลตามใบงาน FM-EN-028-A',ok:formOk,auto:true},
-   {k:'photos',t:'ถ่ายรูป ส่งเข้าโฟลเดอร์',ok:!!v.photos,at:v.photosAt},
-   {k:'sign',t:'ลูกค้าเซ็นปิดงานสำรวจ',ok:!!v.sign,at:v.sign?.at},
+   {k:'photos',t:'ถ่ายรูป ส่งเข้าโฟลเดอร์',ok:!!v.photos||!!v.backfill,at:v.photosAt},
+   {k:'sign',t:'ลูกค้าเซ็นปิดงานสำรวจ',ok:!!v.sign||!!v.backfill,at:v.sign?.at},
    {k:'cad',t:'วาดแบบใน CADabra',ok:!!v.cad,at:v.cad},
    {k:'cadFiled',t:'เก็บไฟล์แบบในโฟลเดอร์',ok:!!v.cadFiled,at:v.cadFiled}];
 }
@@ -1397,7 +1397,7 @@ function nsMissing(j){
     SITE_F.filter(f=>f[4]&&!d.site[f[0]]).map(f=>f[1]),
     [!d.request.systemType&&'ระบบที่ลูกค้าสนใจ',d.request.govSubsidy===''&&'โครงการรัฐ',d.request.taxDeduction===''&&'ลดหย่อนภาษี'].filter(Boolean),
     d.props.map((p,k)=>!p.proposedModel&&('รุ่นอินเวอร์เตอร์'+(d.props.length>1?' แบบที่ '+(k+1):''))).filter(Boolean),
-    [...missingPhotos(j).map(x=>'รูป'+x),...(v.sign?[]:['ลายเซ็นลูกค้า'])],
+    (v.backfill?[]:[...missingPhotos(j).map(x=>'รูป'+x),...(v.sign?[]:['ลายเซ็นลูกค้า'])]),
     [!v.cad&&'วาดแบบใน CADabra',!v.cadFiled&&'เก็บไฟล์แบบในโฟลเดอร์'].filter(Boolean)];
 }
 function nsPageOf(j){
@@ -1422,7 +1422,7 @@ function viewNs(id){
      ${j.salesNote?`<div class="notec"><h4>${ic('doc')}จากเซลส์</h4><p>${esc(j.salesNote)}</p></div>`:''}${j.woNote?`<div class="notec warm"><h4>${ic('doc')}ใบงาน</h4><p>${esc(j.woNote)}</p></div>`:''}</section>
     <section class="card nsstart"><b>กด "เริ่มสำรวจ" เมื่อถึงหน้างาน</b><ul><li>${ic('check')}ตอบรับใบงาน</li><li>${ic('check')}${j.folderId?'ตั้งชื่อโฟลเดอร์งาน':'สร้างชื่อโฟลเดอร์งานให้อัตโนมัติ'}</li><li>${ic('check')}เช็กอิน บันทึกเวลาและพิกัด</li></ul>
      ${j.folderId&&!j.sv?.onsite?`<label style="display:grid;gap:6px;margin-top:12px;font-size:14px">ชื่อโฟลเดอร์งาน (แก้ได้)<input id="ns-fname" value="${esc(fnameOf(j))}" style="font:inherit;padding:10px 12px;border:1px solid #ccd;border-radius:10px;background:#fff"></label>`:''}</section></main>
-    <div class="abar"><div class="in"><button class="btn pri" data-nsstart ${S.busy?'disabled':''}>${S.busy?'กำลังเช็กอิน…':'เริ่มสำรวจ · เช็กอิน'}</button></div></div>`;
+    <div class="abar"><div class="in" style="display:grid;gap:8px">${(j.surveyDate||j.queueDate)&&(j.surveyDate||j.queueDate)<today()?`<button class="btn" data-nsback ${S.busy?'disabled':''}>${ic('doc')}สำรวจไปแล้ว · กรอกย้อนหลัง</button>`:''}<button class="btn pri" data-nsstart ${S.busy?'disabled':''}>${S.busy?'กำลังเช็กอิน…':'เริ่มสำรวจ · เช็กอิน'}</button></div></div>`;
   const steps=`<div class="nst" role="tablist">${NS_PAGES.map((t,i)=>{const k=i+1,done=!m[k].length;return `<button role="tab" aria-selected="${k===pg}" class="${k===pg?'on':''} ${done?'ok':''}" data-nsgo="${k}"><span>${done?ic('check'):k}</span><small>${t}</small></button>`}).join('')}</div>`;
   const miss=m[pg].length?`<div class="nsmiss">${ic('doc')}<span>ยังขาด: ${esc(m[pg].join(', '))}</span></div>`:'';
   let body='';
@@ -1480,6 +1480,15 @@ async function nsGo(id,to){
   S.busy=true;render();const ok=await nsSave(id,cur);S.busy=false;
   if(ok){(S.nsPage=S.nsPage||{})[id]=Math.max(1,Math.min(5,to));if(cur!==to)toast('บันทึกแล้ว')}
   render();window.scrollTo(0,0);const sc=$('#screen');if(sc)sc.scrollTop=0;
+}
+/* กรอกย้อนหลัง: งานที่สำรวจไปแล้วจริง (เช่น นำเข้าจาก Excel) — ไม่เช็กอิน/ไม่ขอพิกัด · เวลาตอบรับ/ถึงหน้างาน = วันสำรวจจริง */
+async function nsBackfill(id){
+  const j=C().jobs[id];if(!j||!canAct(j)||S.busy)return;const day=j.surveyDate||j.queueDate;if(!day)return;
+  const fnIn=document.getElementById('ns-fname');const fn=fnIn?fnameClean(fnIn.value):'';if(fnIn&&!fn){toast('ใส่ชื่อโฟลเดอร์งาน');return}
+  const at=new Date(day+'T'+(/^\d\d:\d\d$/.test(j.queueTime||'')?j.queueTime:'09:00')+':00').getTime()||Date.now();
+  const d=draftOf(j),v={...(j.sv||{})};if(!v.accepted)v.accepted=at;if(!v.folder){v.folder=String(d.folder||'').trim();v.folderAt=at}v.onsite=at;v.backfill=Date.now();
+  const ok=await svSave(id,{sv:v,...(fn&&fn!==(j.folderName||'')?{folderName:fn}:{})},{kind:'edit',text:'กรอกย้อนหลัง (สำรวจวันที่ '+fd(day)+') · '+(fn?'โฟลเดอร์ '+fn:'โฟลเดอร์ '+v.folder)},'เริ่มกรอกย้อนหลังได้เลย · รูปและลายเซ็นไม่บังคับ');
+  if(ok){(S.nsPage=S.nsPage||{})[id]=1;render()}
 }
 async function nsStart(id){
   const j=C().jobs[id];if(!j||!canAct(j)||S.busy)return;
@@ -2145,6 +2154,7 @@ document.addEventListener('click',e=>{
   if(d.view){viewPhoto(d.view);return}
   if(d.nsgo!==undefined){nsGo(route().slice(3),+d.nsgo);return}
   if('nsstart' in d){nsStart(route().slice(3));return}
+  if('nsback' in d){nsBackfill(route().slice(3));return}
   if('fname' in d){renameFolder(d.fname);return}
   if('signout' in d){const n=S.pending.length;ask('ออกจากระบบ?',n?`ยังมี ${n} รายการรอส่ง ถ้าออกตอนนี้อาจไม่ถูกส่ง ต่อเน็ตให้ส่งครบก่อน`:'ครั้งหน้าต้องลงชื่อเข้าใช้ด้วยบัญชี Google อีกครั้ง',{ok:'ออกจากระบบ',danger:!!n}).then(y=>{if(y&&window.CLGDB)CLGDB.user.signOut()});return}
   if('pfsave' in d){saveMe();return}
