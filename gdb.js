@@ -190,10 +190,11 @@
   function uploadPhoto(ref, d) {
     var full = d.dataRef, mime = (full.match(/^data:([^;,]+)/) || [])[1] || 'image/webp';
     saving(true);
-    return thumb(full, 360).then(function (t) {
+    var pdf = mime === 'application/pdf'; // ใบงาน PDF: ไม่ทำรูปย่อ (ไม่เก็บไฟล์ในตาราง)
+    return (pdf ? Promise.resolve('') : thumb(full, 360)).then(function (t) {
       var doc = clone(d); doc.dataRef = t;
       return api({ op: 'upload', path: ref.path, data: doc, b64: full.split(',')[1], mime: mime,
-        name: (d.kind || 'photo') + '-' + ref.id + (mime === 'image/png' ? '.png' : mime === 'image/jpeg' ? '.jpg' : '.webp') });
+        name: d.fileName || ((d.kind || 'photo') + '-' + ref.id + (pdf ? '.pdf' : mime === 'image/png' ? '.png' : mime === 'image/jpeg' ? '.jpg' : '.webp')) });
     }).then(function (r) { saving(false); applyLocal('photos', ref.id, r.doc, r.ver); schedule(300); }, function (e) { saving(false); throw e; });
   }
   function thumb(src, max) {
