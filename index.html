@@ -276,7 +276,7 @@ details.sec>summary .sm{font-size:14px;font-weight:400;color:var(--mut)}
 .nsum{display:flex;flex-direction:column;gap:2px;margin-right:auto}
 .nsum b{font-size:16.5px}
 .nsub .btn[aria-disabled="true"]{opacity:.5}
-.nmiss{color:#3d7c0e}
+.nmiss{color:#a34b08}
 .qreq{display:flex;align-items:baseline;gap:10px;background:#16171a;color:#fff;border-radius:12px;padding:12px 14px}
 .qreq b{font-size:17.5px}
 .qreq span{color:#dcfce7;font-weight:600}
@@ -2029,7 +2029,7 @@ const SECTIONS=[
  {id:'cust',title:'ลูกค้า',tgt:'customer',stages:[1],owner:'sales',fields:[
   ['firstName','ชื่อ','text'],['lastName','นามสกุล','text'],['phone','เบอร์ติดต่อ','tel'],['email','อีเมล (ไม่บังคับ)','email'],
   ['address','ที่อยู่ลูกค้า (ไม่บังคับ)','area',{full:1}]]},
- {id:'loc',title:'Location',tgt:'site',stages:[1],owner:'sales',fields:[
+ {id:'loc',title:'ตำแหน่ง',tgt:'site',stages:[1],owner:'sales',fields:[
   ['mapLink','ลิงก์ Google Maps ตำแหน่งลูกค้า','url',{full:1}]]},
  {id:'order',title:'ผู้แจ้งงานและคิวสำรวจ',tgt:'job',stages:[1],owner:'sales',fields:[
   ['salesTeam','ทีมขาย','sel',TEAMS],['salesPerson','ชื่อเซลส์','text'],
@@ -2083,7 +2083,7 @@ function svSteps(j,s){
 }
 function needs(n,j,c,s){
   const e=j.equipment||{},d=j.docs||{};
-  const L={1:[['ทีมขาย',j.salesTeam],['ชื่อ-นามสกุลลูกค้า',c.firstName&&c.lastName],['เบอร์ติดต่อ',c.phone],['Location (ลิงก์ Google Maps)',s.mapLink],['วันและเวลานัดสำรวจ',j.queueDate&&j.queueTime]],
+  const L={1:[['ทีมขาย',j.salesTeam],['ชื่อ-นามสกุลลูกค้า',c.firstName&&c.lastName],['เบอร์ติดต่อ',c.phone],['ตำแหน่ง (ลิงก์ Google Maps)',s.mapLink],['วันและเวลานัดสำรวจ',j.queueDate&&j.queueTime]],
    2:[['ทีมสำรวจ',j.surveyTeam||j.surveyor]],
    3:[...svSteps(j,s).map(x=>[x.t,x.ok]),['ขนาดที่เสนอ',j.proposedKw],['รุ่นอินเวอร์เตอร์ที่เสนอ',j.proposedModel]],
    4:[['วันที่ลูกค้าตกลง',j.agreedDate]],5:[['วันติดตั้งที่จอง',j.installDate]],
@@ -3362,7 +3362,7 @@ function svCard(j,c,s,act){
   const ctl=(x,i)=>{if(x.ok||i!==nx||!act)return '';
     if(x.k==='accepted')return `<button class="btn dk sm" data-act="sv:accepted">ตอบรับใบงาน</button>`;
     if(x.k==='folder')return `<div class="svin"><input id="sv-folder" value="${esc(fpath)}" aria-label="ที่อยู่โฟลเดอร์"><button class="btn sm" data-copy="#sv-folder" type="button">คัดลอก</button></div><button class="btn dk sm" data-act="sv:folder">สร้างโฟลเดอร์แล้ว</button>`;
-    if(x.k==='onsite')return `${safeUrl(s.mapLink)?`<a class="btn sm" href="${esc(safeUrl(s.mapLink))}" target="_blank" rel="noopener">เปิดแผนที่ไปหน้างาน</a>`:'<span class="tag warn" style="height:auto;padding:4px 8px">เซลส์ยังไม่ได้ใส่ Location</span>'}<button class="btn dk sm" data-act="sv:onsite">ถึงหน้างานแล้ว</button>`;
+    if(x.k==='onsite')return `${safeUrl(s.mapLink)?`<a class="btn sm" href="${esc(safeUrl(s.mapLink))}" target="_blank" rel="noopener">เปิดแผนที่ไปหน้างาน</a>`:'<span class="tag warn" style="height:auto;padding:4px 8px">เซลส์ยังไม่ได้ใส่ตำแหน่ง</span>'}<button class="btn dk sm" data-act="sv:onsite">ถึงหน้างานแล้ว</button>`;
     if(x.k==='form')return `<button class="btn sm" data-go="sec-site" type="button">ไปที่ฟอร์มสำรวจ</button><span class="sub">ครบเมื่อกรอกข้อมูลไซต์ครบ</span>`;
     if(x.k==='photos')return `<div class="svin"><input id="sv-photos" type="number" min="1" placeholder="จำนวนรูป" aria-label="จำนวนรูป" style="max-width:120px"><button class="btn dk sm" data-act="sv:photos">ส่งรูปเข้าโฟลเดอร์แล้ว</button></div>`;
     if(x.k==='sign')return `<button class="btn dk sm" data-act="sv:sign">ให้ลูกค้าเซ็น</button>`;
@@ -3451,7 +3451,7 @@ function viewNew(){
         <label class="fld" for="n-phone">เบอร์ติดต่อ<input id="n-phone" ${f.parent&&f._ro&&f._ro.phone?'readonly':''} type="tel" inputmode="tel" value="${esc(f.phone||'')}" placeholder="08x-xxx-xxxx"></label>
         <label class="fld" for="n-email">อีเมล (ไม่บังคับ)<input id="n-email" ${f.parent&&f._ro&&f._ro.email?'readonly':''} type="email" value="${esc(f.email||'')}"></label>
         <label class="fld full" for="n-addr">ที่อยู่ลูกค้า (ไม่บังคับ)<textarea id="n-addr" ${f.parent&&f._ro&&f._ro.addr?'readonly':''} rows="2">${esc(f.addr||'')}</textarea></label></div></div>
-      <div class="ngrp"><h2>Location</h2>
+      <div class="ngrp"><h2>ตำแหน่ง</h2>
         <label class="fld" for="n-map">ลิงก์ Google Maps ตำแหน่งลูกค้า<input id="n-map" ${f.parent&&f._ro&&f._ro.map?'readonly':''} type="url" value="${esc(f.map||'')}" placeholder="https://maps.app.goo.gl/..."></label>
         <div class="maphelp"><a class="btn sm" href="${mapsDir(f.addr||'')}" target="_blank" rel="noopener" id="n-mapbtn">${svg('pin','#16171a').replace('<svg','<svg width="14" height="14"')}เปิด Google Maps เส้นทางจากเพาเวอร์เมติค</a>
         <span class="sub">ปักหมุดบ้านลูกค้า กดแชร์ แล้ววางลิงก์ในช่องด้านบน</span>${f.map&&!/^https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|(www\.)?google\.[a-z.]+\/maps)/.test(f.map)?'<span class="tag warn">ลิงก์นี้ไม่ใช่ Google Maps</span>':''}</div></div>
@@ -3494,7 +3494,7 @@ function nfRead(){const f=S.nf||(S.nf={});const v=id=>(document.getElementById(i
   if(!$('#newForm'))return f;
   Object.assign(f,{team:myRole()==='sales_pm'?myTeam():v('n-team'),person:v('n-person'),first:v('n-first'),last:v('n-last'),phone:v('n-phone'),email:v('n-email'),addr:v('n-addr'),map:v('n-map'),note:v('n-note'),meter:!!document.getElementById('n-meter')?.checked,mdays:+v('n-mdays')||f.mdays||7});return f}
 function nfReady(){const f=S.nf||{};const miss=[];
-  if(!f.team&&!(myRole()==='sales_pm'))miss.push('ทีมขาย');if(!f.first||!f.last)miss.push('ชื่อ-นามสกุล');if(!f.phone)miss.push('เบอร์ติดต่อ');if(!normUrl(f.map))miss.push(f.map?'ลิงก์ Location ให้ถูกต้อง':'ลิงก์ Location');if(!f.date)miss.push('วัน');else if(!f.time)miss.push('เวลา');
+  if(!f.team&&!(myRole()==='sales_pm'))miss.push('ทีมขาย');if(!f.first||!f.last)miss.push('ชื่อ-นามสกุล');if(!f.phone)miss.push('เบอร์ติดต่อ');if(!normUrl(f.map))miss.push(f.map?'ลิงก์ตำแหน่งให้ถูกต้อง':'ลิงก์ตำแหน่ง');if(!f.date)miss.push('วัน');else if(!f.time)miss.push('เวลา');
   return {ok:!miss.length,miss}}
 function nfRefresh(){const c=document.querySelector('.ncal');if(c)c.innerHTML=calHtml();const mb=$('#n-mtbox');if(mb&&document.activeElement?.id!=='n-mdays')mb.innerHTML=mtBox(S.nf||{});const b=$('#n-mapbtn');if(b)b.href=mapsDir((S.nf||{}).addr||'')}
 /* ---------- survey queue calendar ---------- */
