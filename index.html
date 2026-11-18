@@ -4308,7 +4308,9 @@ addEventListener('scroll',()=>{const b=document.body,y=scrollY;if(!b.classList.c
 (function(){const closeAll=x=>document.querySelectorAll('details.mnu[open]').forEach(d=>{if(d!==x)d.open=false});
 document.addEventListener('toggle',e=>{const d=e.target;if(!d.matches||!d.matches('details.mnu')||!d.open)return;closeAll(d);
   const s=d.querySelector('summary').getBoundingClientRect(),p=d.querySelector('.mnu-p'),r=p.getBoundingClientRect();
-  let top=s.bottom+6;if(top+r.height>innerHeight-8)top=Math.max(8,s.top-6-r.height);p.style.top=top+'px';p.style.left=Math.max(8,Math.min(innerWidth-r.width-8,s.right-r.width))+'px'},true);
+  let top=s.bottom+6;if(top+r.height>innerHeight-8)top=Math.max(8,s.top-6-r.height);const left=Math.max(8,Math.min(innerWidth-r.width-8,s.right-r.width));
+  let cb=d.parentElement,o={top:0,left:0};while(cb&&cb!==document.body){const c=getComputedStyle(cb);if(c.transform!=='none'||c.filter!=='none'||(c.backdropFilter&&c.backdropFilter!=='none')||(c.webkitBackdropFilter&&c.webkitBackdropFilter!=='none')||c.perspective!=='none'||/paint|layout|strict|content/.test(c.contain)){o=cb.getBoundingClientRect();break}cb=cb.parentElement}
+  p.style.top=(top-o.top)+'px';p.style.left=(left-o.left)+'px'},true);   /* ชดเชยกรอบที่มี backdrop-filter/transform (fixed จะอิงกรอบนั้นแทนจอ) */
 document.addEventListener('click',e=>{const d=e.target.closest&&e.target.closest('details.mnu');closeAll(d);if(!d)return;
   if(e.target.closest('.mi')){d.open=false;return}if(e.target.closest('summary'))e.stopPropagation()},true);
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const d=document.querySelector('details.mnu[open]');if(!d)return;d.open=false;d.querySelector('summary').focus();e.stopPropagation()},true);

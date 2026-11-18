@@ -496,10 +496,8 @@ label.pill span{color:var(--ink)}
 label.pill input:checked+span{color:#fff}
 .ptile.need{background:#fff;box-shadow:inset 0 0 0 1.5px #e3e6ec}
 .ptiles.tried .ptile.need{box-shadow:inset 0 0 0 1.5px #fecaca;background:var(--redSoft)}
-.abar .in .tryw{flex:2;display:flex;position:relative}
-.abar .in .tryw>.btn{flex:1;width:100%}
-.trytap{position:absolute;inset:0;border-radius:inherit;cursor:pointer}
-.trytap:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:16px}
+.abar button[data-try][disabled]{pointer-events:none}
+.abar .in:has(button[data-try][disabled]){cursor:default}
 
 /* รอบ 4z: ขอบช่องกรอกเห็นชัด */
 .fl input,.fl select,.fl textarea,.cpy input,.ifq input,.ifg input{background:#fff;box-shadow:inset 0 0 0 1px #80858f}
@@ -1319,7 +1317,7 @@ function viewIc(id){
    <section class="card"><h2>${ic('cam')}รูปงานติดตั้ง</h2>${S.api.mode==='demo'&&IC_KINDS.some(([k,,r])=>r&&!S.api.listPhotos(j.id).some(p=>p.kind===k))?`<button class="btn" style="width:100%;margin-bottom:10px;color:var(--accTx)" data-icsample>${ic('cam')}ใส่รูปตัวอย่างให้ครบ</button>`:''}${photoTiles(j,false,IC_KINDS)}</section>
    ${ifCards(j)}
    <section class="card ${m.length?'icmiss':'icok'}" id="icm">${m.length?`<b>${ic('doc')}ยังขาด ${m.length} รายการ</b><p>${esc(m.join(' · '))}</p>`:`<b>${ic('check')}ครบแล้ว พร้อมส่งต่อทำเอกสารขนานไฟ</b>`}</section></main>
-   <div class="abar"><div class="in"><button class="btn" data-icsave ${S.busy?'disabled':''}>บันทึก</button><span class="tryw"><button class="btn pri" data-icclose ${m.length||S.busy?'disabled':''}>${ic('check')}ปิดงาน ส่งต่อ</button>${m.length&&!S.busy?`<span class="trytap" data-try="${esc(j.id)}" role="button" tabindex="0" aria-label="ปิดงานไม่ได้ ดูว่ายังขาดอะไร"></span>`:''}</span></div></div>`;
+   <div class="abar"><div class="in"><button class="btn" data-icsave ${S.busy?'disabled':''}>บันทึก</button><button class="btn pri" data-icclose ${m.length||S.busy?'disabled':''}${m.length&&!S.busy?` data-try="${esc(j.id)}"`:''}>${ic('check')}ปิดงาน ส่งต่อ</button></div></div>`;
 }
 function icSummary(j){const e=j.equipment||{},row=(l,v)=>v?`<div class="sr"><span>${l}</span><b>${esc(v)}</b></div>`:'';
   return `<section class="card"><h2>${ic('check')}ติดตั้งเสร็จ ${e.commissionDate?fd(e.commissionDate):''}</h2><div class="slb">${row('อินเวอร์เตอร์',e.model)}${row(invUnits(e).length>1?'S/N Master':'S/N',e.sn)}${row('S/N WiFi',e.wifiSn)}${invUnits(e).slice(1).map((u,i)=>row('Slave '+(i+1),[u.model,u.sn&&'S/N '+u.sn,u.wifiSn&&'WiFi '+u.wifiSn].filter(Boolean).join(' · '))).join('')}${row('Smart meter',e.meter)}${row('CT',e.ct)}${row('แบตเตอรี่',[e.batteryModel,e.batterySn].filter(Boolean).join(' · '))}${row('แผง',e.panels?e.panels+' แผง':'')}${row('Plant name',e.plantName)}</div></section>
@@ -1592,7 +1590,7 @@ function viewNs(id){
     <div class="card"><h2>${ic('list')}ตรวจความครบ</h2><ul class="nschk2">${NS_PAGES.slice(0,4).map((t,i)=>{const x=m[i+1];return `<li class="${x.length?'no':'ok'}" data-nsgo="${i+1}"><span>${x.length?ic('x'):ic('check')}</span><div><b>${t}</b>${x.length?`<small>ขาด: ${esc(x.join(', '))}</small>`:''}</div>${ic('go')}</li>`}).join('')}</ul></div>
     ${ready?'':`<p class="hint" style="text-align:center">ครบทุกข้อแล้วจึงปิดงานได้</p>`}`;
     return topBar('สำรวจ',{back:true})+`<div class="glow"></div><main class="wrap hasbar">${head}${steps}${body}</main>
-     <div class="abar"><div class="in"><button class="btn sq2" data-nsgo="4" aria-label="ย้อนกลับ">${ic('back')}</button><span class="tryw"><button class="btn grn" data-svclose ${ready&&!S.busy?'':'disabled'}>${ic('check')}ปิดงานสำรวจ ส่งเซลส์</button>${!ready&&!S.busy?`<span class="trytap" data-try="${esc(j.id)}" role="button" tabindex="0" aria-label="ปิดงานไม่ได้ ดูว่ายังขาดอะไร"></span>`:''}</span></div></div>`}
+     <div class="abar"><div class="in"><button class="btn sq2" data-nsgo="4" aria-label="ย้อนกลับ">${ic('back')}</button><button class="btn grn" data-svclose ${ready&&!S.busy?'':'disabled'}${!ready&&!S.busy?` data-try="${esc(j.id)}"`:''}>${ic('check')}ปิดงานสำรวจ ส่งเซลส์</button></div></div>`}
   return topBar('สำรวจ',{back:true})+`<div class="glow"></div><main class="wrap hasbar">${head}${steps}${body}</main>
    <div class="abar"><div class="in"><button class="btn sq2" data-nsgo="${pg-1}" aria-label="ย้อนกลับ" ${pg<=1?'disabled':''}>${ic('back')}</button><button class="btn pri" data-nsgo="${pg+1}" ${S.busy?'disabled':''}>${S.busy?'กำลังบันทึก…':'ถัดไป: '+NS_PAGES[pg]+' '}${S.busy?'':ic('go')}</button></div></div>`;
 }
@@ -2449,8 +2447,9 @@ boot();
 
 /* รอบ 4y: กดปุ่มปิดงานที่ยังกดไม่ได้ → ช่องที่ขาดเป็นสีแดง + เลื่อนไปให้เห็น */
 (function(){const go=t=>{const id=t.dataset.try;S.tried=S.tried||{};S.tried[id]=1;render();setTimeout(()=>{const x=document.querySelector('.ptile.need')||document.querySelector('.miss,.icm,#icm');if(x)x.scrollIntoView({behavior:'smooth',block:'center'})},30);toast('ยังขาดข้อมูล ดูช่องสีแดง')};
-document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-try]');if(t){e.stopPropagation();go(t)}},true);
-document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[data-try]')){e.preventDefault();go(e.target)}},true);})();
+/* ปุ่มที่ปิดอยู่ไม่รับการกด → ให้ทะลุ (pointer-events:none) ลงแถบล่าง แล้วดูว่าจุดที่กดอยู่บนปุ่มไหม */
+document.addEventListener('click',e=>{const bar=e.target.closest&&e.target.closest('.abar');if(!bar)return;const t=bar.querySelector('button[data-try][disabled]');if(!t)return;
+  const r=t.getBoundingClientRect();if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){e.stopPropagation();go(t)}},true);})();
 </script>
 </body>
 </html>
