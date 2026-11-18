@@ -1980,6 +1980,18 @@ details.mnu[open]>summary{background:#f3f4f6}
 .emf b{font-size:16px;color:var(--ink);margin-top:4px}
 .emf>span:not(.emf-i){font-size:14px;color:#5b6070}
 .emf .btn{margin-top:8px}
+
+/* รอบ 5d: การ์ด error */
+#errc{position:fixed;z-index:200;display:flex;gap:12px;align-items:flex-start;padding:14px 10px 14px 16px;background:#fff;border-radius:16px;box-shadow:0 0 0 1px #f3c7c7,0 16px 40px -12px rgba(0,0,0,.28);color:#16171d}
+#errc[hidden]{display:none}
+#errc .ei{flex:none;width:32px;height:32px;border-radius:50%;background:#fdecec;color:#c81e1e;display:grid;place-items:center}
+#errc .ei svg{width:18px;height:18px}
+#errc>div{flex:1;min-width:0}
+#errc b{display:block;font-size:15.5px;font-weight:600;margin:4px 0 2px}
+#errc>div>span{display:block;font-size:14px;line-height:1.5;color:#4a4e5a}
+#errc .ex{flex:none;width:36px;height:36px;border:0;background:none;color:#5b6070;font-size:22px;line-height:1;border-radius:10px;cursor:pointer}
+#errc .ex:hover{background:#f3f4f6}
+#errc{right:24px;bottom:24px;width:420px;max-width:calc(100vw - 32px)}
 </style></head>
 <body>
 <div class="shell">
@@ -2308,7 +2320,7 @@ function subscribe(col){
     if(col==='jobs')names(Object.values(o).flatMap(j=>(j.history||[]).slice(-5).map(h=>h.by)));
     if(col==='members')names(Object.keys(o));
     schedule();
-  },e=>{S.loaded[col]=true;toast('อ่านข้อมูลไม่ได้ ('+e.code+')');schedule()});
+  },e=>{S.loaded[col]=true;showErr(e,'อ่านข้อมูลไม่ได้');schedule()});
 }
 let drwFrom=null;
 function openDrawer(id){drwFrom=id;S.sel=id;S.dtab=null;document.body.classList.add('dlock');render();setTimeout(()=>document.querySelector('.drx')?.focus(),0)}
@@ -3032,7 +3044,7 @@ function catParse(rows,base=0){
 }
 async function catImport(file){
   try{await loadXLSX()}catch(e){return toast('โหลดตัวอ่าน Excel ไม่ได้ ลองเปิดบน claude.ai')}
-  let res;try{const wb=XLSX.read(await file.arrayBuffer(),{cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]];res=catParse(XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:null}),ws['!ref']?XLSX.utils.decode_range(ws['!ref']).s.r:0)}catch(e){return toast('อ่านไฟล์ไม่ได้: '+(e.message||e))}
+  let res;try{const wb=XLSX.read(await file.arrayBuffer(),{cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]];res=catParse(XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:null}),ws['!ref']?XLSX.utils.decode_range(ws['!ref']).s.r:0)}catch(e){return showErr(e,'อ่านไฟล์ไม่ได้')}
   const key=(c,m)=>c+'|'+String(m).trim().toLowerCase();const have={};Object.values(S.products).forEach(p=>{have[key(p.category,p.model)]=p});
   const seen={};const L=res.out.map(x=>{const k=key(x.d.category,x.d.model);const dup=seen[k];seen[k]=seen[k]||x.row;const ex=have[k];return {...x,k,dup,ex,st:dup?'dup':ex?'upd':'new'}});
   const CAT={'INVERTER':'อินเวอร์เตอร์','BATTERY':'แบตเตอรี่','SOLAR PANEL':'แผงโซลาร์'};
@@ -3655,7 +3667,7 @@ function shrinkImg(file,max){return new Promise((res,rej)=>{const r=new FileRead
 async function saveProfile(photo){
   const name=($('#pfname')?.value||'').trim();if(!name)return toast('ใส่ชื่อที่แสดงก่อน');
   const p={name};if(photo!==undefined)p.photo=photo;else if(S.pf2)p.photo=S.pf2;
-  try{await S.db.call('profile',p);S.pf2=null;S.pfn=null;S.names[S.me.id]=name;S.db.refresh();toast('บันทึกโปรไฟล์แล้ว');render()}catch(e){toast(e.message||'บันทึกไม่ได้')}
+  try{await S.db.call('profile',p);S.pf2=null;S.pfn=null;S.names[S.me.id]=name;S.db.refresh();toast('บันทึกโปรไฟล์แล้ว');render()}catch(e){showErr(e,'บันทึกไม่ได้')}
 }
 function viewSettings(){
   const adm=S.me.owner||S.me.edit;const mem=Object.values(S.members);
@@ -3767,7 +3779,7 @@ async function slSend(){
         queueDate:f.date,queueTime:f.time,request:{wantKwp:kw?Number(kw)||kw:'',systemType:f.sys||''},fromSales:true,status:'active',stage:ST.BOOK,stageSince:now,createdAt:now,updatedAt:now,
         history:[ev('create',`แจ้งขอคิวสำรวจ ${fd(f.date)} ${f.time}`)]},'set']]);
     S.sf=null;S.slq=null;toast('ส่งคำขอแล้ว ออฟฟิศจะยืนยันคิวให้');location.hash='job-'+jid;
-  }catch(e){toast(e.message||'ส่งไม่ได้ ลองอีกครั้ง')}finally{S.slBusy=0;render()}
+  }catch(e){showErr(e,'ส่งไม่ได้ ลองอีกครั้ง')}finally{S.slBusy=0;render()}
 }
 function slJobView(id){
   const j=S.jobs[id];if(!j)return `<div class="card empty">${S.loaded.jobs?'ไม่พบงานนี้':'กำลังโหลด…'} · <a href="#today">กลับ</a></div>`;
@@ -3801,7 +3813,7 @@ function jobChat(j){const by=j.salesId?slName(j.salesId)||j.salesPerson:'';
   return `${j.fromSales?`<div class="slreq"><b>คำขอจาก ${esc(by||'เซลส์')}</b><small>${esc([j.request&&j.request.wantKwp?j.request.wantKwp+' kWp':'',j.request&&j.request.systemType,'ขอ '+fd(j.queueDate)+' '+(j.queueTime||'')].filter(Boolean).join(' · '))}</small></div>`:''}${chatBody(j.id,slMsgs(j.id))}`}
 async function chSend(id){const el=document.getElementById('chat-'+id);const tx=(el?.value||'').trim();if(!tx)return;
   const mid=S.db.collection('messages').doc().id;S.chd[id]='';
-  try{await w('messages/'+mid,{jobId:id,at:Date.now(),by:S.me.id,text:tx,kind:'msg'},'set','ส่งข้อความ');render();requestAnimationFrame(()=>{const b=$('#slch');if(b)b.scrollTop=b.scrollHeight})}catch(e){S.chd[id]=tx;toast(e.message||'ส่งไม่ได้')}}
+  try{await w('messages/'+mid,{jobId:id,at:Date.now(),by:S.me.id,text:tx,kind:'msg'},'set','ส่งข้อความ');render();requestAnimationFrame(()=>{const b=$('#slch');if(b)b.scrollTop=b.scrollHeight})}catch(e){S.chd[id]=tx;showErr(e,'ส่งไม่ได้')}}
 /* ภาพรวมของออฟฟิศ: คำขอคิวจากเซลส์ที่ยังไม่ยืนยัน */
 function salesReqBanner(h){
   const L=Object.values(S.jobs||{}).filter(j=>j.fromSales&&(j.status||'active')==='active'&&j.stage===ST.BOOK).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
@@ -4278,7 +4290,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-demo]'))startDe
       document.body.classList.add('rocat');S.db=db;S.user=user;S.me.id=me.id;S.me.owner=!!me.owner;S.me.edit=['admin','sysadmin'].includes(me.role);S.me.role=me.role;S.me.email=me.email;S.me.name=me.name;
       ['jobs','customers','sites','products','members','config','articles','services','forms','meters','messages','photos'].forEach(subscribe);
       names([S.me.id]).then(schedule);render();
-    }catch(e){toast(e.message||'เชื่อมต่อไม่สำเร็จ');S.noDb=true;render()}
+    }catch(e){showErr(e,'เชื่อมต่อไม่สำเร็จ');S.noDb=true;render()}
     return;
   }
   const timer=setTimeout(()=>{if(!S.db){S.noDb=true;render()}},10000);
@@ -4327,6 +4339,21 @@ document.addEventListener('click',e=>{const d=e.target.closest&&e.target.closest
   if(e.target.closest('.mi')){d.open=false;return}if(e.target.closest('summary'))e.stopPropagation()},true);
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const d=document.querySelector('details.mnu[open]');if(!d)return;d.open=false;d.querySelector('summary').focus();e.stopPropagation()},true);
 addEventListener('scroll',()=>closeAll(null),true);addEventListener('resize',()=>closeAll(null));})();
+
+/* รอบ 5d (ui-design-principles ข้อ 38–39): error เป็นการ์ดภาษาคน (ไอคอน + หัวข้อ + บอกว่าทำอะไรต่อ + ปิดได้) แทนป้ายดำที่หายเอง */
+function errInfo(e,fb){e=e||{};const c=e.code||'',m=String(e.message||e||'');
+  const human=m&&/[ก-๙]/.test(m)&&!/HTTP|\/exec|:\s*[a-z]+\//i.test(m)&&m.length<120;
+  if(c==='network')return {t:'ต่ออินเทอร์เน็ตไม่ได้',b:'ตรวจสัญญาณ แล้วกดอีกครั้ง'};
+  if(c==='server')return {t:'ระบบหลังบ้านไม่ตอบ',b:'รอสักครู่แล้วกดอีกครั้ง'};
+  if(c==='busy')return {t:'ระบบกำลังบันทึกงานอื่นอยู่',b:'รอสักครู่แล้วกดอีกครั้ง'};
+  if(c==='denied')return {t:'ทำส่วนนี้ไม่ได้',b:'บัญชีของคุณยังไม่มีสิทธิ์ทำส่วนนี้ ถ้าต้องทำ ให้คนที่ตั้งสิทธิ์ใน Console เพิ่มสิทธิ์ให้'};
+  if(c==='conflict')return {t:'มีคนแก้งานนี้ก่อนคุณ',b:human?m:'ดูข้อมูลล่าสุดแล้วกดอีกครั้ง'};
+  if(c==='not-found')return {t:'ไม่พบข้อมูลนี้แล้ว',b:'อาจถูกลบไปแล้ว ลองเปิดหน้านี้ใหม่'};
+  if(c==='auth')return {t:'ต้องเข้าสู่ระบบใหม่',b:human?m:'เข้าสู่ระบบอีกครั้งแล้วทำต่อได้เลย'};
+  return {t:fb||'ทำไม่สำเร็จ',b:human&&m!==fb?m:'ลองอีกครั้ง ถ้ายังไม่ได้ แจ้งออฟฟิศ'}}
+function showErr(e,fb){const {t,b}=errInfo(e,fb);let el=document.getElementById('errc');if(!el){el=document.createElement('div');el.id='errc';el.setAttribute('role','alert');document.body.appendChild(el)}
+  el.innerHTML=`<span class="ei"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></span><div><b>${esc(t)}</b><span>${esc(b)}</span></div><button type="button" class="ex" aria-label="ปิด">×</button>`;
+  el.hidden=false;el.querySelector('.ex').onclick=()=>{el.hidden=true};clearTimeout(showErr.t);showErr.t=setTimeout(()=>{el.hidden=true},12000)}
 </script>
 </body>
 </html>

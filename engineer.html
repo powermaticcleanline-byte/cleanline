@@ -511,6 +511,18 @@ label.pill input:checked+span{color:#fff}
 .qa:not(.jqa) .ki{background:#eef0f4;color:var(--accTx)}
 .irow .ic.st-on{background:#e6f6ec;color:#117d39}
 .irow .ic.st-off{background:#fdecec;color:#c81e1e}
+
+/* รอบ 5d: การ์ด error */
+#errc{position:fixed;z-index:200;display:flex;gap:12px;align-items:flex-start;padding:14px 10px 14px 16px;background:#fff;border-radius:16px;box-shadow:0 0 0 1px #f3c7c7,0 16px 40px -12px rgba(0,0,0,.28);color:#16171d}
+#errc[hidden]{display:none}
+#errc .ei{flex:none;width:32px;height:32px;border-radius:50%;background:#fdecec;color:#c81e1e;display:grid;place-items:center}
+#errc .ei svg{width:18px;height:18px}
+#errc>div{flex:1;min-width:0}
+#errc b{display:block;font-size:15.5px;font-weight:600;margin:4px 0 2px}
+#errc>div>span{display:block;font-size:14px;line-height:1.5;color:#4a4e5a}
+#errc .ex{flex:none;width:36px;height:36px;border:0;background:none;color:#5b6070;font-size:22px;line-height:1;border-radius:10px;cursor:pointer}
+#errc .ex:hover{background:#f3f4f6}
+#errc{left:12px;right:12px;bottom:calc(var(--nav) + var(--safe) + 12px);max-width:456px;margin:0 auto}
 </style>
 </head>
 <body>
@@ -1132,7 +1144,7 @@ function missingPhotos(j){const P=S.api.listPhotos(j.id);return PHOTO_KINDS.filt
 async function svSave(id,patch,hist,okMsg){
   S.busy=true;render();
   try{await S.api.updateJob(id,patch,hist,{stage:ST.SURVEY,status:'active'});if(okMsg)toast(okMsg);return true}
-  catch(e){toast(e.code==='conflict'?e.message:'บันทึกไม่สำเร็จ ลองอีกครั้ง');return false}
+  catch(e){showErr(e,'บันทึกไม่สำเร็จ');return false}
   finally{S.busy=false;render()}
 }
 function geo(){return new Promise(res=>{if(!navigator.geolocation)return res(null);const t=setTimeout(()=>res(null),8000);
@@ -1624,7 +1636,7 @@ async function nsSave(id,pg){
     if(pg===5){const eq={proposedNote:String(d.design.proposedNote||''),quoter:String(d.design.quoter||'')};
       if((j.proposedNote||'')!==eq.proposedNote||(j.quoter||'')!==eq.quoter)await S.api.updateJob(id,eq,{kind:'edit',text:'แก้หมายเหตุการเสนอ'},exp)}
     return true;
-  }catch(e){toast(e.code==='conflict'?e.message:'บันทึกไม่สำเร็จ ลองอีกครั้ง');return false}
+  }catch(e){showErr(e,'บันทึกไม่สำเร็จ');return false}
 }
 async function nsGo(id,to){
   const j=C().jobs[id];if(!j||S.busy)return;const cur=nsPageOf(j);
@@ -1674,7 +1686,7 @@ function askText(title,label,val,type){return new Promise(res=>{const m=$('#moda
   m.querySelector('[data-ov]').onclick=e=>{if(e.target.dataset.ov!==undefined)done(null)};m.querySelector('#at-v').focus()})}
 async function renameFolder(id){const j=C().jobs[id];if(!j||!j.folderId)return;
   const v=await askText('เปลี่ยนชื่อโฟลเดอร์งาน','ชื่อโฟลเดอร์',fnameOf(j));if(v==null)return;const n=fnameClean(v);if(!n)return toast('ใส่ชื่อโฟลเดอร์');if(n===j.folderName)return;
-  try{await S.api.updateJob(id,{folderName:n},{kind:'edit',text:'เปลี่ยนชื่อโฟลเดอร์: '+n});toast('เปลี่ยนชื่อโฟลเดอร์แล้ว')}catch(e){toast(e.message||'บันทึกไม่สำเร็จ')}}
+  try{await S.api.updateJob(id,{folderName:n},{kind:'edit',text:'เปลี่ยนชื่อโฟลเดอร์: '+n});toast('เปลี่ยนชื่อโฟลเดอร์แล้ว')}catch(e){showErr(e,'บันทึกไม่สำเร็จ')}}
 const myPhoto=u=>(C().members[(u||{}).id]||{}).photo||'';
 const meAv=(u,cls='')=>{const ph=myPhoto(u);return ph?`<img class="av ${cls}" src="${esc(ph)}" alt="" style="object-fit:cover;padding:0">`:avatar(u.name,cls)};
 const pfAv=(u,cls='')=>{const ph=S.pfPhoto!=null&&S.pfPhoto!==undefined?S.pfPhoto:myPhoto(u);return ph?`<img class="av ${cls}" src="${esc(ph)}" alt="" style="object-fit:cover;padding:0">`:avatar(u.name,cls)};
@@ -1683,7 +1695,7 @@ function pfResize(file){return new Promise((res,rej)=>{const r=new FileReader();
 async function saveMe(photo){const u=me();const n=(document.getElementById('pf-name')?.value||'').trim().slice(0,40);if(!n)return toast('ใส่ชื่อที่แสดงก่อน');
   const p={name:n};const ph=photo!==undefined?photo:S.pfPhoto;if(ph!=null)p.photo=ph;
   try{await S.api.db.call('profile',p);S.pfPhoto=null;S.pfName=null;u.name=n;const m=C().members[u.id];if(m){m.name=n;if('photo' in p)m.photo=p.photo}if(S.api.db.refresh)S.api.db.refresh();toast('บันทึกโปรไฟล์แล้ว');render()}
-  catch(e){toast(e.message||'บันทึกไม่ได้')}}
+  catch(e){showErr(e,'บันทึกไม่ได้')}}
 document.addEventListener('change',async e=>{if(e.target.id!=='pf-photo'||!e.target.files||!e.target.files[0])return;
   S.pfName=(document.getElementById('pf-name')||{}).value;try{S.pfPhoto=await pfResize(e.target.files[0]);render()}catch(x){toast('อ่านรูปไม่ได้')}});
 function invUnits(e){e=e||{};const U=Array.isArray(e.units)?e.units.filter(u=>u&&(u.model||u.sn||u.wifiSn)):[];if(U.length)return U;return e.model||e.sn||e.wifiSn?[{role:'Master',model:e.model||'',sn:e.sn||'',wifiSn:e.wifiSn||''}]:[]}
@@ -2002,7 +2014,7 @@ function droneBind(){
 }
 async function droneSave(jid){
   const cv=$('#dcv');if(!cv)return;const d=cv.toDataURL('image/webp',.8);
-  try{await S.api.addPhoto(jid,'roof',d.startsWith('data:image/webp')?d:cv.toDataURL('image/jpeg',.8));toast('บันทึกรูปเข้าใบสำรวจแล้ว')}catch(e){toast('บันทึกไม่สำเร็จ: '+(e.message||e))}
+  try{await S.api.addPhoto(jid,'roof',d.startsWith('data:image/webp')?d:cv.toDataURL('image/jpeg',.8));toast('บันทึกรูปเข้าใบสำรวจแล้ว')}catch(e){showErr(e,'บันทึกไม่สำเร็จ')}
 }
 const TARIFF={tiers:[[200,3.0],[200,4.1584],[1e9,4.3583]],ft:0.1623,vat:0.07,svc:{MEA:24.62,PEA:38.22},asOf:'บิล ก.ย. 69 · Ft ก.ย.–ธ.ค. 69'};
 const billOf=(u,ut)=>{let e=0,r=Math.max(0,u);for(const [n,p] of TARIFF.tiers){const x=Math.min(r,n);e+=x*p;r-=x;if(r<=0)break}return (e+Math.max(0,u)*TARIFF.ft+(TARIFF.svc[ut]||TARIFF.svc.MEA))*(1+TARIFF.vat)};
@@ -2296,7 +2308,7 @@ async function takeOver(id){
   if(!await ask('รับงานต่อจาก '+prev+'?','งานนี้จะย้ายมาเป็นชื่อคุณ ('+u.name+') และบันทึกในประวัติ ทุกคนเห็นทันที',{ok:'รับงานต่อ'}))return;
   const patch=j.stage<=ST.SURVEY?(S.api.mode==='live'?{surveyor:u.name,surveyorId:u.id,surveyTeam:u.name}:{surveyor:u.name,surveyTeam:u.team||j.surveyTeam||''}):(S.api.mode==='live'?{supervisor:u.name,supervisorId:u.id}:{supervisor:u.name});
   try{await S.api.updateJob(id,patch,{kind:'edit',text:`${u.name} รับงานต่อจาก ${prev}`},{stage:j.stage,status:'active'});toast('รับงานต่อแล้ว งานนี้เป็นของคุณ');return true}
-  catch(e){toast(e.code==='conflict'?e.message:'บันทึกไม่สำเร็จ ลองอีกครั้ง')}
+  catch(e){showErr(e,'บันทึกไม่สำเร็จ')}
 }
 document.addEventListener('click',e=>{
   const t=e.target.closest('button,[data-go],[data-nsgo]');if(!t||t.disabled)return;
@@ -2462,6 +2474,21 @@ document.addEventListener('click',e=>{const bar=e.target.closest&&e.target.close
 
 /* รอบ 5c: สัญญาณเน็ตเปลี่ยน → วาดหน้า "ฉัน" ใหม่ให้สถานะตรง */
 addEventListener('online',()=>{if(location.hash==='#me')render()});addEventListener('offline',()=>{if(location.hash==='#me')render()});
+
+/* รอบ 5d (ui-design-principles ข้อ 38–39): error เป็นการ์ดภาษาคน (ไอคอน + หัวข้อ + บอกว่าทำอะไรต่อ + ปิดได้) แทนป้ายดำที่หายเอง */
+function errInfo(e,fb){e=e||{};const c=e.code||'',m=String(e.message||e||'');
+  const human=m&&/[ก-๙]/.test(m)&&!/HTTP|\/exec|:\s*[a-z]+\//i.test(m)&&m.length<120;
+  if(c==='network')return {t:'ต่ออินเทอร์เน็ตไม่ได้',b:'ตรวจสัญญาณ แล้วกดอีกครั้ง'};
+  if(c==='server')return {t:'ระบบหลังบ้านไม่ตอบ',b:'รอสักครู่แล้วกดอีกครั้ง'};
+  if(c==='busy')return {t:'ระบบกำลังบันทึกงานอื่นอยู่',b:'รอสักครู่แล้วกดอีกครั้ง'};
+  if(c==='denied')return {t:'ทำส่วนนี้ไม่ได้',b:'บัญชีของคุณยังไม่มีสิทธิ์ทำส่วนนี้ ถ้าต้องทำ ให้คนที่ตั้งสิทธิ์ใน Console เพิ่มสิทธิ์ให้'};
+  if(c==='conflict')return {t:'มีคนแก้งานนี้ก่อนคุณ',b:human?m:'ดูข้อมูลล่าสุดแล้วกดอีกครั้ง'};
+  if(c==='not-found')return {t:'ไม่พบข้อมูลนี้แล้ว',b:'อาจถูกลบไปแล้ว ลองเปิดหน้านี้ใหม่'};
+  if(c==='auth')return {t:'ต้องเข้าสู่ระบบใหม่',b:human?m:'เข้าสู่ระบบอีกครั้งแล้วทำต่อได้เลย'};
+  return {t:fb||'ทำไม่สำเร็จ',b:human&&m!==fb?m:'ลองอีกครั้ง ถ้ายังไม่ได้ แจ้งออฟฟิศ'}}
+function showErr(e,fb){const {t,b}=errInfo(e,fb);let el=document.getElementById('errc');if(!el){el=document.createElement('div');el.id='errc';el.setAttribute('role','alert');document.body.appendChild(el)}
+  el.innerHTML=`<span class="ei"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></span><div><b>${esc(t)}</b><span>${esc(b)}</span></div><button type="button" class="ex" aria-label="ปิด">×</button>`;
+  el.hidden=false;el.querySelector('.ex').onclick=()=>{el.hidden=true};clearTimeout(showErr.t);showErr.t=setTimeout(()=>{el.hidden=true},12000)}
 </script>
 </body>
 </html>
