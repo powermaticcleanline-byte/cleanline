@@ -420,7 +420,7 @@
       frame = function (body) {
         var hd = HEAD[kind] || HEAD.login;
         return '<div class="cm"><i class="cm-bl" style="width:260px;height:260px;left:-90px;top:40px"></i><i class="cm-bl" style="width:120px;height:120px;right:-30px;top:230px"></i>' +
-          '<div class="cm-top"><img class="cm-m" src="mascot.webp" alt="" width="330" height="335"></div>' +
+          '<div class="cm-top"><img class="cm-m" src="mascot-wave.webp" alt="" width="330" height="346"></div>' +
           '<div class="cm-sh"><span class="cm-chip"><img src="logo.webp" alt="CLEANLINE">Man</span>' +
           '<div class="cm-h" role="heading" aria-level="1">' + hd[0] + '</div><p class="cm-s">' + hd[1] + '</p>' + body +
           (kind === 'login' ? '<div class="cm-ft">ใช้บัญชี Google ของบริษัท</div>' : '') + '</div></div>';
