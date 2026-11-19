@@ -541,14 +541,47 @@ label.pill input:checked+span{color:#fff}
 .lk{min-height:44px!important;display:inline-flex;align-items:center}
 .jbk,.msend{width:44px!important;height:44px!important}
 textarea[data-msgin]{min-height:44px}
-/* 5h M2 ไทล์เดียว: แถวเดียว ไอคอน ตัวเลข ป้าย */
-.tiles.one .tile{display:grid!important;grid-template-columns:auto auto 1fr;align-items:center;column-gap:12px;padding:16px!important;min-height:0!important}
-.tiles.one .tile b{margin:0!important}
 /* 5h M3 เมนูล่าง: ไอคอนทึบ + ตัวหนา เมื่อเลือก */
 .nav button.on svg{fill:currentColor!important;fill-opacity:1!important}
 .nav button.on span{font-weight:700}
-/* 5h M5 ชื่อใหญ่หน้า ฉัน */
-.prof b{line-height:1.2!important}
+/* 5j หน้า ฉัน */
+.mev{padding-top:0!important}
+.mehero{position:relative;margin:0 -16px;padding:24px 16px 56px;background:linear-gradient(160deg,#5aa61c 0%,#3d7c0e 100%);color:#fff;overflow:hidden;border-radius:0 0 32px 32px}
+.mehero::after{content:'';position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.08)}
+.mehero .mtop{display:flex;align-items:center;gap:16px;position:relative;z-index:1;padding-right:104px}
+.mehero .mav{position:relative;flex:none}
+.mehero .mav .av{width:72px!important;height:72px!important;font-size:28px!important;margin:0!important;box-shadow:0 0 0 4px rgba(255,255,255,.35)}
+.mehero .mav button{position:absolute;right:-6px;bottom:-6px;width:44px;height:44px;border-radius:50%;border:0;background:none;display:grid;place-items:center;padding:0}
+.mehero .mav button svg{width:32px;height:32px;padding:8px;border-radius:50%;background:#fff;color:#16171d;box-shadow:0 4px 12px -4px rgba(0,0,0,.4)}
+.mehero h1{margin:0;font-size:24px;line-height:1.25;font-weight:800;color:#fff;overflow-wrap:anywhere}
+.mehero .mrole{display:inline-flex;align-items:center;gap:8px;margin-top:4px;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.18);font-size:12px;font-weight:600}
+.mehero .mdot{width:8px;height:8px;border-radius:50%;background:#b7f26b}
+.mehero img.mm{position:absolute;right:4px;bottom:-8px;width:112px;height:auto;z-index:1;filter:drop-shadow(0 8px 16px rgba(0,0,0,.25))}
+.mestat{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);margin:-36px 0 16px;background:#fff;border-radius:24px;box-shadow:0 12px 32px -16px rgba(20,40,10,.35);padding:16px 8px}
+.mestat.one{grid-template-columns:1fr;margin-top:0}
+.mestat div{display:grid;justify-items:center;gap:4px;text-align:center}
+.mestat div+div{box-shadow:-1px 0 0 #eef0f3}
+.mestat b{font-size:24px;line-height:1.2;font-weight:800;color:#16171d}
+.mestat small{font-size:12px;line-height:1.4;color:#606f85}
+.megrp{margin:0 0 16px}
+.megrp h3{margin:0 4px 8px;font-size:14px;font-weight:700;color:#606f85}
+.melist{background:#fff;border-radius:24px;padding:4px}
+.merow{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 12px;border:0;background:none;border-radius:20px;font:600 16px var(--f,inherit);color:#16171d;text-align:left}
+.merow .mi{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#eef6e6;color:#3d7c0e;flex:none}
+.merow .mi svg{width:20px;height:20px}
+.merow .mt{flex:1;display:grid;min-width:0}
+.merow .mt small{font-size:12px;font-weight:500;line-height:1.4;color:#606f85}
+.merow .chev{width:8px;height:8px;border:solid #9aa1ab;border-width:2px 2px 0 0;transform:rotate(45deg);margin-right:4px;flex:none}
+.merow .ok{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:#117d39;flex:none}
+.merow .ok i{width:8px;height:8px;border-radius:50%;background:#16a34a}
+.merow .ok.off{color:#c81e1e}.merow .ok.off i{background:#c81e1e}
+.merow .ok:not(.on):not(.off){color:#606f85}.merow .ok:not(.on):not(.off) i{background:#9aa1ab}
+.merow+.merow{box-shadow:0 -1px 0 #f1f2f4}
+.merow.out{color:#c81e1e}.merow.out .mi{background:#fdecec;color:#c81e1e}
+.meft{text-align:center;color:#606f85;font-size:12px;margin:8px 0 24px}
+.ov .pfbd{position:absolute;inset:0;border:0;background:none;padding:0}
+.ov .sheet{position:relative}
+.pfpv{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0 16px}
 </style>
 </head>
 <body>
@@ -973,21 +1006,25 @@ function viewService(){
    ${recent.length?`<div class="sec">บันทึกล่าสุด</div><section class="ls">${recent.map(x=>{const s=c.sites[x.siteId]||{};return `<div class="rcr"><span class="pill ${x.type==='CM'?'r':'g'}">${x.type==='CM'?'ซ่อม':'PM'}</span><div class="jrm"><b>${esc(s.label||'')}</b><small>${fdt(x.closedAt||x.createdAt)} · ${esc(x.by||'')}${x.action?' · '+esc(x.action):x.checklist?` · ${x.checklist.length}/${PM_CHK.length} รายการ`:''}</small></div></div>`}).join('')}</section>`:''}</main>`;
 }
 function viewMe(){
-  const u=me(),demo=S.api.mode==='demo';
-  const mine=S.api.listAllJobs().filter(j=>actionable(j)&&ownedByMe(j)).length;
-  return `<div class="glow"></div><main class="wrap" style="padding-top:24px">
-   <div class="prof">${pfAv(u)}<b>${esc(u.name)}</b><span>${u.team&&!/^ทีม \d/.test(u.team)?esc(u.team):'CLEANLINE Man'}</span></div>
-   <div class="tiles ${S.pending.length?'':'one'}" style="grid-template-columns:${S.pending.length?'1fr 1fr':'1fr'};margin-top:16px"><div class="tile t-blu"><span class="tic">${ic('list')}</span><b>${mine}</b><span>งานที่ฉันถืออยู่</span></div>
-    ${S.pending.length?`<div class="tile t-org"><span class="tic">${ic('cloud')}</span><b>${S.pending.length}</b><span>รายการรอส่ง</span></div>`:''}</div>
-   ${demo?'':`<div class="card" id="pfcard"><h2>โปรไฟล์</h2>
-    <label style="display:grid;gap:8px;font-size:14px">ชื่อที่แสดง<input id="pf-name" maxlength="40" value="${esc(S.pfName!=null?S.pfName:u.name)}" style="font:inherit;padding:8px 12px;border:1px solid #ccd;border-radius:10px"></label>
-    <div style="display:flex;gap:8px;align-items:center;margin-top:12px">${pfAv(u,'pfav')}<label class="btn" style="cursor:pointer">${ic('cam')}เปลี่ยนรูป<input type="file" accept="image/*" id="pf-photo" hidden></label>${myPhoto(u)||S.pfPhoto?`<button class="btn red" data-pfdel>${ic('trash')}ลบรูป</button>`:''}</div>
-    <button class="btn pri" style="width:100%;margin-top:12px" data-pfsave>บันทึกโปรไฟล์</button></div>`}
-   <div class="card"><h2>สถานะ</h2><div class="rows">
-    ${(()=>{const off=!demo&&navigator.onLine===false,[k,t,v]=demo?['','ข้อมูลตัวอย่าง','จำไว้ในเครื่องนี้เท่านั้น']:off?['off','ออฟไลน์','ต่ออินเทอร์เน็ตก่อนบันทึกงาน']:['on','ออนไลน์','บันทึกแล้วส่งถึงออฟฟิศทันที'];return `<div class="irow"><span class="ic st-${k}">${ic('cloud')}</span><div><small>${t}</small><b>${v}</b></div></div>`})()}
-    ${C().members[u.id]?.phone?`<div class="irow"><span class="ic">${ic('phone')}</span><div><small>เบอร์โทร</small><b>${esc(C().members[u.id].phone)}</b></div></div>`:''}</div></div>
-   ${demo?`<button class="btn" style="width:100%;margin-bottom:8px" data-switch>${ic('swap')}เปลี่ยนผู้ใช้ (ดูตัวอย่าง)</button><button class="btn red" style="width:100%;margin-bottom:8px" data-demoreset>${ic('trash')}ล้างข้อมูลที่กรอกในโหมดตัวอย่าง</button>`:''}
-   ${demo?'':`<button class="btn red out" data-signout>${ic('out')}ออกจากระบบ</button>`}<p style="text-align:center;color:var(--mut);font-size:14px">CLEANLINE Man</p></main>`;
+  const u=me(),demo=S.api.mode==='demo',J=S.api.listAllJobs(),ym=today().slice(0,7);
+  const inM=ms=>{if(!ms)return false;const d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')===ym};
+  const mine=J.filter(j=>actionable(j)&&ownedByMe(j)).length;
+  const svN=J.filter(j=>j.surveyorId===u.id&&j.sv&&inM(j.sv.onsite)).length;
+  const insN=J.filter(j=>supMine(j,u)&&j.equipment&&String(j.equipment.commissionDate||'').slice(0,7)===ym).length;
+  const off=!demo&&navigator.onLine===false,[k,t,v]=demo?['','ข้อมูลตัวอย่าง','จำไว้ในเครื่องนี้เท่านั้น']:off?['off','ออฟไลน์','ต่ออินเทอร์เน็ตก่อนบันทึกงาน']:['on','ออนไลน์','บันทึกแล้วส่งถึงออฟฟิศทันที'];
+  const R=(attr,i,ti,sub,right,cls='')=>`<button type="button" class="merow ${cls}" ${attr}><span class="mi">${ic(i)}</span><span class="mt">${ti}${sub?`<small>${sub}</small>`:''}</span>${right==null?'<span class="chev" aria-hidden="true"></span>':right}</button>`;
+  const ph=C().members[u.id]?.phone;
+  return `<div class="glow"></div><main class="wrap mev">
+   <section class="mehero"><div class="mtop"><div class="mav">${pfAv(u)}${demo?'':`<button type="button" data-pfopen aria-label="แก้ไขโปรไฟล์">${ic('cam')}</button>`}</div><div><h1>${esc(u.name)}</h1><span class="mrole"><i class="mdot"></i>${u.team&&!/^ทีม \d/.test(u.team)?esc(u.team):'CLEANLINE Man'}</span></div></div><img class="mm" src="mascot-thumb.webp" alt="" width="112" height="117"></section>
+   <div class="mestat"><div><b>${mine}</b><small>งานที่ถืออยู่</small></div><div><b>${svN}</b><small>สำรวจเดือนนี้</small></div><div><b>${insN}</b><small>ติดตั้งเดือนนี้</small></div></div>
+   ${S.pending.length?`<div class="mestat one"><div><b>${S.pending.length}</b><small>รายการรอส่ง</small></div></div>`:''}
+   <div class="megrp"><h3>บัญชี</h3><div class="melist">${demo?'':R('data-pfopen','users','แก้ไขโปรไฟล์','ชื่อที่แสดง · รูป')}<div class="merow"><span class="mi st-${k}">${ic('cloud')}</span><span class="mt">สถานะ<small>${v}</small></span><span class="ok ${k}"><i></i>${t}</span></div>${ph?`<div class="merow"><span class="mi">${ic('phone')}</span><span class="mt">เบอร์โทร<small>${esc(ph)}</small></span></div>`:''}</div></div>
+   <div class="megrp"><div class="melist">${demo?R('data-switch','swap','เปลี่ยนผู้ใช้','ดูตัวอย่าง')+R('data-demoreset','trash','ล้างข้อมูลที่กรอกในโหมดตัวอย่าง','','','out'):R('data-signout','out','ออกจากระบบ','','','out')}</div></div>
+   <p class="meft">CLEANLINE Man</p></main>
+   ${S.pfOpen&&!demo?`<div class="ov"><button type="button" class="pfbd" data-pfclose aria-label="ปิด"></button><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pfT"><div class="grab"></div><h3 id="pfT">แก้ไขโปรไฟล์</h3>
+    <div class="pfpv">${pfAv(u,'pfav')}<label class="btn" style="cursor:pointer">${ic('cam')}เปลี่ยนรูป<input type="file" accept="image/*" id="pf-photo" hidden></label>${myPhoto(u)||S.pfPhoto?`<button class="btn red" data-pfdel>${ic('trash')}ลบรูป</button>`:''}</div>
+    <label class="fl"><span>ชื่อที่แสดง</span><input id="pf-name" maxlength="40" value="${esc(S.pfName!=null?S.pfName:u.name)}"></label>
+    <button class="btn pri" style="width:100%" data-pfsave>บันทึกโปรไฟล์</button></div></div>`:''}`;
 }
 const jobMsgs=id=>Object.entries(C().messages).map(([k,m])=>({id:k,...m})).filter(m=>m.jobId===id).sort((a,b)=>a.at-b.at);
 function openReqs(id){const L=jobMsgs(id),R=L.filter(m=>m.kind==='resolved');return L.filter(m=>m.kind==='request'&&!R.some(r=>r.replyTo===m.id||(!r.replyTo&&r.at>m.at)))}
@@ -1721,7 +1758,7 @@ function pfResize(file){return new Promise((res,rej)=>{const r=new FileReader();
   g.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,s,s);let q=.85,d=c.toDataURL('image/jpeg',q);while(d.length>110000&&q>.3){q-=.15;d=c.toDataURL('image/jpeg',q)}res(d)};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(file)})}
 async function saveMe(photo){const u=me();const n=(document.getElementById('pf-name')?.value||'').trim().slice(0,40);if(!n)return toast('ใส่ชื่อที่แสดงก่อน');
   const p={name:n};const ph=photo!==undefined?photo:S.pfPhoto;if(ph!=null)p.photo=ph;
-  try{await S.api.db.call('profile',p);S.pfPhoto=null;S.pfName=null;u.name=n;const m=C().members[u.id];if(m){m.name=n;if('photo' in p)m.photo=p.photo}if(S.api.db.refresh)S.api.db.refresh();toast('บันทึกโปรไฟล์แล้ว');render()}
+  try{await S.api.db.call('profile',p);S.pfPhoto=null;S.pfName=null;u.name=n;const m=C().members[u.id];if(m){m.name=n;if('photo' in p)m.photo=p.photo}if(S.api.db.refresh)S.api.db.refresh();toast('บันทึกโปรไฟล์แล้ว');S.pfOpen=false;render()}
   catch(e){showErr(e,'บันทึกไม่ได้')}}
 document.addEventListener('change',async e=>{if(e.target.id!=='pf-photo'||!e.target.files||!e.target.files[0])return;
   S.pfName=(document.getElementById('pf-name')||{}).value;try{S.pfPhoto=await pfResize(e.target.files[0]);render()}catch(x){toast('อ่านรูปไม่ได้')}});
@@ -2361,6 +2398,8 @@ document.addEventListener('click',e=>{
   if('fname' in d){renameFolder(d.fname);return}
   if('signout' in d){const n=S.pending.length;ask('ออกจากระบบ?',n?`ยังมี ${n} รายการรอส่ง ถ้าออกตอนนี้อาจไม่ถูกส่ง ต่อเน็ตให้ส่งครบก่อน`:'ครั้งหน้าต้องลงชื่อเข้าใช้ด้วยบัญชี Google อีกครั้ง',{ok:'ออกจากระบบ',danger:!!n}).then(y=>{if(y&&window.CLGDB)CLGDB.user.signOut()});return}
   if('pfsave' in d){saveMe();return}
+  if('pfopen' in d){S.pfOpen=true;render();setTimeout(()=>document.getElementById('pf-name')?.focus(),50);return}
+  if('pfclose' in d){S.pfOpen=false;S.pfName=null;S.pfPhoto=null;render();return}
   if('icuadd' in d){const jj=C().jobs[route().slice(3)];if(jj){const dd=icDraft(jj);(dd.slaves=dd.slaves||[]).push({model:dd.model||'',sn:'',wifiSn:''});render()}return}
   if('icudel' in d){const jj=C().jobs[route().slice(3)];if(jj){icDraft(jj).slaves.splice(+d.icudel,1);render()}return}
   if('pfdel' in d){S.pfPhoto=null;saveMe('');return}
@@ -2521,6 +2560,8 @@ function celebrate(t,sub){setTimeout(()=>{const tt=document.getElementById('toas
   document.body.insertAdjacentHTML('beforeend',`<div id="celeb" role="dialog" aria-modal="true" aria-labelledby="celebT"><div class="cb"><img src="mascot-run.webp" alt="" width="150" height="154"><b id="celebT">${esc(t)}</b><span>${esc(sub)}</span><button type="button" class="btn pri" data-celebok>กลับหน้างาน</button></div></div>`);
   const _o=document.getElementById('celeb');_o.addEventListener('click',e=>{if(e.target===_o||e.target.closest('[data-celebok]'))_o.remove()});_o.querySelector('[data-celebok]').focus()},60)}
 document.addEventListener('keydown',e=>{const _o=document.getElementById('celeb');if(e.key==='Escape'&&_o){_o.remove();e.stopPropagation()}},true);
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.pfOpen){S.pfOpen=false;S.pfName=null;S.pfPhoto=null;render()}});
 </script>
 </body>
 </html>
