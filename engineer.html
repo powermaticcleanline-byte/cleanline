@@ -536,6 +536,19 @@ label.pill input:checked+span{color:#fff}
 #celeb .btn{width:100%;margin-top:18px}
 #clg-bn{left:50%!important;right:auto!important;transform:translateX(-50%);bottom:calc(var(--nav,0px) + var(--safe,0px) + 34px)!important;display:flex;align-items:center;gap:8px;background:#fff!important;color:#16171d!important;padding:4px 16px 4px 6px!important;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 8px 24px -6px rgba(0,0,0,.25)!important}
 #clg-bn::before{content:'';flex:none;width:40px;height:40px;background:url(mascot-run.webp) center/contain no-repeat}
+/* 5h M1 เป้ากดอย่างน้อย 44px */
+.cc2,[data-tab]{min-height:44px}
+.lk{min-height:44px!important;display:inline-flex;align-items:center}
+.jbk,.msend{width:44px!important;height:44px!important}
+textarea[data-msgin]{min-height:44px}
+/* 5h M2 ไทล์เดียว: แถวเดียว ไอคอน ตัวเลข ป้าย */
+.tiles.one .tile{display:grid!important;grid-template-columns:auto auto 1fr;align-items:center;column-gap:12px;padding:16px!important;min-height:0!important}
+.tiles.one .tile b{margin:0!important}
+/* 5h M3 เมนูล่าง: ไอคอนทึบ + ตัวหนา เมื่อเลือก */
+.nav button.on svg{fill:currentColor!important;fill-opacity:1!important}
+.nav button.on span{font-weight:700}
+/* 5h M5 ชื่อใหญ่หน้า ฉัน */
+.prof b{line-height:1.2!important}
 </style>
 </head>
 <body>
@@ -964,8 +977,8 @@ function viewMe(){
   const mine=S.api.listAllJobs().filter(j=>actionable(j)&&ownedByMe(j)).length;
   return `<div class="glow"></div><main class="wrap" style="padding-top:22px">
    <div class="prof">${pfAv(u)}<b>${esc(u.name)}</b><span>${u.team&&!/^ทีม \d/.test(u.team)?esc(u.team):'CLEANLINE Man'}</span></div>
-   <div class="tiles" style="grid-template-columns:1fr 1fr;margin-top:18px"><div class="tile t-blu"><span class="tic">${ic('list')}</span><b>${mine}</b><span>งานที่ฉันถืออยู่</span></div>
-    <div class="tile ${S.pending.length?'t-org':'t-grn'}"><span class="tic">${ic('cloud')}</span><b>${S.pending.length}</b><span>รายการรอส่ง</span></div></div>
+   <div class="tiles ${S.pending.length?'':'one'}" style="grid-template-columns:${S.pending.length?'1fr 1fr':'1fr'};margin-top:16px"><div class="tile t-blu"><span class="tic">${ic('list')}</span><b>${mine}</b><span>งานที่ฉันถืออยู่</span></div>
+    ${S.pending.length?`<div class="tile t-org"><span class="tic">${ic('cloud')}</span><b>${S.pending.length}</b><span>รายการรอส่ง</span></div>`:''}</div>
    ${demo?'':`<div class="card" id="pfcard"><h2>โปรไฟล์</h2>
     <label style="display:grid;gap:6px;font-size:14px">ชื่อที่แสดง<input id="pf-name" maxlength="40" value="${esc(S.pfName!=null?S.pfName:u.name)}" style="font:inherit;padding:10px 12px;border:1px solid #ccd;border-radius:10px"></label>
     <div style="display:flex;gap:10px;align-items:center;margin-top:12px">${pfAv(u,'pfav')}<label class="btn" style="cursor:pointer">${ic('cam')}เปลี่ยนรูป<input type="file" accept="image/*" id="pf-photo" hidden></label>${myPhoto(u)||S.pfPhoto?`<button class="btn red" data-pfdel>${ic('trash')}ลบรูป</button>`:''}</div>
