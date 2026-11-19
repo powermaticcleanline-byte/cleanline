@@ -523,6 +523,11 @@ label.pill input:checked+span{color:#fff}
 #errc .ex{flex:none;width:36px;height:36px;border:0;background:none;color:#5b6070;font-size:24px;line-height:1;border-radius:10px;cursor:pointer}
 #errc .ex:hover{background:#f3f4f6}
 #errc{left:12px;right:12px;bottom:calc(var(--nav) + var(--safe) + 12px);max-width:456px;margin:0 auto}
+.lsm{padding:16px 12px 20px}
+.lsm img{display:block;width:112px;height:auto;margin:0 auto 6px}
+.lsm b{display:block;font-size:16px;color:var(--ink)}
+.lsm span{display:block;font-size:14px;color:var(--mut);margin-top:2px}
+.lsm .btn{margin-top:12px}
 </style>
 </head>
 <body>
@@ -886,6 +891,7 @@ function topBar(title,{back=false,right=''}={}){
   return `<header class="top solid"><div class="in">${back?`<button class="ib" data-back aria-label="ย้อนกลับ">${ic('back')}</button>`:'<span style="width:44px"></span>'}
    <div class="ttl">${esc(title)}</div>${right||modeChip()}</div></header>`;
 }
+function emptyMascot(t,sub,btn){return `<div class="lse lsm"><img src="mascot-wave.webp" alt="" width="112" height="118" loading="lazy"><b>${t}</b>${sub?`<span>${sub}</span>`:''}${btn||''}</div>`}
 function emptyBox(t,d,icon='check'){return `<div class="card empty"><div class="eic">${ic(icon)}</div><b>${t}</b>${d||''}</div>`}
 function supMine(j,u){if(!u||!j)return false;return j.supervisorId?j.supervisorId===u.id:(!!u.name&&j.supervisor===u.name)}
 function mineJob(j,u=me()){return svMine(j,u)||(!!u.name&&(supMine(j,u)||j.installTeam===u.name))}
@@ -917,7 +923,7 @@ function viewMine(){
    <label class="search">${ic('search')}<input id="q" type="search" placeholder="ค้นหา: ชื่อ เลขงาน ที่อยู่ เบอร์ S/N" value="${esc(S.q)}" aria-label="ค้นหางาน"></label>
    ${(()=>{const cur=ALL_ST.find(x=>x[0]===f)||ALL_ST[0];return `<div class="fbar"><button class="fsel ${f!=='all'?'on':''}" data-fopen aria-haspopup="dialog">${ic('filter')}<span>สถานะ</span><b>${esc(cur[1])}</b><em>${cnt[cur[0]]}</em>${ic('down')}</button>${f!=='all'?`<button class="fclr" data-allst="all">ล้าง</button>`:''}</div>`})()}
    <p class="hint" style="margin:0 4px 8px"><i class="mdot"></i> งานของ ${esc(u.name||'คุณ')} ${nMine} งาน · ทั้งหมด ${list.length} งาน</p>
-   <section class="ls">${show.length?groups.map(g=>`<div class="dg">${esc(mlabel(g.k))} · ${mcount(g.k)} งาน</div>${g.a.map(j=>arow(j,mineJob(j,u))).join('')}`).join(''):`<div class="lse">${q?'ไม่พบงานที่ค้นหา':'ไม่มีงานในหมวดนี้'}</div>`}</section>
+   <section class="ls">${show.length?groups.map(g=>`<div class="dg">${esc(mlabel(g.k))} · ${mcount(g.k)} งาน</div>${g.a.map(j=>arow(j,mineJob(j,u))).join('')}`).join(''):(q?'<div class="lse">ไม่พบงานที่ค้นหา</div>':emptyMascot('ไม่มีงานในหมวดนี้','ลองเปลี่ยนตัวกรองสถานะด้านบน',''))}</section>
    ${list.length>lim?`<button class="btn" style="width:100%" data-allmore>แสดงเพิ่ม (เหลืออีก ${list.length-lim} งาน)</button>`:''}
   </main>`;
 }
@@ -1745,7 +1751,7 @@ function viewToday(){
     <section class="qa">${qa.map(([h,i,t,c,n])=>`<button data-go="${h}"><span class="ki ${c}">${ic(i)}${n?`<i class="bd">${n}</i>`:''}</span><small>${t}</small></button>`).join('')}</section>
     <section class="ls"><div class="lsh"><b>${all?'งานทุกคน':'งานของฉัน'}</b><button class="lk" data-go="#mine">ดูทั้งหมด</button></div>
      <div class="tb" role="tablist">${[['today','วันนี้'],['tomorrow','พรุ่งนี้'],['all',all?'ค้างทั้งหมด':'รอฉันทั้งหมด']].map(([k,t])=>`<button role="tab" aria-selected="${k===tab}" class="${k===tab?'on':''}" data-tab="${k}">${t} <span>${L[k].length}</span></button>`).join('')}</div>
-     ${list.length?list.map(j=>jrow(j,all)).join(''):`<div class="lse">${tab==='today'?'วันนี้ไม่มีงานนัด':tab==='tomorrow'?'พรุ่งนี้ยังไม่มีงานนัด':'ไม่มีงานค้าง'}${!all?'<br><button class="lk" data-scope="all">ดูงานของทุกคน</button>':''}</div>`}</section>
+     ${list.length?list.map(j=>jrow(j,all)).join(''):emptyMascot(tab==='today'?'วันนี้ไม่มีงานนัด':tab==='tomorrow'?'พรุ่งนี้ยังไม่มีงานนัด':'ไม่มีงานค้าง',!all?'ดูได้ว่าทีมมีงานอะไรบ้าง':'',!all?'<button class="btn" data-scope="all">ดูงานของทุกคน</button>':'')}</section>
    </main>`;
 }
 function slip(j){
