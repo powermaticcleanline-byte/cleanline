@@ -2010,7 +2010,7 @@ details.mnu[open]>summary{background:#f3f4f6}
 .tb.pmbar .appw{display:none!important}
 .tb.pmbar .tic,.tb.pmbar .tav{width:44px!important;height:44px!important;min-width:44px}
 .tb.pmbar .mbr{min-height:44px}
-.pg{padding:8px 16px 24px!important;gap:16px!important}
+#app>.pg,.pg{padding:8px 16px 24px!important;gap:16px!important}
 .card,.hbk>.card,.hro,.htl,.scd{border-radius:24px!important}
 .ph h1,.pg>.top h1,.pg h1{font-size:24px!important;line-height:1.25}
 /* ฟอร์ม/กริด 2 คอลัมน์ทั่วไป -> 1 คอลัมน์ */
@@ -2112,6 +2112,11 @@ details.mnu[open] .mnu-p::before{content:'';display:block;width:40px;height:4px;
 details.mnu[open] .mnu-p .mi{min-height:52px!important;font-size:16px!important;border-radius:14px!important;padding:0 12px!important}
 body:has(details.mnu[open]) #mnav{display:none!important}
 .kgr .kw{font-size:12px!important;padding:0!important;text-align:center!important;white-space:nowrap;overflow:hidden;letter-spacing:-.02em}
+/* หน้าตั้งค่า: ชื่อ/อีเมลยาวไม่ดันออกนอกการ์ด · ปุ่มเต็มความกว้าง (ภาพจากผู้ใช้ 20 พ.ย.) */
+.pg .card [style*="flex:1"]{min-width:0}
+.pg .card .sub,.pg .card small{overflow-wrap:anywhere}
+.pg>section.card[style*="space-between"]{flex-direction:column!important;align-items:stretch!important}
+#pfout.btn,#pfsave{width:100%;justify-content:center}
 /* เมนูล่าง */
 #mnav{position:fixed;left:0;right:0;bottom:0;z-index:60;display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.96);border-radius:22px 22px 0 0;box-shadow:0 -8px 24px -12px rgba(0,0,0,.18)}
 #mnav button{display:grid;justify-items:center;gap:2px;min-height:52px;padding:8px 0;border:0;background:none;font:600 12px var(--f);color:#5d6370;border-radius:16px;position:relative}
@@ -2151,6 +2156,24 @@ body:not(.sbmin) .side .sbtog span{display:none!important}
 body:not(.sbmin) #nav1 a.snv{height:40px!important;min-height:40px!important;gap:8px!important}
 #nav1 a.snv.on svg{fill:currentColor;fill-opacity:.25}
 }
+@media (max-width:640px){
+/* กล่องแจ้งเตือน: เต็มความกว้างจอ ไม่หลุดซ้าย */
+.ntp{position:fixed!important;left:16px!important;right:16px!important;top:68px!important;width:auto!important}
+/* เซลส์เลือกวัน: 4 ช่องต่อแถว ไม่เบียด · ปุ่มส่งเต็มความกว้างอยู่ล่าง */
+.slds{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}
+.sld{min-height:72px}
+.slgo{flex-direction:column!important;align-items:stretch!important;gap:8px!important}
+.slgo .btn{width:100%;justify-content:center}
+/* ตัวกรองรายการงาน: ไม่ล้นการ์ดเมื่อตัวหนังสือใหญ่ */
+.tqb>*{min-width:0!important;max-width:100%}
+.tqb .jsrch{width:100%!important}
+.tqb .jsrch input{min-width:0;width:100%}
+}
+@media (max-width:360px){
+/* จอแคบ/ตัวหนังสือใหญ่: แถบบนเหลือโลโก้ CL */
+.tb.pmbar .mbr{font-size:0!important;gap:0!important}
+}
+@media (max-width:640px){.ph,.ph>div,.ph .mnav{min-width:0!important}.ph h1{overflow-wrap:anywhere}.ph .mnav .mlbl{min-width:0;overflow:hidden;text-overflow:ellipsis}}
 @media (min-width:641px){table.jt2 th.c-st,table.jt2 td.c-st{width:208px!important;min-width:208px!important}}
 </style></head>
 <body>
@@ -3908,7 +3931,7 @@ function slNewView(){
   const q=S.slq;const order=q&&q.order&&q.order.length?q.order:[...Array(14)].map((_,i)=>{const x=new Date(Date.now()+i*864e5);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`});
   const dayBtn=k=>{const d=q&&q.days[k];const dt=new Date(k+'T00:00:00');const free=d?slHalfFree(d,'am')+slHalfFree(d,'pm'):null;
     const st=d&&d.closed?['no',d.closed]:free===null?['','—']:free===0?['no','เต็ม']:free<=2?['few',`ว่าง ${free}`]:['ok',`ว่าง ${free}`];
-    return `<button type="button" class="sld ${st[0]} ${f.date===k?'on':''}" data-sld="${k}" ${st[0]==='no'?'disabled':''} aria-pressed="${f.date===k}"><small>${TD[dt.getDay()].slice(0,2)}</small><b>${dt.getDate()}</b><i>${esc(st[1])}</i></button>`};
+    return `<button type="button" class="sld ${st[0]} ${f.date===k?'on':''}" data-sld="${k}" ${st[0]==='no'?'disabled':''} aria-pressed="${f.date===k}"><small>${['อา','จ','อ','พ','พฤ','ศ','ส'][dt.getDay()]}</small><b>${dt.getDate()}</b><i>${esc(st[1])}</i></button>`};
   const d=f.date&&q&&q.days[f.date];
   const tBtn=t=>{const h=t<'12:00'?'am':'pm';const full=d&&slHalfFree(d,h)===0;return `<button type="button" class="sls ${f.time===t?'on':''}" data-sls="${t}" ${full?'disabled':''} aria-pressed="${f.time===t}">${t}</button>`};
   const I=(id,l,v,x='')=>`<label class="fld" for="sf-${id}">${l}<input id="sf-${id}" value="${esc(v||'')}" ${x}></label>`;
@@ -4526,8 +4549,9 @@ const MAIN=['today','queue','jobs'];
 function hashOf(){return (location.hash||'#today').slice(1).split(/[-?]/)[0]}
 function sideItems(){return [...document.querySelectorAll('#nav1 a.snv')]}
 function build(){
+ const sl=typeof isSales==='function'&&isSales(),_n=document.getElementById('mnav');
+ if(_n&&_n.classList.contains('sl')!==sl)_n.remove();   // สร้างก่อนรู้บทบาท (ก่อนเข้าสู่ระบบเสร็จ) → สร้างใหม่ให้ตรงบทบาท
  if(!document.getElementById('mnav')){
-  const sl=typeof isSales==='function'&&isSales();
   document.body.insertAdjacentHTML('beforeend',sl?`<nav id="mnav" class="sl" aria-label="เมนูหลัก"><button type="button" data-mh="today">${IC.list}งานของฉัน</button><button type="button" class="fab" data-mh="new" aria-label="แจ้งขอคิวสำรวจ"><i>${IC.plus}</i>ขอคิว</button><button type="button" data-mh="settings">${IC.gear}ตั้งค่า</button></nav>`
    :`<nav id="mnav" aria-label="เมนูหลัก"><button type="button" data-mh="today">${IC.home}ภาพรวม</button><button type="button" data-mh="queue">${IC.cal}ปฏิทิน</button><button type="button" class="fab" data-mh="new" aria-label="จองคิวสำรวจ"><i>${IC.plus}</i>จองคิว</button><button type="button" data-mh="jobs">${IC.list}งาน</button><button type="button" data-mmore aria-haspopup="dialog">${IC.more}อื่นๆ</button></nav>`);
   document.getElementById('mnav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.mh){location.hash=b.dataset.mh;return}if('mmore' in b.dataset)openMore()});
