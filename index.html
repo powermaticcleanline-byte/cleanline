@@ -2134,6 +2134,23 @@ body:has(details.mnu[open]) #mnav{display:none!important}
 #msheet .mi2.on{background:#eaf5dc}
 }
 @media (min-width:641px){#mnav,#msheet,.tb.pmbar .mbr{display:none!important}}
+@media (min-width:641px){
+/* D1 ฟอร์มจองคิว คอลัมน์เดียว */
+.nform .fgrid{grid-template-columns:minmax(0,1fr)!important}
+/* D3 วันอาทิตย์ในตารางมิเตอร์อ่านออก (เดิม 1.56:1) */
+.mtlh .mtlg span.sun{color:#6f7680!important}
+/* D4 สเกลหัวข้อ 40 · ตัวเล็ก 14 */
+.ph h1,.hro-t h1{font-size:40px!important;line-height:1.2!important}
+.hro-t p,.htl small,.htl b em{font-size:14px!important}
+}
+@media (min-width:1025px){
+/* D2 เมนูซ้าย: ปุ่มย่อเมนูข้างโลโก้ · แถวสูง 40 · ไอคอนห่างป้าย 8 · ไอคอนทึบเมื่อเลือก */
+body:not(.sbmin) .side .sft{position:absolute!important;top:28px;right:24px;padding:0!important;margin:0!important;border:0!important;width:auto!important}
+body:not(.sbmin) .side .sbtog{width:40px!important;height:40px!important;padding:0!important;justify-content:center!important;border-radius:12px!important}
+body:not(.sbmin) .side .sbtog span{display:none!important}
+body:not(.sbmin) #nav1 a.snv{height:40px!important;min-height:40px!important;gap:8px!important}
+#nav1 a.snv.on svg{fill:currentColor;fill-opacity:.25}
+}
 </style></head>
 <body>
 <div class="shell">
