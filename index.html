@@ -1992,6 +1992,148 @@ details.mnu[open]>summary{background:#f3f4f6}
 #errc .ex{flex:none;width:36px;height:36px;border:0;background:none;color:#5b6070;font-size:20px;line-height:1;border-radius:10px;cursor:pointer}
 #errc .ex:hover{background:#f3f4f6}
 #errc{right:24px;bottom:24px;width:420px;max-width:calc(100vw - 32px)}
+@media (max-width:640px){
+/* โครง */
+.side{display:none!important}
+#app,main#app{margin-left:0!important;padding-top:64px!important;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
+.tb.pmbar{left:0!important;right:0!important;height:64px!important;padding:0 16px!important;gap:8px!important;justify-content:flex-start!important}
+.tb.pmbar .mbr{display:flex;align-items:center;gap:8px;text-decoration:none;color:#16171d;font-weight:800;font-size:16px;margin-right:auto}
+.tb.pmbar .mbr em{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#111214;color:#fff;font:800 12px/1 var(--f);font-style:normal}
+.tb.pmbar .mbr{margin-right:auto!important}
+.tb.pmbar .gsw.wide{position:relative!important;left:auto!important;transform:none!important;order:2;width:44px!important;max-width:none!important;flex:none!important}
+.tb.pmbar .gsw.wide .gs{width:44px!important;height:44px!important;padding:0!important;justify-content:center!important;border-radius:50%!important}
+.tb.pmbar .gsw.wide .gs input{width:0!important;padding:0!important;opacity:0!important;position:absolute}
+.tb.pmbar .gsw.wide:focus-within{position:absolute!important;left:16px!important;right:16px!important;top:12px!important;width:auto!important;z-index:5}
+.tb.pmbar .gsw.wide:focus-within .gs{width:100%!important;background:#fff!important;justify-content:flex-start!important;padding:0 16px!important;border-radius:999px!important;gap:8px;box-shadow:0 0 0 2px #16171d}
+.tb.pmbar .gsw.wide:focus-within .gs input{position:static;width:100%!important;opacity:1!important}
+.tb.pmbar .tbr{order:3;gap:8px!important;flex:none!important;width:auto!important;min-width:0!important;justify-content:flex-start!important}
+.tb.pmbar .appw{display:none!important}
+.tb.pmbar .tic,.tb.pmbar .tav{width:44px!important;height:44px!important;min-width:44px}
+.tb.pmbar .mbr{min-height:44px}
+.pg{padding:8px 16px 24px!important;gap:16px!important}
+.card,.hbk>.card,.hro,.htl,.scd{border-radius:24px!important}
+.ph h1,.pg>.top h1,.pg h1{font-size:24px!important;line-height:1.25}
+/* ฟอร์ม/กริด 2 คอลัมน์ทั่วไป -> 1 คอลัมน์ */
+.nsplit,.hrow3,.hrow3.two{grid-template-columns:minmax(0,1fr)!important}
+.cols{flex-direction:column}
+.colR,.colL{max-width:none!important;flex:1 1 auto!important;min-width:0;width:100%!important}
+/* ภาพรวม */
+.hro{padding:20px!important;min-height:0!important}
+.hro-t{padding:0 0 4px!important}
+.hro .hqa,.ph .pha>a.btn.pri[href="#new"],.pg>:first-child a.btn.pri[href="#new"]{display:none!important}
+.hro-img{opacity:.35;width:45%!important}
+.hro-t h1{font-size:24px!important}
+.htls{margin:0!important;gap:10px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.htl{flex-direction:row;align-items:center!important;gap:12px!important;padding:16px 12px!important}
+.htl .hti{width:40px!important;height:40px!important;flex:none}
+.htl small{font-size:14px!important}
+.htl b{font-size:24px!important}
+.bkh{flex-wrap:wrap;gap:8px}
+.bkh{display:grid!important;gap:12px!important}
+.bkh .tabs{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);width:100%;gap:4px}
+.bkh .tabs button{white-space:normal;line-height:1.2;text-align:center;justify-content:center;font-size:14px!important;padding:0 8px!important;min-height:44px}
+.tday .tdp{min-width:0}
+.dbars{gap:4px!important}
+.dbw small{font-size:12px!important;letter-spacing:-.02em}
+.dbw:nth-child(even) small{visibility:hidden}
+.ph{flex-direction:column;align-items:stretch!important;gap:12px!important}
+.ph .pha{justify-content:flex-start;flex-wrap:wrap}
+.ph .mnav{width:100%;justify-content:space-between}
+.ph .mnav .mlbl{flex:1}
+/* รายการงาน: ตาราง -> การ์ด */
+.tqb{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
+.tqb .jsrch{grid-column:1/-1}
+.tqb .sel{width:100%!important;min-width:0}
+.tqb .seg{grid-column:1/-1;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent);display:flex!important;flex-wrap:nowrap!important;height:auto!important;padding:4px!important;overflow-x:auto;scrollbar-width:none;justify-content:flex-start;border-radius:999px}
+.tqb .seg button{white-space:nowrap;flex:none}
+.tqb .jcount{grid-column:1/-1;justify-self:end}
+.jtw{overflow:visible!important;padding:6px!important}
+table.jt2{min-width:0!important;width:100%!important;display:block}
+table.jt2 thead{display:none}
+table.jt2 tbody{display:grid;gap:8px}
+table.jt2 tr{display:grid!important;grid-template-columns:minmax(0,1fr) 24px;grid-template-areas:"site go" "no go" "st go";column-gap:8px;row-gap:4px;padding:16px;background:#fff;border-radius:18px;align-items:center}
+table.jt2 tr::after{content:'';grid-area:go;width:10px;height:10px;border:solid #9aa1ab;border-width:2px 2px 0 0;transform:rotate(45deg);justify-self:center}
+table.jt2 td{display:block;padding:0!important;border:0!important;width:auto!important;max-width:none!important;height:auto!important;text-align:left!important;background:none!important}
+table.jt2 td.c-site{grid-area:site;font-size:16px;line-height:1.3}
+table.jt2 td.c-site b{white-space:normal!important}
+table.jt2 td.c-no{grid-area:no;font-size:14px;color:#606f85}
+table.jt2 td.c-no:has(+td) {}
+table.jt2 td.c-tm,table.jt2 td.c-kw,table.jt2 td.c-dt,table.jt2 td.c-act{display:none!important}
+table.jt2 td.c-st{grid-area:st;display:flex;align-items:center;gap:8px;margin-top:4px}
+/* หน้างาน */
+label.search[for="note"]{flex:1;min-width:0}
+label.search[for="note"] input{min-width:0;width:100%}
+.pha{flex-wrap:wrap}
+/* จองคิว */
+.nform .row,.nform .r2,.nform .grid2{grid-template-columns:1fr!important}
+.fgrid{grid-template-columns:minmax(0,1fr)!important}
+.maphelp .btn{white-space:normal;height:auto;min-height:40px;text-align:left}
+.ncal .phd,.ncal>div:first-child{flex-wrap:wrap}
+.pg:has(.kwrap){height:auto!important;min-height:0!important}
+.kwrap,.kcal{height:auto!important;max-height:none!important;flex:none!important}
+.kcalb{flex-wrap:wrap!important;gap:8px!important}
+.kgr{grid-auto-rows:minmax(60px,auto)!important;height:auto!important;flex:none!important}
+.phd{flex-wrap:wrap!important;row-gap:6px}
+.phd>.sub,.phd>.mlg{flex-basis:100%}
+.kdh{flex-direction:column!important;align-items:center!important;gap:3px!important}
+.kcap2{display:none!important}
+.kmore3{font-size:0!important;width:6px!important;height:6px!important;min-width:0!important;padding:0!important;border-radius:50%!important;background:#3d7c0e!important}
+/* มิเตอร์ */
+.mtlh,.mtlr{grid-template-columns:64px minmax(0,1fr)!important}
+.mtlg{min-width:0;overflow:hidden}
+/* แบบฟอร์ม */
+.tqb .seg{max-width:100%}
+/* หน้าเซลส์ */
+.sltl{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.slt{display:flex!important;align-items:center;gap:12px!important;padding:16px 12px!important}
+.slt .hti{width:40px!important;height:40px!important;flex:none}
+.slt small{display:block;line-height:1.3}
+.slkv{display:grid!important;grid-template-columns:96px minmax(0,1fr)!important;gap:8px!important}
+.slr{display:grid!important;gap:8px!important}
+/* §6 เป้ากด 44px */
+#app .btn,#app select,#app .sel,#app input:not([type=checkbox]):not([type=radio]):not([type=file]),#app summary.btn,#app .seg button,#app .tabs button,#app .mnav button,.mnu-p .mi{min-height:44px!important}
+#app .mnav button[data-mn]{min-width:44px!important}
+#app .lnk{min-height:44px;padding:0 8px!important;margin-right:-8px}
+#app label.search,#app .jsrch,#app .gs{min-height:44px!important}
+#app label.search input,#app .jsrch input{min-height:0!important}
+.mcal .mc-g{padding:8px!important;gap:0!important}
+.mc-d{min-height:44px}
+.ncal .cgrid,.ncal [class*="cg"]{gap:2px!important}
+.nsub{flex-direction:column!important;align-items:stretch!important;gap:8px!important}
+.nsub .btn{width:100%!important;justify-content:center}
+/* §2 ความสูงบรรทัด */
+#app h1{line-height:1.25!important}
+#app h2,#app h3{line-height:1.3!important}
+#app p,#app small{line-height:1.5}
+/* §8 เมนู "อื่นๆ" ที่มี 3 ตัวเลือกขึ้นไป = แผ่นจากล่าง */
+details.mnu[open]>summary::before{content:'';position:fixed;inset:0;z-index:80;background:rgba(16,20,12,.4)}
+details.mnu[open] .mnu-p{position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;width:auto!important;max-width:none!important;z-index:81;border-radius:24px 24px 0 0!important;padding:12px 12px calc(16px + env(safe-area-inset-bottom,0px))!important;box-shadow:0 -8px 24px -12px rgba(0,0,0,.25)!important}
+details.mnu[open] .mnu-p::before{content:'';display:block;width:40px;height:4px;border-radius:2px;background:#d6d9df;margin:0 auto 8px}
+details.mnu[open] .mnu-p .mi{min-height:52px!important;font-size:16px!important;border-radius:14px!important;padding:0 12px!important}
+body:has(details.mnu[open]) #mnav{display:none!important}
+.kgr .kw{font-size:12px!important;padding:0!important;text-align:center!important;white-space:nowrap;overflow:hidden;letter-spacing:-.02em}
+/* เมนูล่าง */
+#mnav{position:fixed;left:0;right:0;bottom:0;z-index:60;display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.96);border-radius:22px 22px 0 0;box-shadow:0 -8px 24px -12px rgba(0,0,0,.18)}
+#mnav button{display:grid;justify-items:center;gap:2px;min-height:52px;padding:6px 0;border:0;background:none;font:600 12px var(--f);color:#5d6370;border-radius:16px;position:relative}
+#mnav button svg{width:22px;height:22px}
+#mnav button.on{color:#2f6b0a;font-weight:700}
+#mnav button .f{display:none}
+#mnav button.on .o{display:none}
+#mnav button.on .f{display:block}
+#mnav button.on::before{content:'';position:absolute;top:4px;width:52px;height:30px;border-radius:15px;background:#eaf5dc;z-index:-1}
+#mnav.sl{grid-template-columns:repeat(3,1fr)}
+#mnav .fab{align-self:start;margin-top:-22px}
+#mnav .fab i{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#111214;color:#fff;box-shadow:0 0 0 5px #fff,0 8px 20px -6px rgba(0,0,0,.5)}
+#mnav .fab i svg{width:24px;height:24px}
+#msheet{position:fixed;inset:0;z-index:70;background:rgba(16,20,12,.4);display:flex;align-items:flex-end}
+#msheet .sh{width:100%;background:#fff;border-radius:24px 24px 0 0;padding:10px 12px calc(16px + env(safe-area-inset-bottom,0px))}
+#msheet .sh::before{content:'';display:block;width:40px;height:4px;border-radius:2px;background:#d6d9df;margin:0 auto 10px}
+#msheet h3{margin:4px 8px 8px;font-size:16px}
+#msheet .mi2{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:0 12px;border:0;background:none;border-radius:14px;font:600 16px var(--f);color:#16171d;text-align:left}
+#msheet .mi2 svg{width:22px;height:22px;color:#3d7c0e}
+#msheet .mi2.on{background:#eaf5dc}
+}
+@media (min-width:641px){#mnav,#msheet,.tb.pmbar .mbr{display:none!important}}
 </style></head>
 <body>
 <div class="shell">
@@ -4354,6 +4496,38 @@ function errInfo(e,fb){e=e||{};const c=e.code||'',m=String(e.message||e||'');
 function showErr(e,fb){const {t,b}=errInfo(e,fb);let el=document.getElementById('errc');if(!el){el=document.createElement('div');el.id='errc';el.setAttribute('role','alert');document.body.appendChild(el)}
   el.innerHTML=`<span class="ei"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></span><div><b>${esc(t)}</b><span>${esc(b)}</span></div><button type="button" class="ex" aria-label="ปิด">×</button>`;
   el.hidden=false;el.querySelector('.ex').onclick=()=>{el.hidden=true};clearTimeout(showErr.t);showErr.t=setTimeout(()=>{el.hidden=true},12000)}
+
+(()=>{
+const IC={home:'<svg class="o" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><svg class="f" viewBox="0 0 24 24" fill="currentColor"><path d="M11.3 2.3a1 1 0 0 1 1.4 0l8.6 7.4c.4.3.7.8.7 1.3V20a2 2 0 0 1-2 2h-4.5v-6.5h-7V22H4a2 2 0 0 1-2-2v-9c0-.5.3-1 .7-1.3z"/></svg>',
+ cal:'<svg class="o" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><svg class="f" viewBox="0 0 24 24" fill="currentColor"><path d="M8 2a1 1 0 0 1 1 1v1h6V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1zM3 11h18v7a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/></svg>',
+ list:'<svg class="o" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><svg class="f" viewBox="0 0 24 24" fill="currentColor"><rect x="2.5" y="4" width="4" height="4" rx="1.2"/><rect x="2.5" y="10" width="4" height="4" rx="1.2"/><rect x="2.5" y="16" width="4" height="4" rx="1.2"/><rect x="9" y="4.5" width="12.5" height="3" rx="1.5"/><rect x="9" y="10.5" width="12.5" height="3" rx="1.5"/><rect x="9" y="16.5" width="12.5" height="3" rx="1.5"/></svg>',
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+ gear:'<svg class="o" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><svg class="f" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M10.3 2h3.4l.6 2.6 1.6.7 2.3-1.4 2.4 2.4-1.4 2.3.7 1.6 2.6.6v3.4l-2.6.6-.7 1.6 1.4 2.3-2.4 2.4-2.3-1.4-1.6.7-.6 2.6h-3.4l-.6-2.6-1.6-.7-2.3 1.4-2.4-2.4 1.4-2.3-.7-1.6L2 13.7v-3.4l2.6-.6.7-1.6-1.4-2.3 2.4-2.4 2.3 1.4 1.6-.7zM12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>',
+ more:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>'};
+const MAIN=['today','queue','jobs'];
+function hashOf(){return (location.hash||'#today').slice(1).split(/[-?]/)[0]}
+function sideItems(){return [...document.querySelectorAll('#nav1 a.snv')]}
+function build(){
+ if(!document.getElementById('mnav')){
+  const sl=typeof isSales==='function'&&isSales();
+  document.body.insertAdjacentHTML('beforeend',sl?`<nav id="mnav" class="sl" aria-label="เมนูหลัก"><button type="button" data-mh="today">${IC.list}งานของฉัน</button><button type="button" class="fab" data-mh="new" aria-label="แจ้งขอคิวสำรวจ"><i>${IC.plus}</i>ขอคิว</button><button type="button" data-mh="settings">${IC.gear}ตั้งค่า</button></nav>`
+   :`<nav id="mnav" aria-label="เมนูหลัก"><button type="button" data-mh="today">${IC.home}ภาพรวม</button><button type="button" data-mh="queue">${IC.cal}ปฏิทิน</button><button type="button" class="fab" data-mh="new" aria-label="จองคิวสำรวจ"><i>${IC.plus}</i>จองคิว</button><button type="button" data-mh="jobs">${IC.list}งาน</button><button type="button" data-mmore aria-haspopup="dialog">${IC.more}อื่นๆ</button></nav>`);
+  document.getElementById('mnav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.mh){location.hash=b.dataset.mh;return}if('mmore' in b.dataset)openMore()});
+ }
+ const tb=document.querySelector('.tb.pmbar');if(tb&&!tb.querySelector('.mbr'))tb.insertAdjacentHTML('afterbegin','<a class="mbr" href="#today" aria-label="CLEANLINE หน้าภาพรวม"><em>CL</em>Management</a>');
+ sync();
+}
+function sync(){const h=hashOf(),n=document.getElementById('mnav');if(!n)return;const sl=n.classList.contains('sl');const main=h==='job'?(sl?'today':'jobs'):h;
+ n.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.mh?b.dataset.mh===main:!MAIN.includes(main)&&main!=='new'))}
+function openMore(){const seen={};const its=sideItems().filter(a=>{const h=a.getAttribute('href');if(['#today','#queue','#jobs'].includes(h)&&!seen[h]){seen[h]=1;return false}return true});
+ document.body.insertAdjacentHTML('beforeend',`<div id="msheet" role="dialog" aria-modal="true" aria-label="เมนูอื่นๆ"><div class="sh"><h3>เมนูอื่นๆ</h3>${its.map((a,i)=>`<button type="button" class="mi2 ${a.classList.contains('on')?'on':''}" data-mi="${i}">${(a.querySelector('svg')||{}).outerHTML||''}${a.getAttribute('aria-label')||a.title||a.textContent.trim()}</button>`).join('')}</div></div>`);
+ const s=document.getElementById('msheet');s.addEventListener('click',e=>{const b=e.target.closest('[data-mi]');if(b){its[+b.dataset.mi].click();s.remove();return}if(e.target===s)s.remove()});}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('msheet')?.remove()});
+addEventListener('hashchange',()=>{build();sync()});
+const _ap=document.getElementById('app');if(_ap)new MutationObserver(()=>{if(!document.querySelector('.tb.pmbar .mbr'))build()}).observe(_ap,{childList:true});
+build();
+})();
+
 </script>
 </body>
 </html>
