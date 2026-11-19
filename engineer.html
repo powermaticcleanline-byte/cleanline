@@ -528,6 +528,12 @@ label.pill input:checked+span{color:#fff}
 .lsm b{display:block;font-size:16px;color:var(--ink)}
 .lsm span{display:block;font-size:14px;color:var(--mut);margin-top:2px}
 .lsm .btn{margin-top:12px}
+#celeb{position:fixed;inset:0;z-index:300;background:rgba(16,20,12,.45);display:grid;place-items:center;padding:24px}
+#celeb .cb{background:#fff;border-radius:28px;padding:24px 24px 20px;width:100%;max-width:340px;text-align:center;box-shadow:0 24px 60px -16px rgba(0,0,0,.4)}
+#celeb img{display:block;width:150px;height:auto;margin:-80px auto 4px}
+#celeb b{display:block;font-size:20px;color:var(--ink)}
+#celeb span{display:block;font-size:14px;color:var(--mut);margin-top:6px}
+#celeb .btn{width:100%;margin-top:18px}
 </style>
 </head>
 <body>
@@ -1160,7 +1166,7 @@ async function svClose(id){
   if(svSteps(j,sOf(j)).some(x=>!x.ok)||!j.proposedKw||!j.proposedModel)return toast('ยังไม่ครบเงื่อนไขปิดงานสำรวจ');
   if(!await ask('ปิดงานสำรวจ?',`ส่งข้อมูลและแบบ ${j.proposedKw} kW ${j.proposedModel} ให้เซลส์เสนอลูกค้า งานจะย้ายไปขั้น "เสนอลูกค้า"`,{ok:'ปิดงาน ส่งให้เซลส์'}))return;
   const ok=await svSave(id,{stage:ST.OFFER,designSentDate:today()},{kind:'handoff',text:`ปิดงานสำรวจ ส่งข้อมูลและแบบ ${j.proposedKw} kW ให้เซลส์${j.quoter?' CC '+j.quoter:''}`,from:ST.SURVEY,to:ST.OFFER},'ส่งข้อมูลให้เซลส์แล้ว');
-  if(ok){delete S.draft[id];go('#job-'+id)}
+  if(ok){delete S.draft[id];go('#job-'+id);celebrate('ส่งข้อมูลให้เซลส์แล้ว',`งาน ${j.title||'นี้'} ย้ายไปขั้น “${STAGES[ST.OFFER].name}”`)}
 }
 const readDataUrl=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>no(new Error('อ่านไฟล์ไม่ได้'));r.readAsDataURL(f)});
 async function decodeImg(file){
@@ -1360,8 +1366,8 @@ async function icSave(id,close){
   S.busy=true;render();
   const fm=ifPatch(j);
   try{await S.api.updateJob(id,close?{equipment:e,installForm:fm,stage:ST.DOCS}:{equipment:e,installForm:fm},close?{kind:'handoff',text:`ติดตั้งเสร็จ ${fd(e.commissionDate)} · ${e.model} S/N ${e.sn} · แผง ${e.panels} แผง · Single Line ตามจริงแล้ว`,from:ST.COMM,to:ST.DOCS}:{kind:'edit',text:`บันทึกอุปกรณ์ที่ติดตั้ง ${e.model||''}${e.sn?' S/N '+e.sn:''}`},{stage:ST.COMM,status:'active'});
-    toast(close?'ปิดงานติดตั้งแล้ว':'บันทึกแล้ว');delete S.ifd[id];if(S.ifsig)delete S.ifsig[id];S.ifre={};if(close){delete S.icd[id];go('#job-'+id);ifMakePdf(id)}}
-  catch(err){toast(err.code==='conflict'?err.message:'บันทึกไม่สำเร็จ ลองอีกครั้ง')}finally{S.busy=false;render()}
+    if(close)celebrate('ปิดงานติดตั้งแล้ว',`งาน ${j.title||'นี้'} ย้ายไปขั้น “${STAGES[ST.DOCS].name}”`);else toast('บันทึกแล้ว');delete S.ifd[id];if(S.ifsig)delete S.ifsig[id];S.ifre={};if(close){delete S.icd[id];go('#job-'+id);ifMakePdf(id)}}
+  catch(err){showErr(err,'บันทึกไม่สำเร็จ')}finally{S.busy=false;render()}
 }
 async function icScan(input){
   const k=input.dataset.icscan,f=input.files&&input.files[0],id=route().slice(3);input.value='';if(!f)return;
@@ -1381,7 +1387,7 @@ function leadAssign(id){
   m.querySelectorAll('[data-la]').forEach(b=>b.onclick=async()=>{const team=$('#la-team').value.trim(),go2=b.dataset.la==='go';
     if(go2&&(!sup||!team)){toast(!sup?'เลือกผู้คุมงานก่อน':'ใส่ชื่อผู้รับเหมา / ทีมช่าง');return}
     try{await S.api.updateJob(id,{supervisor:sup,supervisorId:'',installTeam:team,...(go2?{stage:ST.COMM}:{})},go2?{kind:'handoff',text:`นัดผู้รับเหมา ${team} ติดตั้ง ${j.installDate?fdRange(j.installDate,j.installEnd):''} ผู้คุมงาน ${sup}`,from:ST.INSTALL,to:ST.COMM}:{kind:'edit',text:`กำหนดผู้คุมงาน ${sup||'-'} ทีมช่าง ${team||'-'}`},{stage:ST.INSTALL,status:'active'});
-      close();toast(go2?'ส่งงานให้ '+sup+' แล้ว':'บันทึกแล้ว')}catch(err){toast(err.code==='conflict'?err.message:'บันทึกไม่สำเร็จ')}});
+      close();toast(go2?'ส่งงานให้ '+sup+' แล้ว':'บันทึกแล้ว')}catch(err){showErr(err,'บันทึกไม่สำเร็จ')}});
 }
 const PM_CHK=['ทำความสะอาดแผง','ตรวจขั้วต่อ/สาย DC','ตรวจเบรกเกอร์/กันไฟกระชาก','ตรวจอินเวอร์เตอร์ไม่มี error','ตรวจการเชื่อมต่อ WiFi/มอนิเตอร์','ตรวจโครงยึด/หลังคารั่ว'];
 function svcSheet(kind,ref){
@@ -1398,7 +1404,7 @@ function svcSheet(kind,ref){
       else{const chk=[...m.querySelectorAll('[data-pmc]')].filter(x=>x.checked).map(x=>PM_CHK[+x.dataset.pmc]);
         await S.api.saveService({type:'PM',siteId:j.siteId,jobId:j.id,date:today(),checklist:chk,action,parts,by:u.name,status:'closed',result:'ตรวจเช็กแล้ว'});
         await S.api.updateJob(j.id,{lastPm:today()},{kind:'edit',text:`ตรวจเช็กประจำปี (PM) ${chk.length}/${PM_CHK.length} รายการ${action?' · '+action:''}`})}
-      close();toast(fin?(cm?'ปิดงานซ่อมแล้ว':'บันทึกตรวจเช็กแล้ว'):'บันทึกแล้ว')}catch(err){toast('บันทึกไม่สำเร็จ: '+(err.message||err))}});
+      close();toast(fin?(cm?'ปิดงานซ่อมแล้ว':'บันทึกตรวจเช็กแล้ว'):'บันทึกแล้ว')}catch(err){showErr(err,'บันทึกไม่สำเร็จ')}});
 }
 function initSig(){
   const cv=$('#sigpad');if(!cv)return;const id=route().slice(3);
@@ -2495,6 +2501,11 @@ function errInfo(e,fb){e=e||{};const c=e.code||'',m=String(e.message||e||'');
 function showErr(e,fb){const {t,b}=errInfo(e,fb);let el=document.getElementById('errc');if(!el){el=document.createElement('div');el.id='errc';el.setAttribute('role','alert');document.body.appendChild(el)}
   el.innerHTML=`<span class="ei"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></span><div><b>${esc(t)}</b><span>${esc(b)}</span></div><button type="button" class="ex" aria-label="ปิด">×</button>`;
   el.hidden=false;el.querySelector('.ex').onclick=()=>{el.hidden=true};clearTimeout(showErr.t);showErr.t=setTimeout(()=>{el.hidden=true},12000)}
+
+function celebrate(t,sub){setTimeout(()=>{const tt=document.getElementById('toast');if(tt)tt.hidden=true;document.getElementById('celeb')?.remove();
+  document.body.insertAdjacentHTML('beforeend',`<div id="celeb" role="dialog" aria-modal="true" aria-labelledby="celebT"><div class="cb"><img src="mascot-run.webp" alt="" width="150" height="154"><b id="celebT">${esc(t)}</b><span>${esc(sub)}</span><button type="button" class="btn pri" data-celebok>กลับหน้างาน</button></div></div>`);
+  const _o=document.getElementById('celeb');_o.addEventListener('click',e=>{if(e.target===_o||e.target.closest('[data-celebok]'))_o.remove()});_o.querySelector('[data-celebok]').focus()},60)}
+document.addEventListener('keydown',e=>{const _o=document.getElementById('celeb');if(e.key==='Escape'&&_o){_o.remove();e.stopPropagation()}},true);
 </script>
 </body>
 </html>
