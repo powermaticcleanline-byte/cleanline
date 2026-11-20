@@ -265,7 +265,7 @@
           } });
         screen('login', null, msg);
         var b = document.getElementById('clg-btn');
-        if (b) google.accounts.id.renderButton(b, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signin_with', locale: 'th', width: st.page === 'engineer' ? Math.max(240, Math.min(400, (window.innerWidth || 360) - 56)) : 300 });
+        if (b) google.accounts.id.renderButton(b, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signin_with', locale: 'th', width: st.page === 'engineer' || st.page === 'admin' ? Math.max(240, Math.min(400, (window.innerWidth || 360) - 56)) : 300 });
         google.accounts.id.prompt();
       });
     });
@@ -414,14 +414,15 @@
         '<div class="cg-h" role="heading" aria-level="1">' + esc(nm) + '</div><div class="cg-tg">' + esc(PAGE_TAG[st.page] || '') + '</div>' + body +
         '<div class="cg-ft">แผนก Energy เพาเวอร์เมติค</div></div>';
     };
-    if (st.page === 'engineer') {
+    if (st.page === 'engineer' || st.page === 'admin') {   // Management ใช้หน้าเข้าสู่ระบบแบบเดียวกับ Man (ผู้ใช้สั่ง 20 พ.ย.)
       el.className = 'man';
-      var HEAD = { login: ['สวัสดี! ไปลุยงานกัน', 'ลงชื่อเข้าใช้ครั้งเดียว ใช้ได้ยาว ๆ'], pending: ['อีกนิดเดียวนะ', 'รอผู้ดูแลระบบอนุมัติบัญชีของคุณ'], wrong: ['บัญชีนี้ใช้ Man ไม่ได้', 'ลองเปลี่ยนบัญชี หรือไปหน้าที่บัญชีนี้ใช้ได้'] };
+      var MG = st.page === 'admin';
+      var HEAD = { login: [MG ? 'สวัสดี! เริ่มงานกัน' : 'สวัสดี! ไปลุยงานกัน', 'ลงชื่อเข้าใช้ครั้งเดียว ใช้ได้ยาว ๆ'], pending: ['อีกนิดเดียวนะ', 'รอผู้ดูแลระบบอนุมัติบัญชีของคุณ'], wrong: ['บัญชีนี้ใช้ ' + (MG ? 'Management' : 'Man') + ' ไม่ได้', 'ลองเปลี่ยนบัญชี หรือไปหน้าที่บัญชีนี้ใช้ได้'] };
       frame = function (body) {
         var hd = HEAD[kind] || HEAD.login;
         return '<div class="cm"><i class="cm-bl" style="width:260px;height:260px;left:-90px;top:40px"></i><i class="cm-bl" style="width:120px;height:120px;right:-30px;top:230px"></i>' +
           '<div class="cm-top"><img class="cm-m" src="mascot-wave.webp" alt="" width="330" height="346"></div>' +
-          '<div class="cm-sh"><span class="cm-chip"><img src="logo.webp" alt="CLEANLINE">Man</span>' +
+          '<div class="cm-sh"><span class="cm-chip"><img src="logo.webp" alt="CLEANLINE">' + (MG ? 'Management' : 'Man') + '</span>' +
           '<div class="cm-h" role="heading" aria-level="1">' + hd[0] + '</div><p class="cm-s">' + hd[1] + '</p>' + body +
           (kind === 'login' ? '<div class="cm-ft">ใช้บัญชี Google ของบริษัท</div>' : '') + '</div></div>';
       };
