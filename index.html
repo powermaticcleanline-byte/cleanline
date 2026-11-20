@@ -2185,6 +2185,14 @@ body:not(.sbmin) #nav1 a.snv{height:40px!important;min-height:40px!important;gap
 /* หัวหน้างานลอยตามเฉพาะตอนเลื่อนลงเกิน 160px (body.pgsc) · เดิมลอยตั้งแต่ 24px แต่ยังไม่มีพื้นหลัง ชื่องานเลยทับแถบขั้นงาน (ภาพจากผู้ใช้) · 40px ของ 5h ทับขนาดตอนย่อ */
 .pg>.ph:has(+ .card.jst){position:relative;top:auto}body.pgsc .pg>.ph:has(+ .card.jst){position:sticky;top:76px}
 body.pgsc .pg>.ph:has(+ .card.jst) h1{font-size:24px!important;line-height:1.25!important}
+
+/* 5o */
+.ib.ibx{visibility:hidden;pointer-events:none}
+.asgmiss[hidden]{display:none!important}
+@media (max-width:640px){
+#app>.pg .jtabs.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent)}
+#app>.pg .sjl{min-height:44px}
+}
 </style></head>
 <body>
 <div class="shell">
@@ -2594,7 +2602,7 @@ function hdr(r){
   const T=(k,h,t,x='')=>`<a href="${h}" class="tnv ${navIs(r,k)?'on':''}" ${navIs(r,k)?'aria-current="page"':''} ${x}>${t}</a>`;
   const lg=document.querySelector('.side .logo img');
   return `<header class="tb pmbar">
-    <div class="gsw wide" role="search"><label class="gs" title="ค้นหา">${svg('search','currentColor',2)}<input id="gq" type="search" placeholder="ค้นหาชื่อ Site, เลขงาน, เบอร์โทร, S/N…" aria-label="ค้นหางานทั้งหมด" autocomplete="off" aria-controls="gqr"></label><div class="gqr" id="gqr" role="listbox" hidden></div></div>
+    <div class="gsw wide" role="search"><label class="gs" title="ค้นหา">${svg('search','currentColor',2)}<input id="gq" type="search" placeholder="ค้นหาชื่อไซต์, เลขงาน, เบอร์โทร, S/N…" aria-label="ค้นหางานทั้งหมด" autocomplete="off" aria-controls="gqr"></label><div class="gqr" id="gqr" role="listbox" hidden></div></div>
     <div class="tbr"><div class="appw" id="appw"></div><div class="ntw">${bellBtn()}${S.bell?bellPanel():''}</div>
     <div class="pfw"><button type="button" class="tav" id="pfbtn" aria-haspopup="menu" aria-expanded="${!!S.pf}" title="${esc(name)}" style="padding:0;overflow:hidden">${avImg()}</button>
     ${S.pf?`<div class="pfm" role="menu"><div class="pfh"><span class="tav" style="padding:0;overflow:hidden">${avImg()}</span><span><b>${esc(name||'ผู้ใช้')}</b><small>${esc(isSys()?'ผู้ดูแลระบบ':(ROLES[myRole()]||['แอดมิน'])[0])} · แผนก Energy</small></span></div>
@@ -2863,7 +2871,7 @@ function viewJobs(mode){
   ${SV?svcAlert():''}
   <section class="card tq">
     <div class="tqb">
-      <label class="jsrch">${svg('search','currentColor',2)}<input id="jq" type="search" placeholder="ชื่อ Site, สถานที่, เลขที่ใบงาน, S/N…" value="${esc(f.q)}" aria-label="ค้นหางาน" autocomplete="off"></label>
+      <label class="jsrch">${svg('search','currentColor',2)}<input id="jq" type="search" placeholder="ชื่อไซต์, สถานที่, เลขที่ใบงาน, S/N…" value="${esc(f.q)}" aria-label="ค้นหางาน" autocomplete="off"></label>
       ${svc||BOARD?'':`<select class="sel" id="jph" aria-label="ช่วงงาน"><option value="">ทุกช่วงงาน</option>${PHASES.map(p=>`<option value="${p.k}" ${f.phase===p.k?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`}
       <select class="sel" id="team" aria-label="ทีมขาย"><option value="">ทุกทีมขาย</option>${TEAMS.map(t=>`<option ${f.team===t?'selected':''}>${t}</option>`).join('')}</select>
       <select class="sel" id="jeng" aria-label="คนสำรวจ"><option value="">ทุกคนสำรวจ</option>${engs.map(t=>`<option ${f.eng===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
@@ -2872,10 +2880,10 @@ function viewJobs(mode){
       ${BOARD?'':`<span class="sub jcount">${list.length} งาน</span>`}
     </div>
     ${shown.length?`<div class="jtw"><table class="jt jt2 ${svc?'jt2s':'jt2n'}">
-      <thead><tr>${svc?'<th class="c-site">Site</th><th>อินเวอร์เตอร์</th><th class="c-sn">S/N</th><th class="c-kw">ขนาด</th><th class="c-dt">วันติดตั้ง</th><th class="c-st">สถานะ</th>':'<th class="c-no">เลขงาน</th><th class="c-site">Site</th><th class="c-tm">ทีมขาย</th><th class="c-dt">วันสำรวจ</th><th class="c-kw">ขนาด</th><th class="c-st">สถานะ</th>'}<th class="c-act">จัดการ</th></tr></thead>
-      <tbody>${shown.map(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};const nm=j.title||c.name||'ไม่มีชื่อไซต์';
+      <thead><tr>${svc?'<th class="c-site">ไซต์</th><th>อินเวอร์เตอร์</th><th class="c-sn">S/N</th><th class="c-kw">ขนาด</th><th class="c-dt">วันติดตั้ง</th><th class="c-st">สถานะ</th>':'<th class="c-no">เลขงาน</th><th class="c-site">ไซต์</th><th class="c-tm">ทีมขาย</th><th class="c-dt">วันสำรวจ</th><th class="c-kw">ขนาด</th><th class="c-st">สถานะ</th>'}<th class="c-act">จัดการ</th></tr></thead>
+      <tbody>${ibDrop(shown.map(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};const nm=j.title||c.name||'ไม่มีชื่อไซต์';
         const kw=e.kw||j.proposedKw;const sn=e.sn||'';
-        const ib=(ic,lab,attr,off)=>off?`<button type="button" class="ib" disabled aria-label="${off}" title="${off}">${svg(ic,'currentColor',2)}</button>`:`<button type="button" class="ib" ${attr} aria-label="${lab}" title="${lab}">${svg(ic,'currentColor',2)}</button>`;
+        const ib=(ic,lab,attr,off)=>off?`<span class="ib ibx" data-ibk="${ic}" aria-hidden="true"></span>`:`<button type="button" class="ib" data-ibk="${ic}" ${attr} aria-label="${lab}" title="${lab}">${svg(ic,'currentColor',2)}</button>`;
         const tel=c.phone?`<a class="ib" href="tel:${esc(String(c.phone).replace(/[^\d+]/g,''))}" aria-label="โทร ${esc(c.phone)}" title="โทร ${esc(c.phone)}">${svg('phone','currentColor',2)}</a>`:ib('phone','','','ยังไม่มีเบอร์โทร');
         const view=ib('eye','ดูรายละเอียด',`data-sel="${esc(j.id)}"`);
         const acts=svc?[view,ib('wrench','บันทึกแจ้งซ่อม',`data-svnew="CM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('check','บันทึกตรวจเช็ก',`data-svnew="PM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('copy','คัดลอก S/N',`data-cpy="${esc(sn)}"`,sn?'':'ยังไม่มี S/N')]
@@ -2888,8 +2896,8 @@ function viewJobs(mode){
         <td class="c-site"><b title="${esc(nm)}">${esc(nm)}</b></td>
         ${svc?T(e.model||j.proposedModel,'m')+T(sn,'c-sn snm m')+T(kw?kw+' kW':'','c-kw m')+T(dd(j.installDate),'c-dt m')
           :`<td class="c-tm">${teamTag(j.salesTeam)||'<span class="nil">—</span>'}</td>`+T(dd(svDate(j)),'c-dt m')+T(kw?kw+' kW':'','c-kw m')}
-        <td class="c-st">${st}${!svc&&now&&j.status==='active'?`<em>${days(j.stageSince)} วัน</em>`:''}</td>
-        <td class="c-act"><div class="ibs">${acts.join('')}</div></td></tr>`}).join('')}</tbody></table></div>`
+        <td class="c-st">${st}</td>
+        <td class="c-act"><div class="ibs">${acts.join('')}</div></td></tr>`}).join(''))}</tbody></table></div>`
     :`<div class="empty">${status==='cm'?'ไม่มีแจ้งซ่อมค้าง':status==='pm'?'ไม่มีไซต์ที่ครบตรวจเช็กใน 30 วัน':status==='care'?'ไม่มีไซต์ที่ต้องดูแลตอนนี้':status==='installed'?'ยังไม่มีไซต์ที่ติดตั้ง':allMonths||filtered?emptyFilt(allMonths,f,mLabel(curK)):'ไม่มีไซต์ที่สำรวจในเดือน'+mLabel(curK)}</div>`}
     ${!BOARD&&list.length>10?`<div class="pgf"><label class="pgper">แถวต่อหน้า <select id="jper" aria-label="แถวต่อหน้า">${[10,20,50].map(n=>`<option ${per===n?'selected':''}>${n}</option>`).join('')}</select></label><span class="pgc">${p0+1}–${p0+shown.length} จาก ${list.length}</span><span class="pgn"><button class="ib" data-pg="-1" ${f.pg===0?'disabled':''} aria-label="หน้าก่อน">${svg('chev','currentColor',2)}</button>${Array.from({length:pages},(_,i)=>i).filter(i=>pages<=7||i===0||i===pages-1||Math.abs(i-f.pg)<=1).map((i,k,a)=>`${k&&i-a[k-1]>1?'<em>…</em>':''}<button class="pgb ${i===f.pg?'on':''}" data-pgto="${i}" ${i===f.pg?'aria-current="page"':''}>${i+1}</button>`).join('')}<button class="ib nx" data-pg="1" ${f.pg>=pages-1?'disabled':''} aria-label="หน้าถัดไป">${svg('chev','currentColor',2)}</button></span></div>`:''}
   </section>
@@ -3483,7 +3491,7 @@ function viewJob(id){
       ${due?`<div class="btns"><button class="btn dk" data-act="pmdone">บันทึกว่าตรวจเช็กแล้ววันนี้</button></div>`:''}</section>`;
     if(myRole()==='admin')right+=`<section class="act"><div><h2>ติดตั้งเพิ่ม</h2><span class="sub">ไซต์เดิม เริ่มที่จองคิวสำรวจ</span></div><div class="btns"><button class="btn" data-act="addon">ขอติดตั้งเพิ่ม</button></div></section>`;
   }
-  {const sj=j.siteId?siteJobs(j.siteId).filter(x=>x.id!==j.id):[];if(sj.length)right+=`<section class="act" aria-label="งานของไซต์นี้"><h2>งานของไซต์นี้</h2>${sj.map(x=>`<a href="#job-${esc(x.id)}" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(x.jobNo?'#'+x.jobNo:'ยังไม่มีเลข')} · ${esc(x.type==='addon'?'ติดตั้งเพิ่ม':'งานแรก')}</span>${jobPill(x)}</a>`).join('')}</section>`}
+  {const sj=j.siteId?siteJobs(j.siteId).filter(x=>x.id!==j.id):[];if(sj.length)right+=`<section class="act" aria-label="งานของไซต์นี้"><h2>งานของไซต์นี้</h2>${sj.map(x=>`<a href="#job-${esc(x.id)}" class="sjl" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(x.jobNo?'#'+x.jobNo:'ยังไม่มีเลข')} · ${esc(x.type==='addon'?'ติดตั้งเพิ่ม':'งานแรก')}</span>${jobPill(x)}</a>`).join('')}</section>`}
   const hist=[...(j.history||[])].reverse();
   const PHC2={pre:'b',offer:'g',ins:'o',post:'v'};
   return `${datalists()}
@@ -3626,7 +3634,7 @@ function signPad(c){return new Promise(res=>{
 function secForm(sec,j,c,s,cur){
   const obj=getT(sec.tgt,j,c,s);
   return `<section class="sec ${cur?'cur':'editing'}" data-sec="${sec.id}" id="sec-${sec.id}"><h2>${esc(sec.title)}${cur?'<span class="tg">ขั้นปัจจุบัน</span>':'<span class="tg" style="background:#eef0f3;color:var(--ink)">กำลังแก้ไข</span>'}</h2>
-    <div class="fgrid">${sec.fields.map(fl=>fieldHtml(sec,fl,obj,'f')).join('')}</div>
+    <div class="fgrid">${sec.fields.filter(fl=>!(sec.id==='install'&&(fl[0]==='supervisor'||fl[0]==='installTeam'&&j.status==='active'&&(j.stage===ST.INSREQ||j.stage===ST.INSTALL)))).map(fl=>fieldHtml(sec,fl,obj,'f')).join('')}</div>
     ${sec.id==='eq'?`<div class="eqsls">${invUnits(obj).slice(1).map(slaveRow).join('')}</div><button class="btn sm" type="button" data-eqsadd="1" style="margin-top:8px">+ เพิ่มเครื่อง Slave</button>`:''}
     <div class="save"><button class="btn sm" data-cancel="${sec.id}">ยกเลิก</button><button class="btn pri sm" data-save="${sec.id}">บันทึก</button></div></section>`;
 }
@@ -4053,6 +4061,11 @@ function insBusy(p,j){const D=insDays(j);if(!D.length)return '';
   if(sup)return 'คุมงาน '+(sup.title||'');
   const sv=Object.values(S.jobs).find(x=>x.status==='active'&&x.stage<=ST.SURVEY&&x.stage>=ST.ACCEPT&&(x.surveyorId?x.surveyorId===p.id:x.surveyor===p.name)&&D.includes(x.surveyDate||x.queueDate));
   return sv?'สำรวจ '+fd(sv.surveyDate||sv.queueDate):''}
+(()=>{const up=t=>{t.classList.toggle('more',t.scrollLeft+t.clientWidth<t.scrollWidth-4)};
+  document.addEventListener('scroll',e=>{if(e.target.classList&&e.target.classList.contains('jtabs'))up(e.target)},true);
+  addEventListener('resize',()=>document.querySelectorAll('.jtabs').forEach(up));
+  new MutationObserver(()=>document.querySelectorAll('.jtabs').forEach(t=>{const o=t.querySelector('.on');if(o&&t.dataset.on!==o.dataset.jtab){t.dataset.on=o.dataset.jtab;const l=o.offsetLeft-t.offsetLeft;if(l<t.scrollLeft||l+o.offsetWidth>t.scrollLeft+t.clientWidth)t.scrollLeft=l-16}up(t)})).observe(document.getElementById('app')||document.body,{childList:true,subtree:true})})();
+function ibDrop(h){return h.replace(/<span class="ib ibx" data-ibk="([\w-]+)" aria-hidden="true"><\/span>/g,(m,k)=>h.includes('<button type="button" class="ib" data-ibk="'+k+'"')?m:'')}
 function asgCard(j,act){
   const st=asgState(j);
   const D=insDays(j);const P=insPeople();const teams=[...new Set(Object.values(S.jobs).map(x=>x.installTeam).filter(x=>x&&x.length<60))].sort();
@@ -4061,10 +4074,11 @@ function asgCard(j,act){
     <div><h2>มอบงานติดตั้ง</h2><span class="sub">${D.length?`ติดตั้ง ${fd(D[0])}${D.length>1?' – '+fd(D[D.length-1])+' ('+D.length+' วัน)':''}`:'ยังไม่มีวันติดตั้ง'}</span></div>
     <div class="fld"><span>ผู้คุมงาน</span><div class="asgp" role="radiogroup" aria-label="ผู้คุมงาน">${P.length?P.map(p=>{const b=insBusy(p,j);return `<button type="button" role="radio" aria-checked="${st.sup===p.id}" class="asgc ${st.sup===p.id?'on':''} ${b?'busy':''}" data-asgsup="${esc(j.id)}|${esc(p.id)}" ${act?'':'disabled'}><b>${esc(p.name)}</b><small>${b?esc(b):'ว่าง'}</small></button>`}).join(''):'<span class="sub">ยังไม่มีรายชื่อคนหน้างาน (อนุมัติใน Console)</span>'}</div></div>
     <label class="fld" for="asg-t-${esc(j.id)}">ผู้รับเหมา / ทีมช่าง<input id="asg-t-${esc(j.id)}" data-asgteam="${esc(j.id)}" list="asg-tl" value="${esc(st.team)}" placeholder="ชื่อผู้รับเหมา" ${act?'':'disabled'}><datalist id="asg-tl">${teams.map(t=>`<option value="${esc(t)}">`).join('')}</datalist></label>
+    ${act?`<span class="sub asgmiss" ${st.sup&&st.team.trim()?'hidden':''}>ยังขาด: ${[!st.sup&&'ผู้คุมงาน',!st.team.trim()&&'ผู้รับเหมา'].filter(Boolean).join(', ')}</span>`:''}
     <div class="btns"><button class="btn dk" data-asggo="${esc(j.id)}" ${act&&st.sup&&st.team.trim()?'':'disabled'}>${pick?'มอบงาน · ส่งให้'+esc(pick.name):'มอบงาน'}</button>${act?'<button class="btn sm" data-act="back" style="box-shadow:none;color:var(--mut)">ย้อนกลับขั้นก่อนหน้า</button>':''}</div>
-    ${act?(!st.sup||!st.team.trim()?`<span class="sub">ยังขาด: ${[!st.sup&&'ผู้คุมงาน',!st.team.trim()&&'ผู้รับเหมา'].filter(Boolean).join(', ')}</span>`:''):`<span class="sub">รอ${esc(ownerOf(j))}มอบงาน</span>`}
+    ${act?'':`<span class="sub">รอ${esc(ownerOf(j))}มอบงาน</span>`}
   </section>`}
-/* ค่าที่ผู้ใช้เลือกในการ์ด (ถ้ายังไม่แตะ ใช้ค่าจากงาน เช่น ที่กรอกในฟอร์มซ้าย) */
+/* ค่าที่ผู้ใช้เลือกในการ์ด (ถ้ายังไม่แตะ ใช้ค่าจากงาน เช่น ผู้รับเหมาที่ใส่ตอนจองคิวติดตั้ง) */
 function asgState(j){const u=(S.asg||{})[j.id]||{};return {sup:u.sup!==undefined?u.sup:(j.supervisorId||(insPeople().find(p=>p.name===j.supervisor)||{}).id||''),team:u.team!==undefined?u.team:(j.installTeam||'')}}
 async function asgGo(id){const j=S.jobs[id];if(!j)return;const st=asgState(j);if(!st.sup||!st.team.trim())return;
   const p=insPeople().find(x=>x.id===st.sup);if(!p)return toast('เลือกผู้คุมงานก่อน');const b=insBusy(p,j);
@@ -4077,7 +4091,8 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-asgsup],[d
   if(t.dataset.asggo){asgGo(t.dataset.asggo);return}
   if(t.dataset.mtnow){openMeterNow();return}});
 document.addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.asgteam){const id=t.dataset.asgteam;S.asg=S.asg||{};(S.asg[id]=S.asg[id]||{}).team=t.value;
-  const g=document.querySelector(`[data-asggo="${CSS.escape(id)}"]`);if(g&&S.jobs[id])g.disabled=!(asgState(S.jobs[id]).sup&&t.value.trim())}});
+  const g=document.querySelector(`[data-asggo="${CSS.escape(id)}"]`);if(g&&S.jobs[id])g.disabled=!(asgState(S.jobs[id]).sup&&t.value.trim());
+  const ms=g&&g.closest('.act').querySelector('.asgmiss');if(ms&&S.jobs[id]){const q=asgState(S.jobs[id]),L=[!q.sup&&'ผู้คุมงาน',!t.value.trim()&&'ผู้รับเหมา'].filter(Boolean);ms.hidden=!L.length;ms.textContent='ยังขาด: '+L.join(', ')}}});
 /* ===== รอบ 4b: บันทึกสมาร์ทมิเตอร์ที่ติดตั้งอยู่แล้ว (เริ่มก่อนวันนี้ได้ · การจองอัตโนมัติที่ชนจะย้ายไปเครื่องอื่น) ===== */
 const MTNF=()=>[['device','เครื่องที่ติดตั้งอยู่','sel',METERS.map(d=>'เครื่อง '+d),{req:1}],['title','ลูกค้า / ไซต์','text',{req:1,ph:'เช่น บ้านคุณสมชาย บางนา'}],['borrower','ผู้ยืม','text',{ph:'คนที่เอาเครื่องไป'}],['phone','เบอร์ติดต่อ','tel'],
   ['from','ติดตั้งไปเมื่อ','date',{req:1}],['to','จะเก็บเครื่องวันที่','date',{req:1}],['note','หมายเหตุ','area',{full:1}]];
