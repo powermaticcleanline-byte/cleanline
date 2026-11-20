@@ -4507,7 +4507,7 @@ document.addEventListener('click',async e=>{
   if(t.id==='pfdelphoto'){await saveProfile('');return}
   if(t.id==='signout'){CLGDB.user.signOut();return}
   if(t.dataset.files){const jj=S.jobs[t.dataset.files]||{};if(window.CLGDB&&CLGDB.files&&S.db)CLGDB.files.open(t.dataset.files,jj.title||'',jj.folderUrl);else if(jj.folderUrl)window.open(jj.folderUrl,'_blank','noopener');return}
-  if(t.dataset.mkfolder){t.disabled=true;try{const r=await S.db.folder(t.dataset.mkfolder);toast('สร้างโฟลเดอร์งานแล้ว');S.db.refresh();t.disabled=false;const jj=S.jobs[t.dataset.mkfolder]||{};if(window.CLGDB&&CLGDB.files)CLGDB.files.open(t.dataset.mkfolder,jj.title||'',r.url);else if(r.url)location.href=r.url}catch(x){toast(x.message);t.disabled=false}}
+  if(t.dataset.mkfolder){t.disabled=true;try{const r=await S.db.folder(t.dataset.mkfolder);t.disabled=false;if(!r.id){toast('ยังสร้างโฟลเดอร์ไม่ได้ ต้องอัปเดตตัวกลางเป็น 1.2.7');return}toast('สร้างโฟลเดอร์งานแล้ว');S.db.refresh();const jj=S.jobs[t.dataset.mkfolder]||{};if(window.CLGDB&&CLGDB.files)CLGDB.files.open(t.dataset.mkfolder,jj.title||'',r.url);else if(r.url)location.href=r.url}catch(x){toast(x.message);t.disabled=false}}
 });
 document.addEventListener('click',e=>{if(e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;const a=e.target.closest('a[href^="#"]');if(!a||a.target)return;const h=a.getAttribute('href');if(h.length<2)return;e.preventDefault();if(location.hash!==h)location.hash=h.slice(1);else render()});
 addEventListener('scroll',()=>{const b=document.body,y=scrollY;if(!b.classList.contains('pgsc')){if(y>160)b.classList.add('pgsc')}else if(y<24)b.classList.remove('pgsc')},{passive:true});
