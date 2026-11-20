@@ -265,7 +265,7 @@
           } });
         screen('login', null, msg);
         var b = document.getElementById('clg-btn');
-        if (b) google.accounts.id.renderButton(b, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signin_with', locale: 'th', width: st.page === 'engineer' || st.page === 'admin' ? Math.max(240, Math.min(400, (window.innerWidth || 360) - 56)) : 300 });
+        if (b) google.accounts.id.renderButton(b, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signin_with', locale: 'th', width: st.page === 'engineer' ? Math.max(240, Math.min(400, (window.innerWidth || 360) - 56)) : st.page === 'admin' ? Math.min(320, (window.innerWidth || 360) - 48) : 300 });
         google.accounts.id.prompt();
       });
     });
@@ -330,6 +330,20 @@
       '#clg.man #clg-btn{justify-content:center;margin:0 0 4px}#clg.man .cg-m{text-align:center}' +
       '#clg.man .cm-ft{margin-top:10px;font-size:12.5px;color:#6b6f7b;text-align:center}' +
       '#clg.man .cg-p{font-size:15px;color:#3a3d47}#clg.man .b{background:#16171d}#clg.man .b.l{background:#eceee8;color:#16171d}' +
+      '#clg.mg{display:grid;grid-template-columns:1fr;place-items:center;padding:24px;overflow:auto;background:#f1f0ee;color:#16171d;font-family:"Noto Sans Thai Looped","Noto Sans Thai",Inter,system-ui,sans-serif}' +
+      '#clg.mg .mg-c{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);width:100%;max-width:1040px;min-height:min(600px,calc(100vh - 48px));padding:12px;border-radius:28px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04),0 24px 64px -32px rgba(0,0,0,.18)}' +
+      '#clg.mg .mg-art{position:relative;display:grid;place-items:center;border-radius:20px;background:linear-gradient(160deg,#eff8e4 0%,#dbefc2 100%);overflow:hidden}' +
+      '#clg.mg .mg-lg{position:absolute;left:24px;top:24px;height:20px;width:auto}' +
+      '#clg.mg .mg-m{width:min(78%,340px);height:auto;filter:drop-shadow(0 24px 32px rgba(40,70,10,.18))}' +
+      '#clg.mg .mg-f{position:relative;display:flex;flex-direction:column;padding:24px 24px 24px 48px}' +
+      '#clg.mg .mg-tp{align-self:flex-end;font-size:14px;color:#606f85}#clg.mg .mg-tp b{color:#16171d;font-weight:600}' +
+      '#clg.mg .mg-in{flex:1;display:flex;flex-direction:column;justify-content:center;width:100%;max-width:320px;margin:0 auto}' +
+      '#clg.mg .mg-h{font-size:40px;line-height:1.2;font-weight:700;letter-spacing:-.02em}' +
+      '#clg.mg .mg-s{margin:8px 0 24px;font-size:14px;line-height:1.5;color:#606f85}' +
+      '#clg.mg #clg-btn{justify-content:flex-start;margin:0}#clg.mg .cg-m{margin-top:12px}' +
+      '#clg.mg .mg-ft{align-self:center;font-size:12px;color:#8a909a}' +
+      '#clg.mg .cg-p{font-size:14px;color:#3a3d47}#clg.mg .b{background:#16171d}#clg.mg .b.l{background:#eeefea;color:#16171d}' +
+      '@media (max-width:760px){#clg.mg{padding:0;place-items:stretch;background:#fff}#clg.mg .mg-c{grid-template-columns:1fr;grid-template-rows:auto 1fr;min-height:100vh;border-radius:0;box-shadow:none;padding:8px}#clg.mg .mg-art{height:38vh;min-height:240px;padding-top:40px;box-sizing:border-box}#clg.mg .mg-m{width:auto;height:auto;max-width:72%;max-height:86%}#clg.mg .mg-f{padding:24px 16px 16px}#clg.mg .mg-tp{display:none}#clg.mg .mg-h{font-size:32px}#clg.mg .mg-in{max-width:none;justify-content:flex-start}}' +
       '#clg-bn{position:fixed;right:20px;bottom:20px;z-index:99998;background:#f0b23a;color:#15230f;border-radius:999px;padding:8px 16px;font:600 14px Inter,"Noto Sans Thai",Prompt,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:92vw;text-align:center}';
     document.head.appendChild(s);
   }
@@ -414,9 +428,18 @@
         '<div class="cg-h" role="heading" aria-level="1">' + esc(nm) + '</div><div class="cg-tg">' + esc(PAGE_TAG[st.page] || '') + '</div>' + body +
         '<div class="cg-ft">แผนก Energy เพาเวอร์เมติค</div></div>';
     };
-    if (st.page === 'engineer' || st.page === 'admin') {   // Management ใช้หน้าเข้าสู่ระบบแบบเดียวกับ Man (ผู้ใช้สั่ง 20 พ.ย.)
+    if (st.page === 'admin') {   // Management: การ์ดกลางจอ ภาพมาสคอตซ้าย ฟอร์มขวา (ตามภาพอ้างอิงจากผู้ใช้ 20 พ.ย.)
+      el.className = 'mg';
+      var HM = { login: ['เข้าสู่ระบบ', 'ใช้บัญชี Google ของบริษัท'], pending: ['รออนุมัติ', 'ผู้ดูแลระบบยังไม่ได้อนุมัติบัญชีนี้'], wrong: ['บัญชีนี้ใช้ Management ไม่ได้', 'ลองเปลี่ยนบัญชี หรือไปหน้าที่บัญชีนี้ใช้ได้'] };
+      frame = function (body) {
+        var hd = HM[kind] || HM.login;
+        return '<div class="mg-c"><div class="mg-art"><img class="mg-lg" src="logo.webp" alt="CLEANLINE"><img class="mg-m" src="mascot-wave.webp" alt="" width="488" height="512"></div>' +
+          '<div class="mg-f"><div class="mg-tp">CLEANLINE <b>Management</b></div><div class="mg-in"><div class="mg-h" role="heading" aria-level="1">' + hd[0] + '</div><p class="mg-s">' + hd[1] + '</p>' + body + '</div>' +
+          '<div class="mg-ft">แผนก Energy เพาเวอร์เมติค</div></div></div>';
+      };
+    } else if (st.page === 'engineer') {
       el.className = 'man';
-      var MG = st.page === 'admin';
+      var MG = false;
       var HEAD = { login: [MG ? 'สวัสดี! เริ่มงานกัน' : 'สวัสดี! ไปลุยงานกัน', 'ลงชื่อเข้าใช้ครั้งเดียว ใช้ได้ยาว ๆ'], pending: ['อีกนิดเดียวนะ', 'รอผู้ดูแลระบบอนุมัติบัญชีของคุณ'], wrong: ['บัญชีนี้ใช้ ' + (MG ? 'Management' : 'Man') + ' ไม่ได้', 'ลองเปลี่ยนบัญชี หรือไปหน้าที่บัญชีนี้ใช้ได้'] };
       frame = function (body) {
         var hd = HEAD[kind] || HEAD.login;
