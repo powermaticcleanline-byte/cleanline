@@ -489,7 +489,7 @@
 
 
   // ===== หน้าไฟล์งานในแอป (ตัวกลาง 1.2.6: ls/fput/fmk/fren/fdel) — Management และ Man ใช้ร่วมกัน =====
-  // เปิดเป็นหน้าเต็มจอทับแอป · ปุ่มย้อนกลับของมือถือปิดได้ · ตัวกลางเก่า (ไม่รู้จัก ls) → เปิด Google Drive แบบเดิม
+  // เปิดเป็นหน้าเต็มจอทับแอป · ปุ่มย้อนกลับของมือถือปิดได้ · ตัวกลางเก่า (ไม่รู้จัก ls) → บอกให้อัปเดตตัวกลาง
   var files = (function () {
     var F = null, SV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
     var I = {
@@ -563,8 +563,7 @@
       F.el.querySelector('.cf-fw').innerHTML = bc +
         '<div class="cf-hd"><h2>' + e(atRoot ? 'โฟลเดอร์งาน' : r.folder.name) + '</h2><button class="cf-sq" data-mk aria-label="สร้างโฟลเดอร์ใหม่" title="โฟลเดอร์ใหม่">' + I.nf + '</button><button class="cf-bt" data-up>' + I.up + 'อัปโหลดไฟล์</button><input type="file" multiple hidden></div><div class="cf-st" role="status"></div>' +
         (r.folders.length ? '<div class="cf-sc">โฟลเดอร์<small>' + r.folders.length + ' โฟลเดอร์</small></div><div class="cf-fds">' + fds + '</div>' : '') +
-        '<div class="cf-sc">ไฟล์<small>' + r.files.length + ' ไฟล์</small></div><div class="cf-tb">' + (r.files.length ? '<div class="cf-rw cf-th"><span></span><span>ชื่อ</span><span>แก้ไขล่าสุด</span><span>ขนาด</span><span></span><span></span></div>' + rows : '<div class="cf-em">ยังไม่มีไฟล์ในโฟลเดอร์นี้</div>') + '<div class="cf-drop">' + I.up + 'ลากไฟล์มาวางที่นี่ เพื่ออัปโหลด</div></div>' +
-        '<a class="cf-gd" href="' + e(atRoot ? F.url : 'https://drive.google.com/drive/folders/' + r.folder.id) + '" target="_blank" rel="noopener">' + I.ext + 'เปิดใน Google Drive</a>';
+        '<div class="cf-sc">ไฟล์<small>' + r.files.length + ' ไฟล์</small></div><div class="cf-tb">' + (r.files.length ? '<div class="cf-rw cf-th"><span></span><span>ชื่อ</span><span>แก้ไขล่าสุด</span><span>ขนาด</span><span></span><span></span></div>' + rows : '<div class="cf-em">ยังไม่มีไฟล์ในโฟลเดอร์นี้</div>') + '<div class="cf-drop">' + I.up + 'ลากไฟล์มาวางที่นี่ เพื่ออัปโหลด</div></div>';
     }
     function item(id) { var r = F.r; return r.files.filter(function (f) { return f.id === id; })[0] || r.folders.filter(function (f) { return f.id === id; })[0]; }
     function dlg(title, msg, val, okT, red) {
@@ -581,7 +580,7 @@
     function upload(list) {
       list = [].slice.call(list || []); if (!list.length) return;
       var i = 0, big = list.filter(function (f) { return f.size > 20 * 1048576; });
-      if (big.length) { say(big[0].name + ' ใหญ่เกิน 20 MB อัปโหลดใน Google Drive แทน', true); return; }
+      if (big.length) { say(big[0].name + ' ใหญ่เกิน 20 MB อัปโหลดไม่ได้', true); return; }
       function next() {
         if (i >= list.length) return load(F.cur).then(function () { say('อัปโหลดแล้ว ' + list.length + ' ไฟล์'); });
         var f = list[i++]; say('กำลังอัปโหลด ' + i + ' จาก ' + list.length + ' · ' + f.name);
@@ -594,7 +593,7 @@
     function menu(id, btn) {
       var it = item(id); if (!it) return; var isF = !('mime' in it);
       var p = document.createElement('div'); p.className = 'cf-pop'; p.setAttribute('role', 'menu');
-      p.innerHTML = '<button role="menuitem" data-a="ren">' + I.pen + 'เปลี่ยนชื่อ</button>' + (isF ? '' : '<button role="menuitem" data-a="dl">' + I.dl + 'ดาวน์โหลด</button>') + '<button role="menuitem" data-a="drive">' + I.ext + 'เปิดใน Google Drive</button><button role="menuitem" class="cf-r" data-a="del">' + I.tr + 'ลบ</button>';
+      p.innerHTML = '<button role="menuitem" data-a="ren">' + I.pen + 'เปลี่ยนชื่อ</button>' + (isF ? '' : '<button role="menuitem" data-a="dl">' + I.dl + 'ดาวน์โหลด</button>') + '<button role="menuitem" class="cf-r" data-a="del">' + I.tr + 'ลบ</button>';
       F.el.appendChild(p); var b = btn.getBoundingClientRect(); p.style.top = Math.min(b.bottom + 4, innerHeight - p.offsetHeight - 8) + 'px'; p.style.left = Math.max(8, b.right - 220) + 'px'; p.querySelector('button').focus();
       function shut() { p.remove(); document.removeEventListener('pointerdown', out, true); }
       function out(ev) { if (!p.contains(ev.target)) shut(); }
@@ -602,24 +601,25 @@
       p.onkeydown = function (ev) { if (ev.key === 'Escape') { ev.stopPropagation(); shut(); btn.focus(); } };
       p.onclick = function (ev) {
         var a = ev.target.closest('[data-a]'); if (!a) return; shut(); a = a.dataset.a;
-        if (a === 'drive') window.open(it.url, '_blank', 'noopener');
-        if (a === 'dl') { say('กำลังเตรียมไฟล์…'); db.call('file', { fileId: id }).then(function (r) { var l = document.createElement('a'); l.href = 'data:' + r.mime + ';base64,' + r.b64; l.download = it.name; document.body.appendChild(l); l.click(); l.remove(); say(''); }).catch(function (x) { say(errText(x), true); }); }
+        if (a === 'dl') dl(it);
         if (a === 'ren') dlg('เปลี่ยนชื่อ', '', it.name, 'บันทึกชื่อ').then(function (v) { if (v && v !== it.name) act(db.call('fren', { jobId: F.job, id: id, name: v }), 'เปลี่ยนชื่อแล้ว'); });
         if (a === 'del') dlg('ลบ ' + (isF ? 'โฟลเดอร์' : 'ไฟล์') + 'นี้?', it.name + (isF ? ' และทุกอย่างข้างใน' : '') + ' จะย้ายไปถังขยะของ Google Drive กู้คืนได้ใน 30 วัน', null, 'ลบ', true).then(function (v) { if (v) act(db.call('fdel', { jobId: F.job, id: id }), 'ลบแล้ว'); });
       };
     }
+    function dl(it) { say('กำลังเตรียมไฟล์…'); db.call('file', { fileId: it.id }).then(function (r) { var l = document.createElement('a'); l.href = 'data:' + r.mime + ';base64,' + r.b64; l.download = it.name; document.body.appendChild(l); l.click(); l.remove(); say(''); }).catch(function (x) { say(errText(x), true); }); }
     function view(f) {
-      var k = kind(f); if (k === 'g' || k === 'o' || (k === 'p' && innerWidth <= 640)) { window.open(f.url, '_blank', 'noopener'); return; }
+      var k = kind(f); if (k === 'g') { window.open(f.url, '_blank', 'noopener'); return; }   // ไฟล์ Google Docs/Sheets ดาวน์โหลดตรงไม่ได้ ต้องเปิดใน Google
+      if (k === 'o' || (k === 'p' && innerWidth <= 640)) return dl(f);   // ดูในแอปไม่ได้ → ดาวน์โหลดให้เปิดด้วยแอปในเครื่อง
       var v = document.createElement('div'); v.className = 'cf-vw'; F.el.appendChild(v);
       function show(ff) {
         var n = F.imgs.indexOf(ff);
-        v.innerHTML = '<div class="cf-vt"><b>' + e(ff.name) + '</b><a href="' + e(ff.url) + '" target="_blank" rel="noopener">' + I.ext + 'Drive</a><button class="cf-x" data-x aria-label="ปิด">' + I.x + '</button></div><div class="cf-vb"><span style="color:rgba(255,255,255,.7)">กำลังโหลด…</span></div><div class="cf-vf">' + (n >= 0 && F.imgs.length > 1 ? (n + 1) + ' จาก ' + F.imgs.length + ' รูป · ' : '') + fsz(ff.size) + '</div>';
+        v.innerHTML = '<div class="cf-vt"><b>' + e(ff.name) + '</b><button class="cf-x" data-x aria-label="ปิด">' + I.x + '</button></div><div class="cf-vb"><span style="color:rgba(255,255,255,.7)">กำลังโหลด…</span></div><div class="cf-vf">' + (n >= 0 && F.imgs.length > 1 ? (n + 1) + ' จาก ' + F.imgs.length + ' รูป · ' : '') + fsz(ff.size) + '</div>';
         v.querySelector('[data-x]').focus();
         db.call('file', { fileId: ff.id }).then(function (r) {
           var src = 'data:' + r.mime + ';base64,' + r.b64, b = v.querySelector('.cf-vb'); if (!b) return;
           b.innerHTML = (kind(ff) === 'p' ? '<iframe title="' + e(ff.name) + '" src="' + src + '"></iframe>' : '<img alt="' + e(ff.name) + '" src="' + src + '">') +
             (n >= 0 && F.imgs.length > 1 ? '<button class="cf-vn" data-pv style="left:12px" aria-label="รูปก่อนหน้า">‹</button><button class="cf-vn" data-nx style="right:12px" aria-label="รูปถัดไป">›</button>' : '');
-        }).catch(function (x) { var b = v.querySelector('.cf-vb'); if (b) b.innerHTML = '<a class="cf-gd" style="color:#fff" href="' + e(ff.url) + '" target="_blank" rel="noopener">' + e(errText(x)) + ' · เปิดใน Google Drive</a>'; });
+        }).catch(function (x) { var b = v.querySelector('.cf-vb'); if (b) b.innerHTML = '<p style="color:#fff">' + e(errText(x)) + '</p>'; });
         v.onclick = function (ev) { if (ev.target.closest('[data-x]')) end(); else if (ev.target.closest('[data-nx]')) show(F.imgs[(n + 1) % F.imgs.length]); else if (ev.target.closest('[data-pv]')) show(F.imgs[(n - 1 + F.imgs.length) % F.imgs.length]); };
         v.onkeydown = function (ev) { if (ev.key === 'Escape') { ev.stopPropagation(); end(); } if (n >= 0 && ev.key === 'ArrowRight') show(F.imgs[(n + 1) % F.imgs.length]); if (n >= 0 && ev.key === 'ArrowLeft') show(F.imgs[(n - 1 + F.imgs.length) % F.imgs.length]); };
       }
