@@ -2175,6 +2175,7 @@ body:not(.sbmin) #nav1 a.snv{height:40px!important;min-height:40px!important;gap
 }
 @media (max-width:640px){.ph,.ph>div,.ph .mnav{min-width:0!important}.ph h1{overflow-wrap:anywhere}.ph .mnav .mlbl{min-width:0;overflow:hidden;text-overflow:ellipsis}}
 @media (min-width:641px){table.jt2 th.c-st,table.jt2 td.c-st{width:208px!important;min-width:208px!important}}
+.jplant{margin-top:4px!important;font-size:14px;color:#606f85}.jplant b{margin-left:4px;color:#1b1d22;font-weight:600}
 .jtw{display:flex;flex-direction:column;min-width:0}.jtabs{display:flex;gap:4px;padding:0;overflow-x:auto;scrollbar-width:none;position:relative;z-index:1}
 .jtabs button{flex:none;min-height:44px;padding:0 24px;border:0;border-radius:16px 16px 0 0;background:#d8dde4;color:#606f85;font:600 14px inherit;font-family:inherit;cursor:pointer}
 .jtabs button:hover{background:#dde1e7;color:var(--ink)}
@@ -3489,7 +3490,7 @@ function viewJob(id){
   <div class="ph"><div>
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>
-      <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p></div>
+      <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p>${j.equipment&&j.equipment.plantName?`<p class="jplant">Plant <b>${esc(j.equipment.plantName)}</b></p>`:''}</div>
     <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<button class="btn" data-files="${esc(j.id)}">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</button>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
       return mnu([fx?mi(`data-fname="${esc(j.id)}"`,'pen','เปลี่ยนชื่อโฟลเดอร์'):'',fx&&(cx||dx)?'<hr>':'',cx?mi('data-act="cancel"','xc','ยกเลิกคิว',1):'',dx?mi(`data-jdel="${esc(j.id)}"`,'trash','ลบงาน',1):''].filter(x=>x!=='<hr>'||fx&&(cx||dx)),'อื่นๆ')})()}</div></div>
   ${j.status==='active'?`<section class="card jst">
