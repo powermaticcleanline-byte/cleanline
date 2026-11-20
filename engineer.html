@@ -1202,7 +1202,7 @@ function photoTiles(j,locked,KS=PHOTO_KINDS){
   return `<div class="ptiles${S.tried&&S.tried[j.id]?' tried':''}">${KS.map(([k,t,req])=>{const a=P.filter(p=>p.kind===k);
     return `<div class="ptile ${a.length?'has':req?'need':''}"><div class="ph"><b>${esc(t)}${req?' <em class="req">*</em>':''}</b><span class="cnt">${a.length}</span></div>
      <div class="thumbs">${a.map(p=>{const src=String(p.dataRef||'');return /^data:image\//.test(src)||safeUrl(src)?`<button class="thumb" data-delph="${esc(p.id)}" ${locked?'disabled':''} aria-label="รูป${esc(t)} ${locked?'':'(แตะเพื่อลบ)'}"><img src="${esc(src)}" alt=""></button>`:''}).join('')}</div>
-     ${locked?'':KS===IC_KINDS?`<label class="btn shoot">${ic('cam')}ถ่าย / เลือกรูป<input type="file" accept="image/*" multiple data-photo="${k}" aria-label="ถ่ายหรือเลือกรูป${esc(t)}"></label>`:`<label class="btn shoot">${ic('cam')}ถ่ายรูป<input type="file" accept="image/*" capture="environment" multiple data-photo="${k}" aria-label="ถ่ายรูป${esc(t)}"></label>`}</div>`}).join('')}</div>`;
+     ${locked?'':`<label class="btn shoot">${ic('cam')}ถ่าย / เลือกรูป<input type="file" accept="image/*" multiple data-photo="${k}" aria-label="ถ่ายหรือเลือกรูป${esc(t)}"></label>`}</div>`}).join('')}</div>`;
 }
 function missingPhotos(j){const P=S.api.listPhotos(j.id);return PHOTO_KINDS.filter(([k,,r])=>r&&!P.some(p=>p.kind===k)).map(x=>x[1])}
 async function svSave(id,patch,hist,okMsg){
