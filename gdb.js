@@ -17,7 +17,7 @@
     if (!CFG.api) return Promise.reject(mkErr('setup', 'ยังไม่ได้ตั้งค่า config.js (ที่อยู่ตัวกลาง)'));
     req.token = st.token;
     var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var to = setTimeout(function () { ctl && ctl.abort(); }, req.op === 'batch' || req.op === 'upload' ? 180000 : 60000);
+    var to = setTimeout(function () { ctl && ctl.abort(); }, req.op === 'batch' || req.op === 'upload' || req.op === 'fput' ? 180000 : 60000);
     return fetch(CFG.api, { method: 'POST', body: JSON.stringify(req), redirect: 'follow',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, signal: ctl ? ctl.signal : undefined })
       .catch(function () { throw mkErr('network', 'เชื่อมต่อไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่'); })
@@ -487,5 +487,175 @@
     banner('sys', s.maintenance && !(st.me && st.me.role === 'sysadmin') ? 'ระบบปิดปรับปรุงชั่วคราว ดูข้อมูลได้แต่บันทึกไม่ได้' + (s.msg ? ' · ' + s.msg : '') : '');
   }
 
-  window.CLGDB = { connect: connect, db: db, user: user, _st: st };
+
+  // ===== หน้าไฟล์งานในแอป (ตัวกลาง 1.2.6: ls/fput/fmk/fren/fdel) — Management และ Man ใช้ร่วมกัน =====
+  // เปิดเป็นหน้าเต็มจอทับแอป · ปุ่มย้อนกลับของมือถือปิดได้ · ตัวกลางเก่า (ไม่รู้จัก ls) → เปิด Google Drive แบบเดิม
+  var files = (function () {
+    var F = null, SV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+    var I = {
+      fd: SV + '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+      doc: SV + '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
+      img: SV + '<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>',
+      gs: SV + '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 3v18"/></svg>',
+      up: SV + '<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>',
+      nf: SV + '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 10v6M9 13h6"/></svg>',
+      ext: SV + '<path d="M14 4h6v6M20 4l-9 9M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>',
+      more: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
+      pen: SV + '<path d="M4 20h4L19 9l-4-4L4 16z"/></svg>', tr: SV + '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+      dl: SV + '<path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>', lk: SV + '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+      back: SV + '<path d="M15 18l-6-6 6-6"/></svg>', x: SV + '<path d="M6 6l12 12M18 6 6 18"/></svg>'
+    };
+    var CSS = '#clf{position:fixed;inset:0;z-index:9000;overflow:auto;background:#f3f4f2;color:#16171d;font-family:inherit}' +
+      '#clf .cf-ft{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:12px 16px;background:rgba(243,244,242,.94);backdrop-filter:blur(10px)}' +
+      '#clf .cf-ft h1{margin:0;font-size:16px;line-height:1.3;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#clf .cf-ft h1 small{display:block;font-size:12px;font-weight:500;color:#606f85}' +
+      '#clf .cf-ib{width:44px;height:44px;flex:none;border:0;border-radius:14px;background:#fff;color:#16171d;display:grid;place-items:center;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06)}#clf .cf-ib svg{width:20px;height:20px}' +
+      '#clf .cf-fw{max-width:1040px;margin:0 auto;padding:8px 16px 48px;display:grid;gap:16px}' +
+      '#clf .cf-bc{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:14px;color:#606f85}#clf .cf-bc button{border:0;background:none;font:inherit;color:#606f85;min-height:40px;padding:0 4px;cursor:pointer;border-radius:8px}#clf .cf-bc button:hover{color:#16171d}#clf .cf-bc b{color:#16171d;padding:0 4px}#clf .cf-bc i{font-style:normal;color:#b6bcc6}' +
+      '#clf .cf-hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}#clf .cf-hd h2{margin:0;font-size:24px;line-height:1.25;font-weight:800;color:#2f6b0a;min-width:0;overflow-wrap:anywhere}' +
+      '#clf .cf-sq{width:40px;height:40px;flex:none;border:0;border-radius:12px;background:#3d7c0e;color:#fff;display:grid;place-items:center;cursor:pointer}#clf .cf-sq svg{width:20px;height:20px}' +
+      '#clf .cf-bt{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border:0;border-radius:999px;background:#16171d;color:#fff;font:600 15px inherit;font-family:inherit;cursor:pointer}#clf .cf-bt svg{width:20px;height:20px}#clf .cf-bt.cf-l{background:#fff;color:#16171d;box-shadow:inset 0 0 0 1px #d8dce2}#clf .cf-bt.cf-r{background:#c81e1e}' +
+      '#clf .cf-hd .cf-bt{margin-left:auto}' +
+      '#clf .cf-sc{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;margin-top:8px}#clf .cf-sc small{font-weight:500;color:#606f85}' +
+      '#clf .cf-fds{display:grid;grid-template-columns:repeat(auto-fill,200px);gap:16px}' +
+      '#clf .cf-fd{position:relative;min-height:128px;margin-top:12px;padding:44px 16px 16px;border:0;border-radius:4px 20px 20px 20px;background:#e8ede1;text-align:left;font:inherit;color:#16171d;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;gap:4px}' +
+      '#clf .cf-fd::before{content:"";position:absolute;left:0;top:-12px;width:46%;height:20px;border-radius:12px 12px 0 0;background:inherit}#clf .cf-fd:hover{background:#dde6d1}' +
+      '#clf .cf-fd .cf-fi{position:absolute;left:16px;top:12px;color:#3d7c0e}#clf .cf-fd .cf-fi svg{width:24px;height:24px}#clf .cf-fd b{font-size:16px;line-height:1.3;overflow-wrap:anywhere}#clf .cf-fd small{font-size:12px;color:#606f85}' +
+      '#clf .cf-fd:first-child{background:#3d7c0e;color:#fff;box-shadow:0 16px 32px -16px rgba(47,107,10,.6)}#clf .cf-fd:first-child .cf-fi{color:#fff}#clf .cf-fd:first-child small{color:rgba(255,255,255,.82)}' +
+      '#clf .cf-fm{position:absolute;right:4px;top:4px;width:40px;height:40px;border:0;background:none;border-radius:12px;color:inherit;display:grid;place-items:center;cursor:pointer;opacity:.8}#clf .cf-fm svg{width:20px;height:20px}' +
+      '#clf .cf-tb{background:#fff;border-radius:24px;padding:8px;box-shadow:0 16px 32px -24px rgba(30,40,60,.35)}' +
+      '#clf .cf-rw{display:grid;grid-template-columns:44px minmax(0,1fr) 140px 96px 44px 44px;align-items:center;gap:8px;min-height:56px;padding:4px 4px 4px 8px;border-radius:16px}#clf .cf-rw+.cf-rw{box-shadow:0 -1px 0 #f1f2f4}' +
+      '#clf .cf-rw.cf-th{min-height:32px;font-size:12px;font-weight:600;color:#606f85}#clf .cf-rw:not(.cf-th):hover{background:#f2f7ea}' +
+      '#clf .cf-rw .cf-nm{display:flex;align-items:center;gap:12px;min-width:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:48px;grid-column:1/3;padding:0}' +
+      '#clf .cf-ic{width:36px;height:36px;flex:none;border-radius:10px;display:grid;place-items:center;margin-left:4px}#clf .cf-ic svg{width:18px;height:18px}#clf .cf-ic.cf-p{background:#fdecec;color:#c81e1e}#clf .cf-ic.cf-i{background:#eef2fb;color:#2f5fb3}#clf .cf-ic.cf-g{background:#e6f4ea;color:#137333}#clf .cf-ic.cf-o{background:#eef0f3;color:#4b5563}' +
+      '#clf .cf-nm span{min-width:0}#clf .cf-nm b{display:block;font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#clf .cf-nm small{display:none;font-size:12px;color:#606f85}' +
+      '#clf .cf-dt,#clf .cf-sz{font-size:14px;color:#606f85;font-variant-numeric:tabular-nums}' +
+      '#clf .cf-mn{width:40px;height:40px;border:0;background:none;border-radius:12px;color:#606f85;display:grid;place-items:center;cursor:pointer}#clf .cf-mn:hover{background:#eef0f3}#clf .cf-mn svg{width:18px;height:18px}' +
+      '#clf .cf-em{padding:32px 16px;text-align:center;color:#606f85;font-size:14px}#clf .cf-drop{min-height:56px;margin:8px;border:1.5px dashed #c9cfd8;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:8px;color:#606f85;font-size:14px}#clf .cf-drop svg{width:20px;height:20px}#clf.cf-dg .cf-drop{border-color:#3d7c0e;background:#f2f7ea;color:#2f6b0a}' +
+      '#clf .cf-gd{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:14px;font-weight:600;color:#2f6b0a;text-decoration:none}#clf .cf-gd svg{width:18px;height:18px}' +
+      '#clf .cf-st{font-size:14px;color:#2f6b0a;min-height:20px}#clf .cf-st.cf-bad{color:#c81e1e}' +
+      '#clf .cf-pop{position:fixed;z-index:9100;width:220px;padding:6px;border-radius:16px;background:#fff;box-shadow:0 12px 32px -8px rgba(0,0,0,.3),0 0 0 1px rgba(0,0,0,.05)}#clf .cf-pop button{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:none;font:500 14px inherit;font-family:inherit;color:#16171d;text-align:left;cursor:pointer}#clf .cf-pop button:hover{background:#f5f6f8}#clf .cf-pop svg{width:18px;height:18px}#clf .cf-pop .cf-r{color:#c81e1e}' +
+      '#clf .cf-dlg{position:fixed;inset:0;z-index:9200;background:rgba(16,20,12,.45);display:grid;place-items:center;padding:16px}#clf .cf-dlg>div{width:100%;max-width:400px;background:#fff;border-radius:24px;padding:24px}#clf .cf-dlg h3{margin:0 0 8px;font-size:20px;line-height:1.3}#clf .cf-dlg p{margin:0 0 16px;font-size:14px;color:#606f85;overflow-wrap:anywhere}#clf .cf-dlg input{width:100%;box-sizing:border-box;min-height:48px;padding:0 16px;border:1px solid #80858f;border-radius:14px;font:inherit;font-size:16px;margin-bottom:16px}#clf .cf-dlg .cf-ac{display:flex;gap:8px;justify-content:flex-end}' +
+      '#clf .cf-vw{position:fixed;inset:0;z-index:9300;background:rgba(14,16,20,.94);display:grid;grid-template-rows:auto 1fr auto;color:#fff}#clf .cf-vt{display:flex;align-items:center;gap:8px;padding:12px 16px}#clf .cf-vt b{flex:1;min-width:0;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+      '#clf .cf-vt a,#clf .cf-vt button{min-height:44px;padding:0 14px;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font:600 14px inherit;font-family:inherit;display:inline-flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer}#clf .cf-vt svg{width:18px;height:18px}#clf .cf-vt .cf-x{width:44px;padding:0;justify-content:center}' +
+      '#clf .cf-vb{position:relative;display:grid;place-items:center;min-height:0;padding:8px 64px}#clf .cf-vb img{max-width:100%;max-height:100%;border-radius:8px}#clf .cf-vb iframe{width:100%;height:100%;border:0;border-radius:8px;background:#fff}#clf .cf-vn{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:22px;cursor:pointer}#clf .cf-vf{text-align:center;padding:12px;font-size:12px;color:rgba(255,255,255,.75)}' +
+      '@media (max-width:640px){#clf .cf-rw .cf-nm{grid-column:1}#clf .cf-fds{grid-auto-flow:column;grid-auto-columns:46%;grid-template-columns:none;overflow-x:auto;padding:4px 2px 8px}#clf .cf-rw{grid-template-columns:minmax(0,1fr) 44px}#clf .cf-rw.cf-th,#clf .cf-dt,#clf .cf-sz,#clf .cf-lkb,#clf .cf-drop{display:none}#clf .cf-nm small{display:block}#clf .cf-hd .cf-bt{width:100%;margin:0}#clf .cf-hd h2{font-size:20px}#clf .cf-vb{padding:8px}#clf .cf-vn{display:none}#clf .cf-pop{left:8px!important;right:8px;bottom:8px;top:auto!important;width:auto;border-radius:20px;padding:8px}#clf .cf-pop button{min-height:52px;font-size:16px}}';
+    function e(t) { return esc(t); }
+    function kind(f) { var m = f.mime || '', n = (f.name || '').toLowerCase(); if (/^image\//.test(m)) return 'i'; if (m === 'application/pdf' || /\.pdf$/.test(n)) return 'p'; if (/^application\/vnd\.google-apps/.test(m)) return 'g'; return 'o'; }
+    function fsz(b) { if (!b) return '—'; if (b < 1024) return b + ' B'; if (b < 1048576) return Math.round(b / 1024) + ' KB'; return (b / 1048576).toFixed(1) + ' MB'; }
+    var TM = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+    function fdt(ms) { if (!ms) return '—'; var d = new Date(ms); return d.getDate() + ' ' + TM[d.getMonth()] + ' ' + String(d.getFullYear() + 543).slice(2); }
+    function say(t, bad) { var x = F && F.el.querySelector('.cf-st'); if (x) { x.textContent = t || ''; x.className = 'cf-st' + (bad ? ' cf-bad' : ''); } }
+    function errText(x) { return x && x.code === 'denied' ? 'ไม่มีสิทธิ์ทำส่วนนี้' : x && x.code === 'network' ? 'เชื่อมต่อไม่ได้ ลองอีกครั้ง' : (x && x.message) || 'ทำไม่สำเร็จ ลองอีกครั้ง'; }
+    function load(fid) {
+      F.cur = fid || ''; say('กำลังโหลด…');
+      return db.call('ls', { jobId: F.job, folderId: F.cur }).then(function (r) { F.r = r; draw(); say(''); }).catch(function (x) {
+        if (x && /ไม่รู้จักคำสั่ง/.test(x.message || '') && F.url) { var u = F.url; close(); window.open(u, '_blank', 'noopener'); return; }   // ตัวกลางยังไม่ใช่ 1.2.6
+        say(errText(x), true);
+      });
+    }
+    function draw() {
+      var r = F.r, atRoot = r.folder.id === r.root, imgs = r.files.filter(function (f) { return kind(f) === 'i'; });
+      F.imgs = imgs;
+      var bc = atRoot ? '' : '<nav class="cf-bc" aria-label="ตำแหน่ง">' + ('<button data-go="">โฟลเดอร์งาน</button>' + r.path.map(function (p) { return '<i>/</i><button data-go="' + e(p.id) + '">' + e(p.name) + '</button>'; }).join('') + '<i>/</i><b>' + e(r.folder.name) + '</b>') + '</nav>';
+      var fds = r.folders.map(function (f) { return '<div class="cf-fd" role="button" tabindex="0" data-go="' + e(f.id) + '"><span class="cf-fi">' + I.fd + '</span><b>' + e(f.name) + '</b><small>' + f.n + ' รายการ · ' + fdt(f.at) + '</small><button class="cf-fm" data-mn="' + e(f.id) + '" aria-label="เมนูโฟลเดอร์ ' + e(f.name) + '">' + I.more + '</button></div>'; }).join('');
+      var ic = { p: I.doc, i: I.img, g: I.gs, o: I.doc };
+      var rows = r.files.map(function (f) { var k = kind(f); return '<div class="cf-rw"><button class="cf-nm" data-op="' + e(f.id) + '"><span class="cf-ic cf-' + k + '">' + ic[k] + '</span><span><b>' + e(f.name) + '</b><small>' + fdt(f.at) + ' · ' + fsz(f.size) + '</small></span></button><span class="cf-dt">' + fdt(f.at) + '</span><span class="cf-sz">' + fsz(f.size) + '</span><button class="cf-mn cf-lkb" data-lk="' + e(f.id) + '" aria-label="คัดลอกลิงก์ ' + e(f.name) + '">' + I.lk + '</button><button class="cf-mn" data-mn="' + e(f.id) + '" aria-label="เมนูไฟล์ ' + e(f.name) + '">' + I.more + '</button></div>'; }).join('');
+      F.el.querySelector('.cf-fw').innerHTML = bc +
+        '<div class="cf-hd"><h2>' + e(atRoot ? 'โฟลเดอร์งาน' : r.folder.name) + '</h2><button class="cf-sq" data-mk aria-label="สร้างโฟลเดอร์ใหม่" title="โฟลเดอร์ใหม่">' + I.nf + '</button><button class="cf-bt" data-up>' + I.up + 'อัปโหลดไฟล์</button><input type="file" multiple hidden></div><div class="cf-st" role="status"></div>' +
+        (r.folders.length ? '<div class="cf-sc">โฟลเดอร์<small>' + r.folders.length + ' โฟลเดอร์</small></div><div class="cf-fds">' + fds + '</div>' : '') +
+        '<div class="cf-sc">ไฟล์<small>' + r.files.length + ' ไฟล์</small></div><div class="cf-tb">' + (r.files.length ? '<div class="cf-rw cf-th"><span></span><span>ชื่อ</span><span>แก้ไขล่าสุด</span><span>ขนาด</span><span></span><span></span></div>' + rows : '<div class="cf-em">ยังไม่มีไฟล์ในโฟลเดอร์นี้</div>') + '<div class="cf-drop">' + I.up + 'ลากไฟล์มาวางที่นี่ เพื่ออัปโหลด</div></div>' +
+        '<a class="cf-gd" href="' + e(atRoot ? F.url : 'https://drive.google.com/drive/folders/' + r.folder.id) + '" target="_blank" rel="noopener">' + I.ext + 'เปิดใน Google Drive</a>';
+    }
+    function item(id) { var r = F.r; return r.files.filter(function (f) { return f.id === id; })[0] || r.folders.filter(function (f) { return f.id === id; })[0]; }
+    function dlg(title, msg, val, okT, red) {
+      return new Promise(function (res) {
+        var d = document.createElement('div'); d.className = 'cf-dlg';
+        d.innerHTML = '<div role="dialog" aria-modal="true" aria-label="' + e(title) + '"><h3>' + e(title) + '</h3>' + (msg ? '<p>' + e(msg) + '</p>' : '') + (val != null ? '<input value="' + e(val) + '" maxlength="120">' : '') + '<div class="cf-ac"><button class="cf-bt cf-l" data-no>ยกเลิก</button><button class="cf-bt' + (red ? ' cf-r' : '') + '" data-yes>' + e(okT) + '</button></div></div>';
+        F.el.appendChild(d); var inp = d.querySelector('input'); (inp || d.querySelector('[data-yes]')).focus(); if (inp) inp.select();
+        function end(v) { d.remove(); res(v); }
+        d.onclick = function (ev) { if (ev.target === d || ev.target.closest('[data-no]')) end(null); else if (ev.target.closest('[data-yes]')) end(inp ? inp.value.trim() : true); };
+        d.onkeydown = function (ev) { if (ev.key === 'Enter' && inp) end(inp.value.trim()); if (ev.key === 'Escape') { ev.stopPropagation(); end(null); } };
+      });
+    }
+    function act(p, okMsg) { say('กำลังบันทึก…'); return p.then(function () { return load(F.cur); }).then(function () { say(okMsg); }).catch(function (x) { say(errText(x), true); }); }
+    function upload(list) {
+      list = [].slice.call(list || []); if (!list.length) return;
+      var i = 0, big = list.filter(function (f) { return f.size > 20 * 1048576; });
+      if (big.length) { say(big[0].name + ' ใหญ่เกิน 20 MB อัปโหลดใน Google Drive แทน', true); return; }
+      function next() {
+        if (i >= list.length) return load(F.cur).then(function () { say('อัปโหลดแล้ว ' + list.length + ' ไฟล์'); });
+        var f = list[i++]; say('กำลังอัปโหลด ' + i + ' จาก ' + list.length + ' · ' + f.name);
+        return new Promise(function (ok, no) { var rd = new FileReader(); rd.onload = function () { ok(String(rd.result).split(',')[1] || ''); }; rd.onerror = no; rd.readAsDataURL(f); })
+          .then(function (b64) { return db.call('fput', { jobId: F.job, folderId: F.cur, name: f.name, mime: f.type || 'application/octet-stream', b64: b64 }); })
+          .then(next).catch(function (x) { say(f.name + ': ' + errText(x), true); load(F.cur); });
+      }
+      next();
+    }
+    function menu(id, btn) {
+      var it = item(id); if (!it) return; var isF = !('mime' in it);
+      var p = document.createElement('div'); p.className = 'cf-pop'; p.setAttribute('role', 'menu');
+      p.innerHTML = '<button role="menuitem" data-a="ren">' + I.pen + 'เปลี่ยนชื่อ</button>' + (isF ? '' : '<button role="menuitem" data-a="dl">' + I.dl + 'ดาวน์โหลด</button>') + '<button role="menuitem" data-a="drive">' + I.ext + 'เปิดใน Google Drive</button><button role="menuitem" class="cf-r" data-a="del">' + I.tr + 'ลบ</button>';
+      F.el.appendChild(p); var b = btn.getBoundingClientRect(); p.style.top = Math.min(b.bottom + 4, innerHeight - p.offsetHeight - 8) + 'px'; p.style.left = Math.max(8, b.right - 220) + 'px'; p.querySelector('button').focus();
+      function shut() { p.remove(); document.removeEventListener('pointerdown', out, true); }
+      function out(ev) { if (!p.contains(ev.target)) shut(); }
+      setTimeout(function () { document.addEventListener('pointerdown', out, true); }, 0);
+      p.onkeydown = function (ev) { if (ev.key === 'Escape') { ev.stopPropagation(); shut(); btn.focus(); } };
+      p.onclick = function (ev) {
+        var a = ev.target.closest('[data-a]'); if (!a) return; shut(); a = a.dataset.a;
+        if (a === 'drive') window.open(it.url, '_blank', 'noopener');
+        if (a === 'dl') { say('กำลังเตรียมไฟล์…'); db.call('file', { fileId: id }).then(function (r) { var l = document.createElement('a'); l.href = 'data:' + r.mime + ';base64,' + r.b64; l.download = it.name; document.body.appendChild(l); l.click(); l.remove(); say(''); }).catch(function (x) { say(errText(x), true); }); }
+        if (a === 'ren') dlg('เปลี่ยนชื่อ', '', it.name, 'บันทึกชื่อ').then(function (v) { if (v && v !== it.name) act(db.call('fren', { jobId: F.job, id: id, name: v }), 'เปลี่ยนชื่อแล้ว'); });
+        if (a === 'del') dlg('ลบ ' + (isF ? 'โฟลเดอร์' : 'ไฟล์') + 'นี้?', it.name + (isF ? ' และทุกอย่างข้างใน' : '') + ' จะย้ายไปถังขยะของ Google Drive กู้คืนได้ใน 30 วัน', null, 'ลบ', true).then(function (v) { if (v) act(db.call('fdel', { jobId: F.job, id: id }), 'ลบแล้ว'); });
+      };
+    }
+    function view(f) {
+      var k = kind(f); if (k === 'g' || k === 'o' || (k === 'p' && innerWidth <= 640)) { window.open(f.url, '_blank', 'noopener'); return; }
+      var v = document.createElement('div'); v.className = 'cf-vw'; F.el.appendChild(v);
+      function show(ff) {
+        var n = F.imgs.indexOf(ff);
+        v.innerHTML = '<div class="cf-vt"><b>' + e(ff.name) + '</b><a href="' + e(ff.url) + '" target="_blank" rel="noopener">' + I.ext + 'Drive</a><button class="cf-x" data-x aria-label="ปิด">' + I.x + '</button></div><div class="cf-vb"><span style="color:rgba(255,255,255,.7)">กำลังโหลด…</span></div><div class="cf-vf">' + (n >= 0 && F.imgs.length > 1 ? (n + 1) + ' จาก ' + F.imgs.length + ' รูป · ' : '') + fsz(ff.size) + '</div>';
+        v.querySelector('[data-x]').focus();
+        db.call('file', { fileId: ff.id }).then(function (r) {
+          var src = 'data:' + r.mime + ';base64,' + r.b64, b = v.querySelector('.cf-vb'); if (!b) return;
+          b.innerHTML = (kind(ff) === 'p' ? '<iframe title="' + e(ff.name) + '" src="' + src + '"></iframe>' : '<img alt="' + e(ff.name) + '" src="' + src + '">') +
+            (n >= 0 && F.imgs.length > 1 ? '<button class="cf-vn" data-pv style="left:12px" aria-label="รูปก่อนหน้า">‹</button><button class="cf-vn" data-nx style="right:12px" aria-label="รูปถัดไป">›</button>' : '');
+        }).catch(function (x) { var b = v.querySelector('.cf-vb'); if (b) b.innerHTML = '<a class="cf-gd" style="color:#fff" href="' + e(ff.url) + '" target="_blank" rel="noopener">' + e(errText(x)) + ' · เปิดใน Google Drive</a>'; });
+        v.onclick = function (ev) { if (ev.target.closest('[data-x]')) end(); else if (ev.target.closest('[data-nx]')) show(F.imgs[(n + 1) % F.imgs.length]); else if (ev.target.closest('[data-pv]')) show(F.imgs[(n - 1 + F.imgs.length) % F.imgs.length]); };
+        v.onkeydown = function (ev) { if (ev.key === 'Escape') { ev.stopPropagation(); end(); } if (n >= 0 && ev.key === 'ArrowRight') show(F.imgs[(n + 1) % F.imgs.length]); if (n >= 0 && ev.key === 'ArrowLeft') show(F.imgs[(n - 1 + F.imgs.length) % F.imgs.length]); };
+      }
+      function end() { v.remove(); }
+      show(f);
+    }
+    function close() { if (!F) return; var el = F.el; F = null; el.remove(); document.body.style.overflow = ''; if (history.state && history.state.clf) history.back(); }
+    function open(jobId, title, url) {
+      if (typeof document === 'undefined') return;
+      if (!document.getElementById('clf-css')) { var s = document.createElement('style'); s.id = 'clf-css'; s.textContent = CSS; document.head.appendChild(s); }
+      if (F) close();
+      var el = document.createElement('div'); el.id = 'clf'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'ไฟล์งาน');
+      el.innerHTML = '<header class="cf-ft"><button class="cf-ib" data-close aria-label="กลับ">' + I.back + '</button><h1>ไฟล์งาน<small>' + e(title || '') + '</small></h1></header><div class="cf-fw"></div>';
+      document.body.appendChild(el); document.body.style.overflow = 'hidden';
+      F = { el: el, job: jobId, url: url || '', cur: '' };
+      try { history.pushState({ clf: 1 }, ''); } catch (x) {}
+      el.addEventListener('click', function (ev) {
+        var t = ev.target;
+        if (t.closest('[data-close]')) return close();
+        var m = t.closest('[data-mn]'); if (m) { ev.stopPropagation(); return menu(m.dataset.mn, m); }
+        var lk = t.closest('[data-lk]'); if (lk) { var it = item(lk.dataset.lk); if (it && navigator.clipboard) navigator.clipboard.writeText(it.url).then(function () { say('คัดลอกลิงก์แล้ว'); }, function () { say('คัดลอกไม่ได้', true); }); return; }
+        var g = t.closest('[data-go]'); if (g) return load(g.dataset.go);
+        var o = t.closest('[data-op]'); if (o) return view(item(o.dataset.op));
+        if (t.closest('[data-up]')) return el.querySelector('input[type=file]').click();
+        if (t.closest('[data-mk]')) return dlg('โฟลเดอร์ใหม่', '', '', 'สร้างโฟลเดอร์').then(function (v) { if (v) act(db.call('fmk', { jobId: F.job, folderId: F.cur, name: v }), 'สร้างโฟลเดอร์แล้ว'); });
+      });
+      el.addEventListener('keydown', function (ev) { var g = ev.target.closest && ev.target.closest('.cf-fd'); if (g && (ev.key === 'Enter' || ev.key === ' ') && ev.target === g) { ev.preventDefault(); load(g.dataset.go); } if (ev.key === 'Escape' && !el.querySelector('.cf-dlg,.cf-vw,.cf-pop')) close(); });
+      el.addEventListener('change', function (ev) { if (ev.target.type === 'file') { upload(ev.target.files); ev.target.value = ''; } });
+      el.addEventListener('dragover', function (ev) { ev.preventDefault(); el.classList.add('cf-dg'); });
+      el.addEventListener('dragleave', function (ev) { if (ev.target === el || !el.contains(ev.relatedTarget)) el.classList.remove('cf-dg'); });
+      el.addEventListener('drop', function (ev) { ev.preventDefault(); el.classList.remove('cf-dg'); upload(ev.dataTransfer && ev.dataTransfer.files); });
+      el.querySelector('[data-close]').focus();
+      load('');
+    }
+    if (typeof window !== 'undefined') window.addEventListener('popstate', function () { if (F) { var el = F.el; F = null; el.remove(); document.body.style.overflow = ''; } });
+    return { open: open, close: close };
+  })();
+  window.CLGDB = { connect: connect, db: db, user: user, files: files, _st: st };
 })();

@@ -3481,7 +3481,7 @@ function viewJob(id){
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>
       <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p></div>
-    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<a class="btn" href="${esc(safeUrl(j.folderUrl))}" target="_blank" rel="noopener">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</a>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
+    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<button class="btn" data-files="${esc(j.id)}">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</button>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
       return mnu([fx?mi(`data-fname="${esc(j.id)}"`,'pen','เปลี่ยนชื่อโฟลเดอร์'):'',fx&&(cx||dx)?'<hr>':'',cx?mi('data-act="cancel"','xc','ยกเลิกคิว',1):'',dx?mi(`data-jdel="${esc(j.id)}"`,'trash','ลบงาน',1):''].filter(x=>x!=='<hr>'||fx&&(cx||dx)),'อื่นๆ')})()}</div></div>
   ${j.status==='active'?`<section class="card jst">
     <div class="jsc"><span class="sub">ขั้นปัจจุบัน</span><span class="pill ${PHC2[phaseOf(n)?.k]||'gy'} big">${esc(st.name)}</span></div>
@@ -4496,7 +4496,7 @@ document.addEventListener('click',e=>{if(document.body.classList.contains('rocat
 document.addEventListener('change',async e=>{if(e.target.id==='pfphoto'){const f=e.target.files[0];e.target.value='';if(!f)return;try{S.pfn=$('#pfname')?.value;S.pf2=await shrinkImg(f,256);render()}catch(x){toast('อ่านรูปไม่ได้')}}});
 document.addEventListener('input',e=>{if(e.target.id==='pfname')S.pfn=e.target.value});
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('#signout,[data-mkfolder],#pfsave,#pfdelphoto,[data-unlock],[data-fname]');if(!t)return;
+  const t=e.target.closest('#signout,[data-mkfolder],[data-files],#pfsave,#pfdelphoto,[data-unlock],[data-fname]');if(!t)return;
   if(t.dataset.fname){const j=S.jobs[t.dataset.fname];if(!j)return;const cur=j.folderName||[j.jobNo,j.queueDate||j.surveyDate,j.title].filter(Boolean).join(' ');
     const v=await askVal('เปลี่ยนชื่อโฟลเดอร์งาน','ชื่อโฟลเดอร์',cur);if(v==null)return;const n=String(v).replace(/[\/\\]+/g,'-').replace(/\s+/g,' ').trim().slice(0,120);if(!n||n===j.folderName)return;
     try{await pushHist(j,ev('edit','เปลี่ยนชื่อโฟลเดอร์: '+n),{folderName:n});toast('เปลี่ยนชื่อโฟลเดอร์แล้ว')}catch(x){}return}
@@ -4506,6 +4506,7 @@ document.addEventListener('click',async e=>{
     try{await pushHist(j,ev('edit','ขอใช้ '+who+' สำรวจงานนี้: '+why),{queueUnlock:who});toast('ปลดให้เลือก '+who+' แล้ว (เฉพาะงานนี้)')}catch(x){}return}
   if(t.id==='pfdelphoto'){await saveProfile('');return}
   if(t.id==='signout'){CLGDB.user.signOut();return}
+  if(t.dataset.files){const jj=S.jobs[t.dataset.files]||{};if(window.CLGDB&&CLGDB.files&&S.db)CLGDB.files.open(t.dataset.files,jj.title||'',jj.folderUrl);else if(jj.folderUrl)window.open(jj.folderUrl,'_blank','noopener');return}
   if(t.dataset.mkfolder){t.disabled=true;try{const r=await S.db.folder(t.dataset.mkfolder);toast('สร้างโฟลเดอร์งานแล้ว');S.db.refresh();if(r.url)window.open(r.url,'_blank','noopener')}catch(x){toast(x.message);t.disabled=false}}
 });
 document.addEventListener('click',e=>{if(e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;const a=e.target.closest('a[href^="#"]');if(!a||a.target)return;const h=a.getAttribute('href');if(h.length<2)return;e.preventDefault();if(location.hash!==h)location.hash=h.slice(1);else render()});

@@ -1090,7 +1090,7 @@ function viewJob(id){
       ${pv.map((p,k)=>`<div class="slp"><div class="slph"><span>${pv.length>1?'แบบที่ '+(k+1)+' · ':''}${esc(p.systemType||'')}</span><b>${p.kw?esc(p.kw)+' kW':'—'}</b></div>
        ${quoteItems(j,p).map(x=>`<div class="sr it"><span>${esc(x.t)}</span><b>${x.approx?'~':''}${esc(x.q)} <em>${x.u}</em></b></div>`).join('')}</div>`).join('')}</section>`:''}
     <section class="card jc2"><div class="jh"><b>ลูกค้าและไซต์</b></div>${row('ลูกค้า',esc(c.name||'—'))}${row('โทร',esc(c.phone||''))}${row('ที่อยู่',esc(s.address||''))}${row('ทีมขาย',esc([j.salesTeam,j.salesPerson].filter(Boolean).join(' · ')))}</section>
-    <section class="card jc2"><div class="jh"><b>นัดหมาย</b></div>${appt}${j.folderUrl&&safeUrl(j.folderUrl)?`<div class="sr"><span>โฟลเดอร์งาน</span><b><button class="lk" style="min-height:24px;padding:0" data-open="${esc(j.folderUrl)}">เปิดใน Google Drive</button> · <button class="lk" style="min-height:24px;padding:0" data-fname="${esc(j.id)}">เปลี่ยนชื่อ</button></b></div>`:''}
+    <section class="card jc2"><div class="jh"><b>นัดหมาย</b></div>${appt}${j.folderUrl&&safeUrl(j.folderUrl)?`<div class="sr"><span>โฟลเดอร์งาน</span><b><button class="lk" style="min-height:24px;padding:0" data-files="${esc(j.id)}">เปิดไฟล์งาน</button> · <button class="lk" style="min-height:24px;padding:0" data-fname="${esc(j.id)}">เปลี่ยนชื่อ</button></b></div>`:''}
      ${r.systemType||r.wantKwp?row('ลูกค้าอยากได้',esc([r.systemType,r.wantKwp?r.wantKwp+' kWp':''].filter(Boolean).join(' · '))):''}
      ${j.salesNote?`<div class="jnote"><small>หมายเหตุจากเซลส์</small>${esc(j.salesNote)}</div>`:''}${j.woNote?`<div class="jnote"><small>หมายเหตุใบงาน</small>${esc(j.woNote)}</div>`:''}</section>
     ${chatCard(j)}
@@ -2398,6 +2398,7 @@ document.addEventListener('click',e=>{
   if('fname' in d){renameFolder(d.fname);return}
   if('signout' in d){const n=S.pending.length;ask('ออกจากระบบ?',n?`ยังมี ${n} รายการรอส่ง ถ้าออกตอนนี้อาจไม่ถูกส่ง ต่อเน็ตให้ส่งครบก่อน`:'ครั้งหน้าต้องลงชื่อเข้าใช้ด้วยบัญชี Google อีกครั้ง',{ok:'ออกจากระบบ',danger:!!n}).then(y=>{if(y&&window.CLGDB)CLGDB.user.signOut()});return}
   if('pfsave' in d){saveMe();return}
+  if(d.files){const jj=C().jobs[d.files]||{};if(S.api.mode!=='demo'&&window.CLGDB&&CLGDB.files)CLGDB.files.open(d.files,jj.title||'',jj.folderUrl);else if(jj.folderUrl)window.open(jj.folderUrl,'_blank','noopener');return}
   if('pfopen' in d){S.pfOpen=true;render();setTimeout(()=>document.getElementById('pf-name')?.focus(),50);return}
   if('pfclose' in d){S.pfOpen=false;S.pfName=null;S.pfPhoto=null;render();return}
   if('icuadd' in d){const jj=C().jobs[route().slice(3)];if(jj){const dd=icDraft(jj);(dd.slaves=dd.slaves||[]).push({model:dd.model||'',sn:'',wifiSn:''});render()}return}
