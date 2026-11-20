@@ -549,7 +549,7 @@
     function load(fid) {
       F.cur = fid || ''; say('กำลังโหลด…');
       return db.call('ls', { jobId: F.job, folderId: F.cur }).then(function (r) { F.r = r; draw(); say(''); }).catch(function (x) {
-        if (!F.r) { F.el.querySelector('.cf-fw').innerHTML = '<div class="cf-em">' + e(/ไม่รู้จักคำสั่ง/.test(x && x.message || '') ? 'หน้าไฟล์งานต้องใช้ตัวกลาง 1.2.6 ขึ้นไป' : errText(x)) + '<p style="margin-top:16px"><button class="cf-bt" data-go="">ลองอีกครั้ง</button></p>' + (F.url ? '<a class="cf-gd" href="' + e(F.url) + '" target="_blank" rel="noopener">' + I.ext + 'เปิดใน Google Drive</a>' : '') + '</div><div class="cf-st" role="status"></div>'; return; }   // โหลดครั้งแรกพัง ยังไม่มีหน้าให้แสดงข้อความ
+        if (!F.r) { F.el.querySelector('.cf-fw').innerHTML = '<div class="cf-em">' + e(/ไม่รู้จักคำสั่ง/.test(x && x.message || '') ? 'หน้าไฟล์งานต้องใช้ตัวกลาง 1.2.6 ขึ้นไป' : errText(x)) + '<p style="margin-top:16px"><button class="cf-bt" data-go="">ลองอีกครั้ง</button></p>' + '</div><div class="cf-st" role="status"></div>'; return; }   // โหลดครั้งแรกพัง ยังไม่มีหน้าให้แสดงข้อความ
         say(errText(x), true);
       });
     }
