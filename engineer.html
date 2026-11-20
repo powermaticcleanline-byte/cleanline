@@ -475,7 +475,7 @@ html.framed .land{min-height:calc(var(--ph) - 44px)}
 .sco2{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#f3fbe9,#e3f4cd)}.sco2 .fli{color:var(--accTx)}
 .sft{text-align:center;padding:8px 8px 0}.sft img{height:15px;opacity:.9}.sft p{margin:8px 0 0;font-size:14px;color:var(--ink2)}.sft .tsm{font-size:12px;color:var(--mut)}
 .ccs2{display:flex;flex-wrap:wrap;gap:8px}.cc2{min-height:40px;padding:0 16px;border-radius:12px;background:var(--hv);font-size:14px;font-weight:500;color:var(--ink2);box-shadow:inset 0 0 0 1.5px transparent}.cc2.on{background:var(--accBg);color:var(--accTx);box-shadow:inset 0 0 0 1.5px var(--acc)}
-.fl>.icin,.icin{display:flex;gap:8px;margin:0}.icin input{flex:1;font-variant-numeric:tabular-nums;letter-spacing:.3px}.icscan{position:relative;overflow:hidden;width:50px;height:50px;flex:none;border-radius:14px;background:var(--acc);color:#fff;display:grid;place-items:center}.icscan svg{width:22px;height:22px}.icscan input{position:absolute;inset:0;opacity:0}
+.fl>.icin,.icin{display:flex;gap:8px;margin:0}.icin input{flex:1;font-variant-numeric:tabular-nums;letter-spacing:.3px}.pkc{display:grid;gap:8px;margin:8px 0 12px}.pkc .btn{justify-content:flex-start;font-variant-numeric:tabular-nums;letter-spacing:.3px;word-break:break-all;text-align:left}.icscan{position:relative;overflow:hidden;width:50px;height:50px;flex:none;border-radius:14px;background:var(--acc);color:#fff;display:grid;place-items:center}.icscan svg{width:22px;height:22px}.icscan input{position:absolute;inset:0;opacity:0}
 .icplan{display:flex;gap:12px;align-items:center}.icplan>svg{width:24px;height:24px;color:var(--accTx);flex:none}.icplan div{flex:1;min-width:0}.icplan small{display:block;color:var(--mut);font-size:12px}.icplan b{font-weight:600;font-size:14px}
 .icmiss{background:var(--warnBg)}.icmiss b{display:flex;gap:8px;align-items:center;color:var(--warn);font-weight:600}.icmiss p{margin:8px 0 0;font-size:14px;color:var(--ink2)}.icok{background:var(--accBg)}.icok b{display:flex;gap:8px;align-items:center;color:var(--accTx);font-weight:600}.icmiss svg,.icok svg{width:18px;height:18px}
 .abar .in .btn+.btn{flex:2}
@@ -1202,7 +1202,7 @@ function photoTiles(j,locked,KS=PHOTO_KINDS){
   return `<div class="ptiles${S.tried&&S.tried[j.id]?' tried':''}">${KS.map(([k,t,req])=>{const a=P.filter(p=>p.kind===k);
     return `<div class="ptile ${a.length?'has':req?'need':''}"><div class="ph"><b>${esc(t)}${req?' <em class="req">*</em>':''}</b><span class="cnt">${a.length}</span></div>
      <div class="thumbs">${a.map(p=>{const src=String(p.dataRef||'');return /^data:image\//.test(src)||safeUrl(src)?`<button class="thumb" data-delph="${esc(p.id)}" ${locked?'disabled':''} aria-label="รูป${esc(t)} ${locked?'':'(แตะเพื่อลบ)'}"><img src="${esc(src)}" alt=""></button>`:''}).join('')}</div>
-     ${locked?'':`<label class="btn shoot">${ic('cam')}ถ่ายรูป<input type="file" accept="image/*" capture="environment" multiple data-photo="${k}" aria-label="ถ่ายรูป${esc(t)}"></label>`}</div>`}).join('')}</div>`;
+     ${locked?'':KS===IC_KINDS?`<label class="btn shoot">${ic('cam')}ถ่าย / เลือกรูป<input type="file" accept="image/*" multiple data-photo="${k}" aria-label="ถ่ายหรือเลือกรูป${esc(t)}"></label>`:`<label class="btn shoot">${ic('cam')}ถ่ายรูป<input type="file" accept="image/*" capture="environment" multiple data-photo="${k}" aria-label="ถ่ายรูป${esc(t)}"></label>`}</div>`}).join('')}</div>`;
 }
 function missingPhotos(j){const P=S.api.listPhotos(j.id);return PHOTO_KINDS.filter(([k,,r])=>r&&!P.some(p=>p.kind===k)).map(x=>x[1])}
 async function svSave(id,patch,hist,okMsg){
@@ -1380,7 +1380,7 @@ function viewIc(id){
   const d=icDraft(j),P=S.api.listProducts(),ph=String(s.phase||''),invs=P.filter(p=>p.category==='INVERTER'&&(!ph||String(p.phase)===ph)).sort((a,b)=>a.kw-b.kw),inv=P.find(p=>p.model===d.model);
   if(inv&&!d.meter&&inv.meters&&!String(inv.meters).includes(','))d.meter=String(inv.meters).trim();
   const bats=P.filter(p=>p.category==='BATTERY'),m=icMissing(j),chip=(k,v,t)=>`<button class="cc2 ${String(d[k])===String(v)?'on':''}" data-icset="${k}" data-v="${esc(v)}">${esc(t)}</button>`;
-  const inp=(k,lab,ph2,scan,type='text')=>`<label class="fl"><span>${lab}</span><span class="icin"><input id="ic-${k}" data-ic="${k}" type="${type}" value="${esc(d[k])}" placeholder="${esc(ph2||'')}" ${type==='text'?'autocapitalize="characters" autocomplete="off"':''}>${scan?`<label class="icscan" aria-label="สแกนบาร์โค้ด${esc(lab)}">${ic('cam')}<input type="file" accept="image/*" capture="environment" data-icscan="${k}"></label>`:''}</span></label>`;
+  const inp=(k,lab,ph2,scan,type='text')=>`<label class="fl"><span>${lab}</span><span class="icin"><input id="ic-${k}" data-ic="${k}" type="${type}" value="${esc(d[k])}" placeholder="${esc(ph2||'')}" ${type==='text'?'autocapitalize="characters" autocomplete="off"':''}>${scan?`<label class="icscan" aria-label="สแกนบาร์โค้ด${esc(lab)}">${ic('cam')}<input type="file" accept="image/*" data-icscan="${k}"></label>`:''}</span></label>`;
   const plan=[j.proposedModel&&`${j.proposedModel}${j.inverterQty>1?' ×'+j.inverterQty:''}`,j.proposedBatteryModel&&`แบต ${j.proposedBatteryModel}`,j.proposedPanelQty&&`แผง ${j.proposedPanelQty}`].filter(Boolean).join(' · ');
   return topBar('ใบงานติดตั้ง',{back:true})+`<div class="glow"></div><main class="wrap hasbar">${head}
    <section class="card icplan">${ic('doc')}<div><small>ตามที่เสนอลูกค้า</small><b>${esc(plan||'—')}</b></div><span class="pill ${j.installDate?'':'m'}">${j.installDate?esc(fdRange(j.installDate,j.installEnd)):'ไม่มีวันติดตั้ง'}</span></section>
@@ -1389,8 +1389,8 @@ function viewIc(id){
     ${(d.slaves||[]).length?'<span class="cl">Master</span>':''}${inp('sn','S/N เครื่อง','สแกนหรือพิมพ์',1)}${inp('wifiSn','S/N WiFi / Datalogger','สแกนหรือพิมพ์',1)}
     ${(d.slaves||[]).map((u,i)=>`<div class="icu"><div class="icuh"><span class="cl" style="margin:0">Slave ${i+1}</span><button class="lk dz" style="min-height:0;padding:0" data-icudel="${i}">${ic('trash')}ลบเครื่องนี้</button></div>
       <label class="fl"><span>รุ่น</span><input data-icu="${i}:model" value="${esc(u.model)}" autocomplete="off"></label>
-      <label class="fl"><span>S/N เครื่อง</span><input data-icu="${i}:sn" value="${esc(u.sn)}" placeholder="พิมพ์ S/N" autocapitalize="characters" autocomplete="off"></label>
-      <label class="fl"><span>S/N WiFi / Datalogger</span><input data-icu="${i}:wifiSn" value="${esc(u.wifiSn)}" placeholder="ถ้ามี" autocapitalize="characters" autocomplete="off"></label></div>`).join('')}
+      <label class="fl"><span>S/N เครื่อง</span><span class="icin"><input data-icu="${i}:sn" value="${esc(u.sn)}" placeholder="สแกนหรือพิมพ์" autocapitalize="characters" autocomplete="off"><label class="icscan" aria-label="สแกนบาร์โค้ดS/N เครื่อง Slave ${i+1}">${ic('cam')}<input type="file" accept="image/*" data-icscan="u:${i}:sn"></label></span></label>
+      <label class="fl"><span>S/N WiFi / Datalogger</span><span class="icin"><input data-icu="${i}:wifiSn" value="${esc(u.wifiSn)}" placeholder="ถ้ามี" autocapitalize="characters" autocomplete="off"><label class="icscan" aria-label="สแกนบาร์โค้ดS/N WiFi Slave ${i+1}">${ic('cam')}<input type="file" accept="image/*" data-icscan="u:${i}:wifiSn"></label></span></label></div>`).join('')}
     <button class="btn" type="button" style="width:100%;margin:8px 0 8px" data-icuadd>+ เพิ่มเครื่อง Slave</button>
     ${inv&&inv.meters?`<span class="cl">Smart meter</span><div class="ccs2">${String(inv.meters).split(',').map(x=>chip('meter',x.trim(),x.trim())).join('')}</div>`:''}
     ${inv&&inv.cts?`<span class="cl">ขนาด CT</span><div class="ccs2">${chip('ct','','ไม่ใช้')}${String(inv.cts).split(',').map(x=>chip('ct',x.trim(),x.trim())).join('')}</div>`:''}</section>
@@ -1421,12 +1421,29 @@ async function icSave(id,close){
     if(close)celebrate('ปิดงานติดตั้งแล้ว',`งาน ${j.title||'นี้'} ย้ายไปขั้น “${STAGES[ST.DOCS].name}”`);else toast('บันทึกแล้ว');delete S.ifd[id];if(S.ifsig)delete S.ifsig[id];S.ifre={};if(close){delete S.icd[id];go('#job-'+id);ifMakePdf(id)}}
   catch(err){showErr(err,'บันทึกไม่สำเร็จ')}finally{S.busy=false;render()}
 }
+function zxLoad(){return S.zx||(S.zx=new Promise((ok,no)=>{const s=document.createElement('script');s.src='zxing-reader.js';s.onload=()=>{try{ZXingWASM.prepareZXingModule({overrides:{locateFile:(p,pre)=>/\.wasm$/.test(p)?new URL('zxing_reader.wasm',location.href).href:pre+p},fireImmediately:true});ok(ZXingWASM)}catch(e){no(e)}};s.onerror=()=>no(new Error('load'));document.head.appendChild(s)}).catch(e=>{S.zx=null;throw e}))}
+async function scanCodes(f){   // คืนข้อความบาร์โค้ด/QR ทั้งหมดในรูป (ไม่ซ้ำ)
+  const out=[],add=v=>{v=String(v||'').trim();if(v&&!out.includes(v))out.push(v)};
+  if('BarcodeDetector' in window){try{(await new BarcodeDetector().detect(await createImageBitmap(f))).forEach(r=>add(r.rawValue))}catch(e){}}
+  if(out.length)return out;
+  const Z=await zxLoad(),O={tryHarder:true,maxNumberOfSymbols:8};
+  let R=[];try{R=await Z.readBarcodes(f,O)}catch(e){}
+  if(!R.some(r=>r.isValid)){try{const b=await createImageBitmap(f),k=Math.min(1,3000/Math.max(b.width,b.height)),c=document.createElement('canvas');c.width=Math.round(b.width*k);c.height=Math.round(b.height*k);const x=c.getContext('2d');x.drawImage(b,0,0,c.width,c.height);R=await Z.readBarcodes(x.getImageData(0,0,c.width,c.height),O)}catch(e){}}
+  R.filter(r=>r.isValid).forEach(r=>add(r.text));return out;
+}
+function pickCode(list){return new Promise(res=>{const m=$('#modal');clearTimeout(toast.t);$('#toast').hidden=true;
+  m.innerHTML=`<div class="ov" data-ov><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mt"><h3 id="mt">เจอ ${list.length} บาร์โค้ด เลือกเลขที่ต้องการ</h3><div class="pkc">${list.map((v,i)=>`<button class="btn" data-pk="${i}">${esc(v)}</button>`).join('')}</div><div class="acts"><button class="btn" data-no>ยกเลิก</button></div></div></div>`;
+  const done=v=>{m.innerHTML='';res(v)};m.querySelector('[data-no]').onclick=()=>done(null);
+  m.querySelector('[data-ov]').onclick=e=>{const b=e.target.closest('[data-pk]');if(b)done(list[+b.dataset.pk]);else if(e.target.dataset.ov!==undefined)done(null)}})}
 async function icScan(input){
   const k=input.dataset.icscan,f=input.files&&input.files[0],id=route().slice(3);input.value='';if(!f)return;
-  if(!('BarcodeDetector' in window)){toast('เครื่องนี้อ่านบาร์โค้ดไม่ได้ พิมพ์เลขแทน');$('#ic-'+k)?.focus();return}
-  try{toast('กำลังอ่านบาร์โค้ด…');const R=await new BarcodeDetector().detect(await createImageBitmap(f));
-    if(!R.length){toast('ไม่เจอบาร์โค้ด ถ่ายให้ใกล้และชัดขึ้น');return}
-    const v=(R.find(r=>/[A-Z0-9]{8,}/i.test(r.rawValue))||R[0]).rawValue.trim();icDraft(C().jobs[id])[k]=v;toast('อ่านได้: '+v);render()}catch(e){toast('อ่านรูปไม่ได้ พิมพ์เลขแทน')}
+  const j=C().jobs[id];if(!j)return;
+  toast('กำลังอ่านบาร์โค้ด…');let L;
+  try{L=await scanCodes(f)}catch(e){toast('เปิดตัวอ่านบาร์โค้ดไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่ หรือพิมพ์เลขแทน');return}
+  if(!L.length){toast('ไม่เจอบาร์โค้ด ถ่ายให้ใกล้ ชัด และไม่สะท้อนแสง หรือพิมพ์เลขแทน');return}
+  const best=L.filter(v=>/[A-Z0-9]{8,}/i.test(v));const v=L.length===1?L[0]:await pickCode(best.length?best.concat(L.filter(x=>!best.includes(x))):L);if(v==null)return;
+  const d=icDraft(j);if(/^u:/.test(k)){const [,i,fl]=k.split(':');if(d.slaves&&d.slaves[+i])d.slaves[+i][fl]=v}else d[k]=v;
+  toast('อ่านได้: '+v);render()
 }
 function leadAssign(id){
   const j=C().jobs[id];if(!j)return;const engs=Object.values(C().members).filter(m=>m.role==='eng').map(m=>m.name);
