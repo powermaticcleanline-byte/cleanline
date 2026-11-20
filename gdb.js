@@ -549,7 +549,7 @@
     function load(fid) {
       F.cur = fid || ''; say('กำลังโหลด…');
       return db.call('ls', { jobId: F.job, folderId: F.cur }).then(function (r) { F.r = r; draw(); say(''); }).catch(function (x) {
-        if (x && /ไม่รู้จักคำสั่ง/.test(x.message || '') && F.url) { var u = F.url; close(); window.open(u, '_blank', 'noopener'); return; }   // ตัวกลางยังไม่ใช่ 1.2.6
+        if (x && /ไม่รู้จักคำสั่ง/.test(x.message || '') && F.url) { F.el.querySelector('.cf-fw').innerHTML = '<div class="cf-em">โฟลเดอร์งานพร้อมแล้ว ตอนนี้ยังเปิดในแอปไม่ได้</div><a class="cf-bt" href="' + e(F.url) + '" target="_blank" rel="noopener">' + I.ext + 'เปิดใน Google Drive</a>'; return; }   // ตัวกลางยังไม่ใช่ 1.2.6 · ให้ผู้ใช้กดเอง (window.open หลัง await โดนบล็อกป๊อปอัป)   // ตัวกลางยังไม่ใช่ 1.2.6
         say(errText(x), true);
       });
     }
