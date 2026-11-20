@@ -2175,6 +2175,12 @@ body:not(.sbmin) #nav1 a.snv{height:40px!important;min-height:40px!important;gap
 }
 @media (max-width:640px){.ph,.ph>div,.ph .mnav{min-width:0!important}.ph h1{overflow-wrap:anywhere}.ph .mnav .mlbl{min-width:0;overflow:hidden;text-overflow:ellipsis}}
 @media (min-width:641px){table.jt2 th.c-st,table.jt2 td.c-st{width:208px!important;min-width:208px!important}}
+.jtw{display:flex;flex-direction:column;min-width:0}.jtabs{display:flex;gap:4px;padding:0;overflow-x:auto;scrollbar-width:none;position:relative;z-index:1}
+.jtabs button{flex:none;min-height:44px;padding:0 24px;border:0;border-radius:16px 16px 0 0;background:#d8dde4;color:#606f85;font:600 14px inherit;font-family:inherit;cursor:pointer}
+.jtabs button:hover{background:#dde1e7;color:var(--ink)}
+.jtabs button.on{background:#f6f7f9;color:#2f6b0a;box-shadow:inset 0 1px 0 #fff}
+.sumcard.hastab{border-top-left-radius:0!important}
+@media (max-width:640px){.jtabs button{padding:0 16px}}
 </style></head>
 <body>
 <div class="shell">
@@ -3634,7 +3640,13 @@ function summaryCard(j,c,s,curSecs){
   const n=j.status==='active'?j.stage:99;
   const secs=SECTIONS.filter(sec=>!curSecs.has(sec.id)&&(sec.id==='pm'?j.status==='done':Math.min(...sec.stages)<=n));
   if(!secs.length)return '';
-  const blocks=secs.map(sec=>{
+  const JT=[['ov','ภาพรวม',['cust','loc','order']],['sv','สำรวจ',['wo','site','req','survey']],['ins','ติดตั้ง',['install','eq']],['doc','ขนานไฟ',['docs']],['pm','ตรวจเช็คประจำปี',['pm']]];   // แท็บตามที่ผู้ใช้กำหนด · ภาพรวม = ลูกค้า ตำแหน่ง ผู้แจ้งงาน
+  if(S.jtabJob!==j.id){S.jtabJob=j.id;S.jtab='ov'}
+  if(S.edit){const ge=JT.find(g=>g[2].includes(S.edit));if(ge)S.jtab=ge[0]}
+  const jg=JT.find(g=>g[0]===S.jtab)||JT[0],jtab=jg[0];
+  const jtabs=`<div class="jtabs" role="tablist">${JT.map(g=>`<button role="tab" data-jtab="${g[0]}" aria-selected="${g[0]===jtab}" class="${g[0]===jtab?'on':''}">${g[1]}</button>`).join('')}</div>`;
+  const jsecs=secs.filter(sec=>jg[2].includes(sec.id));
+  const blocks=!jsecs.length?'<p class="sub" style="margin:16px 0 0">ยังไม่มีข้อมูลของขั้นนี้</p>':jsecs.map(sec=>{
     if(S.edit===sec.id)return secForm(sec,j,c,s,false);
     const obj=getT(sec.tgt,j,c,s);
     const rows=sec.fields.map(f=>{const v=showVal(f,obj[f[0]]);return v==null?'':`<div class="kv ${f[2]==='area'||(f[3]&&f[3].full)?'full':''}"><span>${esc(f[1])}${sec.id==='eq'&&invUnits(obj).length>1&&['model','sn','wifiSn'].includes(f[0])?' (Master)':''}</span><b>${esc(v)}</b></div>`}).join('')
@@ -3642,7 +3654,7 @@ function summaryCard(j,c,s,curSecs){
     const canEd=!!S.db&&secEditable(sec,j);
     return `<div class="sblk"><div class="sh"><h3>${esc(sec.title)}</h3>${canEd?`<button class="lnk" data-edit="${sec.id}">แก้ไข</button>`:''}</div>${rows?`<div class="kvg">${rows}</div>`:'<span class="sub">ยังไม่มีข้อมูล</span>'}</div>`;
   }).join('');
-  return `<section class="card pad sumcard" aria-label="ข้อมูลงาน"><h2 style="margin:0;font-size:16px">ข้อมูลงาน${j.status==='active'?'<span class="sub" style="font-weight:400;margin-left:8px">จากขั้นที่ผ่านมา</span>':''}</h2>${blocks}</section>`;
+  return `${jtabs?'<div class="jtw">':''}${jtabs}<section class="card pad sumcard${jtabs?' hastab':''}" aria-label="ข้อมูลงาน"><h2 style="margin:0;font-size:16px">ข้อมูลงาน${j.status==='active'?'<span class="sub" style="font-weight:400;margin-left:8px">จากขั้นที่ผ่านมา</span>':''}</h2>${blocks}</section>${jtabs?'</div>':''}`;
 }
 
 /* ---------- new job ---------- */
@@ -4496,7 +4508,7 @@ document.addEventListener('click',e=>{if(document.body.classList.contains('rocat
 document.addEventListener('change',async e=>{if(e.target.id==='pfphoto'){const f=e.target.files[0];e.target.value='';if(!f)return;try{S.pfn=$('#pfname')?.value;S.pf2=await shrinkImg(f,256);render()}catch(x){toast('อ่านรูปไม่ได้')}}});
 document.addEventListener('input',e=>{if(e.target.id==='pfname')S.pfn=e.target.value});
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('#signout,[data-mkfolder],[data-files],#pfsave,#pfdelphoto,[data-unlock],[data-fname]');if(!t)return;
+  const t=e.target.closest('#signout,[data-mkfolder],[data-files],[data-jtab],#pfsave,#pfdelphoto,[data-unlock],[data-fname]');if(!t)return;
   if(t.dataset.fname){const j=S.jobs[t.dataset.fname];if(!j)return;const cur=j.folderName||[j.jobNo,j.queueDate||j.surveyDate,j.title].filter(Boolean).join(' ');
     const v=await askVal('เปลี่ยนชื่อโฟลเดอร์งาน','ชื่อโฟลเดอร์',cur);if(v==null)return;const n=String(v).replace(/[\/\\]+/g,'-').replace(/\s+/g,' ').trim().slice(0,120);if(!n||n===j.folderName)return;
     try{await pushHist(j,ev('edit','เปลี่ยนชื่อโฟลเดอร์: '+n),{folderName:n});toast('เปลี่ยนชื่อโฟลเดอร์แล้ว')}catch(x){}return}
@@ -4506,6 +4518,7 @@ document.addEventListener('click',async e=>{
     try{await pushHist(j,ev('edit','ขอใช้ '+who+' สำรวจงานนี้: '+why),{queueUnlock:who});toast('ปลดให้เลือก '+who+' แล้ว (เฉพาะงานนี้)')}catch(x){}return}
   if(t.id==='pfdelphoto'){await saveProfile('');return}
   if(t.id==='signout'){CLGDB.user.signOut();return}
+  if(t.dataset.jtab){S.jtab=t.dataset.jtab;render();return}
   if(t.dataset.files){const jj=S.jobs[t.dataset.files]||{};if(window.CLGDB&&CLGDB.files&&S.db)CLGDB.files.open(t.dataset.files,jj.title||'',jj.folderUrl);else if(jj.folderUrl)window.open(jj.folderUrl,'_blank','noopener');return}
   if(t.dataset.mkfolder){t.disabled=true;try{const r=await S.db.folder(t.dataset.mkfolder);t.disabled=false;if(!r.id){toast('ยังสร้างโฟลเดอร์ไม่ได้ ต้องอัปเดตตัวกลางเป็น 1.2.7');return}toast('สร้างโฟลเดอร์งานแล้ว');S.db.refresh();const jj=S.jobs[t.dataset.mkfolder]||{};if(window.CLGDB&&CLGDB.files)CLGDB.files.open(t.dataset.mkfolder,jj.title||'',r.url);else if(r.url)location.href=r.url}catch(x){toast(x.message);t.disabled=false}}
 });

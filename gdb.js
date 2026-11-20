@@ -503,6 +503,7 @@
       more: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
       pen: SV + '<path d="M4 20h4L19 9l-4-4L4 16z"/></svg>', tr: SV + '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
       dl: SV + '<path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>', lk: SV + '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+      sr: SV + '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
       back: SV + '<path d="M15 18l-6-6 6-6"/></svg>', x: SV + '<path d="M6 6l12 12M18 6 6 18"/></svg>'
     };
     var CSS = '#clf{position:fixed;inset:0;z-index:9000;overflow:auto;background:#f3f4f2;color:#16171d;font-family:inherit}' +
@@ -519,7 +520,7 @@
       '#clf .cf-fds{display:grid;grid-template-columns:repeat(auto-fill,200px);gap:16px}' +
       '#clf .cf-fd{position:relative;min-height:128px;margin-top:12px;padding:44px 16px 16px;border:0;border-radius:4px 20px 20px 20px;background:#e8ede1;text-align:left;font:inherit;color:#16171d;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;gap:4px}' +
       '#clf .cf-fd::before{content:"";position:absolute;left:0;top:-12px;width:46%;height:20px;border-radius:12px 12px 0 0;background:inherit}#clf .cf-fd:hover{background:#dde6d1}' +
-      '#clf .cf-fd .cf-fi{position:absolute;left:16px;top:12px;color:#3d7c0e}#clf .cf-fd .cf-fi svg{width:24px;height:24px}#clf .cf-fd b{font-size:16px;line-height:1.3;overflow-wrap:anywhere}#clf .cf-fd small{font-size:12px;color:#606f85}' +
+      '#clf .cf-fd .cf-fi{position:absolute;left:16px;top:12px;color:#3d7c0e}#clf .cf-fd .cf-fi svg{width:24px;height:24px}#clf .cf-fd b{font-size:16px;line-height:1.3;overflow-wrap:anywhere}#clf .cf-fd small{font-size:14px;color:#606f85}' +
       '#clf .cf-fd:first-child{background:#3d7c0e;color:#fff;box-shadow:0 16px 32px -16px rgba(47,107,10,.6)}#clf .cf-fd:first-child .cf-fi{color:#fff}#clf .cf-fd:first-child small{color:rgba(255,255,255,.82)}' +
       '#clf .cf-fm{position:absolute;right:4px;top:4px;width:40px;height:40px;border:0;background:none;border-radius:12px;color:inherit;display:grid;place-items:center;cursor:pointer;opacity:.8}#clf .cf-fm svg{width:20px;height:20px}' +
       '#clf .cf-tb{background:#fff;border-radius:24px;padding:8px;box-shadow:0 16px 32px -24px rgba(30,40,60,.35)}' +
@@ -527,43 +528,57 @@
       '#clf .cf-rw.cf-th{min-height:32px;font-size:12px;font-weight:600;color:#606f85}#clf .cf-rw:not(.cf-th):hover{background:#f2f7ea}' +
       '#clf .cf-rw .cf-nm{display:flex;align-items:center;gap:12px;min-width:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:48px;grid-column:1/3;padding:0}' +
       '#clf .cf-ic{width:36px;height:36px;flex:none;border-radius:10px;display:grid;place-items:center;margin-left:4px}#clf .cf-ic svg{width:18px;height:18px}#clf .cf-ic.cf-p{background:#fdecec;color:#c81e1e}#clf .cf-ic.cf-i{background:#eef2fb;color:#2f5fb3}#clf .cf-ic.cf-g{background:#e6f4ea;color:#137333}#clf .cf-ic.cf-o{background:#eef0f3;color:#4b5563}' +
-      '#clf .cf-nm span{min-width:0}#clf .cf-nm b{display:block;font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#clf .cf-nm small{display:none;font-size:12px;color:#606f85}' +
+      '#clf .cf-nm span{min-width:0}#clf .cf-nm b,#clf .cf-pg small{display:flex;min-width:0;font-size:16px;line-height:1.4;font-weight:500;white-space:nowrap}#clf .cf-pg small{font-size:14px;font-weight:400}#clf .cf-h{overflow:hidden;text-overflow:ellipsis;min-width:0}#clf .cf-t{flex:none}#clf .cf-st:empty{display:none}#clf .cf-nm small{display:none;font-size:14px;color:#606f85}' +
       '#clf .cf-dt,#clf .cf-sz{font-size:14px;color:#606f85;font-variant-numeric:tabular-nums}' +
       '#clf .cf-mn{width:40px;height:40px;border:0;background:none;border-radius:12px;color:#606f85;display:grid;place-items:center;cursor:pointer}#clf .cf-mn:hover{background:#eef0f3}#clf .cf-mn svg{width:18px;height:18px}' +
       '#clf .cf-em{padding:32px 16px;text-align:center;color:#606f85;font-size:14px}#clf .cf-drop{min-height:56px;margin:8px;border:1.5px dashed #c9cfd8;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:8px;color:#606f85;font-size:14px}#clf .cf-drop svg{width:20px;height:20px}#clf.cf-dg .cf-drop{border-color:#3d7c0e;background:#f2f7ea;color:#2f6b0a}' +
       '#clf .cf-gd{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:14px;font-weight:600;color:#2f6b0a;text-decoration:none}#clf .cf-gd svg{width:18px;height:18px}' +
-      '#clf .cf-st{font-size:14px;color:#2f6b0a;min-height:20px}#clf .cf-st.cf-bad{color:#c81e1e}' +
+      '#clf .cf-pg{display:grid;gap:8px;padding:16px;border-radius:16px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06)}#clf .cf-pg div{display:flex;justify-content:space-between;gap:16px;align-items:baseline}#clf .cf-pg b{font-size:16px}#clf .cf-pg span{font-size:14px;color:#606f85;white-space:nowrap}#clf .cf-pg i{display:block;height:8px;border-radius:999px;background:#e6eadf;overflow:hidden}#clf .cf-pg i::before{content:"";display:block;height:100%;width:var(--p);background:#3d7c0e;border-radius:inherit;transition:width .3s}#clf .cf-pg small{font-size:14px;color:#606f85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#clf .cf-st{font-size:14px;color:#2f6b0a;min-height:20px}#clf .cf-st.cf-bad{color:#c81e1e}' +
       '#clf .cf-pop{position:fixed;z-index:9100;width:220px;padding:6px;border-radius:16px;background:#fff;box-shadow:0 12px 32px -8px rgba(0,0,0,.3),0 0 0 1px rgba(0,0,0,.05)}#clf .cf-pop button{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:none;font:500 14px inherit;font-family:inherit;color:#16171d;text-align:left;cursor:pointer}#clf .cf-pop button:hover{background:#f5f6f8}#clf .cf-pop svg{width:18px;height:18px}#clf .cf-pop .cf-r{color:#c81e1e}' +
       '#clf .cf-dlg{position:fixed;inset:0;z-index:9200;background:rgba(16,20,12,.45);display:grid;place-items:center;padding:16px}#clf .cf-dlg>div{width:100%;max-width:400px;background:#fff;border-radius:24px;padding:24px}#clf .cf-dlg h3{margin:0 0 8px;font-size:20px;line-height:1.3}#clf .cf-dlg p{margin:0 0 16px;font-size:14px;color:#606f85;overflow-wrap:anywhere}#clf .cf-dlg input{width:100%;box-sizing:border-box;min-height:48px;padding:0 16px;border:1px solid #80858f;border-radius:14px;font:inherit;font-size:16px;margin-bottom:16px}#clf .cf-dlg .cf-ac{display:flex;gap:8px;justify-content:flex-end}' +
       '#clf .cf-vw{position:fixed;inset:0;z-index:9300;background:rgba(14,16,20,.94);display:grid;grid-template-rows:auto 1fr auto;color:#fff}#clf .cf-vt{display:flex;align-items:center;gap:8px;padding:12px 16px}#clf .cf-vt b{flex:1;min-width:0;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
       '#clf .cf-vt a,#clf .cf-vt button{min-height:44px;padding:0 14px;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font:600 14px inherit;font-family:inherit;display:inline-flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer}#clf .cf-vt svg{width:18px;height:18px}#clf .cf-vt .cf-x{width:44px;padding:0;justify-content:center}' +
       '#clf .cf-vb{position:relative;display:grid;place-items:center;min-height:0;padding:8px 64px}#clf .cf-vb img{max-width:100%;max-height:100%;border-radius:8px}#clf .cf-vb iframe{width:100%;height:100%;border:0;border-radius:8px;background:#fff}#clf .cf-vn{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:22px;cursor:pointer}#clf .cf-vf{text-align:center;padding:12px;font-size:12px;color:rgba(255,255,255,.75)}' +
-      '@media (max-width:640px){#clf .cf-rw .cf-nm{grid-column:1}#clf .cf-fds{grid-auto-flow:column;grid-auto-columns:46%;grid-template-columns:none;overflow-x:auto;padding:4px 2px 8px}#clf .cf-rw{grid-template-columns:minmax(0,1fr) 44px}#clf .cf-rw.cf-th,#clf .cf-dt,#clf .cf-sz,#clf .cf-lkb,#clf .cf-drop{display:none}#clf .cf-nm small{display:block}#clf .cf-hd .cf-bt{width:100%;margin:0}#clf .cf-hd h2{font-size:20px}#clf .cf-vb{padding:8px}#clf .cf-vn{display:none}#clf .cf-pop{left:8px!important;right:8px;bottom:8px;top:auto!important;width:auto;border-radius:20px;padding:8px}#clf .cf-pop button{min-height:52px;font-size:16px}}';
+      '@media (max-width:640px){#clf .cf-rw .cf-nm{grid-column:1}#clf .cf-fds{grid-auto-flow:column;grid-auto-columns:46%;grid-template-columns:none;overflow-x:auto;padding:4px 2px 8px}#clf .cf-rw{grid-template-columns:minmax(0,1fr) 44px}#clf .cf-rw.cf-th,#clf .cf-dt,#clf .cf-sz,#clf .cf-lkb,#clf .cf-drop{display:none}#clf .cf-nm small{display:block}#clf .cf-hd .cf-bt{width:100%;margin:0}#clf .cf-hd h2{font-size:20px}#clf .cf-vb{padding:8px}#clf .cf-vn{display:none}#clf .cf-pop{left:8px!important;right:8px;bottom:8px;top:auto!important;width:auto;border-radius:20px;padding:8px}#clf .cf-pop button{min-height:52px;font-size:16px}}#clf [hidden]{display:none!important}#clf .cf-ft{padding-left:max(16px,calc((100% - 1280px) / 2 + 16px))}#clf .cf-fw{max-width:1280px;grid-template-columns:240px minmax(0,1fr);align-items:start;gap:32px;padding-top:16px}#clf .cf-fw>.cf-em,#clf .cf-fw>.cf-st{grid-column:1/-1}#clf .cf-mainc{display:grid;gap:16px;min-width:0}#clf .cf-sd{position:sticky;top:80px;display:grid;gap:8px}#clf .cf-sd .cf-bt{width:100%;min-height:48px}#clf .cf-ol{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:1px solid #c9cfd8;border-radius:999px;background:#fff;color:#16171d;font:600 15px inherit;font-family:inherit;cursor:pointer}#clf .cf-ol svg,#clf .cf-sd nav svg{width:20px;height:20px;flex:none}#clf .cf-sd nav{display:grid;gap:4px;margin-top:16px}#clf .cf-sd nav button{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:0;border-radius:12px;background:none;color:#3a4250;font:500 15px inherit;font-family:inherit;text-align:left;cursor:pointer}#clf .cf-sd nav button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#clf .cf-sd nav button.cf-sub{padding-left:32px}#clf .cf-sd nav button:hover{background:#e9ece6}#clf .cf-sd nav button.on{background:#e3eed6;color:#2f6b0a;font-weight:700}#clf .cf-hd .cf-sq,#clf .cf-upm{display:none}#clf .cf-q{margin-left:auto;display:flex;align-items:center;gap:8px;width:320px;max-width:100%;min-height:44px;padding:0 16px;border-radius:999px;background:#fff;border:1px solid #dfe3e8;color:#606f85}#clf .cf-q svg{width:18px;height:18px;flex:none}#clf .cf-q input{flex:1;min-width:0;border:0;outline:0;background:none;font:400 15px inherit;font-family:inherit;color:#16171d}#clf .cf-q:focus-within{border-color:#3d7c0e;box-shadow:0 0 0 3px rgba(61,124,14,.15)}#clf .cf-fds{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}#clf .cf-fd{min-height:160px;padding:56px 16px 16px}#clf .cf-fd .cf-fl{font-size:12px;font-weight:600;letter-spacing:.02em;color:#606f85}#clf .cf-fd:first-child .cf-fl{color:rgba(255,255,255,.75)}#clf .cf-rw{grid-template-columns:44px minmax(0,1fr) 168px 120px 88px 44px 44px}#clf .cf-by{display:flex;align-items:center;gap:8px;font-size:14px;color:#3a4250;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#clf .cf-by i{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#e3eed6;color:#2f6b0a;font:700 13px inherit;font-family:inherit;font-style:normal}#clf .cf-rw:not(.cf-th)+.cf-rw{box-shadow:inset 0 1px 0 #eef0f3}#clf.cf-dg .cf-mainc{outline:2px dashed #3d7c0e;outline-offset:8px;border-radius:24px}@media (max-width:900px){#clf .cf-fw{grid-template-columns:minmax(0,1fr);gap:16px}#clf .cf-sd{display:none}#clf .cf-hd .cf-sq,#clf .cf-upm{display:inline-flex}#clf .cf-hd .cf-sq{display:grid}#clf .cf-q{order:5;width:100%;margin-left:0}#clf .cf-rw{grid-template-columns:44px minmax(0,1fr) 120px 88px 44px 44px}#clf .cf-by,#clf .cf-th span:nth-child(3){display:none}}@media (max-width:640px){#clf .cf-rw{grid-template-columns:minmax(0,1fr) 44px}#clf .cf-fds{grid-template-columns:none}#clf .cf-fd{min-height:128px;padding-top:48px}}';
     function e(t) { return esc(t); }
     function kind(f) { var m = f.mime || '', n = (f.name || '').toLowerCase(); if (/^image\//.test(m)) return 'i'; if (m === 'application/pdf' || /\.pdf$/.test(n)) return 'p'; if (/^application\/vnd\.google-apps/.test(m)) return 'g'; return 'o'; }
+    function mid(n) { n = String(n || ''); var k = Math.min(12, Math.floor(n.length / 3)); return '<span class="cf-h">' + e(n.slice(0, n.length - k)) + '</span><span class="cf-t">' + e(n.slice(n.length - k)) + '</span>'; }   // ตัดตรงกลาง เก็บท้ายชื่อ (_3.jpg) ไว้ให้แยกไฟล์ออก
     function fsz(b) { if (!b) return '—'; if (b < 1024) return b + ' B'; if (b < 1048576) return Math.round(b / 1024) + ' KB'; return (b / 1048576).toFixed(1) + ' MB'; }
     var TM = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
     function fdt(ms) { if (!ms) return '—'; var d = new Date(ms); return d.getDate() + ' ' + TM[d.getMonth()] + ' ' + String(d.getFullYear() + 543).slice(2); }
     function say(t, bad) { var x = F && F.el.querySelector('.cf-st'); if (x) { x.textContent = t || ''; x.className = 'cf-st' + (bad ? ' cf-bad' : ''); } }
     function errText(x) { return x && x.code === 'denied' ? 'ไม่มีสิทธิ์ทำส่วนนี้' : x && x.code === 'network' ? 'เชื่อมต่อไม่ได้ ลองอีกครั้ง' : (x && x.message) || 'ทำไม่สำเร็จ ลองอีกครั้ง'; }
     function load(fid) {
+      if ((fid || '') !== F.cur) F.q = '';
       F.cur = fid || ''; say('กำลังโหลด…');
-      return db.call('ls', { jobId: F.job, folderId: F.cur }).then(function (r) { F.r = r; draw(); say(''); }).catch(function (x) {
+      var G = F;
+      return db.call('ls', { jobId: F.job, folderId: F.cur }).then(function (r) { if (F !== G) return; F.r = r; draw(); say(''); }).catch(function (x) {
+        if (F !== G) return;   // ปิดหน้าไปแล้ว
         if (!F.r) { F.el.querySelector('.cf-fw').innerHTML = '<div class="cf-em">' + e(/ไม่รู้จักคำสั่ง/.test(x && x.message || '') ? 'หน้าไฟล์งานต้องใช้ตัวกลาง 1.2.6 ขึ้นไป' : errText(x)) + '<p style="margin-top:16px"><button class="cf-bt" data-go="">ลองอีกครั้ง</button></p>' + '</div><div class="cf-st" role="status"></div>'; return; }   // โหลดครั้งแรกพัง ยังไม่มีหน้าให้แสดงข้อความ
         say(errText(x), true);
       });
     }
     function draw() {
       var r = F.r, atRoot = r.folder.id === r.root, imgs = r.files.filter(function (f) { return kind(f) === 'i'; });
-      F.imgs = imgs;
+      F.imgs = imgs; if (atRoot) F.rf = r.folders;
+      var top = atRoot ? '' : (r.path[0] ? r.path[0].id : r.folder.id);
       var bc = atRoot ? '' : '<nav class="cf-bc" aria-label="ตำแหน่ง">' + ('<button data-go="">โฟลเดอร์งาน</button>' + r.path.map(function (p) { return '<i>/</i><button data-go="' + e(p.id) + '">' + e(p.name) + '</button>'; }).join('') + '<i>/</i><b>' + e(r.folder.name) + '</b>') + '</nav>';
-      var fds = r.folders.map(function (f) { return '<div class="cf-fd" role="button" tabindex="0" data-go="' + e(f.id) + '"><span class="cf-fi">' + I.fd + '</span><b>' + e(f.name) + '</b><small>' + f.n + ' รายการ · ' + fdt(f.at) + '</small><button class="cf-fm" data-mn="' + e(f.id) + '" aria-label="เมนูโฟลเดอร์ ' + e(f.name) + '">' + I.more + '</button></div>'; }).join('');
+      var sd = '<aside class="cf-sd"><button class="cf-bt" data-up>' + I.up + 'อัปโหลดไฟล์</button><button class="cf-ol" data-mk>' + I.nf + 'โฟลเดอร์ใหม่</button><nav aria-label="โฟลเดอร์">' +
+        '<button data-go="" class="' + (atRoot ? 'on' : '') + '">' + I.fd + '<span>โฟลเดอร์งาน</span></button>' +
+        (F.rf || []).map(function (f) { return '<button data-go="' + e(f.id) + '" class="cf-sub ' + (top === f.id ? 'on' : '') + '">' + I.fd + '<span>' + e(f.name) + '</span></button>'; }).join('') + '</nav></aside>';
+      var fds = r.folders.map(function (f) { return '<div class="cf-fd" role="button" tabindex="0" data-go="' + e(f.id) + '" data-n="' + e(f.name.toLowerCase()) + '"><span class="cf-fi">' + I.fd + '</span><button class="cf-fm" data-mn="' + e(f.id) + '" aria-label="เมนูโฟลเดอร์ ' + e(f.name) + '">' + I.more + '</button><small class="cf-fl">โฟลเดอร์</small><b>' + e(f.name) + '</b><small>' + f.n + ' รายการ · ' + fdt(f.at) + '</small></div>'; }).join('');
       var ic = { p: I.doc, i: I.img, g: I.gs, o: I.doc };
-      var rows = r.files.map(function (f) { var k = kind(f); return '<div class="cf-rw"><button class="cf-nm" data-op="' + e(f.id) + '"><span class="cf-ic cf-' + k + '">' + ic[k] + '</span><span><b>' + e(f.name) + '</b><small>' + fdt(f.at) + ' · ' + fsz(f.size) + '</small></span></button><span class="cf-dt">' + fdt(f.at) + '</span><span class="cf-sz">' + fsz(f.size) + '</span><button class="cf-mn cf-lkb" data-lk="' + e(f.id) + '" aria-label="คัดลอกลิงก์ ' + e(f.name) + '">' + I.lk + '</button><button class="cf-mn" data-mn="' + e(f.id) + '" aria-label="เมนูไฟล์ ' + e(f.name) + '">' + I.more + '</button></div>'; }).join('');
-      F.el.querySelector('.cf-fw').innerHTML = bc +
-        '<div class="cf-hd"><h2>' + e(atRoot ? 'โฟลเดอร์งาน' : r.folder.name) + '</h2><button class="cf-sq" data-mk aria-label="สร้างโฟลเดอร์ใหม่" title="โฟลเดอร์ใหม่">' + I.nf + '</button><button class="cf-bt" data-up>' + I.up + 'อัปโหลดไฟล์</button><input type="file" multiple hidden></div><div class="cf-st" role="status"></div>' +
+      var rows = r.files.map(function (f) { var k = kind(f); return '<div class="cf-rw" data-n="' + e(f.name.toLowerCase()) + '"><button class="cf-nm" data-op="' + e(f.id) + '"><span class="cf-ic cf-' + k + '">' + ic[k] + '</span><span><b title="' + e(f.name) + '">' + mid(f.name) + '</b><small>' + fdt(f.at) + ' · ' + fsz(f.size) + '</small></span></button><span class="cf-by">' + (f.by ? '<i>' + e(f.by.slice(0, 1)) + '</i>' + e(f.by) : '—') + '</span><span class="cf-dt">' + fdt(f.at) + '</span><span class="cf-sz">' + fsz(f.size) + '</span><button class="cf-mn cf-lkb" data-lk="' + e(f.id) + '" aria-label="คัดลอกลิงก์ ' + e(f.name) + '">' + I.lk + '</button><button class="cf-mn" data-mn="' + e(f.id) + '" aria-label="เมนูไฟล์ ' + e(f.name) + '">' + I.more + '</button></div>'; }).join('');
+      F.el.querySelector('.cf-fw').innerHTML = sd + '<div class="cf-mainc">' + bc +
+        '<div class="cf-hd"><h2>' + e(atRoot ? 'โฟลเดอร์งาน' : r.folder.name) + '</h2><button class="cf-sq" data-mk aria-label="สร้างโฟลเดอร์ใหม่" title="โฟลเดอร์ใหม่">' + I.nf + '</button><label class="cf-q">' + I.sr + '<input type="search" placeholder="ค้นหาในโฟลเดอร์นี้" aria-label="ค้นหาไฟล์ในโฟลเดอร์นี้" value="' + e(F.q || '') + '"></label><button class="cf-bt cf-upm" data-up>' + I.up + 'อัปโหลดไฟล์</button><input type="file" multiple hidden></div>' + pg() + '<div class="cf-st" role="status"></div>' +
         (r.folders.length ? '<div class="cf-sc">โฟลเดอร์<small>' + r.folders.length + ' โฟลเดอร์</small></div><div class="cf-fds">' + fds + '</div>' : '') +
-        '<div class="cf-sc">ไฟล์<small>' + r.files.length + ' ไฟล์</small></div><div class="cf-tb">' + (r.files.length ? '<div class="cf-rw cf-th"><span></span><span>ชื่อ</span><span>แก้ไขล่าสุด</span><span>ขนาด</span><span></span><span></span></div>' + rows : '<div class="cf-em">ยังไม่มีไฟล์ในโฟลเดอร์นี้</div>') + '<div class="cf-drop">' + I.up + 'ลากไฟล์มาวางที่นี่ เพื่ออัปโหลด</div></div>';
+        '<div class="cf-sc">ไฟล์<small>' + r.files.length + ' ไฟล์</small></div><div class="cf-tb">' + (r.files.length ? '<div class="cf-rw cf-th"><span></span><span>ชื่อ</span><span>อัปโหลดโดย</span><span>แก้ไขล่าสุด</span><span>ขนาด</span><span></span><span></span></div>' + rows : '<div class="cf-em">ยังไม่มีไฟล์ในโฟลเดอร์นี้ · กดอัปโหลด หรือลากไฟล์มาวางในหน้านี้</div>') + '<div class="cf-em cf-nf" hidden>ไม่พบไฟล์ที่ชื่อตรงกับคำค้น</div></div></div>';
+      filt();
+    }
+    function filt() {   // ค้นหาเฉพาะในโฟลเดอร์ที่เปิดอยู่ (ไม่ต้องถามตัวกลาง)
+      var q = (F.q || '').trim().toLowerCase(), hit = 0;
+      [].forEach.call(F.el.querySelectorAll('.cf-fd,.cf-rw:not(.cf-th)'), function (x) { var ok = !q || x.dataset.n.indexOf(q) >= 0; x.hidden = !ok; if (ok && x.classList.contains('cf-rw')) hit++; });
+      var nf = F.el.querySelector('.cf-nf'); if (nf) nf.hidden = !(q && !hit && F.r.files.length);
     }
     function item(id) { var r = F.r; return r.files.filter(function (f) { return f.id === id; })[0] || r.folders.filter(function (f) { return f.id === id; })[0]; }
     function dlg(title, msg, val, okT, red) {
@@ -577,16 +592,26 @@
       });
     }
     function act(p, okMsg) { say('กำลังบันทึก…'); return p.then(function () { return load(F.cur); }).then(function () { say(okMsg); }).catch(function (x) { say(errText(x), true); }); }
+    function pg() {
+      var u = F.up; if (!u) return '';
+      var left = u.i > 1 ? Math.round((Date.now() - u.t0) / (u.i - 1) * (u.n - u.i + 1) / 1000) : 0;
+      var eta = !left ? 'กำลังคำนวณเวลา' : left < 60 ? 'เหลือไม่ถึง 1 นาที' : 'เหลือประมาณ ' + Math.round(left / 60) + ' นาที';
+      return '<div class="cf-pg" role="status"><div><b>กำลังอัปโหลด ' + u.i + ' จาก ' + u.n + '</b><span>' + eta + '</span></div><i style="--p:' + Math.round((u.i - 1) / u.n * 100) + '%"></i><small>' + mid(u.name) + '</small></div>';
+    }
     function upload(list) {
       list = [].slice.call(list || []); if (!list.length) return;
       var i = 0, big = list.filter(function (f) { return f.size > 20 * 1048576; });
       if (big.length) { say(big[0].name + ' ใหญ่เกิน 20 MB อัปโหลดไม่ได้', true); return; }
+      var cur = F.cur, U = F.up = { n: list.length, i: 0, name: '', t0: Date.now() };
+      function done() { if (F && F.up === U) F.up = null; }
       function next() {
-        if (i >= list.length) return load(F.cur).then(function () { say('อัปโหลดแล้ว ' + list.length + ' ไฟล์'); });
-        var f = list[i++]; say('กำลังอัปโหลด ' + i + ' จาก ' + list.length + ' · ' + f.name);
+        if (!F || F.up !== U) return;   // ปิดหน้าแล้ว
+        if (i >= list.length) { done(); return load(cur).then(function () { say('อัปโหลดแล้ว ' + list.length + ' ไฟล์'); }); }
+        var f = list[i++]; U.i = i; U.name = f.name; draw();
         return new Promise(function (ok, no) { var rd = new FileReader(); rd.onload = function () { ok(String(rd.result).split(',')[1] || ''); }; rd.onerror = no; rd.readAsDataURL(f); })
-          .then(function (b64) { return db.call('fput', { jobId: F.job, folderId: F.cur, name: f.name, mime: f.type || 'application/octet-stream', b64: b64 }); })
-          .then(next).catch(function (x) { say(f.name + ': ' + errText(x), true); load(F.cur); });
+          .then(function (b64) { return db.call('fput', { jobId: F.job, folderId: cur, name: f.name, mime: f.type || 'application/octet-stream', b64: b64 }); })
+          .then(function (r) { if (F && F.cur === cur && F.r) F.r.files.push({ id: r.id, name: r.name, mime: f.type, size: f.size, at: Date.now(), url: 'https://drive.google.com/file/d/' + r.id + '/view', by: r.by || '' }); })   // ไฟล์ที่เสร็จขึ้นในตารางทันที
+          .then(next).catch(function (x) { done(); load(cur).then(function () { say(f.name + ': ' + errText(x), true); }); });
       }
       next();
     }
@@ -647,6 +672,7 @@
         if (t.closest('[data-mk]')) return dlg('โฟลเดอร์ใหม่', '', '', 'สร้างโฟลเดอร์').then(function (v) { if (v) act(db.call('fmk', { jobId: F.job, folderId: F.cur, name: v }), 'สร้างโฟลเดอร์แล้ว'); });
       });
       el.addEventListener('keydown', function (ev) { var g = ev.target.closest && ev.target.closest('.cf-fd'); if (g && (ev.key === 'Enter' || ev.key === ' ') && ev.target === g) { ev.preventDefault(); load(g.dataset.go); } if (ev.key === 'Escape' && !el.querySelector('.cf-dlg,.cf-vw,.cf-pop')) close(); });
+      el.addEventListener('input', function (ev) { if (ev.target.type === 'search') { F.q = ev.target.value; filt(); } });
       el.addEventListener('change', function (ev) { if (ev.target.type === 'file') { upload(ev.target.files); ev.target.value = ''; } });
       el.addEventListener('dragover', function (ev) { ev.preventDefault(); el.classList.add('cf-dg'); });
       el.addEventListener('dragleave', function (ev) { if (ev.target === el || !el.contains(ev.relatedTarget)) el.classList.remove('cf-dg'); });
