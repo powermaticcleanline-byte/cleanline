@@ -549,7 +549,7 @@
     function load(fid) {
       F.cur = fid || ''; say('กำลังโหลด…');
       return db.call('ls', { jobId: F.job, folderId: F.cur }).then(function (r) { F.r = r; draw(); say(''); }).catch(function (x) {
-        if (x && /ไม่รู้จักคำสั่ง/.test(x.message || '') && F.url) { F.el.querySelector('.cf-fw').innerHTML = '<div class="cf-em">โฟลเดอร์งานพร้อมแล้ว ตอนนี้ยังเปิดในแอปไม่ได้</div><a class="cf-bt" href="' + e(F.url) + '" target="_blank" rel="noopener">' + I.ext + 'เปิดใน Google Drive</a>'; return; }   // ตัวกลางยังไม่ใช่ 1.2.6 · ให้ผู้ใช้กดเอง (window.open หลัง await โดนบล็อกป๊อปอัป)   // ตัวกลางยังไม่ใช่ 1.2.6
+        if (!F.r) { F.el.querySelector('.cf-fw').innerHTML = '<div class="cf-em">' + e(/ไม่รู้จักคำสั่ง/.test(x && x.message || '') ? 'หน้าไฟล์งานต้องใช้ตัวกลาง 1.2.6 ขึ้นไป' : errText(x)) + '<p style="margin-top:16px"><button class="cf-bt" data-go="">ลองอีกครั้ง</button></p>' + (F.url ? '<a class="cf-gd" href="' + e(F.url) + '" target="_blank" rel="noopener">' + I.ext + 'เปิดใน Google Drive</a>' : '') + '</div><div class="cf-st" role="status"></div>'; return; }   // โหลดครั้งแรกพัง ยังไม่มีหน้าให้แสดงข้อความ
         say(errText(x), true);
       });
     }
@@ -632,7 +632,7 @@
       if (!document.getElementById('clf-css')) { var s = document.createElement('style'); s.id = 'clf-css'; s.textContent = CSS; document.head.appendChild(s); }
       if (F) close();
       var el = document.createElement('div'); el.id = 'clf'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'ไฟล์งาน');
-      el.innerHTML = '<header class="cf-ft"><button class="cf-ib" data-close aria-label="กลับ">' + I.back + '</button><h1>ไฟล์งาน<small>' + e(title || '') + '</small></h1></header><div class="cf-fw"></div>';
+      el.innerHTML = '<header class="cf-ft"><button class="cf-ib" data-close aria-label="กลับ">' + I.back + '</button><h1>ไฟล์งาน<small>' + e(title || '') + '</small></h1></header><div class="cf-fw"><div class="cf-st" role="status"></div></div>';
       document.body.appendChild(el); document.body.style.overflow = 'hidden';
       F = { el: el, job: jobId, url: url || '', cur: '' };
       try { history.pushState({ clf: 1 }, ''); } catch (x) {}
