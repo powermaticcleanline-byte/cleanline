@@ -239,7 +239,7 @@
   function connect(page) {
     st.page = page;
     try { var s = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (s && s.exp > Date.now()) st.token = s.token; } catch (e) {}
-    return (st.token ? api({ op: 'me' }).then(function (r) { return r.me; }).catch(function () { st.token = null; return null; }) : Promise.resolve(null))
+    return (st.token ? api({ op: 'me' }).then(function (r) { return r.me; }).catch(function (e) { if (e && e.code === 'network') throw e; st.token = null; return null; }) : Promise.resolve(null))   // เน็ตหลุด: เก็บการเข้าสู่ระบบไว้ ให้หน้าเว็บขึ้น "เชื่อมต่อไม่ได้ · ลองอีกครั้ง" (เดิมลบทิ้งแล้วเด้งไปลงชื่อใหม่)
       .then(function (me) { return me || signIn(); })
       .then(function (me) { return gate(me); });
   }

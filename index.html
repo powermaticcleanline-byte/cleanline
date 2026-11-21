@@ -2332,7 +2332,8 @@ function needs(n,j,c,s){
 }
 const mapsDir=dest=>`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(PWM_ADDR)}${dest?'&destination='+encodeURIComponent(dest):''}`;
 function closedDays(){return (S.config&&S.config.survey&&S.config.survey.closed)||{}}
-const isoAdd=(k,n)=>{const d=new Date(k+'T00:00:00');d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const isoOf=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;   // Date → YYYY-MM-DD เวลาท้องถิ่น (ใช้ที่เดียว)
+const isoAdd=(k,n)=>{const d=new Date(k+'T00:00:00');d.setDate(d.getDate()+n);return isoOf(d)};
 function teamCount(team,k,exceptId){return Object.values(S.jobs).filter(j=>j.id!==exceptId&&!['lost','cancelled'].includes(j.status)&&(j.surveyTeam||'')===team&&(j.surveyDate||j.queueDate)===k).length}
 /* ทีมนี้รับเพิ่มได้กี่ที่ในวัน k (ห้ามออกสองวันติดกัน) */
 function teamSlots(team,k,exceptId){if(S.me&&S.me.role){if(teamBlock(team,k,exceptId))return 0;return PER_TEAM-svJobsOn(team,k,exceptId).length}const c=teamCount(team,k,exceptId);if(c>=PER_TEAM)return 0;if(!c&&(teamCount(team,isoAdd(k,-1),exceptId)||teamCount(team,isoAdd(k,1),exceptId)))return 0;return PER_TEAM-c}
@@ -2404,7 +2405,7 @@ const TMF=['มกราคม','กุมภาพันธ์','มีนา�
 const TD=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
 function fd(iso){if(!iso)return '—';const [y,m,d]=String(iso).split('-').map(Number);if(!y||!m)return esc(iso);return `${d} ${TM[m-1]} ${String(y+543).slice(2)}`}
 function fdt(ms){const d=new Date(ms);const t=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;if(new Date().toDateString()===d.toDateString())return 'วันนี้ '+t;return `${d.getDate()} ${TM[d.getMonth()]} ${t}`}
-const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const today=()=>{const d=new Date();return isoOf(d)};
 const days=ms=>ms?Math.max(0,Math.floor((Date.now()-ms)/864e5)):0;
 const ageCls=d=>d>30?'crit':d>14?'warn':'';
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,3200)}
@@ -2552,7 +2553,7 @@ function render(){
   renderSide(r);
   if(r==='queue')requestAnimationFrame(fitCal);
   const app=$('#app');
-  if(!S.db){app.innerHTML=`<div class="card empty">${S.noDb?`เปิดหน้านี้บน claude.ai และเข้าสู่ระบบ เพื่อใช้ฐานข้อมูลกลาง<div style="margin-top:16px"><button type="button" class="btn pri" data-demo="1">ดูด้วยข้อมูลตัวอย่าง</button></div><p class="sub" style="margin:8px 0 0">ลองกดใช้งานได้ทุกหน้า ข้อมูลตัวอย่างไม่ถูกบันทึก และไม่แตะข้อมูลจริง</p>`:'กำลังเชื่อมต่อฐานข้อมูล…'}</div>`;return}
+  if(!S.db){app.innerHTML=`<div class="card empty">${S.noDb?`<b style="display:block;font-size:20px;margin-bottom:8px">เชื่อมต่อไม่ได้</b>ตรวจอินเทอร์เน็ต แล้วกดลองอีกครั้ง<div style="margin-top:16px"><button type="button" class="btn pri" data-retry="1">ลองอีกครั้ง</button></div>`:'กำลังเชื่อมต่อฐานข้อมูล…'}</div>`;return}
   let h;
   if(isSales())h=viewSales(r);
   else if(r==='new')h=viewNew();
@@ -2568,7 +2569,7 @@ function render(){
   else if(r==='settings')h=['sales','eng','lead'].includes(myGroup())&&!S.me.owner?'<div class="card empty">หน้านี้สำหรับแอดมินและผู้บริหาร</div>':viewSettings();
   else if(r.startsWith('job-'))h=viewJob(r.slice(4));
   else h=viewToday();
-  app.innerHTML=hdr(r)+'<div class="pg">'+(S.demo?'<div role="status" style="margin:0 0 16px;padding:8px 16px;border-radius:14px;background:#fff7e6;color:#8a5a00;font-size:16px"><b>โหมดตัวอย่าง</b> · ข้อมูลสมมติ แก้ไขได้แต่ไม่ถูกบันทึก ปิดหน้าแล้วจะหายไป · <a href="#settings" data-goimp="1" style="color:inherit;font-weight:700">ลองนำเข้าไฟล์ตารางงาน Excel</a></div>':'')+h+'</div>';
+  app.innerHTML=hdr(r)+'<div class="pg">'+h+'</div>';
   mountApps();
   setupStick();
   if(aid){const el=document.getElementById(aid);if(el){el.focus();try{if(sel!=null)el.setSelectionRange(sel,sel)}catch(e){}}}
@@ -2596,7 +2597,7 @@ document.addEventListener('click',e=>{
   if(e.target.closest('#navtog')){S.navOff=!S.navOff;document.body.classList.toggle('navoff',S.navOff);render();return}
   if(e.target.closest('#pfbtn')){S.pf=!S.pf;S.bell=false;S.apps=false;render();return}
   if(e.target.closest('#pfout')&&S.me.role){S.pf=false;render();confirmBox('ออกจากระบบ?','ครั้งหน้าต้องลงชื่อเข้าใช้ด้วยบัญชี Google อีกครั้ง','ออกจากระบบ','pri').then(y=>{if(y)CLGDB.user.signOut()});return}
-  if(e.target.closest('#pfout')){S.pf=false;render();confirmBox('ออกจากระบบ','ตอนนี้ระบบต้นแบบเข้าด้วยบัญชี Claude ของคุณ ออกจากระบบได้โดยออกจากบัญชีที่ claude.ai เมื่อไอทีทำระบบล็อกอินของบริษัท ปุ่มนี้จะออกจากระบบได้ทันที','เข้าใจแล้ว');return}
+  
   if(S.pf&&!e.target.closest('.pfm')){S.pf=false;render()}
   if(e.target.closest('#bellbtn')){S.pf=false;S.apps=false;if(S.bell){S.bell=false}else{S.bell=true;S.bellSeenAt=bellSeen();try{localStorage.setItem('cl.bellSeen',String(Date.now()))}catch(x){}}render();if(S.bell)setTimeout(()=>document.querySelector('.ntp a')?.focus(),0);return}
   if(S.bell&&(!e.target.closest('.ntp')||e.target.closest('a'))){S.bell=false;render()}
@@ -2605,7 +2606,7 @@ document.addEventListener('click',e=>{if(S.mp&&!e.target.closest('.mnav')){S.mp=
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.pf){S.pf=false;render();$('#pfbtn')?.focus();return}if(e.key==='Escape'&&S.bell){S.bell=false;render();$('#bellbtn')?.focus();return}
   if(e.key==='Escape'&&S.sel){closeDrawer();return}
   if(e.key==='Escape'&&document.querySelector('.fmod')){closeModal();return}
-  if(e.target.matches?.('.kd[data-qsel]')&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){e.preventDefault();const st={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key]||0;const d=new Date(e.target.dataset.qsel+'T00:00:00');d.setDate(d.getDate()+st);const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;const el=document.querySelector(`.kd[data-qsel="${k}"]`);if(el&&!el.classList.contains('ko')){S.f.qsel=k;render();setTimeout(()=>document.querySelector('.kd.kon')?.focus(),0)}return}
+  if(e.target.matches?.('.kd[data-qsel]')&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){e.preventDefault();const st={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key]||0;const d=new Date(e.target.dataset.qsel+'T00:00:00');d.setDate(d.getDate()+st);const k=isoOf(d);const el=document.querySelector(`.kd[data-qsel="${k}"]`);if(el&&!el.classList.contains('ko')){S.f.qsel=k;render();setTimeout(()=>document.querySelector('.kd.kon')?.focus(),0)}return}
   if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('tr[data-sel]')){e.preventDefault();openDrawer(e.target.dataset.sel);return}
   if(e.key==='Escape'&&S.mp){S.mp=null;render();return}if(e.key==='Escape'&&S.eqv){S.eqv=null;closeModal();return}if(e.key==='Escape'&&S.apps){S.apps=false;render();$('#appbtn')?.focus()}});
 function hdr(r){
@@ -2801,7 +2802,7 @@ function viewToday0(){
   const g=myGroup();const name=S.names[S.me.id]||'';
   const all=visibleJobs();const active=all.filter(j=>j.status==='active');
   const t=today();const d=new Date();
-  const isoD=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+  const isoD=x=>isoOf(x);
   const evOn=k=>{const L=[];active.forEach(j=>{if(j.stage<=ST.SURVEY&&(j.surveyDate||j.queueDate)===k)L.push({j,k:'s',conf:j.stage>=ST.SURVEY});if(j.stage>=ST.INSREQ&&j.stage<=ST.INSTALL&&onIns(j,k)){const D=insDays(j);L.push({j,k:'i',day:D.indexOf(k)+1,of:D.length})}});return L.sort((a,b)=>String(a.j.queueTime||'99').localeCompare(String(b.j.queueTime||'99')))};
   let DP;const dTxt=`วัน${TD[d.getDay()]}ที่ ${d.getDate()} ${TMF[d.getMonth()]} ${d.getFullYear()+543}`;
   const qS0=active.filter(j=>j.stage===ST.ACCEPT).length;const instAll=all.filter(j=>j.equipment&&(j.status==='done'||j.stage>=ST.COMM)).length;
@@ -2935,7 +2936,7 @@ function jobTimeline(j){
   if(j.installDate)ev.push({d:j.installDate,k:'ins',t:`${j.installDate>today()?'นัดติดตั้ง':'ติดตั้งแล้ว'}${j.installTeam?' · '+j.installTeam:''}`});
   if(j.agreedDate)ev.push({d:j.agreedDate,k:'agree',t:'ลูกค้าตกลง'});
   if(svDate(j))ev.push({d:svDate(j),k:'sv',t:`${svDate(j)>today()?'นัดสำรวจ':'สำรวจหน้างาน'}${j.proposedKw?' · เสนอ '+j.proposedKw+' kW':''}${j.proposedModel?' · '+j.proposedModel:''}${j.surveyor?' · '+j.surveyor:''}`});
-  (j.history||[]).filter(h=>h.kind==='note').forEach(h=>{const t=new Date(h.at);ev.push({d:`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`,k:'note',t:hText(h.text)+(h.by?' · '+nm(h.by):'')})});
+  (j.history||[]).filter(h=>h.kind==='note').forEach(h=>{const t=new Date(h.at);ev.push({d:isoOf(t),k:'note',t:hText(h.text)+(h.by?' · '+nm(h.by):'')})});
   ev.sort((a,b)=>String(b.d||'').localeCompare(String(a.d||'')));
   const TAG={CM:['แจ้งซ่อม','rd'],PM:['ตรวจเช็ก','ok'],grid:['ขนานไฟ','v'],comm:['ติดตั้งเสร็จ','b'],ins:['ติดตั้ง','b'],agree:['ตกลง','g'],sv:['สำรวจ','gy'],note:['บันทึก','gy']};
   if(!ev.length)return '<div class="nte">'+svg('clock','currentColor',2)+'<b>ยังไม่มีประวัติ</b><span>วันสำรวจ ติดตั้ง ตรวจเช็ก และแจ้งซ่อมจะเรียงอยู่ที่นี่</span></div>';
@@ -3256,7 +3257,7 @@ function catParse(rows,base=0){
   return {out,bad};
 }
 async function catImport(file){
-  try{await loadXLSX()}catch(e){return toast('โหลดตัวอ่าน Excel ไม่ได้ ลองเปิดบน claude.ai')}
+  try{await loadXLSX()}catch(e){return toast('โหลดตัวอ่าน Excel ไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่')}
   let res;try{const wb=XLSX.read(await file.arrayBuffer(),{cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]];res=catParse(XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:null}),ws['!ref']?XLSX.utils.decode_range(ws['!ref']).s.r:0)}catch(e){return showErr(e,'อ่านไฟล์ไม่ได้')}
   const key=(c,m)=>c+'|'+String(m).trim().toLowerCase();const have={};Object.values(S.products).forEach(p=>{have[key(p.category,p.model)]=p});
   const seen={};const L=res.out.map(x=>{const k=key(x.d.category,x.d.model);const dup=seen[k];seen[k]=seen[k]||x.row;const ex=have[k];return {...x,k,dup,ex,st:dup?'dup':ex?'upd':'new'}});
@@ -3716,7 +3717,7 @@ function calHtml(){
   const f=S.nf||{};const t=today();
   const base=new Date();base.setDate(1);base.setMonth(base.getMonth()+(f.mo||0));
   const y=base.getFullYear(),m=base.getMonth();const start=new Date(y,m,1);start.setDate(1-((start.getDay()+6)%7));
-  const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const iso=d=>isoOf(d);
   let cells='';
   for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=iso(d);const inM=d.getMonth()===m;if(i===35&&!inM)break;
     const di=dayInfo(k);const past=k<=t;const off=!!di.closed;const full=di.left===0;
@@ -3765,7 +3766,7 @@ function viewQueue(){
   if(!S.loaded.jobs)return '<div class="card empty">กำลังโหลด…</div>';
   const base=new Date();base.setDate(1);base.setMonth(base.getMonth()+(S.f.qm||0));
   const y=base.getFullYear(),m=base.getMonth();const first=new Date(y,m,1);const start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
-  const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const iso=d=>isoOf(d);
   const t=today();const kf=S.f.qk||'all';const adm=myGroup()==='admin'||(!myGroup()&&S.me.owner);
   const by={};visibleJobs().forEach(j=>{
     const sd=svDate(j);if(sd&&!['lost','cancelled'].includes(j.status)&&kf!=='i')(by[sd]=by[sd]||[]).push({j,k:j.stage===ST.ACCEPT?'p':'s',tm:j.queueTime||''});
@@ -3965,7 +3966,7 @@ function slLoadSlots(){if(S.slq&&Date.now()-S.slq.at<60e3||S.slqBusy)return;if(!
 const slHalfFree=(d,h)=>d?Math.max(0,(d.cap||0)-(d[h]||0)):0;
 function slNewView(){
   const f=S.sf||(S.sf={kwp:'',sys:'On Grid'});slLoadSlots();
-  const q=S.slq;const order=q&&q.order&&q.order.length?q.order:[...Array(14)].map((_,i)=>{const x=new Date(Date.now()+i*864e5);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`});
+  const q=S.slq;const order=q&&q.order&&q.order.length?q.order:[...Array(14)].map((_,i)=>{const x=new Date(Date.now()+i*864e5);return isoOf(x)});
   const dayBtn=k=>{const d=q&&q.days[k];const dt=new Date(k+'T00:00:00');const free=d?slHalfFree(d,'am')+slHalfFree(d,'pm'):null;
     const st=d&&d.closed?['no',d.closed]:free===null?['','—']:free===0?['no','เต็ม']:free<=2?['few',`ว่าง ${free}`]:['ok',`ว่าง ${free}`];
     return `<button type="button" class="sld ${st[0]} ${f.date===k?'on':''}" data-sld="${k}" ${st[0]==='no'?'disabled':''} aria-pressed="${f.date===k}"><small>${['อา','จ','อ','พ','พฤ','ศ','ส'][dt.getDay()]}</small><b>${dt.getDate()}</b><i>${esc(st[1])}</i></button>`};
@@ -4183,7 +4184,7 @@ document.addEventListener('click',async e=>{
   if(t.dataset.qk){S.f.qk=t.dataset.qk;render();return}
   if(t.dataset.qv){S.f.qv=t.dataset.qv;render();return}
   if(t.dataset.qstep||t.dataset.qtoday){const n=new Date();let d=t.dataset.qtoday?new Date():new Date((S.f.qsel||today())+'T00:00:00');if(t.dataset.qstep)d.setDate(d.getDate()+(+t.dataset.qstep)*(S.f.qv==='week'?7:1));
-    S.f.qsel=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;S.f.qm=(d.getFullYear()-n.getFullYear())*12+(d.getMonth()-n.getMonth());render();return}
+    S.f.qsel=isoOf(d);S.f.qm=(d.getFullYear()-n.getFullYear())*12+(d.getMonth()-n.getMonth());render();return}
   if(t.dataset.qsel&&!e.target.closest('[data-osel],[data-qd],a,button')){S.f.qsel=t.dataset.qsel;render();setTimeout(()=>document.querySelector('.kd.kon')?.focus(),0);return}
   if(t.dataset.sst){S.f.sst=t.dataset.sst;S.f.limit=40;S.f.pg=0;render();return}
   if(t.dataset.osel){const id=t.dataset.osel;if(route()!=='jobs'){S.sel=id;S.dtab=null;document.body.classList.add('dlock');location.hash='jobs'}else openDrawer(id);return}
@@ -4389,7 +4390,7 @@ function pid(c,m){return (c+'-'+m).replace(/[^A-Za-z0-9_.-]+/g,'-').replace(/^[.
 
 /* ---------- import ---------- */
 function loadXLSX(){return new Promise((res,rej)=>{if(window.XLSX)return res();const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=res;s.onerror=()=>rej(new Error('โหลดตัวอ่าน Excel ไม่ได้'));document.head.appendChild(s)})}
-function xd(v){if(!(v instanceof Date)||isNaN(v))return '';const d=new Date(v.getTime()+12*3600e3);if(d.getFullYear()<2000)return '';return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function xd(v){if(!(v instanceof Date)||isNaN(v))return '';const d=new Date(v.getTime()+12*3600e3);if(d.getFullYear()<2000)return '';return isoOf(d)}
 const xs=v=>v==null?'':(v instanceof Date?xd(v):String(v).trim());
 const real=v=>{const s=xs(v);return s&&s!=='-'?s:''};
 function parseRow(r,rowNo,nowMs){
@@ -4435,7 +4436,7 @@ async function runImport(file){
   const out={set innerHTML(h){S.xprog=h;const el=$('#xprog');if(el)el.innerHTML=h}};
   try{
     if(Object.keys(S.jobs).some(k=>k.startsWith('x'))){const ok=await ask('นำเข้าซ้ำ?','พิมพ์ ยืนยัน เพื่อเขียนทับงานที่นำเข้าไว้เดิม');if(ok!=='ยืนยัน')return}
-    if(S.demo){for(const [c,ids] of [['jobs',Object.keys(S.jobs).filter(k=>/^d\d+$/.test(k))],['customers',Object.keys(S.customers).filter(k=>/^cd\d+$/.test(k))],['sites',Object.keys(S.sites).filter(k=>/^sd\d+$/.test(k))],['services',['v1']],['meters',['m1']]])for(const id of ids)await S.db.doc(c+'/'+id).delete()}
+    
     out.innerHTML='กำลังอ่านไฟล์…';try{await loadXLSX()}catch(e){throw new Error('โหลดตัวอ่าน Excel ไม่ได้ (ต้องต่ออินเทอร์เน็ต) ลองดาวน์โหลดไฟล์ไปเปิดในเบราว์เซอร์')}
     const wb=XLSX.read(await file.arrayBuffer(),{cellDates:true});
     const ws=wb.Sheets['ตารางงาน'];if(!ws)throw new Error('ไม่พบชีต "ตารางงาน"');
@@ -4470,68 +4471,17 @@ async function runImport(file){
 
 
 
-/* ---------- โหมดตัวอย่าง: ใช้เฉพาะตอนเปิดนอก claude.ai (ไม่มีฐานข้อมูลจริง) ข้อมูลอยู่ในหน่วยความจำเท่านั้น ---------- */
-function startDemo(){
-  if(S.db)return;
-  const now=Date.now(),D=864e5;const iso=o=>{const d=new Date(now+o*D);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-  const yy=String((new Date().getFullYear()+543)%100).padStart(2,'0')+String(new Date().getMonth()+1).padStart(2,'0');
-  const data={jobs:{},customers:{},sites:{},products:{},members:{},config:{},articles:{},services:{},forms:{},meters:{},logs:{},jobnos:{}};
-  const P=[['สมชาย','ใจดี','ลาดพร้าว'],['วิไล','สุขสันต์','บางนา'],['ประเสริฐ','มั่นคง','นนทบุรี'],['กานต์','รุ่งเรือง','รังสิต'],['อรทัย','ศรีสุข','สาทร'],['เอกชัย','พงษ์ไทย','ปากเกร็ด'],['นิดา','แสงทอง','บางใหญ่'],['ต้น','วงศ์ใหญ่','มีนบุรี'],['เจนจิรา','ทองดี','ราชพฤกษ์'],['สุรชัย','บุญมา','บางกะปิ'],['มาลี','ชื่นใจ','ตลิ่งชัน'],['วิชัย','เจริญสุข','บางบัวทอง']];
-  const STG=[2,2,3,3,4,5,6,7,8,4,3,8],TM2=['EN','SA-D1','SA-D2','SA-D3'],INV=['CL 5KTL-P1','CL 10KTL-P3','CL 10KHB-P3LV'];
-  P.forEach(([f,l,a],i)=>{const id='d'+i,st=STG[i],done=i===11;const nm='บ้านคุณ'+f+' '+a;
-    data.customers['c'+id]={firstName:f,lastName:l,name:f+' '+l,phone:'08'+String(12345670+i*1111).slice(0,8)};
-    data.sites['s'+id]={customerId:'c'+id,label:nm,area:a,utility:i%3?'MEA':'PEA',phase:i%4?'1':'3',mapLink:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(a+' กรุงเทพ')};
-    const sv=iso(st<=3?i-1:-20-i*3);
-    data.jobs[id]={type:'solar',title:nm,customerId:'c'+id,siteId:'s'+id,jobNo:st>=3||done?yy+String(i+1).padStart(3,'0'):'',salesTeam:TM2[i%4],salesPerson:'เซลส์ '+TM2[i%4],
-      queueDate:sv,queueTime:SLOTS[i%SLOTS.length],surveyDate:st>=3||done?sv:'',surveyor:st>=3||done?SV_TEAMS[i%4]:'',surveyTeam:st>=3||done?SV_TEAMS[i%4]:'',
-      proposedKw:[5,10,10][i%3],inverterQty:1,proposedModel:INV[i%3],agreedDate:st>=5||done?iso(-15-i):'',installDate:st>=6||done?iso(st===6?3+i%4:-10-i*5):'',
-      status:done?'done':'active',stage:done?LAST:st,stageSince:now-(i%6*5+1)*D,createdAt:now-40*D,updatedAt:now,
-      equipment:st>=7||done?{model:INV[i%3],sn:'SN'+(240100+i),panels:12+i,kw:[5,10,10][i%3]}:{},docs:done?{prepared:true,signed:true,sentTon:true,inspected:true,summary:true}:{},
-      history:[{at:now-30*D,by:'demo:ระบบ',kind:'create',text:'แจ้งงานสำรวจ '+nm}]}});
-  data.jobs.d11.installDate=iso(-350);
-  [['CL 5KTL-P1','1',5,'On Grid','DDSU666','100/5A','Chint'],['CL 5KTL-P3','3',5,'On Grid','DTSU666','100/5A','Chint'],['CL 10KTL-P3','3',10,'On Grid','DTSU666','300/5A','Chint'],['CL 30KTL-P3','3',30,'On Grid','DTSU666','300/5A','Chint'],['CL 60KTL-P3','3',60,'On Grid','DTSU666','300/5A','Chint'],['CL 5KHB-P1LV','1',5,'Hybrid','SDM120CT','100/100mA','Eastron'],['CL 10KHB-P3LV','3',10,'Hybrid','SDM630MCT','120/40mA','Eastron']]
-    .forEach(([m,ph,k,t,sm,ct,smb])=>data.products[pid('INVERTER',m)]={category:'INVERTER',model:m,brand:'Cleanline',phase:ph,kw:k,type:t,meters:sm,cts:ct,note:`Smart meter ${smb} ${sm} · CT ${ct}`});
-  [['CBL02-5L20',5],['CBL02-10L20',10],['CBL02-16L20',16],['CBL03-10L65',10],['CBL03-16L65',16]].forEach(([m,k])=>data.products[pid('BATTERY',m)]={category:'BATTERY',model:m,brand:'Cleanline',kwh:k});
-  data.products[pid('SOLAR PANEL','SPDG625-N132R12')]={category:'SOLAR PANEL',model:'SPDG625-N132R12',brand:'SUNPRO',watt:625};
-  data.services.v1={type:'CM',siteId:'sd8',jobId:'d8',date:iso(-2),symptom:'อินเวอร์เตอร์ขึ้น Error F13',channel:'ลูกค้าโทรแจ้ง',status:'open',createdAt:now-2*D};
-  data.forms.f1={code:'FM-EN-028-A',rev:'Rev.03',name:'ใบเซอร์เวย์หน้างาน',cat:'งานสำรวจ',used:'ตอนออกสำรวจ',file:'',updatedAt:now-9*D};
-  data.meters.m1={device:'A',from:iso(-1),to:iso(5),title:'บ้านคุณสมชาย ลาดพร้าว',borrower:'ทีม 1',source:'direct',status:'out',createdAt:now};
-  const subs={};const snap=c=>({docs:Object.entries(data[c]||{}).map(([id,v])=>({id,data:()=>v})),metadata:{fromCache:false}});
-  const fire=c=>setTimeout(()=>(subs[c]||[]).forEach(f=>f(snap(c))),0);
-  const coll=c=>{const q={onSnapshot:f=>{(subs[c]=subs[c]||[]).push(f);fire(c)},doc:()=>({id:'n'+Math.random().toString(36).slice(2,10)}),orderBy:()=>q,limit:()=>q,where:()=>q};return q};
-  const db={collection:coll,doc:path=>{const [c,id]=path.split('/');data[c]=data[c]||{};return {
-    get:async()=>({exists:!!data[c][id],data:()=>data[c][id]&&JSON.parse(JSON.stringify(data[c][id]))}),
-    set:async d=>{data[c][id]=JSON.parse(JSON.stringify(d));fire(c)},update:async d=>{data[c][id]={...data[c][id],...JSON.parse(JSON.stringify(d))};fire(c)},delete:async()=>{delete data[c][id];fire(c)}}}};
-  S.demo=true;S.noDb=false;S.db=db;S.user={profiles:async ids=>Object.fromEntries(ids.map(i=>[i,{name:i==='demo-me'?'แอดมิน ตัวอย่าง':'ผู้ใช้'}]))};
-  S.me={id:'demo-me',owner:true,edit:true};S.names['demo-me']='แอดมิน ตัวอย่าง';data.members['demo-me']={role:'admin',team:''};
-  ['jobs','customers','sites','products','members','config','articles','services','forms','meters'].forEach(subscribe);
-  logRaw('login','เข้าใช้งานระบบ (โหมดตัวอย่าง)');render();
-}
-document.addEventListener('click',e=>{if(e.target.closest('[data-demo]'))startDemo();if(e.target.closest('[data-goimp]'))setTimeout(()=>{const x=document.getElementById('xfile');if(x){x.closest('section').scrollIntoView({behavior:'smooth',block:'center'});x.closest('label')?.focus()}},250)});
+document.addEventListener('click',e=>{if(e.target.closest('[data-retry]'))location.reload()});
 
 /* ---------- boot ---------- */
 (async()=>{
-  if(window.CLEANLINE_CONFIG&&CLEANLINE_CONFIG.api&&window.CLGDB&&!/[?&]demo\b/.test(location.search)){
-    try{
-      const {db,user,me}=await CLGDB.connect('admin');
-      document.body.classList.add('rocat');S.db=db;S.user=user;S.me.id=me.id;S.me.owner=!!me.owner;S.me.edit=['admin','sysadmin'].includes(me.role);S.me.role=me.role;S.me.email=me.email;S.me.name=me.name;
-      ['jobs','customers','sites','products','members','config','articles','services','forms','meters','messages','photos'].forEach(subscribe);
-      names([S.me.id]).then(schedule);render();
-    }catch(e){showErr(e,'เชื่อมต่อไม่สำเร็จ');S.noDb=true;render()}
-    return;
-  }
-  const timer=setTimeout(()=>{if(!S.db){S.noDb=true;render()}},10000);
-  if(!window.claude?.use){S.noDb=true;render();return}
-  const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
-  clearTimeout(timer);
-  if(!db){S.noDb=true;render();return}
-  S.db=db;S.user=user;
-  if(user){try{S.me.id=await user.id();S.me.owner=!!(await user.isOwner());S.me.edit=!!(await user.canEdit());names([S.me.id]).then(schedule)}catch(e){}}
-  ['jobs','customers','sites','products','members','config','articles','services','forms','meters'].forEach(subscribe);
-  
-  setTimeout(()=>{let first=true;try{first=!sessionStorage.getItem('cl.in');sessionStorage.setItem('cl.in','1')}catch(e){}if(first)logRaw('login','เข้าใช้งานระบบ')},1500);
-  setTimeout(()=>{if(!S.loaded.jobs){S.loaded.jobs=true;toast('ยังโหลดข้อมูลไม่ได้ ข้อมูลที่เห็นอาจไม่ใช่ล่าสุด');render()}},10000);
-  render();
+  if(!(window.CLEANLINE_CONFIG&&CLEANLINE_CONFIG.api&&window.CLGDB)){S.noDb=true;render();return}
+  try{
+    const {db,user,me}=await CLGDB.connect('admin');
+    document.body.classList.add('rocat');S.db=db;S.user=user;S.me.id=me.id;S.me.owner=!!me.owner;S.me.edit=['admin','sysadmin'].includes(me.role);S.me.role=me.role;S.me.email=me.email;S.me.name=me.name;
+    ['jobs','customers','sites','products','members','config','articles','services','forms','meters','messages','photos'].forEach(subscribe);
+    names([S.me.id]).then(schedule);render();
+  }catch(e){showErr(e,'เชื่อมต่อไม่สำเร็จ');S.noDb=true;render()}
 })();
 render();
 

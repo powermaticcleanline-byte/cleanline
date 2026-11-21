@@ -653,7 +653,7 @@ function fdLong(iso){const d=new Date(iso+'T00:00:00');return `วัน${TD[d.g
 const rid=p=>(p||'')+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const initials=n=>String(n||'?').trim().slice(0,1);
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,3000)}
-const clone=o=>o==null?o:JSON.parse(JSON.stringify(o));
+
 function lsGet(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 const I={
@@ -760,16 +760,6 @@ class BaseAdapter{
     catch(e){console.warn('log failed',e)}
   }
 }
-class DemoAdapter extends BaseAdapter{
-  constructor(seed){super();this.mode='demo';this.logs=[];Object.keys(seed).forEach(k=>{this.c[k]=Object.fromEntries(Object.entries(seed[k]).map(([id,d])=>[id,{id,...d}]))})}
-  async init(userId){this.user=this.userById(userId);return this.user}
-  _split(p){const i=p.indexOf('/');return [p.slice(0,i),p.slice(i+1)]}
-  async _get(p){const [c,id]=this._split(p);if(c==='logs')return null;return clone(this.c[c]?.[id]||null)}
-  async _set(p,d){const [c,id]=this._split(p);if(c==='logs'){this.logs.push({id,...d});return}
-    (this.c[c]||(this.c[c]={}))[id]={id,...clone(d)};this._emit()}
-  async _delete(p){const [c,id]=this._split(p);if(this.c[c])delete this.c[c][id];this._emit()}
-  async _update(p,d){const [c,id]=this._split(p);const cur=this.c[c]?.[id];if(!cur)throw new Error('not found');this.c[c][id]={...cur,...clone(d)};this._emit()}
-}
 class ClaudeDbAdapter extends BaseAdapter{
   constructor(db,user){super();this.mode='live';this.db=db;this.u=user;this.loaded=new Set()}
   async init(){
@@ -791,108 +781,6 @@ class ClaudeDbAdapter extends BaseAdapter{
   _set(p,d){return this.db.doc(p).set(d)}
   _update(p,d){return this.db.doc(p).update(d)}
   _delete(p){return this.db.doc(p).delete()}
-}
-function demoSeed(){
-  const T=today(),D=n=>isoAdd(T,n),now=Date.now(),H=36e5,DAY=864e5;
-  const be=(y=>String(y+543).slice(2))(new Date().getFullYear())+pad(new Date().getMonth()+1);
-  const members={
-    'u-eng1':{name:'ณภัทร ฤทธิ์กล้า',role:'eng',team:'ทีม 1',phone:'081-234-5678'},
-    'u-eng2':{name:'วิชัย ทองมา',role:'eng',team:'ทีม 2',phone:'089-111-2233'},
-    'u-eng3':{name:'ปิยะ ศรีสุข',role:'eng',team:'ทีม 3',phone:'086-555-0101'},
-    'u-lead':{name:'ธนกร วงศ์ใหญ่',role:'lead',team:'',phone:'081-999-0000'},
-    'u-admin':{name:'แอดมิน อร',role:'admin',team:'',phone:''}};
-  const C=(id,f,l,ph,type='บุคคล')=>[id,{firstName:f,lastName:l,name:type==='บริษัท'?f:f+' '+l,phone:ph,email:'',address:'',type}];
-  const customers=Object.fromEntries([
-    C('c1','สุรชัย','มั่นคง','081-111-1001'),C('c2','กมลา','แสงทอง','082-222-1002'),C('c3','บริษัท ไทยฟู้ดแพ็ค จำกัด','','02-555-1003','บริษัท'),
-    C('c4','อนันต์','ภูมิใจ','083-333-1004'),C('c5','ศิริพร','ใจงาม','084-444-1005'),C('c6','ประเสริฐ','ทวีสุข','085-555-1006'),
-    C('c7','วรรณา','รุ่งเรือง','086-666-1007'),C('c8','สมศักดิ์','เกียรติดี','087-777-1008'),C('c9','นภา','ศรีวงศ์','088-888-1009'),C('c10','ชัยวัฒน์','พรมดี','089-999-1010'),C('c11','ธีรวัฒน์','',''),C('c12','อนุชา','ทดลองดี','081-000-0012'),C('c13','กิตติ','ตัวอย่าง','081-000-0013')]);
-  const S=(id,cid,label,area,address,ll,extra={})=>[id,{customerId:cid,label,area,address,mapLink:'https://www.google.com/maps/search/?api=1&query='+ll,...extra}];
-  const formDone={phase:'1',utility:'MEA',meterSize:'15(45)',meterNo:'MEA-55012345',mainBreaker:'63A',wireSize:'16 sq.mm',houseType:'บ้านเดี่ยว',roofStructure:'เหล็ก',roofType:'กระเบื้องลอนคู่',roofArea:'60'};
-  const sites=Object.fromEntries([
-    S('s1','c1','บ้านคุณสุรชัย','นนทบุรี','99/12 หมู่บ้านพฤกษา ต.บางรักพัฒนา อ.บางบัวทอง นนทบุรี','13.9123,100.4189'),
-    S('s2','c2','บ้านคุณกมลา','ปากเกร็ด','45 ซ.แจ้งวัฒนะ 14 ต.ปากเกร็ด อ.ปากเกร็ด นนทบุรี','13.9058,100.5302'),
-    S('s3','c3','โรงงานไทยฟู้ดแพ็ค','สมุทรสาคร','88 ม.4 ถ.เศรษฐกิจ 1 ต.ท่าทราย อ.เมือง สมุทรสาคร','13.5961,100.2905',{phase:'3',utility:'PEA'}),
-    S('s4','c4','บ้านคุณอนันต์','ลาดพร้าว','12 ซ.ลาดพร้าว 71 แขวงสะพานสอง เขตวังทองหลาง กรุงเทพฯ','13.7952,100.6043'),
-    S('s5','c5','บ้านคุณศิริพร','รังสิต','7/3 หมู่บ้านเดอะซิตี้ ต.ประชาธิปัตย์ อ.ธัญบุรี ปทุมธานี','13.9847,100.6176',{...formDone}),
-    S('s6','c6','บ้านคุณประเสริฐ','บางใหญ่','150 ม.6 ต.เสาธงหิน อ.บางใหญ่ นนทบุรี','13.8762,100.4087',{...formDone,phase:'3',meterSize:'30(100)'}),
-    S('s7','c7','ทาวน์โฮมคุณวรรณา','ติวานนท์','55/8 ซ.ติวานนท์ 3 ต.ตลาดขวัญ อ.เมือง นนทบุรี','13.8548,100.5091',{...formDone,houseType:'ทาวน์โฮม'}),
-    S('s8','c8','บ้านคุณสมศักดิ์','บางนา','201 ซ.บางนา-ตราด 25 แขวงบางนา กรุงเทพฯ','13.6680,100.6340',{...formDone,utility:'MEA'}),
-    S('s9','c9','บ้านคุณนภา','ราชพฤกษ์','33 ถ.ราชพฤกษ์ ต.บางรักน้อย อ.เมือง นนทบุรี','13.8650,100.4630',{...formDone}),
-    S('s10','c10','บ้านคุณชัยวัฒน์','ปทุมธานี','9 ม.2 ต.บางพูด อ.ปากเกร็ด นนทบุรี','13.9311,100.5220',{...formDone}),
-    S('s13','c13','บ้านคุณกิตติ','บางพลัด','เขตบางพลัด กรุงเทพฯ','13.78,100.48',{lat:13.78,lng:100.48}),
-    S('s12','c12','บ้านคุณอนุชา','สมุทรปราการ','จ.สมุทรปราการ','',{mapLink:'https://www.google.com/maps/search/?api=1&query=%E0%B8%AA%E0%B8%A1%E0%B8%B8%E0%B8%97%E0%B8%A3%E0%B8%9B%E0%B8%A3%E0%B8%B2%E0%B8%81%E0%B8%B2%E0%B8%A3',phase:'1',utility:'MEA',meterSize:'30(100)',mainBreaker:'50',wireSize:'25',houseType:'บ้านเดี่ยว',roofStructure:'เหล็ก',roofType:'กระเบื้องซีแพคโมเนีย'}),
-    S('s11','c11','บ้านคุณธีรวัฒน์','ตลิ่งชัน','99 ถนนตัวอย่าง กรุงเทพฯ',encodeURIComponent('99 ถนนตัวอย่าง กรุงเทพฯ'),{phase:'3',utility:'MEA',meterSize:'30(100)',mainBreaker:'100A',wireSize:'NYY 50 sq.mm.',houseType:'บ้านเดี่ยว',roofStructure:'เหล็ก',roofType:'กระเบื้องซีแพคโมเนีย'})]);
-  const h=(at,by,kind,text,x={})=>({at,by,kind,text,...x});
-  const J=(id,o)=>[id,{title:sites[o.siteId][1]?.label||'',status:'active',salesTeam:'EN',salesPerson:'เซลส์ ณัฐ',createdAt:now-10*DAY,updatedAt:now-DAY,stageSince:now-DAY,history:[],...o}];
-  const jobs=Object.fromEntries([
-    J('j1',{jobNo:be+'021',customerId:'c1',siteId:'s1',title:'บ้านคุณสุรชัย',stage:3,queueDate:D(0),queueTime:'09:00',surveyDate:D(0),surveyor:'ณภัทร ฤทธิ์กล้า',surveyTeam:'ทีม 1',
-      request:{wantKwp:5,avgBill:3500,systemType:'On Grid',note:'อยากลดค่าไฟช่วงกลางวัน'},salesNote:'ลูกค้าสะดวกช่วงเช้า มีสุนัขในบ้าน',woNote:'ตรวจหลังคาฝั่งทิศใต้',sv:{},
-      stageSince:now-3*H,history:[h(now-2*DAY,'u-admin','create','จองคิวสำรวจ'),h(now-3*H,'u-admin','handoff','ตอบรับคิว ส่งใบงาน',{from:2,to:3})]}),
-    J('j2',{jobNo:be+'018',customerId:'c2',siteId:'s2',title:'บ้านคุณกมลา',stage:3,queueDate:D(0),queueTime:'13:00',surveyDate:D(0),surveyor:'ณภัทร ฤทธิ์กล้า',surveyTeam:'ทีม 1',
-      request:{wantKwp:10,avgBill:6000,systemType:'Hybrid',batteryKwh:10,note:''},salesNote:'ต้องการแบตเตอรี่สำรองไฟตอนกลางคืน',
-      sv:{accepted:now-DAY,folder:FOLDER_ROOT+'\\2569\\'+be+'018 บ้านคุณกมลา',folderAt:now-DAY+H}}),
-    J('j3',{jobNo:be+'024',customerId:'c3',siteId:'s3',title:'โรงงานไทยฟู้ดแพ็ค',stage:3,queueDate:D(1),queueTime:'10:00',surveyDate:D(1),surveyor:'ณภัทร ฤทธิ์กล้า',surveyTeam:'ทีม 1',
-      request:{wantKwp:60,avgBill:85000,systemType:'On Grid'},salesNote:'ติดต่อคุณเอก ฝ่ายซ่อมบำรุง 081-000-1234 ต้องใส่ PPE',sv:{}}),
-    J('j4',{jobNo:be+'025',customerId:'c4',siteId:'s4',title:'บ้านคุณอนันต์',stage:3,queueDate:D(2),queueTime:'09:00',surveyDate:D(2),surveyor:'วิชัย ทองมา',surveyTeam:'ทีม 2',request:{wantKwp:5,avgBill:3000,systemType:'On Grid'},sv:{}}),
-    J('j5',{jobNo:be+'012',customerId:'c5',siteId:'s5',title:'บ้านคุณศิริพร',stage:3,queueDate:D(-1),queueTime:'14:00',surveyDate:D(-1),surveyor:'ณภัทร ฤทธิ์กล้า',surveyTeam:'ทีม 1',
-      request:{wantKwp:5,avgBill:4200,systemType:'On Grid',govSubsidy:true,taxDeduction:false},
-      sv:{accepted:now-3*DAY,folder:FOLDER_ROOT+'\\2569\\'+be+'012 บ้านคุณศิริพร',folderAt:now-3*DAY,onsite:now-DAY-2*H,photos:6,photosAt:now-DAY-H,sign:{img:'',name:'ศิริพร ใจงาม',at:now-DAY-H}}}),
-    J('j6',{jobNo:be+'003',customerId:'c6',siteId:'s6',title:'บ้านคุณประเสริฐ',stage:6,installDate:D(0),installEnd:D(1),installTeam:'ช่างสมพงษ์ (ผู้รับเหมา)',supervisor:'ณภัทร ฤทธิ์กล้า',
-      proposedKw:10,proposedModel:'CL 10KTL-P3',inverterQty:1,agreedDate:D(-14),surveyor:'วิชัย ทองมา'}),
-    J('j7',{jobNo:be+'001',customerId:'c7',siteId:'s7',title:'ทาวน์โฮมคุณวรรณา',stage:7,installDate:D(-2),installEnd:D(-1),installTeam:'ช่างสมพงษ์ (ผู้รับเหมา)',supervisor:'ณภัทร ฤทธิ์กล้า',
-      proposedKw:5,proposedModel:'CL 5KTL-P1',inverterQty:1,equipment:{}}),
-    J('j8',{jobNo:be+'006',customerId:'c8',siteId:'s8',title:'บ้านคุณสมศักดิ์',stage:6,installDate:D(5),installEnd:D(5),proposedKw:5,proposedModel:'CL 5KHB-P1LV',inverterQty:1,wantInstallDate:D(5),surveyor:'ปิยะ ศรีสุข'}),
-    J('j9',{jobNo:be+'009',customerId:'c9',siteId:'s9',title:'บ้านคุณนภา',stage:4,surveyor:'ณภัทร ฤทธิ์กล้า',surveyTeam:'ทีม 1',salesTeam:'SA-D2',queueDate:D(-5),queueTime:'10:00',surveyDate:D(-5),
-      request:{wantKwp:6,avgBill:4800,systemType:'Hybrid',govSubsidy:true,taxDeduction:true,note:'อยากมีไฟสำรองตอนไฟดับ'},salesNote:'ลูกค้าทำงานที่บ้าน ใช้ไฟกลางวันเยอะ',
-      sv:{accepted:now-7*DAY,folder:FOLDER_ROOT+'\\2569\\'+be+'009 บ้านคุณนภา',folderAt:now-7*DAY+H,onsite:now-5*DAY,photos:5,photosAt:now-5*DAY+H,sign:{img:'',name:'นภา ศรีวงศ์',at:now-5*DAY+2*H},cad:now-4*DAY,cadFiled:now-4*DAY+H},
-      checkins:[{kind:'onsite',at:now-5*DAY,lat:13.86512,lng:100.46301}],surveyDoneAt:now-5*DAY+2*H,designSentDate:D(-3),
-      proposedKw:5,proposedModel:'CL 5KHB-P1LV',inverterQty:1,proposedBatteryModel:'CBL02-10L20',proposedBatteryQty:1,proposedPanelModel:'SPDG625-N132R12',proposedPanelQty:10,proposedKwp:6.25,proposedOptions:{birdNet:true,ats:true},
-      proposals:[{label:'แบบที่ 1',systemType:'Hybrid',proposedKw:5,proposedModel:'CL 5KHB-P1LV',inverterQty:1,batteryModel:'CBL02-10L20',batteryQty:1,panelModel:'SPDG625-N132R12',panelQty:10,kwp:6.25,options:{birdNet:true,ats:true}},
-        {label:'แบบที่ 2',systemType:'On Grid',proposedKw:5,proposedModel:'CL 5KTL-P1',inverterQty:1,batteryModel:'',batteryQty:'',panelModel:'SPDG625-N132R12',panelQty:10,kwp:6.25,options:{birdNet:true,ats:false}}],
-      proposedNote:'หลังคาฝั่งใต้วางได้ 10 แผง',quoter:'เซลส์ ณัฐ',
-      history:[h(now-7*DAY,'u-admin','handoff','ตอบรับคิว ส่งใบงาน',{from:2,to:3}),h(now-5*DAY+2*H,'u-eng1','surveyed','ลูกค้าเซ็นปิดงานสำรวจ (นภา ศรีวงศ์)'),h(now-3*DAY,'u-eng1','handoff','ปิดงานสำรวจ ส่งข้อมูลและแบบ 5 kW ให้เซลส์',{from:3,to:4})]}),
-    J('j10',{jobNo:'6812014',customerId:'c10',siteId:'s10',title:'บ้านคุณชัยวัฒน์',stage:8,status:'done',installDate:isoAdd(D(0),-350),supervisor:'ณภัทร ฤทธิ์กล้า',
-      equipment:{commissionDate:isoAdd(D(0),-349),model:'CL 5KTL-P1',sn:'CL5P1A2312045',wifiSn:'WF23120451',meter:'DDSU666',ct:'',panels:9,plantName:'Chaiwat Home',sldAsBuilt:true,kw:5,systemType:'On Grid'}}),
-    J('j13',{jobNo:'6910015',customerId:'c4',siteId:'s4',title:'บ้านคุณอนันต์ (หลังเดิม)',stage:4,status:'lost',salesTeam:'SA-D1',surveyor:'ณภัทร ฤทธิ์กล้า',surveyTeam:'ทีม 1',queueDate:isoAdd(D(0),-40),queueTime:'13:00',surveyDate:isoAdd(D(0),-40),
-      request:{wantKwp:3,avgBill:2500,systemType:'On Grid',govSubsidy:false,taxDeduction:false},sv:{accepted:now-42*DAY,folder:FOLDER_ROOT+'\\2569\\6910015 บ้านคุณอนันต์',folderAt:now-42*DAY,onsite:now-40*DAY,photos:4,photosAt:now-40*DAY,sign:{img:'',name:'อนันต์ ภูมิใจ',at:now-40*DAY},cad:now-39*DAY,cadFiled:now-39*DAY},
-      proposedKw:5,proposedModel:'CL 5KTL-P1',inverterQty:1,proposedPanelModel:'SPDG625-N132R12',proposedPanelQty:6,proposedKwp:3.75,proposedOptions:{birdNet:false,ats:false},designSentDate:isoAdd(D(0),-38),updatedAt:now-30*DAY,
-      history:[h(now-38*DAY,'u-eng1','handoff','ปิดงานสำรวจ ส่งข้อมูลและแบบ 5 kW ให้เซลส์',{from:3,to:4}),h(now-30*DAY,'u-admin','lost','ลูกค้ายังไม่ตกลง (ขอคิดก่อน)')]}),
-    J('j15',{jobNo:'6911017',customerId:'c13',siteId:'s13',title:'บ้านคุณกิตติ',stage:3,salesTeam:'SA-D2',salesPerson:'',queueDate:'2026-11-17',queueTime:'13:30',surveyDate:'2026-11-17',
-      surveyor:'ณภัทร ฤทธิ์กล้า',surveyTeam:'ทีม 1',woNote:'ใบงาน FM-EN-028-A No.6911017 · นัด 13:30 น.',salesNote:'ผู้แจ้งงาน D2',request:{},createdAt:Date.parse('2026-11-17T08:00:00'),updatedAt:Date.parse('2026-11-17T08:00:00'),stageSince:Date.parse('2026-11-17T08:00:00')}),
-    J('j14',{jobNo:be+'029',customerId:'c12',siteId:'s12',title:'บ้านคุณอนุชา',stage:3,salesTeam:'SA-D5',salesPerson:'เซลส์ เอ',queueDate:D(0),queueTime:'10:30',surveyDate:D(0),
-      surveyor:'ณภัทร ฤทธิ์กล้า',surveyTeam:'ทีม 1',woNote:'ทีมสำรวจ: ทีม 1 · นัด 10:30–13:00',salesNote:'ลูกค้าเซลส์ เอ (D5)',
-      request:{systemType:'Hybrid',govSubsidy:true,taxDeduction:true},
-      sv:{accepted:Date.parse(D(0)+'T10:30:00'),folder:FOLDER_ROOT+'\\2569\\'+be+'029 บ้านคุณอนุชา',folderAt:Date.parse(D(0)+'T10:30:00'),onsite:Date.parse(D(0)+'T10:30:00')},
-      checkins:[{kind:'onsite',at:Date.parse(D(0)+'T10:30:00'),lat:null,lng:null}],cableAcM:40,cableNote:'',
-      proposedKw:5,proposedModel:'CL 5KHB-P1LV',inverterQty:1,proposedBatteryModel:'CBL02-5L20',proposedBatteryQty:1,proposedPanelModel:'SPDG625-N132R12',proposedPanelQty:8,proposedKwp:5,proposedOptions:{birdNet:true,ats:false},
-      proposals:[{label:'แบบที่ 1',systemType:'Hybrid',proposedKw:5,proposedModel:'CL 5KHB-P1LV',inverterQty:1,batteryModel:'CBL02-5L20',batteryQty:1,panelModel:'SPDG625-N132R12',panelQty:8,kwp:5,options:{birdNet:true,ats:false}},
-        {label:'แบบที่ 2',systemType:'On Grid',proposedKw:5,proposedModel:'CL 5KTL-P1',inverterQty:1,batteryModel:'',batteryQty:'',panelModel:'SPDG625-N132R12',panelQty:8,kwp:5,options:{birdNet:true,ats:false}}],
-      stageSince:now-2*H,history:[h(now-DAY,'u-admin','create','จองคิวสำรวจ (SA-D5)'),h(now-2*H,'u-admin','handoff','ตอบรับคิว 10:30 ส่งใบงานให้ ทีม 1',{from:2,to:3})]}),
-    J('j12',{jobNo:be+'028',customerId:'c11',siteId:'s11',title:'บ้านคุณธีรวัฒน์',stage:3,salesTeam:'SA-D4',salesPerson:'',queueDate:'2026-11-14',queueTime:'10:00',surveyDate:'2026-11-14',surveyor:'ณภัทร ฤทธิ์กล้า',surveyTeam:'ทีม 1',
-      request:{wantKwp:5,systemType:'Hybrid',note:'ใช้ไฟกลางคืน',govSubsidy:true,taxDeduction:true},sv:{},cableAcM:90,cableNote:'ระยะจากตู้ไฟไปตำแหน่งติดตั้ง คาดว่าต้องเดินอ้อม',
-      proposedKw:10,proposedModel:'CL 10KHB-P3LV',inverterQty:1,proposedBatteryModel:'CBL03-10L65',proposedBatteryQty:1,proposedPanelModel:'SPDG625-N132R12',proposedPanelQty:8,proposedKwp:5,proposedOptions:{birdNet:false,ats:true},
-      proposals:[{label:'แบบที่ 1',systemType:'Hybrid',proposedKw:10,proposedModel:'CL 10KHB-P3LV',inverterQty:1,batteryModel:'CBL03-10L65',batteryQty:1,panelModel:'SPDG625-N132R12',panelQty:8,kwp:5,options:{birdNet:false,ats:true}}],
-      stageSince:Date.parse('2026-11-13T15:00:00+07:00'),history:[h(Date.parse('2026-11-12T10:00:00+07:00'),'u-admin','create','จองคิวสำรวจ (SA-D4)'),h(Date.parse('2026-11-13T15:00:00+07:00'),'u-admin','handoff','ตอบรับคิว 14 พ.ย. 69 10:00 ส่งใบงานให้ ทีม 1',{from:2,to:3})]}),
-    J('j11',{jobNo:be+'027',customerId:'c2',siteId:'s2',title:'บ้านคุณกมลา (ส่วนต่อเติม)',stage:3,queueDate:D(1),queueTime:'14:00',surveyDate:D(1),surveyor:'',surveyTeam:'ทีม 1',request:{wantKwp:3,systemType:'On Grid'},sv:{},salesNote:'ขยายระบบเดิม'})]);
-  const P=(id,o)=>[id,o];
-  const inv=(model,kw,phase,type,meters,cts)=>({category:'INVERTER',brand:'Cleanline',model,kw,phase,type,meters,cts,datasheet:'',manual:''});
-  const products=Object.fromEntries([
-    P('p1',inv('CL 5KTL-P1',5,'1','On Grid','DDSU666','')),P('p2',inv('CL 5KTL-P3',5,'3','On Grid','DTSU666','')),
-    P('p3',inv('CL 10KTL-P3',10,'3','On Grid','DTSU666','')),P('p4',inv('CL 30KTL-P3',30,'3','On Grid','DTSU666-CT','200A,300A')),
-    P('p5',inv('CL 60KTL-P3',60,'3','On Grid','DTSU666-CT','300A,400A')),P('p6',inv('CL 5KHB-P1LV',5,'1','Hybrid','DDSU666','')),
-    P('p7',inv('CL 10KHB-P3LV',10,'3','Hybrid','DTSU666','')),
-    ...['CBL02-5L20:5','CBL02-10L20:10','CBL02-16L20:16','CBL03-10L65:10','CBL03-16L65:16'].map((x,i)=>{const [m,k]=x.split(':');return P('b'+i,{category:'BATTERY',brand:'Cleanline',model:m,kwh:+k})}),
-    P('pv1',{category:'SOLAR PANEL',brand:'SUNPRO',model:'SPDG625-N132R12',watt:625})]);
-  const services={
-    'sv1':{type:'CM',siteId:'s10',jobId:'j10',date:D(-1),channel:'LINE',symptom:'อินเวอร์เตอร์ขึ้น Grid Fault ช่วงบ่าย',action:'',parts:'',by:'',result:'',status:'open',createdAt:now-DAY,createdBy:'u-admin'}};
-  const meters={
-    'A':{device:'A',from:D(-2),to:D(5),jobId:'j2',title:'บ้านคุณกมลา',borrower:'ณภัทร ฤทธิ์กล้า',source:'job',status:'out',outAt:now-2*DAY},
-    'B':{device:'B',from:D(0),to:D(7),jobId:'j1',title:'บ้านคุณสุรชัย',borrower:'ณภัทร ฤทธิ์กล้า',source:'job',status:'booked'},
-    'C':{device:'C',from:'',to:'',jobId:'',title:'',borrower:'',source:'',status:'returned',returnedAt:now-5*DAY}};
-  const messages={
-    'm1':{jobId:'j5',at:now-5*H,by:'u-admin',text:'ขอรูปมิเตอร์เพิ่มอีกมุมนะคะ เห็นเลขไม่ชัด',kind:'request'}};
-  const G=demoBulk(200);Object.assign(jobs,G.jobs);Object.assign(customers,G.customers);Object.assign(sites,G.sites);
-  return {jobs,customers,sites,products,members,services,meters,messages,photos:{}};
 }
 const S={t:{},draft:{},busy:false,sig:null,api:null,tab:'today',q:'',scope:lsGet('cle.scope2','all'),seen:new Set(lsGet('cle.seen',[])),pending:[]};
 const C=()=>S.api.cache();
@@ -940,7 +828,7 @@ const telOf=j=>String(cOf(j).phone||'').replace(/[^\d+]/g,'');
 const AVC=['','c1','c2','c3','c4'];
 const avc=n=>{let h=0;for(const ch of String(n||''))h=(h*31+ch.charCodeAt(0))>>>0;return AVC[h%AVC.length]};
 const avatar=(n,cls='')=>`<span class="av ${n?avc(n):'none'} ${cls}" aria-hidden="true">${esc(n?initials(n):'?')}</span>`;
-const modeChip=()=>{const live=S.api.mode==='live';return `<span class="mode ${live?'live':''}">${live?'ออนไลน์':'ข้อมูลตัวอย่าง'}</span>`};
+const modeChip=()=>'<span class="mode live">ออนไลน์</span>';
 function topBar(title,{back=false,right=''}={}){
   return `<header class="top solid"><div class="in">${back?`<button class="ib" data-back aria-label="ย้อนกลับ">${ic('back')}</button>`:'<span style="width:44px"></span>'}
    <div class="ttl">${esc(title)}</div>${right||modeChip()}</div></header>`;
@@ -1006,22 +894,22 @@ function viewService(){
    ${recent.length?`<div class="sec">บันทึกล่าสุด</div><section class="ls">${recent.map(x=>{const s=c.sites[x.siteId]||{};return `<div class="rcr"><span class="pill ${x.type==='CM'?'r':'g'}">${x.type==='CM'?'ซ่อม':'PM'}</span><div class="jrm"><b>${esc(s.label||'')}</b><small>${fdt(x.closedAt||x.createdAt)} · ${esc(x.by||'')}${x.action?' · '+esc(x.action):x.checklist?` · ${x.checklist.length}/${PM_CHK.length} รายการ`:''}</small></div></div>`}).join('')}</section>`:''}</main>`;
 }
 function viewMe(){
-  const u=me(),demo=S.api.mode==='demo',J=S.api.listAllJobs(),ym=today().slice(0,7);
+  const u=me(),J=S.api.listAllJobs(),ym=today().slice(0,7);
   const inM=ms=>{if(!ms)return false;const d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')===ym};
   const mine=J.filter(j=>actionable(j)&&ownedByMe(j)).length;
   const svN=J.filter(j=>j.surveyorId===u.id&&j.sv&&inM(j.sv.onsite)).length;
   const insN=J.filter(j=>supMine(j,u)&&j.equipment&&String(j.equipment.commissionDate||'').slice(0,7)===ym).length;
-  const off=!demo&&navigator.onLine===false,[k,t,v]=demo?['','ข้อมูลตัวอย่าง','จำไว้ในเครื่องนี้เท่านั้น']:off?['off','ออฟไลน์','ต่ออินเทอร์เน็ตก่อนบันทึกงาน']:['on','ออนไลน์','บันทึกแล้วส่งถึงออฟฟิศทันที'];
+  const off=navigator.onLine===false,[k,t,v]=off?['off','ออฟไลน์','ต่ออินเทอร์เน็ตก่อนบันทึกงาน']:['on','ออนไลน์','บันทึกแล้วส่งถึงออฟฟิศทันที'];
   const R=(attr,i,ti,sub,right,cls='')=>`<button type="button" class="merow ${cls}" ${attr}><span class="mi">${ic(i)}</span><span class="mt">${ti}${sub?`<small>${sub}</small>`:''}</span>${right==null?'<span class="chev" aria-hidden="true"></span>':right}</button>`;
   const ph=C().members[u.id]?.phone;
   return `<div class="glow"></div><main class="wrap mev">
-   <section class="mehero"><div class="mtop"><div class="mav">${pfAv(u)}${demo?'':`<button type="button" data-pfopen aria-label="แก้ไขโปรไฟล์">${ic('cam')}</button>`}</div><div><h1>${esc(u.name)}</h1><span class="mrole"><i class="mdot"></i>${u.team&&!/^ทีม \d/.test(u.team)?esc(u.team):'CLEANLINE Man'}</span></div></div><img class="mm" src="mascot-thumb.webp" alt="" width="112" height="117"></section>
+   <section class="mehero"><div class="mtop"><div class="mav">${pfAv(u)}<button type="button" data-pfopen aria-label="แก้ไขโปรไฟล์">${ic('cam')}</button></div><div><h1>${esc(u.name)}</h1><span class="mrole"><i class="mdot"></i>${u.team&&!/^ทีม \d/.test(u.team)?esc(u.team):'CLEANLINE Man'}</span></div></div><img class="mm" src="mascot-thumb.webp" alt="" width="112" height="117"></section>
    <div class="mestat"><div><b>${mine}</b><small>งานที่ถืออยู่</small></div><div><b>${svN}</b><small>สำรวจเดือนนี้</small></div><div><b>${insN}</b><small>ติดตั้งเดือนนี้</small></div></div>
    ${S.pending.length?`<div class="mestat one"><div><b>${S.pending.length}</b><small>รายการรอส่ง</small></div></div>`:''}
-   <div class="megrp"><h3>บัญชี</h3><div class="melist">${demo?'':R('data-pfopen','users','แก้ไขโปรไฟล์','ชื่อที่แสดง · รูป')}<div class="merow"><span class="mi st-${k}">${ic('cloud')}</span><span class="mt">สถานะ<small>${v}</small></span><span class="ok ${k}"><i></i>${t}</span></div>${ph?`<div class="merow"><span class="mi">${ic('phone')}</span><span class="mt">เบอร์โทร<small>${esc(ph)}</small></span></div>`:''}</div></div>
-   <div class="megrp"><div class="melist">${demo?R('data-switch','swap','เปลี่ยนผู้ใช้','ดูตัวอย่าง')+R('data-demoreset','trash','ล้างข้อมูลที่กรอกในโหมดตัวอย่าง','','','out'):R('data-signout','out','ออกจากระบบ','','','out')}</div></div>
+   <div class="megrp"><h3>บัญชี</h3><div class="melist">${R('data-pfopen','users','แก้ไขโปรไฟล์','ชื่อที่แสดง · รูป')}<div class="merow"><span class="mi st-${k}">${ic('cloud')}</span><span class="mt">สถานะ<small>${v}</small></span><span class="ok ${k}"><i></i>${t}</span></div>${ph?`<div class="merow"><span class="mi">${ic('phone')}</span><span class="mt">เบอร์โทร<small>${esc(ph)}</small></span></div>`:''}</div></div>
+   <div class="megrp"><div class="melist">${R('data-signout','out','ออกจากระบบ','','','out')}</div></div>
    <p class="meft">CLEANLINE Man</p></main>
-   ${S.pfOpen&&!demo?`<div class="ov"><button type="button" class="pfbd" data-pfclose aria-label="ปิด"></button><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pfT"><div class="grab"></div><h3 id="pfT">แก้ไขโปรไฟล์</h3>
+   ${S.pfOpen?`<div class="ov"><button type="button" class="pfbd" data-pfclose aria-label="ปิด"></button><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pfT"><div class="grab"></div><h3 id="pfT">แก้ไขโปรไฟล์</h3>
     <div class="pfpv">${pfAv(u,'pfav')}<label class="btn" style="cursor:pointer">${ic('cam')}เปลี่ยนรูป<input type="file" accept="image/*" id="pf-photo" hidden></label>${myPhoto(u)||S.pfPhoto?`<button class="btn red" data-pfdel>${ic('trash')}ลบรูป</button>`:''}</div>
     <label class="fl"><span>ชื่อที่แสดง</span><input id="pf-name" maxlength="40" value="${esc(S.pfName!=null?S.pfName:u.name)}"></label>
     <button class="btn pri" style="width:100%" data-pfsave>บันทึกโปรไฟล์</button></div></div>`:''}`;
@@ -1078,7 +966,7 @@ function viewJob(id){
     :j.stage===ST.COMM?(canTake(j)?`<button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ แล้วเปิดใบงานติดตั้ง</button>`:icCan(j)?`<button class="btn pri" data-go="#ic-${esc(j.id)}">${ic('doc')}ใบงานติดตั้ง</button>`:'')
     :j.stage===ST.INSTALL&&j.status==='active'&&me().role==='lead'?`<button class="btn pri" data-lead="${esc(j.id)}">${ic('users')}มอบงานติดตั้ง</button>`:'';
   return `<div class="jb"><div class="hbin">
-    <div class="jbt"><button class="jbk" data-back aria-label="ย้อนกลับ">${ic('back')}</button><span class="jbn">#${esc(j.jobNo||'—')}</span>${S.api.mode==='demo'?'<span class="hbm">ข้อมูลตัวอย่าง</span>':''}</div>
+    <div class="jbt"><button class="jbk" data-back aria-label="ย้อนกลับ">${ic('back')}</button><span class="jbn">#${esc(j.jobNo||'—')}</span></div>
     <h1>${esc(j.title||s.label||'งาน')}</h1><p>${esc([c.name,s.area].filter(Boolean).join(' · '))}</p></div></div>
    <main class="wrap jm ${cta?'hasbar':''}">
     <section class="qa jqa">${qa.map(([i,t,a,on])=>`<button ${a} ${on?'':'disabled'}><span class="ki ki-b">${ic(i)}</span><small>${t}</small></button>`).join('')}</section>
@@ -1233,12 +1121,6 @@ async function shrink(file,max=1280,q=.72){
     c.width=Math.max(1,Math.round(im.w*r));c.height=Math.max(1,Math.round(im.h*r));c.getContext('2d').drawImage(im.src,0,0,c.width,c.height);
     let d=c.toDataURL('image/webp',q);if(!d.startsWith('data:image/webp'))d=c.toDataURL('image/jpeg',q);return d}
   finally{im.close()}
-}
-async function samplePhotos(id,KS=PHOTO_KINDS){
-  const j=C().jobs[id];if(!j||S.api.mode!=='demo')return;
-  const P=S.api.listPhotos(id);
-  for(const [k,t,req] of KS){if(!req||P.some(p=>p.kind===k))continue;await S.api.addPhoto(id,k,sampleImg(t,'รูปตัวอย่าง · '+(j.title||''),SAMPLE_COL[k]))}
-  toast('ใส่รูปตัวอย่างครบแล้ว');
 }
 async function onPhotos(input){
   const id=route().slice(3),kind=input.dataset.photo,files=[...(input.files||[])];input.value='';
@@ -1399,7 +1281,7 @@ function viewIc(id){
     <div class="tst"><span>จำนวนแผง ${esc((panelProduct().watt||625)+' W')}</span><div class="qs"><button type="button" data-icstep="-1">−</button><input id="ic-panels" data-ic="panels" type="number" inputmode="numeric" value="${esc(d.panels)}"><button type="button" data-icstep="1">+</button></div></div>
     <p class="hint" style="margin:4px 0 12px">${+d.panels>0?`รวม ${kwpOf(+d.panels)} kWp${inv?` · ${Math.round(kwpOf(+d.panels)/inv.kw*100)}% ของอินเวอร์เตอร์`:''}`:'ใส่จำนวนแผงที่ติดจริง'}</p>
     ${inp('plantName','Plant name (ในแอปมอนิเตอร์)','เช่น Akkharet_Home')}${inp('commissionDate','วันที่ติดตั้งเสร็จ','',0,'date')}</section>
-   <section class="card"><h2>${ic('cam')}รูปงานติดตั้ง</h2>${S.api.mode==='demo'&&IC_KINDS.some(([k,,r])=>r&&!S.api.listPhotos(j.id).some(p=>p.kind===k))?`<button class="btn" style="width:100%;margin-bottom:8px;color:var(--accTx)" data-icsample>${ic('cam')}ใส่รูปตัวอย่างให้ครบ</button>`:''}${photoTiles(j,false,IC_KINDS)}</section>
+   <section class="card"><h2>${ic('cam')}รูปงานติดตั้ง</h2>${photoTiles(j,false,IC_KINDS)}</section>
    ${ifCards(j)}
    <section class="card ${m.length?'icmiss':'icok'}" id="icm">${m.length?`<b>${ic('doc')}ยังขาด ${m.length} รายการ</b><p>${esc(m.join(' · '))}</p>`:`<b>${ic('check')}ครบแล้ว พร้อมส่งต่อทำเอกสารขนานไฟ</b>`}</section></main>
    <div class="abar"><div class="in"><button class="btn" data-icsave ${S.busy?'disabled':''}>บันทึก</button><button class="btn pri" data-icclose ${m.length||S.busy?'disabled':''}${m.length&&!S.busy?` data-try="${esc(j.id)}"`:''}>${ic('check')}ปิดงาน ส่งต่อ</button></div></div>`;
@@ -1614,26 +1496,7 @@ function viewPhoto(pid){
   const close=()=>{m.innerHTML='';document.removeEventListener('keydown',kd)};const kd=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',kd);
   m.querySelector('.lbx').onclick=close;
 }
-function sampleImg(t,sub,col){
-  const c=document.createElement('canvas');c.width=640;c.height=480;const g=c.getContext('2d');
-  g.fillStyle=col||'#888';g.fillRect(0,0,640,480);g.fillStyle='rgba(255,255,255,.18)';for(let i=0;i<8;i++)g.fillRect(i*90,0,40,480);
-  g.fillStyle='#fff';g.font='bold 44px Prompt, Sarabun, sans-serif';g.textAlign='center';g.fillText(t,320,230);g.font='26px Prompt, Sarabun, sans-serif';g.fillText(sub,320,285);
-  let d=c.toDataURL('image/webp',.7);if(!d.startsWith('data:image/webp'))d=c.toDataURL('image/jpeg',.7);return d;
-}
 const SAMPLE_COL={meter:'#5b8def',mdb:'#34a36b',roof:'#e0883a',inverterSpot:'#8a63d2',other:'#6b7280',nameplate:'#334155',sld:'#0e7490',invDone:'#4f9a12',panelDone:'#b45309'};
-function sampleSig(name){
-  const c=document.createElement('canvas');c.width=600;c.height=200;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,600,200);
-  g.strokeStyle='#111';g.lineWidth=3;g.lineCap='round';g.beginPath();g.moveTo(60,130);
-  for(let x=60;x<540;x+=12)g.lineTo(x,120+Math.sin(x/23)*30+Math.cos(x/9)*10);g.stroke();return c.toDataURL('image/png');
-}
-function seedDemoMedia(){
-  const c=S.api.cache(),now=Date.now();
-  [['j9',['meter','mdb','roof','inverterSpot','other']],['j5',['meter','mdb','roof','inverterSpot']]].forEach(([jid,kinds])=>{
-    const j=c.jobs[jid];if(!j)return;
-    kinds.forEach((k,i)=>{const id='ph-'+jid+'-'+k;c.photos[id]={id,jobId:jid,kind:k,dataRef:sampleImg((PHOTO_KINDS.find(x=>x[0]===k)||[,k])[1],'รูปตัวอย่าง · '+j.title,SAMPLE_COL[k]),at:(j.sv?.photosAt||now)-i*6e4,by:'u-eng1'}});
-    if(j.sv?.sign&&!j.sv.sign.img)j.sv.sign.img=sampleSig(j.sv.sign.name);
-  });
-}
 const NS_PAGES=['หน้างาน','ลูกค้า','ที่เสนอ','รูป · เซ็น','ส่งงาน'];
 function nsMissing(j){
   const d=draftOf(j),v=j.sv||{};
@@ -1675,7 +1538,7 @@ function viewNs(id){
   if(pg===3)body=`<h2 class="nsp">ที่เสนอ</h2>${miss}<button class="cgo" data-go="#tool-calc-${esc(j.id)}">${ic('sun')}<span><b>คำนวณจากค่าไฟ</b><small>ได้ขนาด รุ่น จำนวนแผง แล้วกดใส่ในแบบให้เลย</small></span>${ic('go')}</button><div class="card"><div id="eqbox">${eqBlock(d,0)}</div></div><div class="card"><h2>${ic('nav')}สายไฟ (ใช้คิดราคา)</h2>${cableFields(d)}</div>`;
   if(pg===4){const resign=!v.sign||S.nsResign===id;
     body=`<h2 class="nsp">รูป · ลายเซ็น</h2>${miss}<button class="cgo" data-go="#tool-drone-${esc(j.id)}">${ic('nav')}<span><b>เข็มทิศบนรูปโดรน</b><small>วัดทิศหลังคาจากรูปมุมสูง แล้วบันทึกเข้ารูปหลังคา</small></span>${ic('go')}</button>
-    <div class="card"><h2>${ic('cam')}รูปหน้างาน</h2>${S.api.mode==='demo'&&missingPhotos(j).length?`<button class="btn" style="width:100%;margin-bottom:8px;box-shadow:inset 0 0 0 1.5px #cfe6b3;color:var(--accTx)" data-samplephotos>${ic('cam')}ใส่รูปตัวอย่างให้ครบ (โหมดตัวอย่าง)</button>`:''}${photoTiles(j,false)}</div>
+    <div class="card"><h2>${ic('cam')}รูปหน้างาน</h2>${photoTiles(j,false)}</div>
     <div class="card"><h2>${ic('check')}ลายเซ็นลูกค้า</h2>${resign?`<div id="svsign">${fld('signWho','ผู้เซ็น','radio',['ลูกค้า','ผู้แทน'],0,'',d.signWho)}
       ${d.signWho==='ผู้แทน'?fld('signRel','เกี่ยวข้องกับลูกค้าเป็น','text',null,0,'เช่น ภรรยา บุตร',d.signRel):''}${fld('signName','ชื่อผู้เซ็น','text',null,0,'',d.signName)}
       <div class="sigbox"><canvas id="sigpad" aria-label="ช่องเซ็นชื่อ"></canvas><span class="sigph" id="sigph">ให้ลูกค้าเซ็นในกรอบนี้</span></div>
@@ -1820,7 +1683,7 @@ function viewToday(){
   return `<div class="hb"><div class="hbin">
     <div class="hbt"><button class="hbav" data-go="#me" aria-label="โปรไฟล์ของฉัน">${meAv(u,'hav')}</button><div class="hbn"><small>สวัสดี</small><b>${esc(u.name||'')}</b></div>
      <button class="hbi" data-go="#noti" aria-label="การแจ้งเตือน${nNew?' ใหม่ '+nNew+' เรื่อง':''}">${ic('bell')}${nNew?`<span class="bd">${nNew}</span>`:''}</button></div>
-    <div class="hbs"><span>${esc(fdLong(T))}</span>${S.api.mode==='demo'?'<span class="hbm">ข้อมูลตัวอย่าง</span>':''}</div></div></div>
+    <div class="hbs"><span>${esc(fdLong(T))}</span></div></div></div>
    <main class="wrap hm">
     ${nxCard}${pendBanner()}
     <section class="qa">${qa.map(([h,i,t,c,n])=>`<button data-go="${h}"><span class="ki ${c}">${ic(i)}${n?`<i class="bd">${n}</i>`:''}</span><small>${t}</small></button>`).join('')}</section>
@@ -1930,32 +1793,7 @@ function arow(j,mine){
    <span class="jrr"><em class="pill ${j.status==='cancelled'||j.status==='lost'?'m':stt.c==='f-grn'?'g':stt.c==='f-red'?'r':stt.c==='f-org'?'o':stt.c==='f-vio'?'v':'m'}">${esc(stt.t.replace(' · ดูแลหลังการขาย','').replace(/^ขั้น \d · /,''))}</em></span></button>`;
 }
 
-function demoBulk(n){
-  let x=20261116;const rnd=()=>(x=(x*1103515245+12345)%2147483648)/2147483648,pick=a=>a[Math.floor(rnd()*a.length)];
-  const FN=['สมศรี','วีระ','ประภา','กิตติ','จันทร์เพ็ญ','ธีรวัฒน์','มาลัย','สุรศักดิ์','อรุณี','ชาตรี','พรทิพย์','อดิศร','นงลักษณ์','ภาณุ','รัตนา','ศักดิ์ชัย','วิไล','เอกชัย','สุดา','บุญมี'];
-  const LN=['ใจดี','รุ่งเรือง','ศรีสุข','ทองคำ','บุญมา','แก้วใส','สมบูรณ์','พึ่งบุญ','วงศ์ไทย','มีสุข'];
-  const AR=['นนทบุรี','ปากเกร็ด','บางบัวทอง','บางใหญ่','ปทุมธานี','รังสิต','ลาดพร้าว','บางนา','สมุทรปราการ','สมุทรสาคร','ตลิ่งชัน','บางแค','มีนบุรี','ราชพฤกษ์'];
-  const ENG=['ณภัทร ฤทธิ์กล้า','วิชัย ทองมา','ปิยะ ศรีสุข'],TEAMS2=['EN','SA-D1','SA-D2','SA-D3','SA-D4','SA-D5'];
-  const C={},Sx={},J={},now=Date.now();
-  for(let i=1;i<=n;i++){
-    const id=String(i).padStart(3,'0'),fn=pick(FN),ln=pick(LN),area=pick(AR),ph=rnd()<.75?'1':'3',sys=rnd()<.55?'On Grid':'Hybrid';
-    const daysAgo=Math.floor(rnd()*680)+20,d=isoOf(new Date(now-daysAgo*864e5)),[yy,mm]=d.split('-');
-    const inv=ph==='1'?(sys==='Hybrid'?['CL 5KHB-P1LV',5]:['CL 5KTL-P1',5]):(sys==='Hybrid'?['CL 10KHB-P3LV',10]:pick([['CL 5KTL-P3',5],['CL 10KTL-P3',10],['CL 30KTL-P3',30]]));
-    const panels=Math.max(6,Math.round(inv[1]*1.6+rnd()*4)),r=rnd();
-    const status=r<.52?'done':r<.7?'lost':'active',stage=status==='done'?8:status==='lost'?4:pick([4,4,5,8]);
-    C['gc'+id]={firstName:fn,lastName:ln,name:fn+' '+ln,phone:'08'+Math.floor(10000000+rnd()*89999999),email:'',address:'',type:'บุคคล'};
-    Sx['gs'+id]={customerId:'gc'+id,label:'บ้านคุณ'+fn,area,address:Math.floor(rnd()*300+1)+' '+area,mapLink:'',phase:ph,utility:rnd()<.6?'MEA':'PEA',meterSize:ph==='1'?'15(45)':'30(100)',houseType:'บ้านเดี่ยว',roofStructure:'เหล็ก',roofType:pick(['กระเบื้องลอนคู่','เมทัลชีท','กระเบื้องซีแพคโมเนีย'])};
-    const pq=panels,kwp=kwpOfW(pq);
-    J['g'+id]={title:'บ้านคุณ'+fn,jobNo:String(+yy+543).slice(2)+mm+id,customerId:'gc'+id,siteId:'gs'+id,salesTeam:pick(TEAMS2),status,stage,surveyor:pick(ENG),surveyTeam:'',
-      queueDate:d,surveyDate:d,request:{systemType:sys,govSubsidy:rnd()<.5,taxDeduction:rnd()<.4},sv:{accepted:1,folder:'',onsite:1,photos:4,sign:{img:'',name:fn+' '+ln,at:Date.parse(d)},cad:1,cadFiled:1},
-      proposedKw:inv[1],proposedModel:inv[0],inverterQty:1,proposedPanelModel:'SPDG625-N132R12',proposedPanelQty:pq,proposedKwp:kwp,proposedOptions:{birdNet:rnd()<.3,ats:sys==='Hybrid'&&rnd()<.4},
-      ...(sys==='Hybrid'?{proposedBatteryModel:ph==='1'?'CBL02-10L20':'CBL03-10L65',proposedBatteryQty:1}:{}),
-      ...(stage>=6||status==='done'?(()=>{const ins=isoOf(new Date(Date.parse(d)+30*864e5)),ago=(now-Date.parse(ins))/864e5;return {installDate:ins,supervisor:pick(ENG),...(status==='done'?{equipment:{model:inv[0],sn:`CL${inv[1]}${ph==='1'?'P1':'P3'}${sys==='Hybrid'?'H':'A'}${yy.slice(2)}${mm}${id}`,panels:pq,commissionDate:ins}}:{}),...(ago>330?{lastPm:isoOf(new Date(now-Math.floor(rnd()*320+5)*864e5))}:{})}})():{}),
-      createdAt:Date.parse(d),updatedAt:Date.parse(d)+86400000,stageSince:Date.parse(d),history:[]};
-  }
-  return {customers:C,sites:Sx,jobs:J};
-}
-const kwpOfW=n=>Math.round(n*625/10)/100;
+
 const route=()=>(location.hash||'#today').slice(1);
 let rq=0;const schedule=()=>{cancelAnimationFrame(rq);rq=requestAnimationFrame(render)};
 const TOOLS=[['cal','today','ปฏิทิน','ki-b'],['calc','sun','จำลองระบบ','ki-o'],['drone','nav','เข็มทิศโดรน','ki-v'],['route','pin','เส้นทางวันนี้','ki-g'],['spec','box','สเปกสินค้า','ki-m']];
@@ -2013,8 +1851,7 @@ function toolDrone(ctx){
   if(S.dr&&S.dr.ctx!==ctx)S.dr=null;
   const D=S.dr,j=ctx&&C().jobs[ctx];
   if(!D)return `<section class="card dpick">${ic('cam')}<b>เลือกรูปหลังคาจากโดรน</b><small>ถ่ายตรงลง (กล้องก้ม 90°) · รูปจาก DJI จะหมุนเข็มทิศให้เองจากข้อมูลในรูป</small>
-    <label class="btn pri" style="position:relative;overflow:hidden;width:100%;margin-top:8px">เลือกรูป<input type="file" accept="image/*" data-drone style="position:absolute;inset:0;opacity:0"></label>
-    ${S.api.mode==='demo'?'<button class="btn" style="width:100%;margin-top:8px" data-dronesample>ใช้รูปตัวอย่าง</button>':''}</section>
+    <label class="btn pri" style="position:relative;overflow:hidden;width:100%;margin-top:8px">เลือกรูป<input type="file" accept="image/*" data-drone style="position:absolute;inset:0;opacity:0"></label></section>
     <p class="hint" style="text-align:center">${j?'จะบันทึกรูปพร้อมเข็มทิศเข้าใบสำรวจ '+esc(j.title):'เปิดจากใบสำรวจเพื่อบันทึกรูปเข้างาน'}</p>`;
   const A=D.arrows.map(a=>(Math.atan2(a.x2-a.x1,-(a.y2-a.y1))*180/Math.PI+D.yaw+360)%360);
   return `<div class="dsrc ${D.auto?'ok':''}">${ic(D.auto?'check':'swap')}<span>${D.auto?`ทิศจากข้อมูลโดรน: หัวกล้องหัน ${Math.round(D.yaw)}°`:'รูปนี้ไม่มีข้อมูลทิศ — หมุนเข็มทิศให้ตรงทิศเหนือ'}</span></div>
@@ -2040,12 +1877,6 @@ async function droneLoad(file){
     const la=g('GpsLatitude'),lo=g('GpsLongitude')??g('GpsLongtitude'),dm=t.match(/(20\d\d):(\d\d):(\d\d) (\d\d):(\d\d)/);
     const src=await shrink(file,1400,.82),im=new Image();await new Promise((ok,no)=>{im.onload=ok;im.onerror=no;im.src=src});
     S.dr={im,yaw,auto,arrows:[],ctx:route().startsWith('tool-drone-')?route().slice(11):''};sunInit(S.dr,la&&lo?{lat:la,lng:lo,src:'gps'}:null,dm?{d:`${dm[1]}-${dm[2]}-${dm[3]}`,h:+dm[4]+dm[5]/60}:null);render()}catch(e){toast('เปิดรูปไม่ได้')}
-}
-function droneSample(){
-  const c=document.createElement('canvas');c.width=1000;c.height=750;const x=c.getContext('2d');x.fillStyle='#6b7f4e';x.fillRect(0,0,1000,750);
-  x.fillStyle='#8a8f96';x.fillRect(0,600,1000,150);x.save();x.translate(500,330);x.rotate(-0.35);
-  x.fillStyle='#b5542f';x.fillRect(-260,-170,520,170);x.fillStyle='#9c4526';x.fillRect(-260,0,520,170);x.strokeStyle='#5a2a17';x.lineWidth=6;x.beginPath();x.moveTo(-260,0);x.lineTo(260,0);x.stroke();x.restore();
-  const im=new Image();im.onload=()=>{S.dr={im,yaw:12,auto:true,arrows:[],ctx:route().startsWith('tool-drone-')?route().slice(11):''};sunInit(S.dr,null,null);render()};im.src=c.toDataURL('image/jpeg',.8);
 }
 const RAD=Math.PI/180;
 function sunAt(ms,lat,lng){const d=ms/864e5-10957.5,g=(357.529+.98560028*d)*RAD,L=(280.459+.98564736*d+1.915*Math.sin(g)+.02*Math.sin(2*g))*RAD,e=(23.439-3.6e-7*d)*RAD,
@@ -2185,7 +2016,7 @@ function simView(ctx){
   const y=[...Array(26)].map((_,k)=>[...Array(k)].reduce((s,_,i)=>s+o.save*12*Math.pow(0.995,i),0)),co2=o.prod*12*25*0.94*CO2_EF/1000;
   const lo=Math.min(...o.saveM),hi=Math.max(...o.saveM),sys=[`${I.sys} ${fmt(o.kw,o.kw%1?1:0)} kW`,`แผง ${o.n} แผง (${fmt(o.kwp,2)} kWp)`,...(o.bat?[`แบต ${fmt(o.bat.kwh*o.bq)} kWh`]:[])];
   S.simH=S.simH??12;
-  return `<div class="jb sb"><div class="hbin"><div class="jbt"><button class="jbk" data-back aria-label="ย้อนกลับ">${ic('back')}</button><span class="jbn">ผลจำลองระบบโซลาร์</span>${S.api.mode==='demo'?'<span class="hbm">ข้อมูลตัวอย่าง</span>':''}</div>
+  return `<div class="jb sb"><div class="hbin"><div class="jbt"><button class="jbk" data-back aria-label="ย้อนกลับ">${ic('back')}</button><span class="jbn">ผลจำลองระบบโซลาร์</span></div>
     <h1>${cu?esc('บ้านคุณ'+(cu.firstName||cu.name||'')):'บ้านที่ใช้ไฟ ~'+fmt(I.U)+' หน่วย/เดือน'}</h1><p>${esc(sys.join(' · '))}</p></div></div>
    <main class="wrap jm sv">
     <section class="card shero"><small>ค่าไฟจะลดลงประมาณ</small><div class="shn"><b>${fmt(o.save)}</b><span>บาท/เดือน</span><em>ลด ${pct}%</em></div>
@@ -2387,7 +2218,7 @@ async function takeOver(id){
   const j=C().jobs[id];if(!j||!canTake(j))return;
   const u=me(),prev=assignee(j)||'ยังไม่ระบุ';
   if(!await ask('รับงานต่อจาก '+prev+'?','งานนี้จะย้ายมาเป็นชื่อคุณ ('+u.name+') และบันทึกในประวัติ ทุกคนเห็นทันที',{ok:'รับงานต่อ'}))return;
-  const patch=j.stage<=ST.SURVEY?(S.api.mode==='live'?{surveyor:u.name,surveyorId:u.id,surveyTeam:u.name}:{surveyor:u.name,surveyTeam:u.team||j.surveyTeam||''}):(S.api.mode==='live'?{supervisor:u.name,supervisorId:u.id}:{supervisor:u.name});
+  const patch=j.stage<=ST.SURVEY?{surveyor:u.name,surveyorId:u.id,surveyTeam:u.name}:{supervisor:u.name,supervisorId:u.id};
   try{await S.api.updateJob(id,patch,{kind:'edit',text:`${u.name} รับงานต่อจาก ${prev}`},{stage:j.stage,status:'active'});toast('รับงานต่อแล้ว งานนี้เป็นของคุณ');return true}
   catch(e){showErr(e,'บันทึกไม่สำเร็จ')}
 }
@@ -2415,7 +2246,7 @@ document.addEventListener('click',e=>{
   if('fname' in d){renameFolder(d.fname);return}
   if('signout' in d){const n=S.pending.length;ask('ออกจากระบบ?',n?`ยังมี ${n} รายการรอส่ง ถ้าออกตอนนี้อาจไม่ถูกส่ง ต่อเน็ตให้ส่งครบก่อน`:'ครั้งหน้าต้องลงชื่อเข้าใช้ด้วยบัญชี Google อีกครั้ง',{ok:'ออกจากระบบ',danger:!!n}).then(y=>{if(y&&window.CLGDB)CLGDB.user.signOut()});return}
   if('pfsave' in d){saveMe();return}
-  if(d.files){const jj=C().jobs[d.files]||{};if(S.api.mode!=='demo'&&window.CLGDB&&CLGDB.files)CLGDB.files.open(d.files,jj.title||'',jj.folderUrl);else if(jj.folderUrl)window.open(jj.folderUrl,'_blank','noopener');return}
+  if(d.files){const jj=C().jobs[d.files]||{};if(window.CLGDB&&CLGDB.files)CLGDB.files.open(d.files,jj.title||'',jj.folderUrl);else if(jj.folderUrl)window.open(jj.folderUrl,'_blank','noopener');return}
   if('pfopen' in d){S.pfOpen=true;render();setTimeout(()=>document.getElementById('pf-name')?.focus(),50);return}
   if('pfclose' in d){S.pfOpen=false;S.pfName=null;S.pfPhoto=null;render();return}
   if('icuadd' in d){const jj=C().jobs[route().slice(3)];if(jj){const dd=icDraft(jj);(dd.slaves=dd.slaves||[]).push({model:dd.model||'',sn:'',wifiSn:''});render()}return}
@@ -2433,7 +2264,6 @@ document.addEventListener('click',e=>{
   if(d.allst){S.allSt=d.allst;S.allLim=40;const m=$('#modal');if(m&&m.querySelector('.stsheet'))m.innerHTML='';render();return}
   if('allmore' in d){S.allLim=(S.allLim||40)+40;render();return}
   if(d.minetab){S.allLim=40;S.mineTab=d.minetab;render();return}
-  if('samplephotos' in d){samplePhotos(route().slice(3));return}
   if(d.prop!==undefined||'propadd' in d||d.propdel!==undefined){const j=C().jobs[route().slice(3)];if(!j)return;const dr=draftOf(j);
     if(d.prop!==undefined)dr.pi=+d.prop;
     else if('propadd' in d){if(dr.props.length>=MAX_PROPS)return;const cur=dr.props[dr.pi||0];const nx={...cur,systemType:cur.systemType==='Hybrid'?'On Grid':'Hybrid',proposedModel:'',batteryModel:'',batteryQty:''};
@@ -2448,7 +2278,6 @@ document.addEventListener('click',e=>{
   if(d.tstep){const k=d.tstep,mn=+d.min||0;S.t[k]=Math.max(mn,(+TV(k,mn)||0)+(+d.d));if(k==='pn2'&&!S.t[k])S.t.pn2=0;delete S.t.opt;render();return}
   if(d.roff){const a=new Set(S.t.roff||[]);a.has(d.roff)?a.delete(d.roff):a.add(d.roff);S.t.roff=[...a];render();return}
   if('routego' in d){routeGo();return}
-  if('dronesample' in d){droneSample();return}
   if('dclear' in d){S.dr.arrows=[];render();return}
   if('dnew' in d){S.dr=null;render();return}
   if('dsim' in d){const c=route().slice(11),D=S.dr,a=D.arrows[0],deg=(Math.atan2(a.x2-a.x1,-(a.y2-a.y1))*180/Math.PI+D.yaw+360)%360;if(c)calcCtx(c);S.t.or=orOf(deg);delete S.t.opt;go('#tool-calc'+(c?'-'+c:''));return}
@@ -2463,13 +2292,9 @@ document.addEventListener('click',e=>{
   if(d.ifresign){(S.ifre=S.ifre||{})[route().slice(3)+':'+d.ifresign]=1;const j=C().jobs[route().slice(3)];if(j)delete ifDraft(j).sign[d.ifresign];render();return}
   if('icsave' in d){icSave(route().slice(3),false);return}
   if('icclose' in d){icSave(route().slice(3),true);return}
-  if('icsample' in d){samplePhotos(route().slice(3),IC_KINDS);return}
   if(d.lead){leadAssign(d.lead);return}
   if(d.svc){const [k,r]=d.svc.split(':');svcSheet(k,r);return}
-  if('switch' in d){showPicker();return}
-  if('demoreset' in d){ask('ล้างข้อมูลตัวอย่าง?','ข้อมูลที่กรอกไว้ในโหมดตัวอย่างทั้งหมดจะหาย กลับเป็นข้อมูลตั้งต้น',{ok:'ล้างข้อมูล',danger:true}).then(y=>{if(y){try{localStorage.removeItem('cle.demo')}catch(e){}startDemo(true)}});return}
-  if(d.demoStart!==undefined){startDemo();return}
-  if(d.pick){S.api.init(d.pick).then(()=>{S.tab='today';location.hash='#today';render()});return}
+  if('retry' in d){location.reload();return}
 });
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('article[data-go],[data-go][tabindex]')){e.preventDefault();go(e.target.dataset.go)}});
 document.addEventListener('input',e=>{if(e.target.dataset?.msgin){(S.mdraft=S.mdraft||{})[e.target.dataset.msgin]=e.target.value;const b=document.querySelector('[data-msgsend]');if(b)b.disabled=!e.target.value.trim();e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,120)+'px';return}if(e.target.dataset?.ic){const j=C().jobs[route().slice(3)];if(j)icDraft(j)[e.target.dataset.ic]=e.target.value;return}if(e.target.dataset?.if){const j=C().jobs[route().slice(3)];if(j){ifSet(ifDraft(j),e.target.dataset.if,e.target.value);ifRefresh()}return}if(e.target.dataset?.iftog){const j=C().jobs[route().slice(3)];if(j){ifSet(ifDraft(j),e.target.dataset.iftog,e.target.checked);ifRefresh()}return}if(e.target.dataset?.dyaw!==undefined){S.dr.yaw=+e.target.value;droneDraw();return}if(e.target.dataset?.dsh!==undefined){S.dr.sh=+e.target.value;droneDraw();return}if(e.target.dataset?.dsd!==undefined){if(e.target.value){S.dr.sd=e.target.value;droneDraw()}return}if(e.target.dataset?.simh!==undefined){S.simH=+e.target.value;simPaint();return}const tk=e.target.dataset?.t;if(tk){S.t[tk]=e.target.value;if(tk!=='price')delete S.t.opt;const r=route(),el=$('#tres');if(el&&r.startsWith('tool-calc'))el.innerHTML=calcRes(r.slice(10));return}if(e.target.id==='q'){S.q=e.target.value;clearTimeout(S.qt);S.qt=setTimeout(render,150)}});
@@ -2490,46 +2315,19 @@ window.addEventListener('hashchange',()=>{S.navd=true;if(route()!=='noti')S.noti
 function landing(msg){
   window.__splOut&&__splOut();
   $('#app').innerHTML=`<div class="glow"></div><div class="land"><div class="card"><div class="logo">CLEAN<span>LINE</span></div><p style="margin:4px 0 16px">CLEANLINE Man · แผนก Energy เพาเวอร์เมติค</p>
-   <p>${esc(msg)}</p><button class="btn pri" style="width:100%;min-height:52px" data-demo-start>ดูด้วยข้อมูลตัวอย่าง</button></div></div>`;
-}
-function startDemo(fresh){
-  const seed=demoSeed();
-  if(!fresh){let sv=lsGet('cle.demo',null);
-    if(sv&&sv.c){try{sv=JSON.parse(JSON.stringify(sv).split('\u0e2a\u0e21\u0e0a\u0e32\u0e22 \u0e43\u0e08\u0e14\u0e35').join('ณภัทร ฤทธิ์กล้า').split('สมชาย ใจดี').join('ณภัทร ฤทธิ์กล้า'))}catch(e){}}
-   if(sv&&sv.c)Object.keys(sv.c).forEach(k=>{seed[k]={...(seed[k]||{}),...sv.c[k]}})}
-  S.api=new DemoAdapter(seed);seedDemoMedia();S.api.onChange(schedule);
-  S.api.onChange(()=>{clearTimeout(S.dsave);S.dsave=setTimeout(()=>{try{localStorage.setItem('cle.demo',JSON.stringify({at:Date.now(),c:S.api.c}))}catch(e){}},400)});
-  showPicker();
-}
-function showPicker(){
-  const M=S.api.cache().members;
-  $('#app').innerHTML=`<div class="glow"></div><div class="land"><div class="card"><div class="logo">CLEAN<span>LINE</span></div><p style="margin:4px 0 8px">เลือกผู้ใช้เพื่อดูตัวอย่าง</p>
-   <div class="ulist">${Object.entries(M).filter(([,m])=>m.role!=='admin').map(([id,m])=>`<button class="ubtn" data-pick="${esc(id)}">${avatar(m.name)}<span><b>${esc(m.name)}</b><span>${esc(ROLE_NAME[m.role]||m.role)}${m.team?' · '+esc(m.team):''}</span></span></button>`).join('')}</div>
-   <p style="font-size:14px;margin:16px 0 0">ข้อมูลที่กรอกจำไว้ในเครื่องนี้ (ล้างได้ที่หน้า "ฉัน")</p></div></div>`;
+   <p>${esc(msg)}</p><button class="btn pri" style="width:100%;min-height:52px" data-retry>ลองอีกครั้ง</button></div></div>`;
 }
 async function boot(){
-  if(window.CLEANLINE_CONFIG&&CLEANLINE_CONFIG.api&&window.CLGDB&&!/[?&]demo\b/.test(location.search)){
-    try{
-      const {db,user}=await CLGDB.connect('engineer');
-      S.api=new ClaudeDbAdapter(db,user);S.api.onChange(schedule);
-      const u=await S.api.init();
-      /* หัวหน้าตรวจแบบ = ทำงานได้แบบวิศวกร (มอบงานติดตั้งย้ายไปเว็บแอดมินของหัวหน้าจัดงาน) */
-      if(u.role==='lead'){u.realRole='lead';u.role='eng'}
-      if(u.role!=='eng'){S.api=null;landing('บัญชีนี้ใช้ Man ไม่ได้ ให้ผู้ดูแลระบบตั้งค่าใน Console');return}
-      render();window.__splOut&&__splOut();
-    }catch(e){console.error(e);S.api=null;landing((e&&e.message)||'เชื่อมต่อไม่สำเร็จ')}
-    return;
-  }
-  if(!window.claude||typeof window.claude.use!=='function'){landing('เปิดหน้านี้บน claude.ai เพื่อใช้ข้อมูลจริง หรือกดดูตัวอย่างได้เลย');return}
-  landing('กำลังเชื่อมต่อฐานข้อมูล…');
+  if(!(window.CLEANLINE_CONFIG&&CLEANLINE_CONFIG.api&&window.CLGDB)){landing('เชื่อมต่อไม่ได้ ตรวจอินเทอร์เน็ต แล้วกดลองอีกครั้ง');return}
   try{
-    const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);
-    if(!db||!user){landing('ยังเชื่อมต่อฐานข้อมูลไม่ได้ (ต้องลงชื่อเข้าใช้ claude.ai) กดดูตัวอย่างได้');return}
+    const {db,user}=await CLGDB.connect('engineer');
     S.api=new ClaudeDbAdapter(db,user);S.api.onChange(schedule);
     const u=await S.api.init();
-    if(!['eng','lead','admin'].includes(u.role)){S.api=null;landing('บัญชีนี้ยังไม่ได้ตั้งค่า ให้ผู้ดูแลระบบตั้งค่าใน Console');return}
-    S.api.log('login','เข้า Man');render();window.__splOut&&__splOut();
-  }catch(e){console.error(e);S.api=null;landing('เชื่อมต่อไม่สำเร็จ กดดูตัวอย่างได้')}
+    /* หัวหน้าตรวจแบบ = ทำงานได้แบบวิศวกร (มอบงานติดตั้งย้ายไปเว็บแอดมินของหัวหน้าจัดงาน) */
+    if(u.role==='lead'){u.realRole='lead';u.role='eng'}
+    if(u.role!=='eng'){S.api=null;landing('บัญชีนี้ใช้ Man ไม่ได้ ให้ผู้ดูแลระบบตั้งค่าใน Console');return}
+    render();window.__splOut&&__splOut();
+  }catch(e){console.error(e);S.api=null;landing((e&&e.message)||'เชื่อมต่อไม่สำเร็จ')}
 }
 const DEVICES=[['360','Android 360',360,780],['390','iPhone 390',390,844],['430','Pro Max 430',430,932]];
 const FR={on:lsGet('cle.frame',null),dev:lsGet('cle.dev','390')};
