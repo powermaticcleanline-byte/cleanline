@@ -598,19 +598,38 @@ textarea[data-msgin]{min-height:44px}
 .hring .tr{stroke:rgba(255,255,255,.25)}
 .hring .fl{stroke:#fff;stroke-linecap:round;transition:stroke-dashoffset .9s cubic-bezier(.23,1,.32,1)}
 .hring{display:block;min-height:0}
-.hring .rn{position:absolute;inset:0;display:grid;place-items:center;line-height:1;text-align:center}
-.hring .rn>span{display:block;white-space:nowrap}
-.hring .rn b{font-size:26px;font-weight:700}
-.hring .rn small{display:block;font-size:12px;opacity:.9;margin-top:2px}
+.hring .rtn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;line-height:1;text-align:center}
+.hring .rtn>span{display:block;white-space:nowrap}
+.hring .rtn b{font-size:26px;font-weight:700}
+.hring .rtn small{display:block;font-size:12px;opacity:.9;margin-top:2px}
 .rtxt{font-size:14px;line-height:1.35;white-space:nowrap}
 .rtxt b{display:block;font-size:15px}
 .masc{position:relative;height:150px;margin-bottom:-56px}
-.masc img{position:absolute;right:-8px;bottom:0;width:150px;height:150px;object-fit:contain;filter:drop-shadow(0 10px 12px rgba(0,0,0,.18));transform-origin:50% 100%;animation:mIdle 3.2s ease-in-out infinite;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
-.masc img.pop{animation:mPop .6s cubic-bezier(.23,1,.32,1),mIdle 3.2s ease-in-out .6s infinite}
-.masc img.wig{animation:mWig .5s cubic-bezier(.23,1,.32,1)}
+.mrig{position:absolute;right:-4px;bottom:0;width:143px;height:150px;transform-origin:50% 100%;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.mrig img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.mrig .all{position:absolute;inset:0;transform-origin:50% 100%;animation:mBr 3.2s ease-in-out infinite;filter:drop-shadow(0 10px 12px rgba(0,0,0,.18))}
+.mrig .pz{display:none;object-fit:contain;transform-origin:50% 100%;animation:mIdle 3.2s ease-in-out infinite;filter:drop-shadow(0 10px 12px rgba(0,0,0,.18))}
+.mrig.posed .all{display:none}.mrig.posed .pz{display:block}
+.mrig .mh{position:absolute;inset:0;transform-origin:52.9% 55.9%;transform:rotate(var(--look,0deg));transition:transform .5s cubic-bezier(.23,1,.32,1)}
+.mrig .lv{transform-origin:71.7% 18.6%;animation:mSw 2.6s ease-in-out infinite alternate}
+.mrig .ey{transform-origin:41.4% 36.5%;transition:transform 70ms ease-out}
+.mrig.blink .ey{transform:scaleY(.1)}
+.mrig .mo{transform-origin:52% 38.3%}
+.mrig.talk .mo{animation:mTk .26s ease-in-out infinite alternate}
+.mrig .hd{transform-origin:24.6% 46.5%}
+.mrig.wave .hd{animation:mWv 1.3s ease-in-out}
+.mrig .sp{transform-origin:12% 26%}
+.mrig.wave .sp{animation:mSp 1.3s cubic-bezier(.23,1,.32,1)}
+.mrig.pop{animation:mPop .6s cubic-bezier(.23,1,.32,1)}
+.mrig.wig{animation:mHop .55s cubic-bezier(.23,1,.32,1)}
+@keyframes mBr{0%,100%{transform:none}50%{transform:scale(1.01,1.018)}}
+@keyframes mSw{from{transform:rotate(-3.5deg)}to{transform:rotate(3.5deg)}}
+@keyframes mWv{0%,100%{transform:none}18%{transform:rotate(-10deg)}38%{transform:rotate(8deg)}58%{transform:rotate(-10deg)}78%{transform:rotate(7deg)}}
+@keyframes mSp{0%,100%{transform:none;opacity:1}25%{transform:scale(1.18)}50%{opacity:.4;transform:scale(.9)}75%{opacity:1;transform:scale(1.12)}}
+@keyframes mTk{from{transform:none}to{transform:scaleY(.72)}}
+@keyframes mHop{0%,100%{transform:none}20%{transform:scale(1.06,.92)}50%{transform:translateY(-16px) scale(.96,1.05)}80%{transform:scale(1.03,.97)}}
 @keyframes mIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes mPop{0%{transform:scale(.9) translateY(10px)}55%{transform:scale(1.06) translateY(-6px)}100%{transform:none}}
-@keyframes mWig{0%,100%{transform:none}25%{transform:rotate(-8deg) translateY(-6px)}60%{transform:rotate(6deg)}}
 .mbub{position:absolute;right:96px;top:-40px;background:#fff;color:var(--ink);font-size:13px;font-weight:500;padding:6px 10px;border-radius:14px 14px 4px 14px;white-space:nowrap;box-shadow:0 6px 14px -8px rgba(0,0,0,.4);opacity:0;transform:translateY(6px) scale(.96);transition:opacity .25s cubic-bezier(.23,1,.32,1),transform .25s cubic-bezier(.23,1,.32,1);pointer-events:none;z-index:2}
 .mbub.on{opacity:1;transform:none}
 .mhearts{position:absolute;right:50px;bottom:110px;pointer-events:none}
@@ -654,7 +673,7 @@ html.framed #hmini{position:absolute}
 .tl b{display:block;font-size:15px}
 .tl small{color:var(--mut);font-size:13px}
 .tl a,.tl button{display:block;text-align:left;background:none;padding:0;color:inherit}
-@media(prefers-reduced-motion:reduce){.masc img,.masc img.pop,.masc img.wig,.mhearts i,.hm.intro>*,#dayl .dlb{animation:none}.hring .fl,#hmini,.jsw .jr{transition-duration:0s}}
+@media(prefers-reduced-motion:reduce){.mrig,.mrig *,.mhearts i,.hm.intro>*,#dayl .dlb{animation:none}.hring .fl,#hmini,.jsw .jr{transition-duration:0s}}
 </style>
 </head>
 <body>
@@ -1744,8 +1763,13 @@ function dayJobs(){   // งานของฉันวันนี้ รวม
     return null}).filter(Boolean).sort((x,y)=>(x.tm||'99')<(y.tm||'99')?-1:1);
 }
 const mPose=(D,dn)=>!D.length?'wave':dn>=D.length?'cheer':dn?'thumb':'wave';
-function mSay(t,ms=2600){const b=document.querySelector('.mbub');if(!b)return;b.textContent=t;b.classList.add('on');clearTimeout(mSay.t);mSay.t=setTimeout(()=>b.classList.remove('on'),ms)}
-function mShow(k,back){const m=document.querySelector('[data-masc]');if(!m)return;m.src=MPOSE[k];m.classList.remove('pop','wig');void m.offsetWidth;m.classList.add('pop');clearTimeout(mShow.t);if(back)mShow.t=setTimeout(()=>{const x=document.querySelector('[data-masc]');if(x)x.src=MPOSE[S.hmPose]},back)}
+function mSay(t,ms=2600){const b=document.querySelector('.mbub');if(!b)return;b.textContent=t;b.classList.add('on');clearTimeout(mSay.t);mSay.t=setTimeout(()=>b.classList.remove('on'),ms)
+  const m=document.querySelector('[data-masc]');if(m){m.classList.add('talk');clearTimeout(mSay.k);mSay.k=setTimeout(()=>m.classList.remove('talk'),1100)}}
+// มาสคอตท่าโบกมือ = รูปเดิมตัดเป็นชิ้น (tools/mascot-rig.py) ขยับทีละชิ้น · ท่าอื่นเป็นรูปนิ่ง
+const MRIG='<div class="all"><img src="mrig-body.webp" alt=""><div class="mh"><img src="mrig-head.webp" alt=""><img class="lv" src="mrig-leaves.webp" alt=""><img class="ey" src="mrig-eye.webp" alt=""><img class="mo" src="mrig-mouth.webp" alt=""></div><img src="mrig-sleeve.webp" alt=""><img class="hd" src="mrig-hand.webp" alt=""><img class="sp" src="mrig-spark.webp" alt=""></div>';
+function mSet(m,k){m.dataset.pose=k;m.classList.toggle('posed',k!=='wave');m.querySelector('.pz').src=MPOSE[k]}
+function mFx(m,c,ms){m.classList.remove(c);void m.offsetWidth;m.classList.add(c);clearTimeout(m['_'+c]);m['_'+c]=setTimeout(()=>m.classList.remove(c),ms)}
+function mShow(k,back){const m=document.querySelector('[data-masc]');if(!m)return;mSet(m,k);m.classList.remove('wig');mFx(m,'pop',600);clearTimeout(mShow.t);if(back)mShow.t=setTimeout(()=>{const x=document.querySelector('[data-masc]');if(x){mSet(x,S.hmPose);if(S.hmPose==='wave')mFx(x,'wave',1300)}},back)}
 function hmAfter(dn,n){S.hmIntro=1;const f=document.querySelector('.hring .fl');if(f){const RC=2*Math.PI*42;f.style.strokeDashoffset=RC*(1-(n?dn/n:0))}
   const hr=new Date().getHours();setTimeout(()=>mSay(!n?'วันนี้ว่าง พักผ่อนบ้างนะ':dn>=n?'วันนี้ครบแล้ว เยี่ยมมาก!':hr<11?'เช้านี้ไปลุยกัน!':hr<16?'บ่ายนี้สู้ต่อ!':'อีกนิดเดียว!'),500)}
 const M_LINES=['วันนี้อากาศร้อน ดื่มน้ำด้วยนะ','อย่าลืมถ่ายรูปมิเตอร์ให้ชัด ๆ','ขึ้นหลังคาใส่เข็มขัดนิรภัยนะ','ลูกค้ายิ้มได้ เพราะเราตั้งใจ','เก่งมากเลยวันนี้','ส่งงานครบ ออฟฟิศรักเลย'];
@@ -1754,8 +1778,15 @@ const M_LINES=['วันนี้อากาศร้อน ดื่มน้
   document.addEventListener('pointerup',e=>{if(!lp||!e.target.closest('[data-masc]'))return;clearTimeout(lp);lp=null;const t=Date.now();taps=taps.filter(x=>t-x<1200);taps.push(t);buzz();
     if(taps.length>=3){taps=[];const h=document.querySelector('.mhearts');if(h)for(let i=0;i<8;i++){const x=document.createElement('i');x.textContent='♥';x.style.cssText=`--x:${(Math.random()-.5)*90}px;left:${(Math.random()-.5)*40}px;animation-delay:${i*60}ms`;h.appendChild(x);setTimeout(()=>x.remove(),1300)}
       mShow('cheer',1900);mSay('จั๊กจี้! 555',1800);return}
-    const m=e.target.closest('[data-masc]');m.classList.remove('wig','pop');void m.offsetWidth;m.classList.add('wig');mSay(M_LINES[li++%M_LINES.length])});
+    const m=e.target.closest('[data-masc]');m.classList.remove('pop');mFx(m,'wig',550);mFx(m,'wave',1300);mSay(M_LINES[li++%M_LINES.length])});
   document.addEventListener('pointercancel',()=>{if(lp){clearTimeout(lp);lp=null}});
+  /* มาสคอตมีชีวิต: กะพริบตา · โบกมือ · หันหัวตามนิ้ว (เฉพาะท่าโบกมือ · ปิดเมื่อเครื่องตั้งลดการเคลื่อนไหว) */
+  const live=()=>!matchMedia('(prefers-reduced-motion: reduce)').matches&&!document.hidden&&document.querySelector('[data-masc]:not(.posed)');
+  let lastMv=0;const every=(f,a,b)=>{(function t(){setTimeout(()=>{const m=live();if(m)f(m);t()},a+Math.random()*b)})()};
+  every(m=>{mFx(m,'blink',120);if(Math.random()<.25)setTimeout(()=>mFx(m,'blink',120),220)},2200,3000);
+  every(m=>mFx(m,'wave',1300),6000,5000);
+  every(m=>{if(Date.now()-lastMv>2500)m.style.setProperty('--look',(Math.random()*8-4).toFixed(1)+'deg')},2500,2500);
+  document.addEventListener('pointermove',e=>{const m=live();if(!m)return;lastMv=Date.now();const b=m.getBoundingClientRect(),dx=(e.clientX-(b.left+b.width/2))/innerWidth;m.style.setProperty('--look',Math.max(-6,Math.min(6,dx*14)).toFixed(1)+'deg')},{passive:true});
   document.addEventListener('contextmenu',e=>{if(e.target.closest('[data-masc]'))e.preventDefault()});
   /* หัวย่อตอนเลื่อน (มือถือเลื่อนทั้งหน้า · จอคอมเลื่อนใน .screen) */
   document.addEventListener('scroll',e=>{const m=document.getElementById('hmini');if(!m)return;const y=e.target===document?scrollY:(e.target.scrollTop||0);m.classList.toggle('on',y>160)},true);
@@ -1805,8 +1836,8 @@ function viewToday(){
     <div class="hbt"><button class="hbav" data-go="#me" aria-label="โปรไฟล์ของฉัน">${meAv(u,'hav')}</button><div class="hbn"><small>${esc(fdLong(T))}</small></div>
      <button class="hbi" data-go="#noti" aria-label="การแจ้งเตือน${nNew?' ใหม่ '+nNew+' เรื่อง':''}">${ic('bell')}${nNew?`<span class="bd">${nNew}</span>`:''}</button></div>
     <div class="hrow"><div><p class="hgreet">${hr<11?'อรุณสวัสดิ์':hr<16?'สวัสดีตอนบ่าย':'เย็นแล้ว เหนื่อยไหม'}</p><p class="hname">${esc(u.name||'')}</p>
-     <div class="ringw"><button type="button" class="hring" data-dayline aria-label="งานวันนี้ เสร็จ ${dn} จาก ${D.length} งาน ดูเส้นทางวันนี้"><svg viewBox="0 0 100 100"><circle class="tr" cx="50" cy="50" r="42"/><circle class="fl" cx="50" cy="50" r="42" style="stroke-dasharray:${RC};stroke-dashoffset:${first?RC:RC*(1-(D.length?dn/D.length:0))}"/></svg><span class="rn"><span><b>${dn}</b><small>จาก ${D.length}</small></span></span></button><div class="rtxt">${rtx}</div></div></div>
-     <div class="masc"><span class="mhearts"></span><span class="mbub" aria-live="polite"></span><img src="${MPOSE[S.hmPose]}" alt="มาสคอต CLEANLINE แตะเพื่อคุยด้วย" data-masc draggable="false"></div></div></div></div>
+     <div class="ringw"><button type="button" class="hring" data-dayline aria-label="งานวันนี้ เสร็จ ${dn} จาก ${D.length} งาน ดูเส้นทางวันนี้"><svg viewBox="0 0 100 100"><circle class="tr" cx="50" cy="50" r="42"/><circle class="fl" cx="50" cy="50" r="42" style="stroke-dasharray:${RC};stroke-dashoffset:${first?RC:RC*(1-(D.length?dn/D.length:0))}"/></svg><span class="rtn"><span><b>${dn}</b><small>จาก ${D.length}</small></span></span></button><div class="rtxt">${rtx}</div></div></div>
+     <div class="masc"><span class="mhearts"></span><span class="mbub" aria-live="polite"></span><div class="mrig${S.hmPose==='wave'?'':' posed'}" data-masc data-pose="${S.hmPose}" role="img" aria-label="มาสคอต CLEANLINE แตะเพื่อคุยด้วย">${MRIG}<img class="pz" src="${MPOSE[S.hmPose]}" alt="" draggable="false"></div></div></div></div></div>
    <div id="hmini" aria-hidden="true"><img src="${MPOSE[S.hmPose]}" alt=""><b>${esc(u.name||'')}</b><span>${dn}/${D.length} งานวันนี้</span></div>
    <main class="wrap hm${first?' intro':''}">
     ${nxCard}${pendBanner()}
