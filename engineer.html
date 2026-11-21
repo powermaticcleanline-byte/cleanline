@@ -168,7 +168,7 @@ img.av.hav{border-radius:50%;display:block}
 .ptile .ph{display:flex;justify-content:space-between;align-items:center;gap:8px}.ptile .ph b{font-size:14px;font-weight:600;line-height:1.25}
 .thumbs{display:flex;flex-wrap:wrap;gap:8px}.thumbs:empty{display:none}
 .thumb{width:52px;height:52px;border-radius:12px;overflow:hidden;background:#ddd}.thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.shoot{min-height:42px;font-size:14px;padding:0 12px;cursor:pointer;background:var(--sf);position:relative;overflow:hidden}
+.shoot{white-space:nowrap;min-height:44px;font-size:14px;padding:0 12px;cursor:pointer;background:var(--sf);position:relative;overflow:hidden}
 .shoot input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
 .sigbox{position:relative;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--ln);height:200px;overflow:hidden}
 .sigbox canvas{display:block;touch-action:none;cursor:crosshair}
@@ -1202,7 +1202,7 @@ function photoTiles(j,locked,KS=PHOTO_KINDS){
   return `<div class="ptiles${S.tried&&S.tried[j.id]?' tried':''}">${KS.map(([k,t,req])=>{const a=P.filter(p=>p.kind===k);
     return `<div class="ptile ${a.length?'has':req?'need':''}"><div class="ph"><b>${esc(t)}${req?' <em class="req">*</em>':''}</b><span class="cnt">${a.length}</span></div>
      <div class="thumbs">${a.map(p=>{const src=String(p.dataRef||'');return /^data:image\//.test(src)||safeUrl(src)?`<button class="thumb" data-delph="${esc(p.id)}" ${locked?'disabled':''} aria-label="รูป${esc(t)} ${locked?'':'(แตะเพื่อลบ)'}"><img src="${esc(src)}" alt=""></button>`:''}).join('')}</div>
-     ${locked?'':`<label class="btn shoot">${ic('cam')}ถ่าย / เลือกรูป<input type="file" accept="image/*" multiple data-photo="${k}" aria-label="ถ่ายหรือเลือกรูป${esc(t)}"></label>`}</div>`}).join('')}</div>`;
+     ${locked?'':`<label class="btn shoot">${ic('cam')}เพิ่มรูป<input type="file" accept="image/*" multiple data-photo="${k}" aria-label="เพิ่มรูป${esc(t)} (ถ่ายหรือเลือกจากคลัง)"></label>`}</div>`}).join('')}</div>`;
 }
 function missingPhotos(j){const P=S.api.listPhotos(j.id);return PHOTO_KINDS.filter(([k,,r])=>r&&!P.some(p=>p.kind===k)).map(x=>x[1])}
 async function svSave(id,patch,hist,okMsg){
