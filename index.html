@@ -2233,6 +2233,7 @@ function svPeopleSync(){if(!S.me||!S.me.role)return;const L=Object.entries(S.mem
   const reg=L.filter(m=>q(m)==='regular').map(m=>m.name).sort((a,b)=>a.localeCompare(b,'th')),apr=L.filter(m=>q(m)==='approval').map(m=>m.name).sort((a,b)=>a.localeCompare(b,'th'));
   SV_TEAMS=[...reg,...apr];SV_APPROVAL=apr}
 const halfOf=t=>t&&t<'12:00'?'am':'pm';
+const svLocked=j=>SV_TEAMS.filter(t=>j.queueUnlock!==t&&(SV_APPROVAL.includes(t)||pendDraw(t)>=drawLimit()));   // คนที่ต้องกด "ขอใช้" ก่อนเลือก
 const drawLimit=()=>+((S.config&&S.config.queue&&S.config.queue.drawLimit)||3);
 const pendDraw=t=>Object.values(S.jobs).filter(j=>j.status==='active'&&j.stage===ST.SURVEY&&(j.surveyTeam===t||j.surveyor===t)&&j.sv&&j.sv.sign&&!j.sv.cad).length;
 const svJobsOn=(t,k,ex)=>Object.values(S.jobs).filter(j=>j.id!==ex&&!['lost','cancelled'].includes(j.status)&&(j.surveyTeam||'')===t&&(j.surveyDate||j.queueDate)===k);
@@ -2243,7 +2244,7 @@ function teamBlock(t,k,ex,time,job){
   if(c>=PER_TEAM)return 'เต็มวันนี้';
   if(time&&on.some(j=>halfOf(j.queueTime)===halfOf(time)))return halfOf(time)==='am'?'เช้ามีงานแล้ว':'บ่ายมีงานแล้ว';
   if(!c&&((w(-1)&&w(-2))||(w(1)&&w(2))||(w(-1)&&w(1))))return 'ออกติดกันเกิน 2 วัน';
-  const pd=pendDraw(t);if(!c&&pd>=drawLimit())return 'รอวาดแบบ '+pd+' งาน';
+  const pd=pendDraw(t);if(!c&&pd>=drawLimit()&&!(job&&job.queueUnlock===t))return 'รอวาดแบบ '+pd+' งาน';
   return ''} /* ทีมสำรวจ 4 ทีม ทีมละ 2 ที่ต่อวัน ออกสำรวจวันไหน วันถัดไปไม่ออก */
 const GROUP={sales:'เซลส์',admin:'แอดมิน',dispatch:'หัวหน้าจัดงาน',lead:'หัวหน้าตรวจแบบ',eng:'วิศวกร / ผู้คุมงาน'};
 const ROLES={sales_en:['เซลส์ EN','sales'],sales_pm:['เซลส์ Powermatic','sales'],admin:['แอดมิน','admin'],dispatch:['หัวหน้าจัดงาน','dispatch'],lead:['หัวหน้าตรวจแบบ','lead'],eng:['วิศวกร / ผู้คุมงาน','eng'],exec:['ผู้บริหาร','exec']};
@@ -3572,7 +3573,7 @@ function acceptCard(j,act){
   const di=j.queueDate?dayInfo(j.queueDate,j.id):{L:[],taken:[],closed:''};const clash=j.queueTime&&di.taken.includes(j.queueTime);
   const cur=SV_TEAMS.includes(j.surveyTeam)?j.surveyTeam:'';
   const opts=SV_TEAMS.map(t=>{const b=j.queueDate?(S.me.role?teamBlock(t,j.queueDate,j.id,j.queueTime,j):(teamSlots(t,j.queueDate,j.id)?'':'เต็ม')):'';return `<option value="${esc(t)}" ${cur===t?'selected':''} ${b?'disabled':''}>${esc(t)}${j.queueDate?' · '+esc(b||teamWhy(t,j.queueDate,j.id,j.queueTime,j)):''}</option>`}).join('');
-  const locked=SV_APPROVAL.filter(t=>j.queueUnlock!==t);
+  const locked=svLocked(j);
   return `<section class="act" aria-label="จัดทีมสำรวจ">
     <div><h2>ส่งใบงานสำรวจ</h2><span class="sub">${esc(j.salesPerson||'เซลส์')} ${j.salesTeam?'('+esc(j.salesTeam)+')':''} · จองคิวแล้ว</span></div>
     <div class="qreq"><b>${j.queueDate?`${TD[new Date(j.queueDate+'T00:00:00').getDay()]} ${fd(j.queueDate)}`:'ยังไม่ระบุวัน'}</b><span>${esc(j.queueTime||'')}</span></div>
@@ -4532,7 +4533,7 @@ document.addEventListener('click',async e=>{
     const v=await askVal('เปลี่ยนชื่อโฟลเดอร์งาน','ชื่อโฟลเดอร์',cur);if(v==null)return;const n=String(v).replace(/[\/\\]+/g,'-').replace(/\s+/g,' ').trim().slice(0,120);if(!n||n===j.folderName)return;
     try{await pushHist(j,ev('edit','เปลี่ยนชื่อโฟลเดอร์: '+n),{folderName:n});toast('เปลี่ยนชื่อโฟลเดอร์แล้ว')}catch(x){}return}
   if(t.id==='pfsave'){t.disabled=true;await saveProfile();return}
-  if(t.dataset.unlock){const j=S.jobs[t.dataset.unlock];const L=SV_APPROVAL.filter(x=>j.queueUnlock!==x);const who=L.length===1?L[0]:await ask('ขอใช้ใคร','พิมพ์ชื่อ: '+L.join(' / '));if(!who)return;if(!L.includes(who))return toast('ไม่พบชื่อ '+who);
+  if(t.dataset.unlock){const j=S.jobs[t.dataset.unlock];const L=svLocked(j);const who=L.length===1?L[0]:await ask('ขอใช้ใคร','พิมพ์ชื่อ: '+L.join(' / '));if(!who)return;if(!L.includes(who))return toast('ไม่พบชื่อ '+who);
     const why=await ask('ขอใช้ '+who+' สำหรับงานนี้','เหตุผล (บันทึกไว้ในประวัติงาน)');if(!why)return;
     try{await pushHist(j,ev('edit','ขอใช้ '+who+' สำรวจงานนี้: '+why),{queueUnlock:who});toast('ปลดให้เลือก '+who+' แล้ว (เฉพาะงานนี้)')}catch(x){}return}
   if(t.id==='pfdelphoto'){await saveProfile('');return}
