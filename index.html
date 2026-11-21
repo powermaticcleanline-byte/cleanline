@@ -2193,6 +2193,17 @@ body.pgsc .pg>.ph:has(+ .card.jst) h1{font-size:24px!important;line-height:1.25!
 #app>.pg .jtabs.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent)}
 #app>.pg .sjl{min-height:44px}
 }
+
+/* 5r */
+@media (max-width:640px){
+.drw .dsum{grid-template-columns:1fr}
+.drw .dsc dl div{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:baseline}
+.drw .dsc dt{white-space:nowrap}
+.drw .dsc dd{text-align:left;white-space:normal;overflow:visible;overflow-wrap:anywhere}
+.drw .dsj{flex-direction:column;align-items:flex-start;gap:4px;min-height:44px;padding:8px 0!important}
+.drw .dtabs{align-self:stretch;display:flex}
+.drw .dtabs button{flex:1 1 auto}
+}
 </style></head>
 <body>
 <div class="shell">
@@ -2961,7 +2972,7 @@ function jobDrawer(j){
       <section class="dsc"><h4>ใครทำ</h4><dl>${who.map(([k,v])=>`<div><dt>${k}</dt><dd>${v?esc(v):nil}</dd></div>`).join('')}</dl></section>
       <section class="dsc"><h4>เสนออะไรไป</h4>${prop.length?`<p class="dsbig">${prop.map(esc).join(' · ')}</p>`:'<p class="dsnil">ยังไม่ได้เสนอ</p>'}</section>
       ${notes.length?`<section class="dsc"><h4>หมายเหตุ</h4><ul class="dsn">${notes.map(([k,v])=>`<li><small>${k}</small>${esc(v)}</li>`).join('')}</ul></section>`:''}</div>`})();
-  const now=j.status==='active'?`<p class="dnow">ตอนนี้: <b>${esc(STAGES[j.stage].name)}</b> ${j.stage===ST.DOCS?'':' · รอ '+esc(ownerOf(j)||'')}${ageTag(j)}</p>`:'';
+  const now=j.status==='active'?`<p class="dnow"><span>ตอนนี้: <b>${esc(STAGES[j.stage].name)}</b>${j.stage===ST.DOCS?'':' · รอ '+esc(ownerOf(j)||'')}</span>${ageTag(j)}</p>`:'';
   return `<div class="dov" data-dclose="1"></div>
   <aside class="drw" role="dialog" aria-modal="true" aria-labelledby="drwT">
     <header class="drh2">
@@ -2972,7 +2983,7 @@ function jobDrawer(j){
       <button class="btn sm ghost drx" data-dclose="1" aria-label="ปิด">ปิด ✕</button>
     </header>
     ${facts}
-    ${(()=>{const sj=j.siteId?siteJobs(j.siteId):[];return sj.length>1?`<div class="dsc" style="margin:0 20px 12px"><h4>งานของไซต์นี้ ${sj.length} งาน</h4>${sj.map(x=>`<a href="#job-${esc(x.id)}" style="display:flex;justify-content:space-between;gap:8px;padding:4px 0"><span>${esc(x.jobNo?'#'+x.jobNo:'ยังไม่มีเลข')} · ${esc(x.type==='addon'?'ติดตั้งเพิ่ม':'งานแรก')}${x.id===j.id?' (งานนี้)':''}</span>${jobPill(x)}</a>`).join('')}</div>`:''})()}
+    ${(()=>{const sj=j.siteId?siteJobs(j.siteId):[];return sj.length>1?`<div class="dsc" style="margin:0 20px 12px"><h4>งานของไซต์นี้ ${sj.length} งาน</h4>${sj.map(x=>`<a href="#job-${esc(x.id)}" class="dsj" style="display:flex;justify-content:space-between;gap:8px;padding:4px 0"><span>${esc(x.jobNo?'#'+x.jobNo:'ยังไม่มีเลข')} · ${esc(x.type==='addon'?'ติดตั้งเพิ่ม':'งานแรก')}${x.id===j.id?' (งานนี้)':''}</span>${jobPill(x)}</a>`).join('')}</div>`:''})()}
     <div class="dra">
       <a class="btn sm dk dgo" href="#job-${esc(j.id)}">เปิดหน้างาน</a>
       ${c.phone?`<a class="btn sm dic" href="tel:${esc(String(c.phone).replace(/[^\d+]/g,''))}" aria-label="โทร ${esc(c.phone)}" title="โทร ${esc(c.phone)}">${svg('phone','currentColor',2)}</a>`:''}${safeUrl(s.mapLink)?`<a class="btn sm dic" href="${esc(safeUrl(s.mapLink))}" target="_blank" rel="noopener" aria-label="แผนที่" title="แผนที่">${svg('pin','currentColor',2)}</a>`:''}
