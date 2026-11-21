@@ -3470,6 +3470,7 @@ function viewJob(id){
     else btns=`<button class="btn dk" data-act="next" ${act&&ready?'':'disabled'}>${ready?'ส่งต่อให้'+esc(nextRole):`ส่งต่อ · ขาดอีก ${nd.length-done} รายการ`}</button>`;
     if(n>1&&act&&n!==ST.ACCEPT&&n!==ST.SURVEY)btns+=`<button class="btn sm" data-act="back" style="align-self:flex-start;box-shadow:none;color:var(--mut)">ย้อนกลับขั้นก่อนหน้า</button>`;
     if(n===ST.ACCEPT){right=acceptCard(j,act);}
+    else if(n===ST.BOOK&&act&&ready){right=acceptCard(j,act,nextRole);}
     else if(n===ST.SURVEY){right=svCard(j,c,s,act);}
     else if(n===ST.INSREQ){right=insCard(j,act);}
     else if(n===ST.INSTALL){right=asgCard(j,act);}
@@ -3569,7 +3570,7 @@ function bookPanel(){
       :`<div class="hempty"><b>${tab==='sv'?'ไม่มีคำขอคิวสำรวจค้าง':'ไม่มีงานรอจองติดตั้ง'}</b><span class="sub">${tab==='sv'?'คำขอจากเซลส์จะขึ้นที่นี่ทันที':'งานที่ลูกค้าตกลงแล้วจะขึ้นที่นี่'}</span></div>`}
   </section>`;
 }
-function acceptCard(j,act){
+function acceptCard(j,act,book){   // book = ชื่อคนจัดงาน เมื่อเปิดจากขั้นจองคิว (5q)
   const di=j.queueDate?dayInfo(j.queueDate,j.id):{L:[],taken:[],closed:''};const clash=j.queueTime&&di.taken.includes(j.queueTime);
   const cur=SV_TEAMS.includes(j.surveyTeam)?j.surveyTeam:'';
   const opts=SV_TEAMS.map(t=>{const b=j.queueDate?(S.me.role?teamBlock(t,j.queueDate,j.id,j.queueTime,j):(teamSlots(t,j.queueDate,j.id)?'':'เต็ม')):'';return `<option value="${esc(t)}" ${cur===t?'selected':''} ${b?'disabled':''}>${esc(t)}${j.queueDate?' · '+esc(b||teamWhy(t,j.queueDate,j.id,j.queueTime,j)):''}</option>`}).join('');
@@ -3583,7 +3584,7 @@ function acceptCard(j,act){
     ${S.me.role?`<label class="fld" for="acc-help">คนไปด้วย (ไม่บังคับ)<input id="acc-help" value="${esc(j.surveyHelpers||'')}" placeholder="เช่น ปอ" ${act?'':'disabled'}></label>`:''}
     <label class="fld" for="acc-note">หมายเหตุใบงาน (ไม่บังคับ)<input id="acc-note" value="${esc(j.woNote||'')}" ${act?'':'disabled'}></label>
     <span class="sub">เลขใบงาน ${esc(j.jobNo||nextJobNo())}</span>
-    <div class="btns"><button class="btn dk" data-act="accept" ${act?'':'disabled'}>ส่งใบงาน</button><button class="btn" data-act="decline" ${act?'':'disabled'}>ขอเปลี่ยนวัน</button></div>
+    <div class="btns"><button class="btn dk" data-act="accept" ${act?'':'disabled'}>ส่งใบงาน</button>${book?`<button class="btn" data-act="next">ให้${esc(book)}จัดคน</button>`:`<button class="btn" data-act="decline" ${act?'':'disabled'}>ขอเปลี่ยนวัน</button>`}</div>
 
   </section>`;
 }
@@ -4274,7 +4275,7 @@ async function doAct0(a,jid){
     const eng=(($('#acc-eng-'+j.id)||$('#acc-eng'))?.value||'').trim();if(!eng)return toast('เลือกคนสำรวจก่อน');if(SV_TEAMS.includes(eng)&&j.queueDate){const b=S.me.role?teamBlock(eng,j.queueDate,j.id,j.queueTime,j):(teamSlots(eng,j.queueDate,j.id)?'':teamWhy(eng,j.queueDate,j.id));if(b)return toast(eng+' · '+b)}
     const who=Object.entries(S.members||{}).find(([,m])=>m.name===eng);const help=(($('#acc-help'))?.value||'').trim();
     const no=j.jobNo||await claimJobNo(j.id);const wn=(($('#acc-note-'+j.id)||$('#acc-note'))?.value||'').trim();
-    await pushHist(j,ev('handoff',`ส่งใบงาน ${no} · สำรวจ ${fd(j.queueDate)} ${j.queueTime||''} · ${eng}${help?' + '+help:''}`,{from:ST.ACCEPT,to:ST.SURVEY}),{jobNo:no,surveyor:eng,surveyTeam:SV_TEAMS.includes(eng)?eng:'',...(S.me.role?{surveyorId:who?who[0]:'',surveyHelpers:help}:{}),surveyDate:j.queueDate,woNote:wn,stage:ST.SURVEY,stageSince:now});
+    await pushHist(j,ev('handoff',`ส่งใบงาน ${no} · สำรวจ ${fd(j.queueDate)} ${j.queueTime||''} · ${eng}${help?' + '+help:''}`,{from:j.stage,to:ST.SURVEY}),{jobNo:no,surveyor:eng,surveyTeam:SV_TEAMS.includes(eng)?eng:'',...(S.me.role?{surveyorId:who?who[0]:'',surveyHelpers:help}:{}),surveyDate:j.queueDate,woNote:wn,stage:ST.SURVEY,stageSince:now});
     toast('ส่งใบงาน '+no+' ให้ '+eng+(help?' + '+help:'')+' แล้ว');return}
   if(a==='bookins'){
     const d=(($('#ins-d-'+j.id)||$('#ins-d'))?.value||'').trim();if(!d)return toast('เลือกวันเริ่มติดตั้งก่อน');
