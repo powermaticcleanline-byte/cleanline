@@ -479,6 +479,7 @@ html.framed .land{min-height:calc(var(--ph) - 44px)}
 .icplan{display:flex;gap:12px;align-items:center}.icplan>svg{width:24px;height:24px;color:var(--accTx);flex:none}.icplan div{flex:1;min-width:0}.icplan small{display:block;color:var(--mut);font-size:12px}.icplan b{font-weight:600;font-size:14px}
 .icmiss{background:var(--warnBg)}.icmiss b{display:flex;gap:8px;align-items:center;color:var(--warn);font-weight:600}.icmiss p{margin:8px 0 0;font-size:14px;color:var(--ink2)}.icok{background:var(--accBg)}.icok b{display:flex;gap:8px;align-items:center;color:var(--accTx);font-weight:600}.icmiss svg,.icok svg{width:18px;height:18px}
 .abar .in .btn+.btn{flex:2}
+.abar .icst{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;min-height:54px;padding:6px 10px;border-radius:16px;background:rgba(255,255,255,.94);box-shadow:0 0 0 1px rgba(22,23,29,.08);font-size:13px;line-height:1.35;color:var(--mut);text-align:center}.abar .icst svg{width:16px;height:16px;flex:none;color:var(--accTx)}.abar .icst.off,.abar .icst.err{color:#a34b08}.abar .icst+.btn{flex:2}
 .pmchk{display:grid;gap:8px;margin:0 0 8px}.pmc{position:relative}.pmc input{position:absolute;opacity:0}.pmc span{display:flex;gap:8px;align-items:center;min-height:44px;padding:0 12px;border-radius:12px;background:var(--hv);font-size:14px}.pmc span svg{width:18px;height:18px;opacity:.2}.pmc input:checked+span{background:var(--accBg);color:var(--accTx);font-weight:500}.pmc input:checked+span svg{opacity:1}
 .svsh{max-height:86vh;overflow:auto}
 .svc{padding:16px 16px}.svh{display:flex;justify-content:space-between;align-items:center;gap:8px}.svd{font-size:12px;color:var(--mut)}.svc h3{margin:8px 0 2px;font-size:16px;font-weight:600}
@@ -1227,10 +1228,10 @@ function icDraft(j){
     batteryModel:e.batteryModel||j.proposedBatteryModel||'',batterySn:e.batterySn||'',commissionDate:e.commissionDate||today(),
     slaves:invUnits(e).slice(1).map(u=>({model:u.model||'',sn:u.sn||'',wifiSn:u.wifiSn||''}))};
 }
-const IF_ITEMS=[['consumer','ตู้ Consumer',[['qty','ตู้']]],['meter','Smart Meter',[['model','รุ่น','text'],['qty','ตัว']]],['rcbo','RCBO',[['amp','A'],['qty','ตัว']]],['mcb','MCB',[['amp','A'],['qty','ตัว']]],['ac','ชุดสายไฟ AC',[['m','เมตร']]],['dc','ชุดสายไฟ DC',[['m','เมตร']]]];
+const IF_ITEMS=[['consumer','ตู้ Consumer',[['qty','ตู้']]],['meter','Smart Meter',[['qty','ตัว']]],['rcbo','RCBO',[['amp','A'],['qty','ตัว']]],['mcb','MCB',[['amp','A'],['qty','ตัว']]],['ac','ชุดสายไฟ AC',[['m','เมตร']]],['dc','ชุดสายไฟ DC',[['m','เมตร']]]];
 const IF_TRAIN=[['app','ติดตั้ง App'],['reg','ลงทะเบียน App'],['use','อบรมการใช้งาน App'],['maint','บำรุงรักษาเบื้องต้น']];
 function ifDraft(j){if((S.ifd=S.ifd||{})[j.id])return S.ifd[j.id];const D=JSON.parse(JSON.stringify(j.installForm||{}));
-  D.items=D.items||{};IF_ITEMS.forEach(([k])=>{D.items[k]=D.items[k]||{}});if(!D.items.meter.model)D.items.meter.model=icDraft(j).meter||'';
+  D.items=D.items||{};IF_ITEMS.forEach(([k])=>{D.items[k]=D.items[k]||{}});
   D.test=D.test||{};D.train=D.train||{};D.sign=D.sign||{};if(D.provName==null)D.provName=me().name||'';if(D.custName==null)D.custName=cOf(j).name||'';if(D.note==null)D.note='';return S.ifd[j.id]=D}
 const ifPh3=j=>{const inv=S.api.listProducts().find(p=>p.model===icDraft(j).model);return String((inv&&inv.phase)||sOf(j).phase||'')==='3'};
 const ifNum=v=>v===''||v==null||isNaN(+v)?null:+v;
@@ -1246,22 +1247,21 @@ function ifMissing(j){const d=ifDraft(j),r=ifRows(j),m=[],t=d.test,lb={rn:'R-N',
   if(!d.sign.cust&&!(S.ifsig&&S.ifsig[j.id]&&S.ifsig[j.id].cust&&S.ifsig[j.id].cust.length))m.push('ลายเซ็นลูกค้า');if(!String(d.custName||'').trim())m.push('ชื่อลูกค้าที่เซ็น');return m}
 const ifPass=v=>v==null?'<span class="ifp">รอค่า</span>':v?`<span class="ifp ok">${ic('check')}ผ่าน</span>`:'<span class="ifp no">ไม่ผ่าน</span>';
 function ifSigBox(j,who,lab){const d=ifDraft(j),s=d.sign[who],re=S.ifre&&S.ifre[j.id+':'+who];
-  return `<div class="ifsg"><label class="fl"><span>${lab}</span><input data-if="${who==='cust'?'custName':'provName'}" value="${esc(who==='cust'?d.custName:d.provName)}" autocomplete="off"></label>
+  return `<div class="ifsg"><label class="fl"><span>${lab}</span><input id="if-${who}" data-if="${who==='cust'?'custName':'provName'}" value="${esc(who==='cust'?d.custName:d.provName)}" autocomplete="off"></label>
    ${s&&!re?`<div class="sigshow"><img src="${esc(/^data:image\/png/.test(s.img||'')?s.img:'')}" alt="ลายเซ็น"></div><p class="hint" style="margin:0 0 8px">${esc(s.name||'')} · ${fdt(s.at)}</p><button class="btn" data-ifresign="${who}">${ic('swap')}เซ็นใหม่</button>`
    :`<div class="sigbox"><canvas data-ifpad="${who}" aria-label="ช่องเซ็นชื่อ ${esc(lab)}"></canvas><span class="sigph" data-ifph="${who}">เซ็นในกรอบนี้</span></div><button class="btn red" style="margin-top:8px" data-ifclr="${who}">${ic('trash')}ล้าง</button>`}</div>`}
-function ifCards(j){const d=ifDraft(j),r=ifRows(j),t=d.test,num=(path,v,ph,w)=>`<input data-if="${path}" type="number" inputmode="decimal" step="any" value="${esc(v??'')}" placeholder="${esc(ph||'')}" ${w?`style="width:${w}"`:''}>`;
+function ifCards(j){const d=ifDraft(j),r=ifRows(j),t=d.test,num=(path,v,ph,w)=>`<input id="if-${path.replace(/\./g,'-')}" data-if="${path}" type="number" inputmode="decimal" step="any" value="${esc(v??'')}" placeholder="${esc(ph||'')}" ${w?`style="width:${w}"`:''}>`;
   const P=S.api.listProducts(),inv=P.find(p=>p.model===icDraft(j).model),pp=panelProduct();
   return `<section class="card"><h2>${ic('box')}อุปกรณ์และงานติดตั้ง</h2>
     ${IF_ITEMS.map(([k,lab,fs])=>{const it=d.items[k];return `<div class="ifr"><b>${esc(lab)}</b><div class="ifq">${fs.map(([f,u,ty])=>`<label>${ty==='text'?`<input data-if="items.${k}.${f}" value="${esc(it[f]??'')}" placeholder="${esc(u)}" autocomplete="off">`:num('items.'+k+'.'+f,it[f],'')}<small>${esc(ty==='text'?'':u)}</small></label>`).join('')}</div>
       <div class="ccs2"><button class="cc2 ${it.ok==='1'?'on':''}" data-ifset="items.${k}.ok" data-v="1">เรียบร้อย</button><button class="cc2 ifx ${it.ok==='0'?'on':''}" data-ifset="items.${k}.ok" data-v="0">ไม่เรียบร้อย</button></div></div>`}).join('')}
-    <label class="pmc" style="margin-top:8px"><input type="checkbox" data-iftog="received" ${d.received?'checked':''}><span>${ic('check')}ลูกค้าได้รับอุปกรณ์ทุกอย่างครบถ้วนแล้ว</span></label>
     <p class="hint" style="margin:8px 0 0">อินเวอร์เตอร์ CLEANLINE ${esc(inv?inv.kw+' kW':'')} × ${1+(icDraft(j).slaves||[]).length} เครื่อง · แผง ${esc([pp.brand||'SUNPRO POWER',pp.model].filter(Boolean).join(' '))} ${esc((pp.watt||625)+' W')}</p></section>
    <section class="card" id="if-test"><h2>${ic('bolt')}ผลตรวจระบบไฟฟ้า</h2>
     <div class="ift"><div class="ifth"><b>แรงดัน AC (V)</b>${ifPass(r.ac)}</div><div class="ifg">${r.acK.map(k=>`<label><small>${{rn:'R-N',sn:'S-N',tn:'T-N'}[k]}</small>${num('test.'+k,t[k],'230')}</label>`).join('')}</div></div>
     <div class="ift"><div class="ifth"><b>ระบบไฟ DC</b>${ifPass(r.dc)}</div><div class="ifg ifg2"><label><small>MPPT1 V</small>${num('test.m1v',t.m1v)}</label><label><small>MPPT1 A</small>${num('test.m1a',t.m1a)}</label><label><small>MPPT2 V</small>${num('test.m2v',t.m2v,'ถ้ามี')}</label><label><small>MPPT2 A</small>${num('test.m2a',t.m2a,'ถ้ามี')}</label></div></div>
     <div class="ift"><div class="ifth"><b>ดิน · ความถี่</b>${ifPass(r.eh)}</div><div class="ifg ifg2"><label><small>ความต้านทานดิน (Ω)</small>${num('test.earth',t.earth)}</label><label><small>ความถี่ (Hz)</small>${num('test.hz',t.hz,'50')}</label></div></div>
     <p class="hint" style="margin:8px 0 8px">มาตรฐาน: AC 200–240 V · 47–52 Hz · DC ไม่เกิน ${r.lim} V (${r.p3?'3':'1'} เฟส) · ดิน &lt; 5 Ω</p>
-    <label class="fl"><span>หมายเหตุ</span><textarea data-if="note" rows="2" placeholder="ถ้ามีรายการไม่ผ่าน/ไม่เรียบร้อย บอกเหตุผลและสิ่งที่แก้">${esc(d.note||'')}</textarea></label></section>
+    <label class="fl"><span>หมายเหตุ</span><textarea id="if-note" data-if="note" rows="2" placeholder="ถ้ามีรายการไม่ผ่าน/ไม่เรียบร้อย บอกเหตุผลและสิ่งที่แก้">${esc(d.note||'')}</textarea></label></section>
    <section class="card"><h2>${ic('users')}อบรมการใช้งานและบำรุงรักษา</h2><div class="pmchk">${IF_TRAIN.map(([k,lab])=>`<label class="pmc"><input type="checkbox" data-iftog="train.${k}" ${d.train[k]?'checked':''}><span>${ic('check')}${esc(lab)}</span></label>`).join('')}</div></section>
    <section class="card"><h2>${ic('doc')}ลายเซ็น</h2>${ifSigBox(j,'prov','ผู้ติดตั้ง')}${ifSigBox(j,'cust','ลูกค้า (ผู้รับบริการ)')}</section>`}
 function ifSet(o,path,v){const ks=path.split('.');let x=o;ks.slice(0,-1).forEach(k=>{x=x[k]=x[k]||{}});x[ks[ks.length-1]]=v}
@@ -1271,12 +1271,13 @@ function ifInitSig(){const id=route().slice(3);document.querySelectorAll('[data-
   const g=cv.getContext('2d');g.scale(dpr,dpr);g.lineWidth=2.6;g.lineCap='round';g.lineJoin='round';g.strokeStyle='#111';
   const ph=document.querySelector(`[data-ifph="${who}"]`),draw=()=>{g.clearRect(0,0,w,h);strokes.forEach(s=>{g.beginPath();s.forEach(([x,y],i)=>i?g.lineTo(x*w,y*h):g.moveTo(x*w,y*h));g.stroke()});if(ph)ph.hidden=strokes.length>0};
   draw();let cur=null;const pt=e=>{const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
-  cv.onpointerdown=e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);cur=[pt(e)];strokes.push(cur);draw()};cv.onpointermove=e=>{if(!cur)return;cur.push(pt(e));draw()};
-  cv.onpointerup=cv.onpointercancel=()=>{if(cur){cur=null;ifRefresh()}}})}
+  cv.onpointerdown=e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);S.sigDown=1;cur=[pt(e)];strokes.push(cur);draw()};cv.onpointermove=e=>{if(!cur)return;cur.push(pt(e));draw()};
+  cv.onpointerup=cv.onpointercancel=()=>{S.sigDown=0;if(cur){cur=null;st[who+'At']=Date.now();ifRefresh();icTouch()}}})}
 function ifPng(strokes){const c=document.createElement('canvas');c.width=600;c.height=180;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,600,180);
   g.lineWidth=3;g.lineCap='round';g.lineJoin='round';g.strokeStyle='#111';strokes.forEach(s=>{g.beginPath();s.forEach(([x,y],i)=>i?g.lineTo(x*600,y*180):g.moveTo(x*600,y*180));g.stroke()});return c.toDataURL('image/png')}
 function ifPatch(j){const d=JSON.parse(JSON.stringify(ifDraft(j))),st=(S.ifsig||{})[j.id]||{},r=ifRows(j);
-  ['prov','cust'].forEach(w=>{if(st[w]&&st[w].length)d.sign[w]={name:String(w==='cust'?d.custName:d.provName).trim(),img:ifPng(st[w]),at:Date.now()};else if(d.sign[w])d.sign[w].name=String(w==='cust'?d.custName:d.provName).trim()});
+  ['prov','cust'].forEach(w=>{if(st[w]&&st[w].length)d.sign[w]={name:String(w==='cust'?d.custName:d.provName).trim(),img:ifPng(st[w]),at:st[w+'At']||Date.now()};else if(d.sign[w])d.sign[w].name=String(w==='cust'?d.custName:d.provName).trim()});
+  d.items.meter.model=icDraft(j).meter||'';d.received=IF_ITEMS.every(([k])=>d.items[k].ok==='1');
   d.pass={ac:r.ac,dc:r.dc,eh:r.eh};d.phase=r.p3?'3':'1';d.unit='Ω';d.form='FM-EN-029-A';return d}
 function ifRefresh(){const j=C().jobs[route().slice(3)];if(!j||!document.getElementById('if-test'))return;const r=ifRows(j);
   const ths=document.querySelectorAll('#if-test .ifth');[r.ac,r.dc,r.eh].forEach((v,i)=>{const p=ths[i]&&ths[i].querySelector('.ifp');if(p)p.outerHTML=ifPass(v)});
@@ -1351,7 +1352,7 @@ function viewIc(id){
     <div class="nsa"><button class="rb" data-map="${esc(j.id)}" aria-label="นำทาง" ${mapUrl(j)?'':'disabled'}>${ic('nav')}</button><button class="rb" data-tel="${esc(j.id)}" aria-label="โทรลูกค้า" ${telOf(j)?'':'disabled'}>${ic('phone')}</button><button class="lk" data-go="#job-${esc(j.id)}">รายละเอียดงาน</button></div></div>`+reqAlerts(j.id);
   if(done)return topBar('ใบงานติดตั้ง',{back:true})+`<div class="glow"></div><main class="wrap">${head}${icSummary(j)}</main>`;
   if(!icCan(j))return topBar('ใบงานติดตั้ง',{back:true})+`<div class="glow"></div><main class="wrap ${canTake(j)?'hasbar':''}">${head}${canTake(j)?`<div class="take"><b>งานนี้ของ ${esc(assignee(j)||'ยังไม่ระบุ')}</b><p>กดรับงานต่อแล้วปิดงานแทนได้ทันที</p></div>`:emptyBox('ดูอย่างเดียว','','doc')}</main>${canTake(j)?`<div class="abar"><div class="in"><button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ</button></div></div>`:''}`;
-  const d=icDraft(j),P=S.api.listProducts(),ph=String(s.phase||''),invs=P.filter(p=>p.category==='INVERTER'&&(!ph||String(p.phase)===ph)).sort((a,b)=>a.kw-b.kw),inv=P.find(p=>p.model===d.model);
+  icRestore(j);const d=icDraft(j),P=S.api.listProducts(),ph=String(s.phase||''),invs=P.filter(p=>p.category==='INVERTER'&&(!ph||String(p.phase)===ph)).sort((a,b)=>a.kw-b.kw),inv=P.find(p=>p.model===d.model);
   if(inv&&!d.meter&&inv.meters&&!String(inv.meters).includes(','))d.meter=String(inv.meters).trim();
   const bats=P.filter(p=>p.category==='BATTERY'),m=icMissing(j),chip=(k,v,t)=>`<button class="cc2 ${String(d[k])===String(v)?'on':''}" data-icset="${k}" data-v="${esc(v)}">${esc(t)}</button>`;
   const inp=(k,lab,ph2,scan,type='text')=>`<label class="fl"><span>${lab}</span><span class="icin"><input id="ic-${k}" data-ic="${k}" type="${type}" value="${esc(d[k])}" placeholder="${esc(ph2||'')}" ${type==='text'?'autocapitalize="characters" autocomplete="off"':''}>${scan?`<label class="icscan" aria-label="สแกนบาร์โค้ด${esc(lab)}">${ic('cam')}<input type="file" accept="image/*" data-icscan="${k}"></label>`:''}</span></label>`;
@@ -1376,7 +1377,7 @@ function viewIc(id){
    <section class="card"><h2>${ic('cam')}รูปงานติดตั้ง</h2>${photoTiles(j,false,IC_KINDS)}</section>
    ${ifCards(j)}
    <section class="card ${m.length?'icmiss':'icok'}" id="icm">${m.length?`<b>${ic('doc')}ยังขาด ${m.length} รายการ</b><p>${esc(m.join(' · '))}</p>`:`<b>${ic('check')}ครบแล้ว พร้อมส่งต่อทำเอกสารขนานไฟ</b>`}</section></main>
-   <div class="abar"><div class="in"><button class="btn" data-icsave ${S.busy?'disabled':''}>บันทึก</button><button class="btn pri" data-icclose ${m.length||S.busy?'disabled':''}${m.length&&!S.busy?` data-try="${esc(j.id)}"`:''}>${ic('check')}ปิดงาน ส่งต่อ</button></div></div>`;
+   <div class="abar"><div class="in"><span class="icst" id="icst" aria-live="polite">${icStTxt(id)}</span><button class="btn pri" data-icclose ${m.length||S.busy?'disabled':''}${m.length&&!S.busy?` data-try="${esc(j.id)}"`:''}>${ic('check')}ปิดงาน ส่งต่อ</button></div></div>`;
 }
 function icSummary(j){const e=j.equipment||{},row=(l,v)=>v?`<div class="sr"><span>${l}</span><b>${esc(v)}</b></div>`:'';
   return `<section class="card"><h2>${ic('check')}ติดตั้งเสร็จ ${e.commissionDate?fd(e.commissionDate):''}</h2><div class="slb">${row('อินเวอร์เตอร์',e.model)}${row(invUnits(e).length>1?'S/N Master':'S/N',e.sn)}${row('S/N WiFi',e.wifiSn)}${invUnits(e).slice(1).map((u,i)=>row('Slave '+(i+1),[u.model,u.sn&&'S/N '+u.sn,u.wifiSn&&'WiFi '+u.wifiSn].filter(Boolean).join(' · '))).join('')}${row('Smart meter',e.meter)}${row('CT',e.ct)}${row('แบตเตอรี่',[e.batteryModel,e.batterySn].filter(Boolean).join(' · '))}${row('แผง',e.panels?e.panels+' แผง':'')}${row('Plant name',e.plantName)}</div></section>
@@ -1389,12 +1390,39 @@ function icPatch(j){const d=icDraft(j),inv=S.api.listProducts().find(p=>p.model=
 async function icSave(id,close){
   const j=C().jobs[id];if(!j)return;const e=icPatch(j);
   if(close&&!await ask('ปิดงานติดตั้ง',`ส่งข้อมูล ${e.model} S/N ${e.sn} ไปทำเอกสารขนานไฟ`,{ok:'ปิดงาน'}))return;
-  S.busy=true;render();
+  clearTimeout(S.icT);S.busy=true;render();
   const fm=ifPatch(j);
   try{await S.api.updateJob(id,close?{equipment:e,installForm:fm,stage:ST.DOCS}:{equipment:e,installForm:fm},close?{kind:'handoff',text:`ติดตั้งเสร็จ ${fd(e.commissionDate)} · ${e.model} S/N ${e.sn} · แผง ${e.panels} แผง · Single Line ตามจริงแล้ว`,from:ST.COMM,to:ST.DOCS}:{kind:'edit',text:`บันทึกอุปกรณ์ที่ติดตั้ง ${e.model||''}${e.sn?' S/N '+e.sn:''}`},{stage:ST.COMM,status:'active'});
-    if(close)celebrate('ปิดงานติดตั้งแล้ว',`งาน ${j.title||'นี้'} ย้ายไปขั้น “${STAGES[ST.DOCS].name}”`);else toast('บันทึกแล้ว');delete S.ifd[id];if(S.ifsig)delete S.ifsig[id];S.ifre={};if(close){delete S.icd[id];go('#job-'+id);ifMakePdf(id)}}
+    if(close)celebrate('ปิดงานติดตั้งแล้ว',`งาน ${j.title||'นี้'} ย้ายไปขั้น “${STAGES[ST.DOCS].name}”`);else toast('บันทึกแล้ว');delete S.ifd[id];if(S.ifsig)delete S.ifsig[id];S.ifre={};icLsDel(id);if(close){delete S.icd[id];go('#job-'+id);ifMakePdf(id)}}
   catch(err){showErr(err,'บันทึกไม่สำเร็จ')}finally{S.busy=false;render()}
 }
+
+/* ใบงานติดตั้ง: บันทึกเอง · พิมพ์เสร็จส่งขึ้นตัวกลางใน 2 วินาที · ไม่มีสัญญาณเก็บในเครื่องแล้วส่งเองตอนสัญญาณกลับ */
+const IC_LS='cl.icdraft.';
+function icLsGet(id){try{return JSON.parse(localStorage.getItem(IC_LS+id)||'null')}catch(e){return null}}
+function icLsDel(id){try{localStorage.removeItem(IC_LS+id)}catch(e){}}
+function icSnap(id){const j=C().jobs[id];return j?JSON.stringify({icd:icDraft(j),ifd:ifDraft(j),sig:(S.ifsig||{})[id]||{}}):''}
+function icRestore(j){const id=j.id;if((S.icd||{})[id])return;const L=icLsGet(id);if(!L||!L.snap)return;
+  if(j.stage!==ST.COMM||j.status!=='active'||(j.updatedAt||0)>L.at){icLsDel(id);return}
+  try{const o=JSON.parse(L.snap);(S.icd=S.icd||{})[id]=o.icd;(S.ifd=S.ifd||{})[id]=o.ifd;(S.ifsig=S.ifsig||{})[id]=o.sig||{};(S.icSt=S.icSt||{})[id]='wait';setTimeout(()=>icPush(id),300)}catch(e){icLsDel(id)}}
+const IC_ST={saved:'บันทึกแล้ว',busy:'กำลังบันทึก…',wait:'กำลังบันทึก…',off:'ไม่มีสัญญาณ · เก็บในเครื่องแล้ว',err:'ยังส่งไม่ได้ · เก็บในเครื่องแล้ว'};
+function icStTxt(id){const k=(S.icSt||{})[id];return k?(k==='saved'?ic('check'):'')+esc(IC_ST[k]):'พิมพ์แล้วบันทึกเอง'}
+function icStSet(id,k){(S.icSt=S.icSt||{})[id]=k;const el=document.getElementById('icst');if(el&&route()==='ic-'+id){el.innerHTML=icStTxt(id);el.className='icst '+k}}
+function icTouch(){const r=route();if(!r.startsWith('ic-'))return;const id=r.slice(3),j=C().jobs[id];if(!j||!icCan(j))return;
+  const snap=icSnap(id);if(snap===(S.icLast||{})[id])return;
+  try{localStorage.setItem(IC_LS+id,JSON.stringify({at:Date.now(),snap}))}catch(e){}
+  icStSet(id,'wait');clearTimeout(S.icT);S.icT=setTimeout(()=>icPush(id),2000)}
+async function icPush(id){const j=C().jobs[id];if(!j||!icCan(j)||S.busy)return;
+  if(S.icPushing){clearTimeout(S.icT);S.icT=setTimeout(()=>icPush(id),1000);return}
+  if(navigator.onLine===false){icStSet(id,'off');return}
+  const snap=icSnap(id);S.icPushing=1;icStSet(id,'busy');
+  try{await S.api.updateJob(id,{equipment:icPatch(j),installForm:ifPatch(j)},null,{stage:ST.COMM,status:'active'});
+    (S.icLast=S.icLast||{})[id]=snap;if(icSnap(id)===snap){icLsDel(id);icStSet(id,'saved')}else{icStSet(id,'wait');clearTimeout(S.icT);S.icT=setTimeout(()=>icPush(id),2000)}}
+  catch(e){console.warn('autosave:',e&&e.message||e);if(e&&(e.name==='ConflictError'||e.code==='conflict'||e.code==='denied')){icLsDel(id);icStSet(id,'');showErr(e,'บันทึกไม่สำเร็จ');delete (S.icd||{})[id];delete (S.ifd||{})[id];render()}else icStSet(id,navigator.onLine===false?'off':'err')}
+  finally{S.icPushing=0}}
+['input','change','click'].forEach(t=>document.addEventListener(t,()=>setTimeout(icTouch,0)));
+addEventListener('online',()=>{const r=route();if(r.startsWith('ic-')&&(S.icSt||{})[r.slice(3)]&&S.icSt[r.slice(3)]!=='saved')icPush(r.slice(3))});
+setInterval(()=>{const r=route();if(r.startsWith('ic-')&&(S.icSt||{})[r.slice(3)]==='err')icPush(r.slice(3))},30000);
 function zxLoad(){return S.zx||(S.zx=new Promise((ok,no)=>{const s=document.createElement('script');s.src='zxing-reader.js';s.onload=()=>{try{ZXingWASM.prepareZXingModule({overrides:{locateFile:(p,pre)=>/\.wasm$/.test(p)?new URL('zxing_reader.wasm',location.href).href:pre+p},fireImmediately:true});ok(ZXingWASM)}catch(e){no(e)}};s.onerror=()=>no(new Error('load'));document.head.appendChild(s)}).catch(e=>{S.zx=null;throw e}))}
 async function scanCodes(f){   // คืนข้อความบาร์โค้ด/QR ทั้งหมดในรูป (ไม่ซ้ำ)
   const out=[],add=v=>{v=String(v||'').trim();if(v&&!out.includes(v))out.push(v)};
@@ -1417,7 +1445,8 @@ async function icScan(input){
   if(!L.length){toast('ไม่เจอบาร์โค้ด ถ่ายให้ใกล้ ชัด และไม่สะท้อนแสง หรือพิมพ์เลขแทน');return}
   const best=L.filter(v=>/[A-Z0-9]{8,}/i.test(v));const v=L.length===1?L[0]:await pickCode(best.length?best.concat(L.filter(x=>!best.includes(x))):L);if(v==null)return;
   const d=icDraft(j);if(/^u:/.test(k)){const [,i,fl]=k.split(':');if(d.slaves&&d.slaves[+i])d.slaves[+i][fl]=v}else d[k]=v;
-  toast('อ่านได้: '+v);render()
+  const np=/(^|:)sn$/.test(k);toast('อ่านได้: '+v+(np?' · เก็บรูปเป็นป้ายเครื่องแล้ว':''));render();icTouch();
+  if(np)try{await S.api.addPhoto(id,'nameplate',await shrink(f))}catch(e){console.warn('nameplate:',e&&e.message||e)}
 }
 function leadAssign(id){
   const j=C().jobs[id];if(!j)return;const engs=Object.values(C().members).filter(m=>m.role==='eng').map(m=>m.name);
@@ -1950,7 +1979,8 @@ function arow(j,mine){
 
 
 const route=()=>(location.hash||'#today').slice(1);
-let rq=0;const schedule=()=>{cancelAnimationFrame(rq);rq=requestAnimationFrame(render)};
+let rq=0;const schedule=()=>{cancelAnimationFrame(rq);rq=requestAnimationFrame(()=>{if(route().startsWith('ic-')&&(S.sigDown||document.activeElement?.matches?.('#app input:not([type=file]),#app textarea'))){S.deferR=1;return}render()})};
+document.addEventListener('focusout',()=>{if(S.deferR){S.deferR=0;setTimeout(schedule,0)}});
 const TOOLS=[['cal','today','ปฏิทิน','ki-b'],['calc','sun','จำลองระบบ','ki-o'],['drone','nav','เข็มทิศโดรน','ki-v'],['route','pin','เส้นทางวันนี้','ki-g'],['spec','box','สเปกสินค้า','ki-m']];
 const TV=(k,d)=>S.t[k]??d;
 const tchips=(k,opts,cur)=>`<div class="chips2 tch">${opts.map(([v,t])=>`<button class="${String(cur)===String(v)?'on':''}" data-tv="${k}" data-v="${esc(v)}">${esc(t)}</button>`).join('')}</div>`;
@@ -2445,7 +2475,6 @@ document.addEventListener('click',e=>{
   if(d.ifpdf){if(!S.busy){S.busy=true;render();ifMakePdf(d.ifpdf).finally(()=>{S.busy=false;render()})}return}
   if(d.ifclr){const st=(S.ifsig||{})[route().slice(3)];if(st)st[d.ifclr]=[];ifInitSig();ifRefresh();return}
   if(d.ifresign){(S.ifre=S.ifre||{})[route().slice(3)+':'+d.ifresign]=1;const j=C().jobs[route().slice(3)];if(j)delete ifDraft(j).sign[d.ifresign];render();return}
-  if('icsave' in d){icSave(route().slice(3),false);return}
   if('icclose' in d){icSave(route().slice(3),true);return}
   if(d.lead){leadAssign(d.lead);return}
   if(d.svc){const [k,r]=d.svc.split(':');svcSheet(k,r);return}
