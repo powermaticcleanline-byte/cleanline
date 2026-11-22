@@ -2443,7 +2443,7 @@ function teamBlock(t,k,ex,time,job){
   if(c>=PER_TEAM)return 'เต็มวันนี้';
   if(time&&on.some(j=>halfOf(j.queueTime)===halfOf(time)))return halfOf(time)==='am'?'เช้ามีงานแล้ว':'บ่ายมีงานแล้ว';
   if(!c&&((w(-1)&&w(-2))||(w(1)&&w(2))||(w(-1)&&w(1))))return 'ออกติดกันเกิน 2 วัน';
-  const pd=pendDraw(t);if(!c&&pd>=drawLimit()&&!(job&&job.queueUnlock===t))return 'รอวาดแบบ '+pd+' งาน';
+  const pd=pendDraw(t);if(!c&&pd>=drawLimit()&&!(job&&job.queueUnlock===t))return 'รออัปโหลดแบบ '+pd+' งาน';
   return ''} /* ทีมสำรวจ 4 ทีม ทีมละ 2 ที่ต่อวัน ออกสำรวจวันไหน วันถัดไปไม่ออก */
 const GROUP={sales:'เซลส์',admin:'แอดมิน',dispatch:'หัวหน้าจัดงาน',lead:'หัวหน้าตรวจแบบ',eng:'วิศวกร / ผู้คุมงาน'};
 const ROLES={sales_en:['เซลส์ EN','sales'],sales_pm:['เซลส์ Powermatic','sales'],admin:['แอดมิน','admin'],dispatch:['หัวหน้าจัดงาน','dispatch'],lead:['หัวหน้าตรวจแบบ','lead'],eng:['วิศวกร / ผู้คุมงาน','eng'],exec:['ผู้บริหาร','exec']};
@@ -2478,8 +2478,6 @@ const SECTIONS=[
   ['loggerDevice','เครื่องตรวจพฤติกรรมการใช้ไฟฟ้า','text'],['logStart','วัดตั้งแต่','date'],['logEnd','ถึง','date'],
   ['proposedKw','ขนาดที่เสนอ (kW)','number'],['inverterQty','จำนวนอินเวอร์เตอร์','number'],
   ['proposedModel','รุ่นอินเวอร์เตอร์ที่เสนอ','model','INVERTER'],['proposedNote','หมายเหตุขนาด','text'],['quoter','ผู้ออกราคา (CC)','text']]},
- {id:'quote',title:'ใบเสนอราคา',tgt:'job',stages:[4],fields:[
-  ['quoteNo','เลขที่ใบเสนอราคา','text'],['quoteDate','วันที่เสนอ','date'],['quotePrice','ราคาเสนอ (บาท)','number'],['quoteUrl','ลิงก์ไฟล์ใบเสนอราคา (Google Drive)','text',{full:1,ph:'https://drive.google.com/…'}]]},
  {id:'install',title:'ตกลงและนัดติดตั้ง',tgt:'job',stages:[4,5,6],fields:[
   ['agreedDate','วันที่ลูกค้าตกลง','date'],['wantInstallDate','วันที่ลูกค้าสะดวกติดตั้ง','date'],
   ['installDate','วันเริ่มติดตั้ง','date'],['installEnd','ติดตั้งถึงวันที่ (ถ้าหลายวัน)','date'],
@@ -2506,8 +2504,7 @@ function svSteps(j,s){
    {k:'form',t:'กรอกข้อมูลตามใบงาน',ok:formOk,auto:true},
    {k:'photos',t:'ถ่ายรูป ส่งเข้าโฟลเดอร์',ok:!!v.photos,at:v.photosAt},
    {k:'sign',t:'ลูกค้าเซ็นปิดงานสำรวจ',ok:!!v.sign,at:v.sign?.at},
-   {k:'cad',t:'วาดแบบใน CADabra',ok:!!v.cad,at:v.cad},
-   {k:'cadFiled',t:'เก็บไฟล์แบบในโฟลเดอร์',ok:!!v.cadFiled,at:v.cadFiled}];
+   {k:'draw',t:'อัปโหลดแบบติดตั้ง (ในแอป Man)',ok:!!(v.cad&&v.cadFiled),at:v.cadFiled}];
 }
 function needs(n,j,c,s){
   const e=j.equipment||{},d=j.docs||{};
@@ -2785,17 +2782,11 @@ function introToday(app){if(matchMedia('(prefers-reduced-motion: reduce)').match
       document.body.appendChild(el);const x=Math.min(innerWidth-316,Math.max(16,e.clientX+12)),y=r.bottom+8+el.offsetHeight>innerHeight?r.top-el.offsetHeight-8:r.bottom+8;el.style.left=x+'px';el.style.top=y+'px'},450)});
   ['scroll','mousedown','keydown','hashchange'].forEach(t=>addEventListener(t,hide,true))})();
 
-/* 17 ควรทำวันนี้: คิดจากข้อมูลงาน · แตะชื่องานเพื่อเปิด */
-function todoItems(){const t=today(),tm=isoAdd(t,1),A=visibleJobs().filter(j=>j.status==='active'),L=[];
-  const sv=A.filter(j=>j.stage<=ST.SURVEY&&svDate(j)===tm),ins=A.filter(j=>j.stage>=ST.INSTALL&&j.stage<=ST.COMM&&j.installDate===tm);
-  if(sv.length||ins.length)L.push({ic:'phone',c:'b',t:'โทรยืนยันคิวพรุ่งนี้ '+(sv.length+ins.length)+' งาน',s:[sv.length?'สำรวจ '+sv.length:'',ins.length?'ติดตั้ง '+ins.length:''].filter(Boolean).join(' · '),J:[...sv,...ins]});
-  const off=A.filter(j=>j.stage===ST.OFFER&&days(j.stageSince)>=7).sort((a,b)=>a.stageSince-b.stageSince);
-  if(off.length)L.push({ic:'clock',c:'o',t:'เสนอลูกค้าไปเกิน 7 วัน ยังไม่ตอบ '+off.length+' งาน',s:'ลองโทรถามลูกค้า',J:off});
-  const ni=A.filter(j=>j.stage===ST.INSREQ&&!j.installDate);
-  if(ni.length)L.push({ic:'cal',c:'g',t:'ลูกค้าตกลงแล้ว ยังไม่มีวันติดตั้ง '+ni.length+' งาน',s:'นัดวันติดตั้ง',J:ni});
-  return L}
-function todoBox(){const L=todoItems();
-  return `<section class="card" aria-label="ควรทำวันนี้"><h2>${svg('check','currentColor',2)}ควรทำวันนี้${L.length?`<small>${L.length} เรื่อง</small>`:''}</h2>${L.length?L.map(x=>`<div class="tdo"><span class="tdi ${x.c}">${svg(x.ic,'currentColor',2)}</span><div><b>${esc(x.t)}</b><small style="color:var(--mut);font-size:13px">${esc(x.s)}</small><div class="qdl">${x.J.slice(0,4).map(j=>`<a href="#job-${esc(j.id)}">${esc(j.title||cOf(j).name||'')}</a>`).join('')}${x.J.length>4?`<a href="#jobs" data-mine="0">+${x.J.length-4}</a>`:''}</div></div></div>`).join(''):`<div class="tdone">${svg('check','currentColor',2.4)}วันนี้ไม่มีอะไรค้าง</div>`}</section>`}
+function manFiles(j){const df=j.sv&&j.sv.drawFile,sl=j.singleLine,needSl=!!j.installDate&&j.stage>=ST.INSREQ,late=needSl&&!sl&&j.installDate<=today();
+  const ln=(t,f,miss)=>`<li class="${f?'ok':''}"><span class="k">${f?'✓':'·'}</span><span>${esc(t)}${f?` · <a class="lk" href="${esc(safeUrl(f.url)||'#')}" target="_blank" rel="noopener">เปิดไฟล์</a>`:` <span class="sub">${esc(miss)}</span>`}</span></li>`;
+  if(!df&&!needSl)return '';
+  return `<section class="act" aria-label="ไฟล์จากแอป Man"><div><h2>ไฟล์จากแอป Man</h2>${late?'<span class="tag warn" style="height:auto;padding:4px 8px">ถึงวันติดตั้งแล้ว ยังไม่มี Single Line</span>':''}</div>
+   <ul class="need">${df?ln('แบบติดตั้ง',df,''):''}${needSl?ln('Single Line สำหรับผู้รับเหมา',sl,'รอทีมใน Man อัปโหลด'):''}</ul></section>`}
 /* 19 ปักหมุดงาน (เก็บในเครื่อง แยกต่อคน) */
 const pinKey=()=>'cl.pins.'+(S.me.id||'');
 function pins(){try{return JSON.parse(localStorage.getItem(pinKey())||'[]').filter(id=>S.jobs[id])}catch(e){return []}}
@@ -2804,7 +2795,7 @@ function pinBtn(j){const on=pins().includes(j.id);return `<button type="button" 
 function pinBox(){const L=pins();if(!L.length)return '';
   return `<section class="card" aria-label="งานที่ปักหมุด"><h2>${svg('star','#c58a00',2)}ปักหมุดไว้<small>${L.length} งาน</small></h2><div class="pnlst">${L.map(id=>{const j=S.jobs[id],c=cOf(j);return `<a class="pnr" href="#job-${esc(id)}"><div><b>${esc(j.title||c.name||'')}</b><span>${esc(stOf(j)==='active'?STAGES[j.stage]?.name||'':jobPillTxt(j))}${svDate(j)&&j.stage<=ST.SURVEY?' · '+esc(fd(svDate(j))):j.installDate&&j.stage>=ST.INSREQ?' · ติดตั้ง '+esc(fd(j.installDate)):''}</span></div><button type="button" class="pnx" data-pin="${esc(id)}" data-off="1" aria-label="เอาหมุดออก" title="เอาหมุดออก">${svg('star','currentColor',2)}</button></a>`}).join('')}</div></section>`}
 const jobPillTxt=j=>j.status==='done'?'ปิดงานแล้ว':j.status==='lost'?'ยังไม่ตกลง':'ยกเลิก';
-function doRow(){if(!myGroup())return '';const a=pinBox(),b=todoBox(),g=goalBox();return `<div class="hdo">${g}${a}${b}</div>`}
+function doRow(){if(!myGroup())return '';const a=pinBox(),g=goalBox();return a||g?`<div class="hdo">${g}${a}</div>`:''}
 /* 16 งานค้างนาน: อยู่ขั้นเดิมเกิน 14 วัน = ส้ม · เกิน 30 วัน = แดง (เฉพาะงานที่กำลังดำเนินการ) */
 const agCls=j=>{if(j.status!=='active')return '';const d=days(j.stageSince);return d>30?'ag2':d>14?'ag1':''};
 const agLegend=()=>`<span class="aglg" aria-label="สีขอบงาน"><span><i style="background:#f59e0b"></i>ค้างขั้นเดิมเกิน 14 วัน</span><span><i style="background:#dc2626"></i>เกิน 30 วัน</span></span>`;
@@ -2886,7 +2877,7 @@ function actBody(A){if(!A.length)return `<div class="nte">${svg('check','current
 const tourKey=()=>'cl.tour.'+(S.me.id||'');
 function tourSeen(){try{return !!localStorage.getItem(tourKey())}catch(e){return true}}
 function tour(){if(tourSeen()||document.getElementById('tour')||route()!=='today')return;if(document.getElementById('clg')){setTimeout(tour,500);return}
-  const ST5=[['#gq','ค้นหาอะไรก็ได้','ชื่อลูกค้า เลขงาน เบอร์โทร หรือ S/N · กด Ctrl K เพื่อค้นและสั่งงานเร็ว ๆ'],['.hchips','งานที่รอคุณ','แตะชิปเพื่อเปิดงานที่รอคุณทำอยู่'],['.hdo','ควรทำวันนี้','ระบบคิดให้ว่าควรโทรหรือตามงานไหน · ปักหมุดงานสำคัญไว้ตรงนี้ได้'],['.hqa','จองคิวสำรวจ','เริ่มงานใหม่จากปุ่มนี้'],['#bellbtn','กระดิ่งแจ้งเตือน','ดูว่าใครทำอะไรในงานบ้าง และงานที่ค้างอยู่']].filter(x=>{const el=document.querySelector(x[0]);return el&&el.offsetParent});
+  const ST5=[['#gq','ค้นหาอะไรก็ได้','ชื่อลูกค้า เลขงาน เบอร์โทร หรือ S/N · กด Ctrl K เพื่อค้นและสั่งงานเร็ว ๆ'],['.hchips','งานที่รอคุณ','แตะชิปเพื่อเปิดงานที่รอคุณทำอยู่'],['.hqa','จองคิวสำรวจ','เริ่มงานใหม่จากปุ่มนี้'],['#bellbtn','กระดิ่งแจ้งเตือน','ดูว่าใครทำอะไรในงานบ้าง และงานที่ค้างอยู่']].filter(x=>{const el=document.querySelector(x[0]);return el&&el.offsetParent});
   if(!ST5.length)return;let i=0;document.body.insertAdjacentHTML('beforeend','<div id="tour" role="dialog" aria-modal="true" aria-label="แนะนำการใช้งาน"><div class="tsp"></div><div class="tcd"><b></b><p></p><div class="tcf"><small></small><button type="button" data-tskip>ข้าม</button><button type="button" class="tnx" data-tnext>ถัดไป</button></div></div></div>');
   const box=document.getElementById('tour'),sp=box.querySelector('.tsp'),cd=box.querySelector('.tcd');
   const end=()=>{try{localStorage.setItem(tourKey(),'1')}catch(e){}box.remove();removeEventListener('resize',show);removeEventListener('hashchange',end);document.removeEventListener('keydown',key,true)};
@@ -3863,6 +3854,8 @@ function viewJob(id){
       <div class="btns">${btns}</div>
       ${act?'':`<span class="sub">รอ${esc(ownerOf(j))}ดำเนินการ</span>`}
     </section>`;
+    // ไฟล์จาก Man: แบบติดตั้ง (หลังสำรวจ) · Single Line สำหรับผู้รับเหมา (หลังมีนัดติดตั้ง) — ออฟฟิศดูสถานะ/เปิดไฟล์ได้
+    if(j.status==='active'&&n>=ST.OFFER&&n<=ST.COMM)right+=manFiles(j);
     if(j.resurvey&&n<=ST.SURVEY)right=`<span class="tag warn" style="height:auto;padding:8px 8px;align-self:flex-start">สำรวจซ้ำ · เดิมสำรวจไว้ ${j.resurvey.days} วัน</span>`+right;
   }else if(j.status==='cancelled'){
     right=`<section class="act"><h2>ยกเลิก</h2><span class="sub">${esc(j.cancelReason||'')}${j.cancelledAt?' · '+fdt(j.cancelledAt):''}</span>${canCancel()?(j.autoCancelled?'<button class="btn dk" data-act="resume">เปิดงานต่อ</button><button class="btn" data-act="rebook">จองใหม่</button>':'<button class="btn dk" data-act="rebook">จองใหม่</button>'):''}</section>`;
@@ -3980,8 +3973,7 @@ function svCard(j,c,s,act){
     if(x.k==='form')return `<button class="btn sm" data-go="sec-site" type="button">ไปที่ฟอร์มสำรวจ</button><span class="sub">ครบเมื่อกรอกข้อมูลไซต์ครบ</span>`;
     if(x.k==='photos')return `<div class="svin"><input id="sv-photos" type="number" min="1" placeholder="จำนวนรูป" aria-label="จำนวนรูป" style="max-width:120px"><button class="btn dk sm" data-act="sv:photos">ส่งรูปเข้าโฟลเดอร์แล้ว</button></div>`;
     if(x.k==='sign')return `<button class="btn dk sm" data-act="sv:sign">ให้ลูกค้าเซ็น</button>`;
-    if(x.k==='cad')return `<a class="btn sm" href="${CADABRA}" target="_blank" rel="noopener">เปิด CADabra</a><button class="btn dk sm" data-act="sv:cad">วาดแบบเสร็จ</button>`;
-    if(x.k==='cadFiled')return `<button class="btn dk sm" data-act="sv:cadFiled">เก็บไฟล์แบบในโฟลเดอร์แล้ว</button>`;
+    if(x.k==='draw')return `<span class="sub">คนสำรวจอัปโหลดไฟล์แบบจากแอป Man แล้วจะติ๊กให้เอง</span>`;
     return ''};
   const allOk=st.every(x=>x.ok);const designOk=!!(j.proposedKw&&j.proposedModel);
   const done=st.filter(x=>x.ok).length;
@@ -4028,7 +4020,7 @@ function showVal([k,l,t],v){
   if(v===undefined||v===null||v===''||v===false)return null;
   if(t==='date'&&/^\d{4}-\d{2}-\d{2}$/.test(v))return fd(v);
   if(k==='proposedKw'||k==='wantKwp')return v+' kW';
-  if(k==='avgBill'||k==='quotePrice')return Number(v).toLocaleString('th-TH')+' บาท';
+  if(k==='avgBill')return Number(v).toLocaleString('th-TH')+' บาท';
   if(k==='phase')return v+' เฟส';
   return String(v);
 }
@@ -4036,7 +4028,7 @@ function summaryCard(j,c,s,curSecs){
   const n=j.status==='active'?j.stage:99;
   const secs=SECTIONS.filter(sec=>!curSecs.has(sec.id)&&(sec.id==='pm'?j.status==='done':Math.min(...sec.stages)<=n));
   if(!secs.length)return '';
-  const JT=[['ov','ภาพรวม',['cust','loc','order']],['sv','สำรวจ',['wo','site','req','survey']],['ins','ติดตั้ง',['quote','install','eq']],['doc','ขนานไฟ',['docs']],['pm','ตรวจเช็คประจำปี',['pm']]];   // แท็บตามที่ผู้ใช้กำหนด · ภาพรวม = ลูกค้า ตำแหน่ง ผู้แจ้งงาน
+  const JT=[['ov','ภาพรวม',['cust','loc','order']],['sv','สำรวจ',['wo','site','req','survey']],['ins','ติดตั้ง',['install','eq']],['doc','ขนานไฟ',['docs']],['pm','ตรวจเช็คประจำปี',['pm']]];   // แท็บตามที่ผู้ใช้กำหนด · ภาพรวม = ลูกค้า ตำแหน่ง ผู้แจ้งงาน
   if(S.jtabJob!==j.id){S.jtabJob=j.id;S.jtab='ov'}
   if(S.edit){const ge=JT.find(g=>g[2].includes(S.edit));if(ge)S.jtab=ge[0]}
   const jg=JT.find(g=>g[0]===S.jtab)||JT[0],jtab=jg[0];
@@ -4045,7 +4037,7 @@ function summaryCard(j,c,s,curSecs){
   const blocks=!jsecs.length?'<p class="sub" style="margin:16px 0 0">ยังไม่มีข้อมูลของขั้นนี้</p>':jsecs.map(sec=>{
     if(S.edit===sec.id)return secForm(sec,j,c,s,false);
     const obj=getT(sec.tgt,j,c,s);
-    const rows=sec.fields.map(f=>{const v=showVal(f,obj[f[0]]);return v==null?'':`<div class="kv ${f[2]==='area'||(f[3]&&f[3].full)?'full':''}"><span>${esc(f[1])}${sec.id==='eq'&&invUnits(obj).length>1&&['model','sn','wifiSn'].includes(f[0])?' (Master)':''}</span><b>${f[0]==='quoteUrl'&&safeUrl(v)?`<a class="lk" href="${esc(safeUrl(v))}" target="_blank" rel="noopener">เปิดไฟล์ใบเสนอราคา</a>`:esc(v)}${svTick(sec.id,f[0])}</b></div>`}).join('')
+    const rows=sec.fields.map(f=>{const v=showVal(f,obj[f[0]]);return v==null?'':`<div class="kv ${f[2]==='area'||(f[3]&&f[3].full)?'full':''}"><span>${esc(f[1])}${sec.id==='eq'&&invUnits(obj).length>1&&['model','sn','wifiSn'].includes(f[0])?' (Master)':''}</span><b>${esc(v)}${svTick(sec.id,f[0])}</b></div>`}).join('')
       +(sec.id==='eq'?invUnits(obj).slice(1).map((u,i)=>`<div class="kv full"><span>Slave ${i+1}</span><b>${esc([u.model,u.sn&&'S/N '+u.sn,u.wifiSn&&'WiFi '+u.wifiSn].filter(Boolean).join(' · '))}${svTick(sec.id,'units')}</b></div>`).join(''):'');
     const canEd=!!S.db&&secEditable(sec,j);
     return `<div class="sblk"><div class="sh"><h3>${esc(sec.title)}</h3>${canEd?`<button class="lnk" data-edit="${sec.id}">แก้ไข</button>`:''}</div>${rows?`<div class="kvg">${rows}</div>`:'<span class="sub">ยังไม่มีข้อมูล</span>'}</div>`;
@@ -4389,7 +4381,6 @@ function slJobView(id){
     <section class="card pad"><h2>ข้อมูลงาน</h2>${R('ลูกค้า',esc([c.name,c.phone].filter(Boolean).join(' · ')))}${R('พื้นที่',esc(s.area||s.address||''))}${R('แผนที่',s.mapLink?`<a href="${esc(s.mapLink)}" target="_blank" rel="noopener">เปิด Google Maps</a>`:'')}
       ${R('ขอคิวสำรวจ',esc([fd(j.queueDate),j.queueTime].filter(Boolean).join(' ')))}${R('วันสำรวจ',j.stage>=2&&j.surveyDate?esc([fd(j.surveyDate),j.queueTime,j.surveyor].filter(Boolean).join(' · ')):'')}
       ${R('ลูกค้าสนใจ',esc([j.request&&j.request.wantKwp?j.request.wantKwp+' kWp':'',j.request&&j.request.systemType].filter(Boolean).join(' · ')))}${R('ระบบที่เสนอ',esc([j.proposedKw?j.proposedKw+' kWp':'',j.proposedModel].filter(Boolean).join(' · ')))}
-      ${R('ใบเสนอราคา',esc([j.quoteNo,j.quoteDate&&fd(j.quoteDate)].filter(Boolean).join(' · ')))}${R('ราคาเสนอ',j.quotePrice?esc(Number(j.quotePrice).toLocaleString('th-TH'))+' บาท':'')}${R('ไฟล์ใบเสนอราคา',safeUrl(j.quoteUrl)?`<a href="${esc(safeUrl(j.quoteUrl))}" target="_blank" rel="noopener">เปิดไฟล์</a>`:'')}
       ${R('วันติดตั้ง',j.installDate?esc(fd(j.installDate)):'')}${R('หมายเหตุ',esc(j.salesNote||''))}</section>
   </div><aside class="slaside">
     <section class="card pad"><h2>ความคืบหน้า</h2><ol class="slst">${steps}</ol></section>
