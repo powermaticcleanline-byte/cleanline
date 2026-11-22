@@ -388,6 +388,51 @@ main{padding:0;gap:0;max-width:none}
 .jprog i{height:6px;border-radius:3px;background:#eceef2}
 .jprog i.d{background:var(--acc)}
 .jprog i.c{background:var(--pri)}
+/* ===== ข้อ 17–21 ===== */
+.hdo{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px}
+.hdo .card{padding:20px 20px 12px}
+.hdo h2{display:flex;align-items:center;gap:8px;font-size:16px;margin:0 0 8px}.hdo h2 svg{width:18px;height:18px}
+.hdo h2 small{margin-left:auto;font-size:13px;font-weight:500;color:var(--mut)}
+.tdo{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-top:1px solid #eef0f2}.tdo:first-of-type{border-top:0}
+.tdo .tdi{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:#f1f2f4}.tdo .tdi svg{width:18px;height:18px}
+.tdo .tdi.o{background:#fff1e6;color:#a34b08}.tdo .tdi.b{background:#e8f1ff;color:#2457b3}.tdo .tdi.g{background:var(--accT);color:var(--accI)}
+.tdo b{display:block;font-size:15px;font-weight:600}.tdo>div{min-width:0;flex:1}
+.tdo .qdl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tdo .qdl a{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:99px;background:#f4f5f7;color:var(--ink);font-size:13px;text-decoration:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tdo .qdl a:hover{background:#eceef1}
+.tdone{display:flex;align-items:center;gap:8px;padding:8px 0 12px;color:var(--mut);font-size:14px}.tdone svg{width:18px;height:18px;color:var(--accI)}
+.pnlst{display:grid;gap:8px;padding-bottom:8px}
+.pnr{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 12px;border-radius:14px;background:#f8f9fa;text-decoration:none;color:var(--ink)}
+.pnr:hover{background:#f1f2f4}.pnr b{display:block;font-size:15px;font-weight:600}.pnr span{font-size:13px;color:var(--mut)}.pnr>div{flex:1;min-width:0}
+.pnr .pnx{flex:none;width:36px;height:36px;border:0;border-radius:10px;background:none;color:#c58a00;display:grid;place-items:center;cursor:pointer}.pnr .pnx svg{width:18px;height:18px}
+.pnbtn.on{color:#a86f00}.pnbtn.on svg{fill:#f5b301;stroke:#a86f00}.pnr .pnx svg{fill:#f5b301}
+button.phc{all:unset;cursor:copy;border-radius:6px;padding:0 2px;margin:0 -2px;text-decoration:underline dotted 1px;text-underline-offset:3px}
+button.phc:hover{background:#f1f2f4}button.phc:focus-visible{outline:2px solid var(--pri);outline-offset:1px}
+/* กระดิ่ง */
+.ntp .nttab{display:flex;gap:4px;padding:0 12px 8px}
+.ntp .nttab button{flex:1;min-height:36px;border:0;border-radius:10px;background:none;font:inherit;font-size:14px;color:var(--mut);cursor:pointer}
+.ntp .nttab button.on{background:#f1f2f4;color:var(--ink);font-weight:600}
+.ntp .nttab i{font-style:normal;margin-left:4px;font-size:12px;color:#fff;background:var(--red,#d52222);border-radius:9px;padding:0 6px}
+.ntact{display:flex;justify-content:space-between;align-items:center;padding:6px 16px 2px}
+.ntact h6{margin:0;font-size:12px;font-weight:600;color:var(--mut)}
+.ntact button{border:0;background:none;color:var(--accI);font:600 13px inherit;font-family:inherit;min-height:32px;cursor:pointer}
+a.nta{display:flex;gap:10px;align-items:flex-start;padding:10px 16px;text-decoration:none;color:var(--ink);position:relative}
+a.nta:hover{background:#f6f7f9}
+a.nta .av{flex:none;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#b6e36b,#458c10);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px;overflow:hidden}
+a.nta .av img{width:100%;height:100%;object-fit:cover}
+a.nta div{min-width:0;flex:1;font-size:14px;line-height:1.4}a.nta small{display:block;color:var(--mut);font-size:12px}
+a.nta.new::after{content:"";position:absolute;right:16px;top:16px;width:8px;height:8px;border-radius:50%;background:#2f7de1}
+/* พาทัวร์ */
+#tour{position:fixed;inset:0;z-index:95;pointer-events:none}
+#tour .tsp{position:fixed;border-radius:16px;box-shadow:0 0 0 9999px rgba(22,23,29,.55),0 0 0 3px #93d209;transition:all .35s cubic-bezier(.23,1,.32,1)}
+#tour .tcd{position:fixed;width:min(340px,calc(100vw - 32px));background:#fff;border-radius:20px;padding:16px 16px 12px 96px;box-shadow:0 24px 48px -20px rgba(0,0,0,.45);pointer-events:auto;transition:top .35s cubic-bezier(.23,1,.32,1),left .35s cubic-bezier(.23,1,.32,1)}
+#tour .tcd img{position:absolute;left:8px;bottom:8px;width:80px;height:84px;object-fit:contain}
+#tour .tcd b{display:block;font-size:16px;margin-bottom:4px}#tour .tcd p{margin:0 0 12px;font-size:14px;color:#3a3d47;line-height:1.5}
+#tour .tcf{display:flex;align-items:center;gap:8px}#tour .tcf small{color:var(--mut);font-size:12px;margin-right:auto}
+#tour .tcf button{min-height:40px;padding:0 16px;border-radius:99px;border:0;font:600 14px inherit;font-family:inherit;cursor:pointer;background:#eeefea;color:var(--ink)}#tour .tcf button.tnx{background:var(--ink);color:#fff}
+@media(max-width:700px){.hdo{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){#tour .tsp,#tour .tcd{transition:none}}
+
 /* กล่องจองคิวหน้าแรกบนมือถือ: แถวเป็นการ์ด ไม่มีหัวตาราง ปุ่มเต็มแถว */
 @media(max-width:640px){
 .bkc .bkh{flex-wrap:wrap}.bkc .bkh .tabs{display:flex !important;width:100%;margin:12px 0 0 !important}
@@ -2455,6 +2500,7 @@ function pmList(within=30){return visibleJobs().filter(j=>j.status==='done'||(j.
 const PHASES=[{k:'pre',name:'สำรวจ ออกแบบ',st:[1,2,3]},{k:'offer',name:'เสนอลูกค้า',st:[4]},{k:'ins',name:'ติดตั้ง',st:[5,6]},{k:'post',name:'หลังติดตั้ง',st:[7,8]}];
 const CADABRA='https://claude.ai/artifact/C86iFGHG9map4bEpAVTyzX';
 const IC={
+ star:'<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
  bell:'<path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
  grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
  chev:'<path d="m9 6 6 6-6 6"/>',
@@ -2700,6 +2746,61 @@ function introToday(app){if(matchMedia('(prefers-reduced-motion: reduce)').match
       el.innerHTML=`<b>${esc(j.title||c.name||'')}</b>${jobPill(j)}${j.status==='active'?`<div class="jprog">${STAGES.slice(1).map((x,i)=>`<i class="${i+1<n?'d':i+1===n?'c':''}"></i>`).join('')}</div>`:'<div style="height:10px"></div>'}<dl>${j.status==='active'?`<dt>ผู้รับผิดชอบ</dt><dd>${esc(ownerOf(j))}</dd><dt>อยู่ขั้นนี้มา</dt><dd>${days(j.stageSince)} วัน</dd>`:''}${when?`<dt>${when[0]}</dt><dd>${esc(when[1])}</dd>`:''}${c.phone?`<dt>โทร</dt><dd>${esc(c.phone)}</dd>`:''}</dl>`;
       document.body.appendChild(el);const x=Math.min(innerWidth-316,Math.max(16,e.clientX+12)),y=r.bottom+8+el.offsetHeight>innerHeight?r.top-el.offsetHeight-8:r.bottom+8;el.style.left=x+'px';el.style.top=y+'px'},450)});
   ['scroll','mousedown','keydown','hashchange'].forEach(t=>addEventListener(t,hide,true))})();
+
+/* 17 ควรทำวันนี้: คิดจากข้อมูลงาน · แตะชื่องานเพื่อเปิด */
+function todoItems(){const t=today(),tm=isoAdd(t,1),A=visibleJobs().filter(j=>j.status==='active'),L=[];
+  const sv=A.filter(j=>j.stage<=ST.SURVEY&&svDate(j)===tm),ins=A.filter(j=>j.stage>=ST.INSTALL&&j.stage<=ST.COMM&&j.installDate===tm);
+  if(sv.length||ins.length)L.push({ic:'phone',c:'b',t:'โทรยืนยันคิวพรุ่งนี้ '+(sv.length+ins.length)+' งาน',s:[sv.length?'สำรวจ '+sv.length:'',ins.length?'ติดตั้ง '+ins.length:''].filter(Boolean).join(' · '),J:[...sv,...ins]});
+  const off=A.filter(j=>j.stage===ST.OFFER&&days(j.stageSince)>=7).sort((a,b)=>a.stageSince-b.stageSince);
+  if(off.length)L.push({ic:'clock',c:'o',t:'เสนอลูกค้าไปเกิน 7 วัน ยังไม่ตอบ '+off.length+' งาน',s:'ลองโทรถามลูกค้า',J:off});
+  const ni=A.filter(j=>j.stage===ST.INSREQ&&!j.installDate);
+  if(ni.length)L.push({ic:'cal',c:'g',t:'ลูกค้าตกลงแล้ว ยังไม่มีวันติดตั้ง '+ni.length+' งาน',s:'นัดวันติดตั้ง',J:ni});
+  return L}
+function todoBox(){const L=todoItems();
+  return `<section class="card" aria-label="ควรทำวันนี้"><h2>${svg('check','currentColor',2)}ควรทำวันนี้${L.length?`<small>${L.length} เรื่อง</small>`:''}</h2>${L.length?L.map(x=>`<div class="tdo"><span class="tdi ${x.c}">${svg(x.ic,'currentColor',2)}</span><div><b>${esc(x.t)}</b><small style="color:var(--mut);font-size:13px">${esc(x.s)}</small><div class="qdl">${x.J.slice(0,4).map(j=>`<a href="#job-${esc(j.id)}">${esc(j.title||cOf(j).name||'')}</a>`).join('')}${x.J.length>4?`<a href="#jobs" data-mine="0">+${x.J.length-4}</a>`:''}</div></div></div>`).join(''):`<div class="tdone">${svg('check','currentColor',2.4)}วันนี้ไม่มีอะไรค้าง</div>`}</section>`}
+/* 19 ปักหมุดงาน (เก็บในเครื่อง แยกต่อคน) */
+const pinKey=()=>'cl.pins.'+(S.me.id||'');
+function pins(){try{return JSON.parse(localStorage.getItem(pinKey())||'[]').filter(id=>S.jobs[id])}catch(e){return []}}
+function pinSet(id,on){let L=pins().filter(x=>x!==id);if(on)L.unshift(id);try{localStorage.setItem(pinKey(),JSON.stringify(L.slice(0,8)))}catch(e){}render();toast(on?'ปักหมุดแล้ว อยู่บนสุดของหน้าแรก':'เอาหมุดออกแล้ว')}
+function pinBtn(j){const on=pins().includes(j.id);return `<button type="button" class="btn pnbtn${on?' on':''}" data-pin="${esc(j.id)}" aria-pressed="${on}" title="${on?'เอาหมุดออก':'ปักหมุดไว้หน้าแรก'}">${svg('star','currentColor',2)}${on?'ปักหมุดแล้ว':'ปักหมุด'}</button>`}
+function pinBox(){const L=pins();if(!L.length)return '';
+  return `<section class="card" aria-label="งานที่ปักหมุด"><h2>${svg('star','#c58a00',2)}ปักหมุดไว้<small>${L.length} งาน</small></h2><div class="pnlst">${L.map(id=>{const j=S.jobs[id],c=cOf(j);return `<a class="pnr" href="#job-${esc(id)}"><div><b>${esc(j.title||c.name||'')}</b><span>${esc(stOf(j)==='active'?STAGES[j.stage]?.name||'':jobPillTxt(j))}${svDate(j)&&j.stage<=ST.SURVEY?' · '+esc(fd(svDate(j))):j.installDate&&j.stage>=ST.INSREQ?' · ติดตั้ง '+esc(fd(j.installDate)):''}</span></div><button type="button" class="pnx" data-pin="${esc(id)}" data-off="1" aria-label="เอาหมุดออก" title="เอาหมุดออก">${svg('star','currentColor',2)}</button></a>`}).join('')}</div></section>`}
+const jobPillTxt=j=>j.status==='done'?'ปิดงานแล้ว':j.status==='lost'?'ยังไม่ตกลง':'ยกเลิก';
+function doRow(){if(!myGroup())return '';const a=pinBox(),b=todoBox();return `<div class="hdo">${a}${b}</div>`}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-pin]');if(!b)return;e.preventDefault();e.stopPropagation();pinSet(b.dataset.pin,b.dataset.off?false:!pins().includes(b.dataset.pin))},true);
+/* 18 กดเบอร์โทรแล้วคัดลอก: ห่อเบอร์ที่โชว์เป็นตัวหนังสือ (ไม่แตะช่องกรอก/ลิงก์/ปุ่ม) */
+const PH_RE=/(^|[^\d])(0\d{1,2}[- ]?\d{3}[- ]?\d{3,4})(?!\d)/g;
+function phWrap(root){const W=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>/0\d/.test(n.nodeValue)&&!n.parentElement.closest('input,textarea,a,button,script,style,select,option,[contenteditable],.phc')?1:2});
+  const T=[];while(W.nextNode())T.push(W.currentNode);
+  T.forEach(n=>{const v=n.nodeValue;PH_RE.lastIndex=0;if(!PH_RE.test(v))return;PH_RE.lastIndex=0;const f=document.createDocumentFragment();let i=0,m;
+    while((m=PH_RE.exec(v))){const st=m.index+m[1].length;f.append(v.slice(i,st));const b=document.createElement('button');b.type='button';b.className='phc';b.dataset.copy=m[2];b.title='แตะเพื่อคัดลอกเบอร์';b.textContent=m[2];f.append(b);i=st+m[2].length}
+    f.append(v.slice(i));n.replaceWith(f)})}
+async function copyTxt(t){try{await navigator.clipboard.writeText(t);return true}catch(e){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(x){}a.remove();return ok}}
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-copy]');if(!b)return;e.preventDefault();e.stopPropagation();toast(await copyTxt(b.dataset.copy)?'คัดลอกเบอร์ '+b.dataset.copy+' แล้ว':'คัดลอกไม่ได้ เลือกตัวเลขแล้วกดคัดลอกเอง')},true);
+/* 21 กระดิ่ง: ความเคลื่อนไหวจากคนอื่น แยก วันนี้ / ก่อนหน้า · อ่านแล้วทั้งหมด */
+const actKey=()=>'cl.actSeen.'+(S.me.id||'');
+function actSeen(){try{return +localStorage.getItem(actKey())||0}catch(e){return 0}}
+function actItems(){const L=[],lim=Date.now()-7*864e5;visibleJobs().forEach(j=>(j.history||[]).forEach(h=>{if(h.by&&h.by!==S.me.id&&h.text&&h.at>lim)L.push({j,h,at:h.at})}));return L.sort((a,b)=>b.at-a.at).slice(0,30)}
+function ago(ms){const m=Math.floor((Date.now()-ms)/6e4);return m<1?'เมื่อสักครู่':m<60?m+' นาทีที่แล้ว':m<1440?Math.floor(m/60)+' ชั่วโมงที่แล้ว':Math.floor(m/1440)+' วันที่แล้ว'}
+function actBody(A){if(!A.length)return `<div class="nte">${svg('check','currentColor',2)}<b>ยังไม่มีความเคลื่อนไหว</b><span>คนอื่นบันทึกในงานแล้วจะขึ้นที่นี่</span></div>`;
+  const seen=actSeen(),t0=new Date();t0.setHours(0,0,0,0);const G=[['วันนี้',A.filter(x=>x.at>=+t0)],['ก่อนหน้า',A.filter(x=>x.at<+t0)]];
+  return G.filter(g=>g[1].length).map(([t,L],gi)=>`<div class="ntact"><h6>${t}</h6>${gi===0&&A.some(x=>x.at>seen)?'<button type="button" data-ntread>อ่านแล้วทั้งหมด</button>':''}</div>${L.map(({j,h})=>{const nm=S.names[h.by]||'ทีมงาน',ph=(S.members[h.by]||{}).photo;
+    return `<a class="nta ${h.at>seen?'new':''}" href="#job-${esc(j.id)}"><span class="av">${ph?`<img src="${esc(ph)}" alt="">`:esc(nm.slice(0,1))}</span><div><b>${esc(nm)}</b> ${esc(h.text)}<small>${esc(j.title||cOf(j).name||'')} · ${ago(h.at)}</small></div></a>`}).join('')}`).join('')}
+/* 20 พาทัวร์ครั้งแรก: มาสคอตชี้ทีละจุด · กดข้ามได้ · จำต่อคน */
+const tourKey=()=>'cl.tour.'+(S.me.id||'');
+function tourSeen(){try{return !!localStorage.getItem(tourKey())}catch(e){return true}}
+function tour(){if(tourSeen()||document.getElementById('tour')||route()!=='today')return;if(document.getElementById('clg')){setTimeout(tour,500);return}
+  const ST5=[['#gq','ค้นหาอะไรก็ได้','ชื่อลูกค้า เลขงาน เบอร์โทร หรือ S/N · กด Ctrl K เพื่อค้นและสั่งงานเร็ว ๆ'],['.hchips','งานที่รอคุณ','แตะชิปเพื่อเปิดงานที่รอคุณทำอยู่'],['.hdo','ควรทำวันนี้','ระบบคิดให้ว่าควรโทรหรือตามงานไหน · ปักหมุดงานสำคัญไว้ตรงนี้ได้'],['.hqa','จองคิวสำรวจ','เริ่มงานใหม่จากปุ่มนี้'],['#bellbtn','กระดิ่งแจ้งเตือน','ดูว่าใครทำอะไรในงานบ้าง และงานที่ค้างอยู่']].filter(x=>{const el=document.querySelector(x[0]);return el&&el.offsetParent});
+  if(!ST5.length)return;let i=0;document.body.insertAdjacentHTML('beforeend','<div id="tour" role="dialog" aria-modal="true" aria-label="แนะนำการใช้งาน"><div class="tsp"></div><div class="tcd"><img src="mascot-wave.webp" alt=""><b></b><p></p><div class="tcf"><small></small><button type="button" data-tskip>ข้าม</button><button type="button" class="tnx" data-tnext>ถัดไป</button></div></div></div>');
+  const box=document.getElementById('tour'),sp=box.querySelector('.tsp'),cd=box.querySelector('.tcd');
+  const end=()=>{try{localStorage.setItem(tourKey(),'1')}catch(e){}box.remove();removeEventListener('resize',show);removeEventListener('hashchange',end);document.removeEventListener('keydown',key,true)};
+  const show=()=>{const [q,t,d]=ST5[i],el=document.querySelector(q);if(!el)return end();el.scrollIntoView({block:'nearest'});const r=el.getBoundingClientRect(),pd=6;
+    Object.assign(sp.style,{left:r.left-pd+'px',top:r.top-pd+'px',width:r.width+pd*2+'px',height:r.height+pd*2+'px'});
+    cd.querySelector('b').textContent=t;cd.querySelector('p').textContent=d;cd.querySelector('small').textContent=(i+1)+' / '+ST5.length;cd.querySelector('[data-tnext]').textContent=i===ST5.length-1?'เริ่มใช้งาน':'ถัดไป';
+    const W=cd.offsetWidth,H=cd.offsetHeight,below=r.bottom+16+H<innerHeight;cd.style.top=(below?r.bottom+16:Math.max(16,r.top-16-H))+'px';cd.style.left=Math.min(innerWidth-W-16,Math.max(16,r.left))+'px';cd.querySelector('[data-tnext]').focus()};
+  const key=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();end()}};
+  cd.addEventListener('click',e=>{if(e.target.closest('[data-tskip]'))end();else if(e.target.closest('[data-tnext]')){i++;i<ST5.length?show():end()}});
+  addEventListener('resize',show);addEventListener('hashchange',end);document.addEventListener('keydown',key,true);show()}
 let drwFrom=null;
 function openDrawer(id){drwFrom=id;S.sel=id;S.dtab=null;document.body.classList.add('dlock');render();setTimeout(()=>document.querySelector('.drx')?.focus(),0)}
 function closeDrawer(){const id=S.sel;S.sel=null;document.body.classList.remove('dlock');render();if(id)setTimeout(()=>document.querySelector(`tr[data-sel="${CSS.escape(id)}"]`)?.focus(),0)}
@@ -2735,6 +2836,7 @@ function render(){
   else h=viewToday();
   app.innerHTML=hdr(r)+'<div class="pg">'+h+'</div>';
   if(r==='today'&&S.loaded.jobs&&!S.cuDone){S.cuDone=1;introToday(app)}
+  phWrap(app);if(r==='today'&&S.loaded.jobs&&!tourSeen())setTimeout(tour,700);
   mountApps();
   setupStick();
   if(aid){const el=document.getElementById(aid);if(el){el.focus();try{if(sel!=null)el.setSelectionRange(sel,sel)}catch(e){}}}
@@ -2765,6 +2867,8 @@ document.addEventListener('click',e=>{
   
   if(S.pf&&!e.target.closest('.pfm')){S.pf=false;render()}
   if(e.target.closest('#bellbtn')){S.pf=false;S.apps=false;if(S.bell){S.bell=false}else{S.bell=true;S.bellSeenAt=bellSeen();try{localStorage.setItem('cl.bellSeen',String(Date.now()))}catch(x){}}render();if(S.bell)setTimeout(()=>document.querySelector('.ntp a')?.focus(),0);return}
+  if(e.target.closest('[data-nttab]')){S.ntTab=e.target.closest('[data-nttab]').dataset.nttab;render();return}
+  if(e.target.closest('[data-ntread]')){try{localStorage.setItem(actKey(),String(Date.now()))}catch(x){}render();return}
   if(S.bell&&(!e.target.closest('.ntp')||e.target.closest('a'))){S.bell=false;render()}
 });
 document.addEventListener('click',e=>{if(S.mp&&!e.target.closest('.mnav')){S.mp=null;render()}},true);
@@ -2821,7 +2925,7 @@ function bellItems(){
 }
 function bellSeen(){try{return +localStorage.getItem('cl.bellSeen')||0}catch(e){return 0}}
 function bellBtn(){
-  const L=bellItems();const nw=L.filter(x=>(x.at||0)>bellSeen()).length;
+  const L=bellItems();const nw=L.filter(x=>(x.at||0)>bellSeen()).length+actItems().filter(x=>x.at>actSeen()).length;
   return `<button class="tic" id="bellbtn" aria-haspopup="true" aria-expanded="${!!S.bell}" aria-label="แจ้งเตือน ${L.length} เรื่อง${nw?' ใหม่ '+nw:''}" title="แจ้งเตือน">${svg('bell','#55575e',1.9)}${nw?`<b class="nb new">${nw>99?'99+':nw}</b>`:''}</button>`;
 }
 function bellPanel(){
@@ -2829,8 +2933,10 @@ function bellPanel(){
   const G=[['c','แจ้งซ่อมยังไม่ปิด','wrench'],['q','คิวสำรวจรอตอบรับ','inbox'],['i','รอจองคิวติดตั้ง','cal'],['d','เอกสารขนานไฟฟ้า','file'],['p','ตรวจเช็กประจำปี ภายใน 30 วัน','clock']];
   const body=G.map(([k,t,ic])=>{const it=L.filter(x=>x.g===k);if(!it.length)return '';
     return `<div class="ntg"><div class="ntgh">${svg(ic,'currentColor',2)}<span>${t}</span><i>${it.length}</i></div>${it.slice(0,4).map(x=>`<a class="nti ${(x.at||0)>seen?'new':''}" href="${x.site||x.g==='p'?'#site-'+esc(x.site||x.j.siteId):'#job-'+esc(x.j.id)}"><b>${esc(x.t)}</b><span class="${x.warn?'warn':''}">${esc(x.s)}</span>${x.at&&k!=='p'?`<small>${days(x.at)?days(x.at)+' วันที่แล้ว':'วันนี้'}</small>`:''}</a>`).join('')}${it.length>4?`<a class="ntm" href="#jobs" data-mine="1">ดูอีก ${it.length-4} งาน</a>`:''}</div>`}).join('');
+  const A=actItems(),an=A.filter(x=>x.at>actSeen()).length,tab=S.ntTab||(an?'a':'w');
   return `<div class="ntp" role="dialog" aria-label="แจ้งเตือน"><div class="nth"><b>แจ้งเตือน</b><span>${L.length?L.length+' เรื่องรอดำเนินการ':''}</span></div>
-    <div class="ntb">${body||`<div class="nte">${svg('check','currentColor',2)}<b>ไม่มีงานค้าง</b><span>คิว แจ้งซ่อม และตรวจเช็กที่ต้องทำจะขึ้นที่นี่</span></div>`}</div>
+    <div class="nttab" role="tablist"><button type="button" role="tab" data-nttab="a" class="${tab==='a'?'on':''}" aria-selected="${tab==='a'}">ความเคลื่อนไหว${an?`<i>${an}</i>`:''}</button><button type="button" role="tab" data-nttab="w" class="${tab==='w'?'on':''}" aria-selected="${tab==='w'}">งานค้าง</button></div>
+    ${tab==='a'?`<div class="ntb">${actBody(A)}</div>`:`<div class="ntb">${body||`<div class="nte">${svg('check','currentColor',2)}<b>ไม่มีงานค้าง</b><span>คิว แจ้งซ่อม และตรวจเช็กที่ต้องทำจะขึ้นที่นี่</span></div>`}</div>`}
     <a class="ntf" href="#jobs" data-mine="0">ดูงานทั้งหมด</a></div>`;
 }
 const DOTS='<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
@@ -2979,6 +3085,7 @@ function viewToday0(){
     <div class="hro-t"><p>${dTxt}</p><h1>${greet()}${name?' คุณ'+esc(name.split(' ')[0]):''}</h1><span>${todaySum(evOn(t),1)}</span>${waitChips()}<div class="hqa">${newBtn()}</div></div>
   </section>
   <div class="htls">${tile('layers','b','งานทั้งหมด',all.length,'#jobs','data-mine="0"')}${tile('check','g','ติดตั้งเสร็จ',instAll,'#service','data-sst="installed"')}${tile('clock','o','รอยืนยันคิว',qS0,'#jobs','data-mine="1"')}${tile('wrench','v','งานบริการ',svcN,'#service','data-sst="pm"')}</div>
+  ${doRow()}
   ${g==='admin'?`<div class="hbk">${bookPanel()}</div>`:''}
   <div class="hrow3 two tday">${dayPanel(evOn,t)}${miniCal(evOn,isoD,t)}</div>
   ${DP.bars}`;
@@ -3682,7 +3789,7 @@ function viewJob(id){
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>
       <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p>${j.equipment&&j.equipment.plantName?`<p class="jplant">Plant <b>${esc(j.equipment.plantName)}</b></p>`:''}</div>
-    <div class="pha">${j.folderUrl&&safeUrl(j.folderUrl)?`<button class="btn" data-files="${esc(j.id)}">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</button>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
+    <div class="pha">${pinBtn(j)}${j.folderUrl&&safeUrl(j.folderUrl)?`<button class="btn" data-files="${esc(j.id)}">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</button>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
       return mnu([fx?mi(`data-fname="${esc(j.id)}"`,'pen','เปลี่ยนชื่อโฟลเดอร์'):'',fx&&(cx||dx)?'<hr>':'',cx?mi('data-act="cancel"','xc','ยกเลิกคิว',1):'',dx?mi(`data-jdel="${esc(j.id)}"`,'trash','ลบงาน',1):''].filter(x=>x!=='<hr>'||fx&&(cx||dx)),'อื่นๆ')})()}</div></div>
   ${j.status==='active'?`<section class="card jst">
     <div class="jsc"><span class="sub">ขั้นปัจจุบัน</span><span class="pill ${PHC2[phaseOf(n)?.k]||'gy'} big${S.stAnim&&S.stAnim.id===j.id?' pp':''}">${esc(st.name)}</span></div>
