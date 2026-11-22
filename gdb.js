@@ -239,14 +239,15 @@
   function connect(page) {
     st.page = page;
     try { var s = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (s && s.exp > Date.now()) st.token = s.token; } catch (e) {}
-    return (st.token ? api({ op: 'me' }).then(function (r) { return r.me; }).catch(function (e) { if (e && e.code === 'network') throw e; st.token = null; return null; }) : Promise.resolve(null))   // เน็ตหลุด: เก็บการเข้าสู่ระบบไว้ ให้หน้าเว็บขึ้น "เชื่อมต่อไม่ได้ · ลองอีกครั้ง" (เดิมลบทิ้งแล้วเด้งไปลงชื่อใหม่)
+    return (st.token ? api({ op: 'me' }).then(function (r) { st.wait = r.wait; return r.me; }).catch(function (e) { if (e && e.code === 'network') throw e; st.token = null; return null; }) : Promise.resolve(null))   // เน็ตหลุด: เก็บการเข้าสู่ระบบไว้ ให้หน้าเว็บขึ้น "เชื่อมต่อไม่ได้ · ลองอีกครั้ง" (เดิมลบทิ้งแล้วเด้งไปลงชื่อใหม่)
       .then(function (me) { return me || signIn(); })
       .then(function (me) { return gate(me); });
   }
   function gate(me) {
     st.me = me;
-    if (me.pending) return screen('pending').then(function () { return api({ op: 'me' }).then(function (r) { return gate(r.me); }); });
+    if (me.pending) { st.wasPending = 1; return screen('pending').then(function () { return api({ op: 'me' }).then(function (r) { st.wait = r.wait; return gate(r.me); }); }); }
     if ((me.pages || []).indexOf(st.page) < 0) return screen('wrong', me).then(function () { return gate(me); });
+    if (st.page === 'admin') { remember(me); if (st.wasPending || st.stepping) { stepsRun(me); schedule(0); return { db: db, user: user, me: clone(me) }; } }
     hideScreen(); schedule(0);
     return { db: db, user: user, me: clone(me) };
   }
@@ -257,19 +258,58 @@
           callback: function (resp) {
             setScreenMsg('กำลังตรวจสอบบัญชี…');
             st.token = null;
+            if (st.page === 'admin') { st.stepping = 1; stepsShow(1); }
             api({ op: 'login', idToken: resp.credential }).then(function (r) {
-              st.token = r.token;
+              st.token = r.token; st.wait = r.wait;
               try { localStorage.setItem(SKEY, JSON.stringify({ token: r.token, exp: Date.now() + 5.5 * 3600e3 })); } catch (e) {}
               res(r.me);
-            }).catch(function (e) { setScreenMsg(e.message, true); });
+            }).catch(function (e) { if (st.stepping) { st.stepping = 0; screen('login', null, e.message); renderGBtn(); } else setScreenMsg(e.message, true); });
           } });
         screen('login', null, msg);
-        var b = document.getElementById('clg-btn');
-        if (b) google.accounts.id.renderButton(b, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signin_with', locale: 'th', width: st.page === 'engineer' ? Math.max(240, Math.min(400, (window.innerWidth || 360) - 56)) : st.page === 'admin' ? Math.min(320, (window.innerWidth || 360) - 48) : 300 });
+        renderGBtn();
         google.accounts.id.prompt();
       });
     });
   }
+  function renderGBtn() {
+    var b = document.getElementById('clg-btn');
+    if (b && window.google && google.accounts) google.accounts.id.renderButton(b, { theme: 'filled_black', size: 'large', shape: 'pill', text: st.page === 'admin' && lastAcct() ? 'continue_with' : 'signin_with', locale: 'th', width: st.page === 'engineer' ? Math.max(240, Math.min(400, (window.innerWidth || 360) - 56)) : st.page === 'admin' ? Math.min(320, (window.innerWidth || 360) - 48) : 300 });
+  }
+  /* ---------- Management: จำคนที่เคยเข้า · บอกขั้นตอนตอนเข้า · รออนุมัติ ---------- */
+  var AKEY = 'cl.acct';
+  function lastAcct() { try { var a = JSON.parse(localStorage.getItem(AKEY) || 'null'); return a && a.name ? a : null; } catch (e) { return null; } }
+  function remember(me) { try { localStorage.setItem(AKEY, JSON.stringify({ name: me.name || '', email: me.email || '', picture: me.picture || '' })); } catch (e) {} }
+  function forget() { try { localStorage.removeItem(AKEY); } catch (e) {} }
+  function maskMail(m) { m = String(m || ''); var i = m.indexOf('@'); return i > 0 ? m.slice(0, 1) + '•••' + m.slice(i) : m; }
+  function avHtml(a, cls) { return '<span class="mg-av ' + (cls || '') + '">' + (a.picture ? '<img alt="" src="' + esc(a.picture) + '" onerror="this.remove()">' : '') + esc(String(a.name || '?').slice(0, 1)) + '</span>'; }
+  var STEPS = ['ยืนยันบัญชี Google', 'เชื่อมต่อตัวกลาง', 'โหลดงาน', 'เตรียมหน้าภาพรวม'];
+  function stepsShow(n, cnt) {
+    var el = document.getElementById('clg'), box = el && el.querySelector('.mg-in');
+    if (!box) return;
+    if (!box.querySelector('.mg-st')) {
+      box.innerHTML = '<div class="mg-h" role="heading" aria-level="1">กำลังเข้า…</div><p class="mg-s">แป๊บเดียว กำลังเตรียมงานของคุณ</p><ol class="mg-st" aria-live="polite">' +
+        STEPS.map(function (t, i) { return '<li><i></i>' + t + (i === 2 ? '<small></small>' : '') + '</li>'; }).join('') + '</ol><div class="mg-bar"><i></i></div>';
+    }
+    box.querySelectorAll('.mg-st li').forEach(function (li, i) { li.className = i < n ? 'mg-ok' : i === n ? 'mg-now' : ''; });
+    if (cnt != null) box.querySelector('.mg-st small').textContent = cnt + ' งาน';
+    box.querySelector('.mg-bar i').style.width = Math.min(100, n / STEPS.length * 100) + '%';
+  }
+  function stepsRun(me) {
+    stepsShow(2); var t0 = Date.now();
+    (function wait() {
+      if (!document.getElementById('clg')) return;
+      if (!st.loaded.jobs && Date.now() - t0 < 12000) return setTimeout(wait, 150);
+      stepsShow(3, Object.keys(st.data.jobs || {}).length);
+      setTimeout(function () {
+        stepsShow(4);
+        var box = document.querySelector('#clg .mg-in');
+        if (box) box.innerHTML = '<div class="mg-h" role="heading" aria-level="1">สวัสดี คุณ' + esc(me.name || '') + '</div><p class="mg-s">กำลังพาไปหน้าภาพรวม</p>';
+        var art = document.querySelector('#clg .mg-m'); if (art) art.src = 'mascot-cheer.webp';
+        setTimeout(function () { var el = document.getElementById('clg'); st.stepping = 0; st.wasPending = 0; if (!el) return; el.classList.add('mg-out'); setTimeout(hideScreen, 320); }, 900);
+      }, 350);
+    })();
+  }
+  function hhmm(ms) { var d = new Date(ms), p = function (x) { return (x < 10 ? '0' : '') + x; }; var t = new Date(); return (d.toDateString() === t.toDateString() ? 'วันนี้ ' : d.getDate() + '/' + (d.getMonth() + 1) + ' ') + p(d.getHours()) + ':' + p(d.getMinutes()); }
   function signOut(msg) {
     st.token = null; st.me = null;
     try { localStorage.removeItem(SKEY); } catch (e) {}
@@ -343,6 +383,23 @@
       '#clg.mg #clg-btn{justify-content:flex-start;margin:0}#clg.mg .cg-m{margin-top:12px}' +
       '#clg.mg .mg-ft{align-self:center;font-size:12px;color:#8a909a}' +
       '#clg.mg .cg-p{font-size:14px;color:#3a3d47}#clg.mg .b{background:#16171d}#clg.mg .b.l{background:#eeefea;color:#16171d}' +
+      '#clg.mg{transition:opacity .3s ease}#clg.mg.mg-out{opacity:0}' +
+      '#clg.mg .mg-av{flex:none;position:relative;overflow:hidden;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#b6e36b,#458c10);color:#fff;display:grid;place-items:center;font-weight:700;font-size:20px}#clg.mg .mg-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}#clg.mg .mg-av.sm{width:32px;height:32px;font-size:14px}' +
+      '#clg.mg .mg-ac{position:relative;display:flex;align-items:center;gap:12px;padding:12px 44px 12px 12px;border-radius:20px;border:1px solid #e6e8ec;margin-bottom:16px}#clg.mg .mg-ac b,#clg.mg .mg-me b{display:block;font-size:16px}#clg.mg .mg-ac small,#clg.mg .mg-me small{display:block;font-size:13px;color:#606f85;overflow-wrap:anywhere}' +
+      '#clg.mg .mg-x{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:50%;background:none;color:#6b7280;font-size:20px;cursor:pointer}#clg.mg .mg-x:hover{background:#f1f2f4}' +
+      '#clg.mg .mg-lk{display:block;margin:4px auto 0;min-height:44px;padding:0 12px;border:0;background:none;color:#3d7c0e;font:600 14px inherit;font-family:inherit;cursor:pointer}' +
+      '#clg.mg .mg-st{list-style:none;margin:8px 0 20px;padding:0;display:grid;gap:12px}#clg.mg .mg-st li{display:flex;align-items:center;gap:12px;font-size:15px;color:#8a909a}#clg.mg .mg-st li.mg-now,#clg.mg .mg-st li.mg-ok{color:#16171d}#clg.mg .mg-st li.mg-now{font-weight:500}#clg.mg .mg-st small{margin-left:auto;font-size:13px;color:#606f85}' +
+      '#clg.mg .mg-st i,#clg.mg .mg-tl i{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid #d9dce2;background:#fff;display:grid;place-items:center;box-sizing:border-box;position:relative;z-index:1}' +
+      '#clg.mg .mg-st li.mg-now i{border-color:#458c10;border-top-color:transparent;animation:mgSp .8s linear infinite}#clg.mg li.mg-ok i{background:#458c10;border-color:#458c10}#clg.mg li.mg-ok i::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}' +
+      '@keyframes mgSp{to{transform:rotate(360deg)}}#clg.mg .mg-bar{height:6px;border-radius:3px;background:#eceef2;overflow:hidden}#clg.mg .mg-bar i{display:block;height:100%;width:0;background:#458c10;border-radius:3px;transition:width .4s cubic-bezier(.23,1,.32,1)}' +
+      '#clg.mg .mg-me{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:#f6f7f9;margin-bottom:16px}' +
+      '#clg.mg .mg-tl{list-style:none;margin:0 0 16px;padding:0}#clg.mg .mg-tl li{display:grid;grid-template-columns:24px 1fr;gap:12px;padding-bottom:14px;position:relative;font-size:15px}#clg.mg .mg-tl li::before{content:"";position:absolute;left:11px;top:26px;bottom:2px;width:2px;background:#e3e6dd}#clg.mg .mg-tl li:last-child::before{display:none}#clg.mg .mg-tl small{display:block;font-size:13px;color:#606f85}' +
+      '#clg.mg .mg-tl li.mg-now i{border-color:#458c10}#clg.mg .mg-tl li.mg-now i::after{content:"";width:10px;height:10px;border-radius:50%;background:#458c10;animation:mgPl 1.6s ease-in-out infinite}@keyframes mgPl{0%,100%{transform:scale(.7);opacity:.6}50%{transform:scale(1.15);opacity:1}}' +
+      '#clg.mg .mg-who{display:flex;align-items:center;margin-top:6px}#clg.mg .mg-who .mg-av{width:28px;height:28px;font-size:12px;border:2px solid #fff;margin-left:-6px}#clg.mg .mg-who .mg-av:first-child{margin-left:0}#clg.mg .mg-who small{margin-left:8px}' +
+      '#clg.mg .mg-auto{display:flex;align-items:center;gap:10px;margin-bottom:16px}#clg.mg .mg-auto svg{width:20px;height:20px;transform:rotate(-90deg);flex:none}#clg.mg .mg-auto circle{fill:none;stroke-width:3}#clg.mg .mg-auto .cg-m{margin:0;font-size:13px;color:#606f85}' +
+      '#clg.mg .mg-row{display:flex;gap:8px}#clg.mg .mg-row .b{flex:1;margin:0}' +
+      '#clg.mg .mg-cp{display:flex;align-items:center;justify-content:center;width:100%;margin-top:12px;min-height:44px;border:1px dashed #cfd4c8;border-radius:12px;background:none;color:#3d7c0e;font:600 14px inherit;font-family:inherit;cursor:pointer}#clg.mg .mg-cp.mg-cpok{border-style:solid;background:#eef7e2}' +
+      '@media (prefers-reduced-motion:reduce){#clg.mg .mg-st li.mg-now i,#clg.mg .mg-tl li.mg-now i::after{animation:none}#clg.mg,#clg.mg .mg-bar i{transition:none}}' +
       '@media (max-width:760px){#clg.mg{padding:0;place-items:stretch;background:#fff}#clg.mg .mg-c{grid-template-columns:1fr;grid-template-rows:auto 1fr;min-height:100vh;border-radius:0;box-shadow:none;padding:8px}#clg.mg .mg-art{height:38vh;min-height:240px;padding-top:40px;box-sizing:border-box}#clg.mg .mg-m{width:auto;height:auto;max-width:72%;max-height:86%}#clg.mg .mg-f{padding:24px 16px 16px}#clg.mg .mg-tp{display:none}#clg.mg .mg-h{font-size:32px}#clg.mg .mg-in{max-width:none;justify-content:flex-start}}' +
       '#clg-bn{position:fixed;right:20px;bottom:20px;z-index:99998;background:#f0b23a;color:#15230f;border-radius:999px;padding:8px 16px;font:600 14px Inter,"Noto Sans Thai",Prompt,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:92vw;text-align:center}';
     document.head.appendChild(s);
@@ -430,7 +487,8 @@
     };
     if (st.page === 'admin') {   // Management: การ์ดกลางจอ ภาพมาสคอตซ้าย ฟอร์มขวา (ตามภาพอ้างอิงจากผู้ใช้ 20 พ.ย.)
       el.className = 'mg';
-      var HM = { login: ['เข้าสู่ระบบ', 'ใช้บัญชี Google ของบริษัท'], pending: ['รออนุมัติ', 'ผู้ดูแลระบบยังไม่ได้อนุมัติบัญชีนี้'], wrong: ['บัญชีนี้ใช้ Management ไม่ได้', 'ลองเปลี่ยนบัญชี หรือไปหน้าที่บัญชีนี้ใช้ได้'] };
+      var LA = kind === 'login' && lastAcct();
+      var HM = { login: LA ? ['ยินดีต้อนรับกลับ', 'เครื่องนี้เคยเข้าในชื่อนี้'] : ['เข้าสู่ระบบ', 'ใช้บัญชี Google ของบริษัท'], pending: ['อีกนิดเดียว', 'ส่งคำขอเข้าใช้แล้ว รออนุมัติบัญชีนี้'], wrong: ['บัญชีนี้ใช้ Management ไม่ได้', 'ลองเปลี่ยนบัญชี หรือไปหน้าที่บัญชีนี้ใช้ได้'] };
       frame = function (body) {
         var hd = HM[kind] || HM.login;
         return '<div class="mg-c"><div class="mg-art"><img class="mg-lg" src="logo.webp" alt="CLEANLINE"><img class="mg-m" src="mascot-wave.webp" alt="" width="488" height="512"></div>' +
@@ -454,8 +512,34 @@
       '<div><b>' + esc(st.me.name) + '</b><span>' + esc(st.me.email) + '</span></div></div>' : '';
     return new Promise(function (res) {
       if (kind === 'login') {
-        el.innerHTML = frame('<div id="clg-btn"></div><div class="cg-m" id="clg-m">' + esc(msg || '') + '</div>');
+        var la = st.page === 'admin' && lastAcct();
+        el.innerHTML = frame((la ? '<div class="mg-ac">' + avHtml(la) + '<span><b>' + esc(la.name) + '</b><small>' + esc(maskMail(la.email)) + '</small></span><button type="button" class="mg-x" id="clg-forget" aria-label="ลืมบัญชีนี้ในเครื่องนี้" title="ลืมบัญชีนี้ในเครื่องนี้">×</button></div>' : '') +
+          '<div id="clg-btn"></div>' + (la ? '<button type="button" class="mg-lk" id="clg-other">ใช้บัญชีอื่น</button>' : '') + '<div class="cg-m" id="clg-m">' + esc(msg || '') + '</div>');
+        var fg = function () { forget(); screen('login', null, msg); renderGBtn(); };
+        if (la) { document.getElementById('clg-forget').onclick = fg; document.getElementById('clg-other').onclick = fg; }
         riseSun(sn);
+        return;
+      }
+      if (kind === 'pending' && st.page === 'admin') {
+        var w = st.wait || {}, ap = w.approvers || [], mm = st.me || {};
+        el.innerHTML = frame('<div class="mg-me">' + avHtml(mm, 'sm') + '<span><b>' + esc(mm.name || '') + '</b><small>' + esc(mm.email || '') + '</small></span></div>' +
+          '<ol class="mg-tl"><li class="mg-ok"><i></i><span>ส่งคำขอแล้ว<small>' + (w.at ? hhmm(w.at) : '') + '</small></span></li>' +
+          '<li class="mg-now"><i></i><span>รออนุมัติ' + (ap.length ? '<span class="mg-who">' + ap.map(function (a) { return avHtml(a, 'sm'); }).join('') + '<small>' + esc(ap.map(function (a) { return a.name; }).join(' · ')) + ' อนุมัติได้</small></span>' : '<small>ผู้ดูแลระบบอนุมัติใน Console</small>') + '</span></li>' +
+          '<li><i></i><span>เข้าใช้งานได้<small>อนุมัติแล้วพาเข้าให้เอง</small></span></li></ol>' +
+          '<div class="mg-auto"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="#eceef2"/><circle id="clg-ring" cx="10" cy="10" r="8" stroke="#458c10" stroke-dasharray="50.3" stroke-dashoffset="0" stroke-linecap="round"/></svg><span id="clg-m">เช็กให้เองอีก 30 วินาที</span></div>' +
+          '<div class="mg-row"><button type="button" class="b" id="clg-re">ตรวจตอนนี้</button><button type="button" class="b l" id="clg-out">เปลี่ยนบัญชี</button></div>' +
+          '<button type="button" class="mg-cp" id="clg-cp">คัดลอกข้อความขออนุมัติ ส่งทาง LINE</button>');
+        var left = 30, done = 0, ring = document.getElementById('clg-ring');
+        var fin = function () { if (done) return; done = 1; clearInterval(tk); setScreenMsg('กำลังตรวจ…'); res(); };
+        var tk = setInterval(function () { if (!document.getElementById('clg-ring')) { clearInterval(tk); return; } left--; if (left <= 0) return fin(); setScreenMsg('เช็กให้เองอีก ' + left + ' วินาที'); ring.style.strokeDashoffset = (50.3 * (1 - left / 30)).toFixed(1); }, 1000);
+        document.getElementById('clg-re').onclick = fin;
+        document.getElementById('clg-out').onclick = function () { clearInterval(tk); signOut(); location.reload(); };
+        document.getElementById('clg-cp').onclick = function () {
+          var t = 'ขออนุมัติเข้าใช้ ' + (PAGE_NAME[st.page] || 'CLEANLINE') + ' บัญชี ' + (mm.email || '') + (mm.name ? ' (' + mm.name + ')' : ''), b = this;
+          var ok = function () { b.classList.add('mg-cpok'); b.textContent = 'คัดลอกแล้ว วางในแชตได้เลย'; setTimeout(function () { b.classList.remove('mg-cpok'); b.textContent = 'คัดลอกข้อความขออนุมัติ ส่งทาง LINE'; }, 2400); };
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, function () { prompt('คัดลอกข้อความนี้', t); });
+          else prompt('คัดลอกข้อความนี้', t);
+        };
         return;
       }
       if (kind === 'pending') {
