@@ -663,17 +663,18 @@ html.framed #hmini{position:absolute}
 #dayl .grab{width:44px;height:5px;border-radius:3px;background:#d7dad2;margin:0 auto 14px}
 #dayl h3{margin:0 0 4px;font-size:20px}
 #dayl p{margin:0 0 14px;color:var(--mut);font-size:14px}
-.tl{list-style:none;margin:0;padding:0}
-.tl li{display:grid;grid-template-columns:52px 18px minmax(0,1fr);gap:10px;padding-bottom:16px;position:relative}
-.tl li::before{content:"";position:absolute;left:70px;top:18px;bottom:0;width:2px;background:#e3e6dd}
-.tl li:last-child::before{display:none}
-.tl .tm{font-weight:600;font-size:15px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.tl .pt{width:18px;height:18px;border-radius:50%;border:3px solid #cfd4c8;background:#fff;margin-top:3px;position:relative;z-index:1}
-.tl li.done .pt{background:var(--acc);border-color:var(--acc)}
-.tl li.now .pt{border-color:var(--acc);box-shadow:0 0 0 5px rgba(68,132,15,.18)}
-.tl b{display:block;font-size:15px}
-.tl small{color:var(--mut);font-size:13px}
-.tl a,.tl button{display:block;text-align:left;background:none;padding:0;color:inherit}
+/* เส้นทางวันนี้ (แผ่นล่าง) — แยกคลาส .tl.day ไม่ให้ทับไทม์ไลน์ขั้นงาน/ความเคลื่อนไหวในหน้างาน */
+.tl.day{list-style:none;margin:0;padding:0}
+.tl.day li{display:grid;grid-template-columns:52px 18px minmax(0,1fr);gap:10px;padding-bottom:16px;position:relative}
+.tl.day li::before{content:"";position:absolute;left:70px;top:18px;bottom:0;width:2px;background:#e3e6dd}
+.tl.day li:last-child::before{display:none}
+.tl.day .tm{font-weight:600;font-size:15px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tl.day .pt{width:18px;height:18px;border-radius:50%;border:3px solid #cfd4c8;background:#fff;margin-top:3px;position:relative;z-index:1}
+.tl.day li.done .pt{background:var(--acc);border-color:var(--acc)}
+.tl.day li.now .pt{border-color:var(--acc);box-shadow:0 0 0 5px rgba(68,132,15,.18)}
+.tl.day b{display:block;font-size:15px}
+.tl.day small{color:var(--mut);font-size:13px}
+.tl.day a,.tl.day button{display:block;text-align:left;background:none;padding:0;color:inherit}
 @media(prefers-reduced-motion:reduce){.mrig,.mrig *,.mhearts i,.hm.intro>*,#dayl .dlb{animation:none}.hring .fl,#hmini,.jsw .jr{transition-duration:0s}}
 </style>
 </head>
@@ -1032,7 +1033,8 @@ function viewJob(id){
   markSeen(j.id+':'+j.stage);
   const c=cOf(j),s=sOf(j),r=j.request||{},stt=statusOf(j);
   const row=(l,v)=>v?`<div class="sr"><span>${l}</span><b>${v}</b></div>`:'';
-  const hist=(j.history||[]).slice().reverse().slice(0,6);
+  // รวมรายการที่ข้อความ+คนเดียวกันติดกัน (เช่น นำเข้า Excel ซ้ำหลายรอบ) เป็นบรรทัดเดียว บอกจำนวนครั้ง
+  const hist=(j.history||[]).slice().reverse().reduce((o,h)=>{const p=o[o.length-1];if(p&&p.text===h.text&&p.by===h.by)p.n++;else o.push({...h,n:1});return o},[]).slice(0,6);
   const nameOf=uid=>C().members[uid]?.name||(uid?'ผู้ใช้':'ระบบ');
   let now=STAGES[j.stage]?.name||'',next='',prog='';
   if(j.status==='done'){now='ปิดงานแล้ว';next='ดูแลหลังการขาย (PM/CM)'}
@@ -1067,7 +1069,7 @@ function viewJob(id){
      ${r.systemType||r.wantKwp?row('ลูกค้าอยากได้',esc([r.systemType,r.wantKwp?r.wantKwp+' kWp':''].filter(Boolean).join(' · '))):''}
      ${j.salesNote?`<div class="jnote"><small>หมายเหตุจากเซลส์</small>${esc(j.salesNote)}</div>`:''}${j.woNote?`<div class="jnote"><small>หมายเหตุใบงาน</small>${esc(j.woNote)}</div>`:''}</section>
     ${chatCard(j)}
-    ${hist.length?`<section class="card jc2"><div class="jh"><b>ความเคลื่อนไหวล่าสุด</b></div><ul class="tl hist">${hist.map(x=>`<li><span class="dt"></span><b>${esc(x.text)}</b><small>${fdt(x.at)} · ${esc(nameOf(x.by))}</small></li>`).join('')}</ul></section>`:''}
+    ${hist.length?`<section class="card jc2"><div class="jh"><b>ความเคลื่อนไหวล่าสุด</b></div><ul class="tl hist">${hist.map(x=>`<li><span class="dt"></span><b>${esc(x.text)}</b><small>${fdt(x.at)} · ${esc(nameOf(x.by))}${x.n>1?` · ${x.n} ครั้ง`:''}</small></li>`).join('')}</ul></section>`:''}
    </main>${cta?`<div class="abar"><div class="in" style="display:grid;gap:8px">${canBack(j)?`<button class="btn" data-bfjob="${esc(j.id)}">${ic('doc')}สำรวจไปแล้ว · กรอกย้อนหลัง</button>`:''}${cta}</div></div>`:''}`;
 }
 function scopeBar(){
@@ -1824,7 +1826,7 @@ const M_LINES=['วันนี้อากาศร้อน ดื่มน้
 })();
 function dayLine(){const D=dayJobs(),dn=D.filter(x=>x.done).length,ix=D.findIndex(x=>!x.done);document.getElementById('dayl')?.remove();
   document.body.insertAdjacentHTML('beforeend',`<div id="dayl" role="dialog" aria-modal="true" aria-labelledby="dlT"><div class="dlb"><div class="grab"></div><h3 id="dlT">เส้นทางวันนี้</h3><p>${D.length?`เสร็จ ${dn} จาก ${D.length} งาน`:'วันนี้ไม่มีงานนัด'}</p>
-   ${D.length?`<ul class="tl">${D.map((x,i)=>`<li class="${x.done?'done':i===ix?'now':''}"><span class="tm">${esc(x.tm||'ทั้งวัน')}</span><span class="pt"></span><button type="button" data-dlgo="${destOf(x.j)}"><b>${esc(x.j.title||sOf(x.j).label||'')}</b><small>${x.done?'เสร็จแล้ว':x.k} · ${esc(sOf(x.j).area||sOf(x.j).address||'')}</small></button></li>`).join('')}</ul>`:''}
+   ${D.length?`<ul class="tl day">${D.map((x,i)=>`<li class="${x.done?'done':i===ix?'now':''}"><span class="tm">${esc(x.tm||'ทั้งวัน')}</span><span class="pt"></span><button type="button" data-dlgo="${destOf(x.j)}"><b>${esc(x.j.title||sOf(x.j).label||'')}</b><small>${x.done?'เสร็จแล้ว':x.k} · ${esc(sOf(x.j).area||sOf(x.j).address||'')}</small></button></li>`).join('')}</ul>`:''}
    <button class="btn" style="width:100%;margin-top:8px" data-dlx>ปิด</button></div></div>`);
   {const b=document.querySelector('#dayl .dlb');let y0=0,dy=0,on=false;b.addEventListener('pointerdown',e=>{if(b.scrollTop>0)return;y0=e.clientY;on=true});b.addEventListener('pointermove',e=>{if(!on)return;dy=Math.max(0,e.clientY-y0);b.style.transform=`translateY(${dy}px)`});b.addEventListener('pointerup',()=>{on=false;if(dy>90)document.getElementById('dayl')?.remove();else b.style.transform='';dy=0})}}
 function viewToday(){
