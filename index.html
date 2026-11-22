@@ -425,9 +425,8 @@ a.nta.new::after{content:"";position:absolute;right:16px;top:16px;width:8px;heig
 /* พาทัวร์ */
 #tour{position:fixed;inset:0;z-index:95;pointer-events:none}
 #tour .tsp{position:fixed;border-radius:16px;box-shadow:0 0 0 9999px rgba(22,23,29,.55),0 0 0 3px #93d209;transition:all .35s cubic-bezier(.23,1,.32,1)}
-#tour .tcd{position:fixed;width:min(340px,calc(100vw - 32px));background:#fff;border-radius:20px;padding:16px 16px 12px 96px;box-shadow:0 24px 48px -20px rgba(0,0,0,.45);pointer-events:auto;transition:top .35s cubic-bezier(.23,1,.32,1),left .35s cubic-bezier(.23,1,.32,1)}
-#tour .tcd img{position:absolute;left:8px;bottom:8px;width:80px;height:84px;object-fit:contain}
-#tour .tcd b{display:block;font-size:16px;margin-bottom:4px}#tour .tcd p{margin:0 0 12px;font-size:14px;color:#3a3d47;line-height:1.5}
+#tour .tcd{position:fixed;width:min(340px,calc(100vw - 32px));background:#fff;border-radius:20px;padding:16px 16px 12px 16px;box-shadow:0 24px 48px -20px rgba(0,0,0,.45);pointer-events:auto;transition:top .35s cubic-bezier(.23,1,.32,1),left .35s cubic-bezier(.23,1,.32,1)}
+#tour #tour .tcd b{display:block;font-size:16px;margin-bottom:4px}#tour .tcd p{margin:0 0 12px;font-size:14px;color:#3a3d47;line-height:1.5}
 #tour .tcf{display:flex;align-items:center;gap:8px}#tour .tcf small{color:var(--mut);font-size:12px;margin-right:auto}
 #tour .tcf button{min-height:40px;padding:0 16px;border-radius:99px;border:0;font:600 14px inherit;font-family:inherit;cursor:pointer;background:#eeefea;color:var(--ink)}#tour .tcf button.tnx{background:var(--ink);color:#fff}
 @media(max-width:700px){.hdo{grid-template-columns:1fr}}
@@ -458,7 +457,6 @@ a.nta.new::after{content:"";position:absolute;right:16px;top:16px;width:8px;heig
 .skw{display:grid;gap:16px}.skh{height:230px;border-radius:28px}.skt{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.skt i{height:88px;display:block}
 .skr{display:grid;gap:10px;padding:16px}.skr i{display:block;height:44px;border-radius:12px}
 @media(max-width:700px){.skt{grid-template-columns:1fr 1fr}.skh{height:160px}}
-div.empty:not(.card)::before,.hempty::before{content:"";display:block;width:64px;height:68px;margin:0 auto 8px;background:url(mascot-wave.webp) center/contain no-repeat}
 .hempty{text-align:center}
 #jpv{position:fixed;z-index:75;width:300px;background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 20px 40px -18px rgba(0,0,0,.4),0 0 0 1px rgba(22,23,29,.06);pointer-events:none;animation:jpIn .16s cubic-bezier(.23,1,.32,1)}
 #jpv b{display:block;font-size:16px;margin-bottom:6px}
@@ -516,10 +514,10 @@ div.empty:not(.card)::before,.hempty::before{content:"";display:block;width:64px
 .hchip.ok svg{width:16px;height:16px}
 #cele{position:fixed;right:24px;bottom:24px;z-index:70;display:flex;align-items:center;gap:12px;background:#fff;border-radius:20px;padding:12px 20px 12px 12px;box-shadow:0 20px 40px -16px rgba(0,0,0,.35);animation:ceIn .5s cubic-bezier(.23,1,.32,1);cursor:pointer;max-width:calc(100vw - 32px);transition:opacity .25s ease-out,transform .25s ease-out}
 #cele.out{opacity:0;transform:translateY(10px)}
-#cele img{width:84px;height:88px;object-fit:contain;margin-top:-40px;flex:none;animation:ceM .7s cubic-bezier(.23,1,.32,1)}
+#cele .ceok{flex:none;width:44px;height:44px;border-radius:50%;background:#458c10;color:#fff;display:grid;place-items:center;animation:ceM .7s cubic-bezier(.23,1,.32,1)}
 #cele b{display:block;font-size:17px;line-height:1.3}
 #cele span{display:block;font-size:14px;color:var(--mut)}
-#cele .cf{position:absolute;left:54px;top:18px;pointer-events:none}
+#cele .cf{position:absolute;left:34px;top:34px;pointer-events:none}
 #cele .cf i{position:absolute;width:8px;height:12px;border-radius:2px;opacity:0;animation:cfB 1.2s cubic-bezier(.23,1,.32,1) forwards}
 @keyframes cfB{0%{opacity:1;transform:none}45%{opacity:1;transform:translate(calc(var(--x)*.7),var(--y)) rotate(calc(var(--r)*.5))}100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 170px)) rotate(var(--r))}}
 @keyframes ceIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:none}}
@@ -529,7 +527,7 @@ div.empty:not(.card)::before,.hempty::before{content:"";display:block;width:64px
 .pill.pp{animation:pPop .5s cubic-bezier(.23,1,.32,1)}
 @keyframes pPop{0%{transform:scale(.9)}60%{transform:scale(1.06)}100%{transform:none}}
 @media(max-width:700px){#cele{right:16px;left:16px;bottom:84px}}
-@media(prefers-reduced-motion:reduce){.toast.in,.toast .tbar,#cele,#cele img,.jprog i.grow,.pill.pp{animation:none}#cele .cf{display:none}}
+@media(prefers-reduced-motion:reduce){.toast.in,.toast .tbar,#cele,#cele .ceok,.jprog i.grow,.pill.pp{animation:none}#cele .cf{display:none}}
 
 .act{border-radius:16px;box-shadow:0 0 0 1px rgba(16,24,40,.08),0 12px 30px -16px rgba(16,24,40,.25);border-top:4px solid var(--acc)}
 .sec{border-radius:16px}
@@ -2611,7 +2609,7 @@ async function doUndo(){const u=S.undo;S.undo=null;$('#toast').hidden=true;const
 function celebrate(t,sub){document.getElementById('cele')?.remove();const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const C=['#7cc520','#458c10','#ffd23f','#ff8a3d','#3fa9f5','#ff6b8b'];
   const cf=rm?'':Array.from({length:26},(_,i)=>`<i style="--x:${((Math.random()*2-1)*170).toFixed(0)}px;--y:${(-110-Math.random()*130).toFixed(0)}px;--r:${(Math.random()*540-270).toFixed(0)}deg;background:${C[i%6]};animation-delay:${(Math.random()*90).toFixed(0)}ms"></i>`).join('');
-  document.body.insertAdjacentHTML('beforeend',`<div id="cele" role="status"><div class="cf">${cf}</div><img src="mascot-cheer.webp" alt=""><div><b>${esc(t)}</b><span>${esc(sub)}</span></div></div>`);
+  document.body.insertAdjacentHTML('beforeend',`<div id="cele" role="status"><div class="cf">${cf}</div><span class="ceok" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div><b>${esc(t)}</b><span>${esc(sub)}</span></div></div>`);
   const el=document.getElementById('cele');el.onclick=()=>el.remove();setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),300)},3800)}
 document.addEventListener('click',e=>{if(e.target.closest('[data-undo]'))doUndo()});
 /* เว็บกลางนี้เป็นของแอดมินเท่านั้น: เซลส์ใช้ LINE, วิศวกรใช้แอปมือถือ (ตรรกะบทบาทอื่นเก็บไว้ในโค้ดเพื่อส่งต่อ IT) */
@@ -2884,12 +2882,12 @@ function actBody(A){if(!A.length)return `<div class="nte">${svg('check','current
   const seen=actSeen(),t0=new Date();t0.setHours(0,0,0,0);const G=[['วันนี้',A.filter(x=>x.at>=+t0)],['ก่อนหน้า',A.filter(x=>x.at<+t0)]];
   return G.filter(g=>g[1].length).map(([t,L],gi)=>`<div class="ntact"><h6>${t}</h6>${gi===0&&A.some(x=>x.at>seen)?'<button type="button" data-ntread>อ่านแล้วทั้งหมด</button>':''}</div>${L.map(({j,h})=>{const nm=S.names[h.by]||'ทีมงาน',ph=(S.members[h.by]||{}).photo;
     return `<a class="nta ${h.at>seen?'new':''}" href="#job-${esc(j.id)}"><span class="av">${ph?`<img src="${esc(ph)}" alt="">`:esc(nm.slice(0,1))}</span><div><b>${esc(nm)}</b> ${esc(h.text)}<small>${esc(j.title||cOf(j).name||'')} · ${ago(h.at)}</small></div></a>`}).join('')}`).join('')}
-/* 20 พาทัวร์ครั้งแรก: มาสคอตชี้ทีละจุด · กดข้ามได้ · จำต่อคน */
+/* 20 พาทัวร์ครั้งแรก: การ์ดชี้ทีละจุด · กดข้ามได้ · จำต่อคน */
 const tourKey=()=>'cl.tour.'+(S.me.id||'');
 function tourSeen(){try{return !!localStorage.getItem(tourKey())}catch(e){return true}}
 function tour(){if(tourSeen()||document.getElementById('tour')||route()!=='today')return;if(document.getElementById('clg')){setTimeout(tour,500);return}
   const ST5=[['#gq','ค้นหาอะไรก็ได้','ชื่อลูกค้า เลขงาน เบอร์โทร หรือ S/N · กด Ctrl K เพื่อค้นและสั่งงานเร็ว ๆ'],['.hchips','งานที่รอคุณ','แตะชิปเพื่อเปิดงานที่รอคุณทำอยู่'],['.hdo','ควรทำวันนี้','ระบบคิดให้ว่าควรโทรหรือตามงานไหน · ปักหมุดงานสำคัญไว้ตรงนี้ได้'],['.hqa','จองคิวสำรวจ','เริ่มงานใหม่จากปุ่มนี้'],['#bellbtn','กระดิ่งแจ้งเตือน','ดูว่าใครทำอะไรในงานบ้าง และงานที่ค้างอยู่']].filter(x=>{const el=document.querySelector(x[0]);return el&&el.offsetParent});
-  if(!ST5.length)return;let i=0;document.body.insertAdjacentHTML('beforeend','<div id="tour" role="dialog" aria-modal="true" aria-label="แนะนำการใช้งาน"><div class="tsp"></div><div class="tcd"><img src="mascot-wave.webp" alt=""><b></b><p></p><div class="tcf"><small></small><button type="button" data-tskip>ข้าม</button><button type="button" class="tnx" data-tnext>ถัดไป</button></div></div></div>');
+  if(!ST5.length)return;let i=0;document.body.insertAdjacentHTML('beforeend','<div id="tour" role="dialog" aria-modal="true" aria-label="แนะนำการใช้งาน"><div class="tsp"></div><div class="tcd"><b></b><p></p><div class="tcf"><small></small><button type="button" data-tskip>ข้าม</button><button type="button" class="tnx" data-tnext>ถัดไป</button></div></div></div>');
   const box=document.getElementById('tour'),sp=box.querySelector('.tsp'),cd=box.querySelector('.tcd');
   const end=()=>{try{localStorage.setItem(tourKey(),'1')}catch(e){}box.remove();removeEventListener('resize',show);removeEventListener('hashchange',end);document.removeEventListener('keydown',key,true)};
   const show=()=>{const [q,t,d]=ST5[i],el=document.querySelector(q);if(!el)return end();el.scrollIntoView({block:'nearest'});const r=el.getBoundingClientRect(),pd=6;
