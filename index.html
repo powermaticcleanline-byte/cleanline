@@ -2347,6 +2347,52 @@ body.pgsc .pg>.ph:has(+ .card.jst) h1{font-size:24px!important;line-height:1.25!
 .drw .dtabs{align-self:stretch;display:flex}
 .drw .dtabs button{flex:1 1 auto}
 }
+/* 5w: 12 เป้าเดือน · 13 เปลี่ยนหน้า · 14 ติ๊กบันทึก · 15 ไล่งาน · 16 งานค้างนาน */
+tr.ag1>td:first-child{box-shadow:inset 3px 0 0 #f59e0b}
+tr.ag2>td:first-child{box-shadow:inset 3px 0 0 #dc2626}
+.kce2.ag1{box-shadow:inset 3px 0 0 #f59e0b}
+.kce2.ag2{box-shadow:inset 3px 0 0 #dc2626}
+.kce2.p.ag1{box-shadow:inset 3px 0 0 #f59e0b,inset 0 0 0 1px #d2e8b4}
+.kce2.p.ag2{box-shadow:inset 3px 0 0 #dc2626,inset 0 0 0 1px #d2e8b4}
+.kvc.ag1{border-left-color:#f59e0b}
+.kvc.ag2{border-left-color:#dc2626}
+.aglg{display:inline-flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--mut)}
+.aglg i{display:inline-block;width:3px;height:14px;border-radius:2px;margin-right:6px;vertical-align:-2px}
+.svok{display:inline-grid;place-items:center;width:18px;height:18px;margin-left:8px;border-radius:50%;background:#458c10;color:#fff;font-size:11px;font-style:normal;font-weight:700;line-height:1;vertical-align:1px;animation:svok 7s ease forwards}
+@keyframes svok{0%{transform:scale(.4);opacity:0}5%{transform:scale(1.15);opacity:1}9%{transform:none}85%{opacity:1}100%{opacity:0}}
+.jnav{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums;flex:none}
+.jnav .ib svg{width:15px;height:15px}
+.jnav .ib.pv svg{transform:rotate(180deg)}
+.jnav .ib[disabled]{opacity:.35;cursor:default}
+.pha .jnav .ib{width:40px!important;height:40px!important;border-radius:999px!important;background:#fff!important;border:1px solid rgba(0,0,0,.06)!important}
+.jnav>span{min-width:48px;text-align:center}
+.drhb{display:flex;align-items:center;gap:8px;margin-left:auto;flex:none}
+.gol .glr{display:grid;gap:8px;margin:4px 0 12px}
+.gol .glh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.gol .glh span{color:var(--mut);font-size:14px}
+.gol .glh b{font-size:20px;font-variant-numeric:tabular-nums}
+.gol .glh b em{font-style:normal;font-size:14px;font-weight:500;color:var(--mut)}
+.gol .glb{height:8px;border-radius:999px;background:#eef0f3;overflow:hidden}
+.gol .glb i{display:block;height:100%;border-radius:inherit;background:#458c10;transition:width .5s ease}
+.gol .glb.ok i{background:#16a34a}
+.gol .gln{margin:0 0 8px;font-size:13px;color:var(--mut)}
+.gol .gln.ok{color:#15803d;font-weight:600}
+.gform{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.gform label{display:grid;gap:4px;font-size:14px;color:var(--mut)}
+.gform input{width:140px;height:40px;padding:0 12px;border:1px solid #e6e5ef;border-radius:10px;background:#fff;font-variant-numeric:tabular-nums}
+html.vtg .pg{view-transition-name:pgv}
+::view-transition-old(root),::view-transition-new(root){animation:none}
+::view-transition-old(pgv){animation:vtOut .12s ease both}
+::view-transition-new(pgv){animation:vtIn .2s ease both}
+@keyframes vtOut{to{opacity:0}}
+@keyframes vtIn{from{opacity:0;transform:translateY(6px)}}
+@media (prefers-reduced-motion:reduce){.svok{animation:none}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+@media (max-width:640px){.jnav>span{min-width:36px}.drhb{gap:4px}
+  .tqb>select.sel:nth-child(4){grid-column:1/-1}
+  .tqb>.jst{overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 80%,transparent);mask-image:linear-gradient(90deg,#000 80%,transparent)}
+  .tqb>.aglg{grid-column:1/-1;justify-content:flex-end;font-size:12px}
+  .jt tbody tr.ag1{box-shadow:inset 4px 0 0 #f59e0b}.jt tbody tr.ag2{box-shadow:inset 4px 0 0 #dc2626}
+  .jt tbody tr.ag1>td:first-child,.jt tbody tr.ag2>td:first-child{box-shadow:none}}
 </style></head>
 <body>
 <div class="shell">
@@ -2364,6 +2410,7 @@ body.pgsc .pg>.ph:has(+ .card.jst) h1{font-size:24px!important;line-height:1.25!
 <div id="modal"></div>
 <script src="config.js"></script>
 <script src="gdb.js"></script>
+<script src="shared.js"></script>
 <script>
 /* ---------- definitions ---------- */
 const STAGES=[null,
@@ -2433,6 +2480,8 @@ const SECTIONS=[
   ['loggerDevice','เครื่องตรวจพฤติกรรมการใช้ไฟฟ้า','text'],['logStart','วัดตั้งแต่','date'],['logEnd','ถึง','date'],
   ['proposedKw','ขนาดที่เสนอ (kW)','number'],['inverterQty','จำนวนอินเวอร์เตอร์','number'],
   ['proposedModel','รุ่นอินเวอร์เตอร์ที่เสนอ','model','INVERTER'],['proposedNote','หมายเหตุขนาด','text'],['quoter','ผู้ออกราคา (CC)','text']]},
+ {id:'quote',title:'ใบเสนอราคา',tgt:'job',stages:[4],fields:[
+  ['quoteNo','เลขที่ใบเสนอราคา','text'],['quoteDate','วันที่เสนอ','date'],['quotePrice','ราคาเสนอ (บาท)','number'],['quoteUrl','ลิงก์ไฟล์ใบเสนอราคา (Google Drive)','text',{full:1,ph:'https://drive.google.com/…'}]]},
  {id:'install',title:'ตกลงและนัดติดตั้ง',tgt:'job',stages:[4,5,6],fields:[
   ['agreedDate','วันที่ลูกค้าตกลง','date'],['wantInstallDate','วันที่ลูกค้าสะดวกติดตั้ง','date'],
   ['installDate','วันเริ่มติดตั้ง','date'],['installEnd','ติดตั้งถึงวันที่ (ถ้าหลายวัน)','date'],
@@ -2475,8 +2524,6 @@ function needs(n,j,c,s){
 }
 const mapsDir=dest=>`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(PWM_ADDR)}${dest?'&destination='+encodeURIComponent(dest):''}`;
 function closedDays(){return (S.config&&S.config.survey&&S.config.survey.closed)||{}}
-const isoOf=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;   // Date → YYYY-MM-DD เวลาท้องถิ่น (ใช้ที่เดียว)
-const isoAdd=(k,n)=>{const d=new Date(k+'T00:00:00');d.setDate(d.getDate()+n);return isoOf(d)};
 function teamCount(team,k,exceptId){return Object.values(S.jobs).filter(j=>j.id!==exceptId&&!['lost','cancelled'].includes(j.status)&&(j.surveyTeam||'')===team&&(j.surveyDate||j.queueDate)===k).length}
 /* ทีมนี้รับเพิ่มได้กี่ที่ในวัน k (ห้ามออกสองวันติดกัน) */
 function teamSlots(team,k,exceptId){if(S.me&&S.me.role){if(teamBlock(team,k,exceptId))return 0;return PER_TEAM-svJobsOn(team,k,exceptId).length}const c=teamCount(team,k,exceptId);if(c>=PER_TEAM)return 0;if(!c&&(teamCount(team,isoAdd(k,-1),exceptId)||teamCount(team,isoAdd(k,1),exceptId)))return 0;return PER_TEAM-c}
@@ -2532,7 +2579,7 @@ const IC={
  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'
 };
-IC.xc='<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>';
+IC.flag='<path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/>';IC.xc='<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>';
 const svg=(k,c='currentColor',w=1.9)=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
 const SWOOSH='<svg class="sw" width="520" height="230" viewBox="0 0 560 260" aria-hidden="true"><path d="M20 230 V150 Q20 100 70 100 H180 Q230 100 230 150 V170 Q230 220 280 220 H540" fill="none" stroke="#458c10" stroke-opacity=".18" stroke-width="22" stroke-linecap="round"/><path d="M20 230 V150 Q20 100 70 100 H180 Q230 100 230 150 V170 Q230 220 280 220 H540" fill="none" stroke="#dcfce7" stroke-opacity=".5" stroke-width="2"/></svg>';
 
@@ -2542,14 +2589,8 @@ const S={db:null,user:null,jobs:{},customers:{},sites:{},products:{},forms:{},me
  f:{eng:'',q:'',team:'',status:'all',phase:'',sort:'age',limit:40,pg:0,per:20,cq:'',jmo:0},dirty:new Set(),held:false,names:{}};
 
 /* ---------- utils ---------- */
-const $=s=>document.querySelector(s);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-const TMF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const TD=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
-function fd(iso){if(!iso)return '—';const [y,m,d]=String(iso).split('-').map(Number);if(!y||!m)return esc(iso);return `${d} ${TM[m-1]} ${String(y+543).slice(2)}`}
 function fdt(ms){const d=new Date(ms);const t=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;if(new Date().toDateString()===d.toDateString())return 'วันนี้ '+t;return `${d.getDate()} ${TM[d.getMonth()]} ${t}`}
-const today=()=>{const d=new Date();return isoOf(d)};
 const days=ms=>ms?Math.max(0,Math.floor((Date.now()-ms)/864e5)):0;
 const ageCls=d=>d>30?'crit':d>14?'warn':'';
 function toast(m){const t=$('#toast');const u=S.undo&&!S.undo.shown&&Date.now()-S.undo.at<2500?S.undo:null;
@@ -2598,7 +2639,6 @@ const F_ASSIGN=['surveyTeam','surveyor','supervisor','installTeam'];
 const F_SURVEY_SECS=['site','req','survey'];
 function fieldLocked(sec,k){if(isDispatch())return !(F_ASSIGN.includes(k)||k==='woNote');const jj=String(route()).startsWith('job-')?S.jobs[route().slice(4)]:null;if(k==='supervisor'&&jj&&jj.status==='active'&&jj.stage===ST.INSTALL)return false;if(F_ASSIGN.includes(k)&&k!=='installTeam')return true;return false}
 function canAct(j){if(!j)return false;const r=myRole();if(j.stage===ST.ACCEPT||j.stage===ST.INSTALL)return r==='admin'||r==='dispatch';const st=STAGES[j.stage];return !!st&&st.role===r}
-const isImp=j=>/^x\d+$/.test(String(j&&j.id||''));
 function secEditable(sec,j){
   if(isDispatch())return sec.id==='install'||sec.id==='wo';
   if(F_SURVEY_SECS.includes(sec.id))return false;
@@ -2766,7 +2806,65 @@ function pinBtn(j){const on=pins().includes(j.id);return `<button type="button" 
 function pinBox(){const L=pins();if(!L.length)return '';
   return `<section class="card" aria-label="งานที่ปักหมุด"><h2>${svg('star','#c58a00',2)}ปักหมุดไว้<small>${L.length} งาน</small></h2><div class="pnlst">${L.map(id=>{const j=S.jobs[id],c=cOf(j);return `<a class="pnr" href="#job-${esc(id)}"><div><b>${esc(j.title||c.name||'')}</b><span>${esc(stOf(j)==='active'?STAGES[j.stage]?.name||'':jobPillTxt(j))}${svDate(j)&&j.stage<=ST.SURVEY?' · '+esc(fd(svDate(j))):j.installDate&&j.stage>=ST.INSREQ?' · ติดตั้ง '+esc(fd(j.installDate)):''}</span></div><button type="button" class="pnx" data-pin="${esc(id)}" data-off="1" aria-label="เอาหมุดออก" title="เอาหมุดออก">${svg('star','currentColor',2)}</button></a>`}).join('')}</div></section>`}
 const jobPillTxt=j=>j.status==='done'?'ปิดงานแล้ว':j.status==='lost'?'ยังไม่ตกลง':'ยกเลิก';
-function doRow(){if(!myGroup())return '';const a=pinBox(),b=todoBox();return `<div class="hdo">${a}${b}</div>`}
+function doRow(){if(!myGroup())return '';const a=pinBox(),b=todoBox(),g=goalBox();return `<div class="hdo">${g}${a}${b}</div>`}
+/* 16 งานค้างนาน: อยู่ขั้นเดิมเกิน 14 วัน = ส้ม · เกิน 30 วัน = แดง (เฉพาะงานที่กำลังดำเนินการ) */
+const agCls=j=>{if(j.status!=='active')return '';const d=days(j.stageSince);return d>30?'ag2':d>14?'ag1':''};
+const agLegend=()=>`<span class="aglg" aria-label="สีขอบงาน"><span><i style="background:#f59e0b"></i>ค้างขั้นเดิมเกิน 14 วัน</span><span><i style="background:#dc2626"></i>เกิน 30 วัน</span></span>`;
+/* 15 ไล่งานก่อน/ถัดไป ตามรายการที่กรองไว้ในหน้ารายการงาน */
+function navNb(id){for(const sv of route()==='service'?[true,false]:[false,true]){const L=jobsList(sv?'installed':S.f.status,sv).list;const i=L.findIndex(x=>x.id===id);if(i>=0)return {i,n:L.length,p:L[i-1],x:L[i+1]}}return null}
+function navCtl(id){if(!S.loaded.jobs)return '';const nb=navNb(id);if(!nb||nb.n<2)return '';
+  return `<div class="jnav" role="group" aria-label="ไล่ดูงาน"><button type="button" class="ib pv" data-jnav="-1" ${nb.p?'':'disabled'} aria-label="งานก่อนหน้า" title="งานก่อนหน้า (ปุ่ม ←)">${svg('chev','currentColor',2)}</button><span aria-live="polite">${nb.i+1}/${nb.n}</span><button type="button" class="ib" data-jnav="1" ${nb.x?'':'disabled'} aria-label="งานถัดไป" title="งานถัดไป (ปุ่ม →)">${svg('chev','currentColor',2)}</button></div>`}
+function navGo(d){const r=route();const inJob=r.startsWith('job-');const id=inJob?r.slice(4):S.sel;if(!id)return;const nb=navNb(id);const j=nb&&(d<0?nb.p:nb.x);if(!j)return;
+  if(inJob){if(S.dirty.size)return toast('บันทึกหรือยกเลิกส่วนที่แก้อยู่ก่อน');location.hash='#job-'+j.id;return}
+  S.sel=j.id;S.dtab=null;render();setTimeout(()=>document.querySelector(`.drw [data-jnav="${d}"]:not([disabled])`)?.focus()||document.querySelector('.drx')?.focus(),0)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-jnav]');if(!b||b.disabled)return;e.preventDefault();navGo(+b.dataset.jnav)});
+document.addEventListener('keydown',e=>{if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight'||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;
+  const t=e.target;if(/INPUT|TEXTAREA|SELECT/.test(t.tagName)||t.isContentEditable||t.closest?.('[role=tablist],.kd,.cgrid,#gqr,.mnu'))return;
+  if(document.querySelector('.modalbg,.fmod,#cki,details.mnu[open]'))return;
+  if(!route().startsWith('job-')&&!S.sel)return;e.preventDefault();navGo(e.key==='ArrowLeft'?-1:1)});
+/* 14 ติ๊ก "บันทึกแล้ว" ข้างช่องที่เพิ่งบันทึก (หายเองใน 7 วินาที) */
+function svTick(sec,k){const v=S.saved;if(!v||v.sec!==sec||!v.keys.includes(k))return '';const el=Date.now()-v.at;if(el>7000)return '';return `<i class="svok" style="animation-delay:-${el}ms" role="img" aria-label="บันทึกแล้ว" title="บันทึกแล้ว">✓</i>`}
+/* 13 เปลี่ยนหน้าแบบค่อย ๆ จาง (เบราว์เซอร์ที่ไม่รองรับ = เปลี่ยนทันทีเหมือนเดิม) */
+function vt(f){if(!document.startViewTransition||document.hidden||navigator.webdriver||matchMedia('(prefers-reduced-motion: reduce)').matches)return f();const h=document.documentElement;h.classList.add('vtg');try{document.startViewTransition(f).finished.finally(()=>h.classList.remove('vtg'))}catch(e){h.classList.remove('vtg');f()}}
+/* 12 เป้าประจำเดือน: ตั้งในหน้าตั้งค่า (config/goal) · นับงานติดตั้งเสร็จในเดือนนี้ + kW รวม */
+const goalCfg=()=>{const g=S.config?.goal||{};const n=+g.jobs||0,k=+g.kw||0;return n>0||k>0?{jobs:n,kw:k}:null};
+function goalNow(){const ym=today().slice(0,7);const L=visibleJobs().filter(j=>j.installDate&&String(j.installDate).startsWith(ym)&&(j.stage>=ST.COMM||j.status==='done')&&stOf(j)!=='cancelled');
+  const kw=L.reduce((a,j)=>a+(parseFloat((j.equipment||{}).kw||j.proposedKw)||0),0);return {jobs:L.length,kw:Math.round(kw*10)/10}}
+function goalHit(g,n){return (!g.jobs||n.jobs>=g.jobs)&&(!g.kw||n.kw>=g.kw)}
+function goalBox(){const g=goalCfg();if(!g)return '';const n=goalNow();const d=new Date();const left=new Date(d.getFullYear(),d.getMonth()+1,0).getDate()-d.getDate();const hit=goalHit(g,n);
+  const row=(lab,v,t,u)=>{const pc=Math.min(100,Math.round(v/t*100));return `<div class="glr"><div class="glh"><span>${lab}</span><b>${v.toLocaleString('th-TH')} <em>/ ${t.toLocaleString('th-TH')} ${u}</em></b></div><div class="glb ${v>=t?'ok':''}" role="progressbar" aria-label="${lab}" aria-valuemin="0" aria-valuemax="${t}" aria-valuenow="${v}"><i style="width:${pc}%"></i></div></div>`};
+  const miss=[g.jobs&&n.jobs<g.jobs?'อีก '+(g.jobs-n.jobs)+' งาน':'',g.kw&&n.kw<g.kw?'อีก '+(Math.round((g.kw-n.kw)*10)/10).toLocaleString('th-TH')+' kW':''].filter(Boolean).join(' · ');
+  return `<section class="card gol" aria-label="เป้าเดือนนี้"><h2>${svg('flag','currentColor',2)}เป้า${TMF[d.getMonth()]}<small>${left?'เหลือ '+left+' วัน':'วันสุดท้ายของเดือน'}</small></h2>
+    ${g.jobs?row('ติดตั้งเสร็จ',n.jobs,g.jobs,'งาน'):''}${g.kw?row('กำลังติดตั้งรวม',n.kw,g.kw,'kW'):''}
+    <p class="gln ${hit?'ok':''}">${hit?'ทีมทำถึงเป้าเดือนนี้แล้ว':'ขาด'+miss}</p></section>`}
+/* แจ้งเตือนบนเครื่อง (เลือกเปิดเองในหน้าตั้งค่า · จำต่อเครื่องต่อคน)
+   แสดงเมื่อมีความเคลื่อนไหวใหม่จากคนอื่น ขณะแอปเปิดค้างไว้แต่ไม่ได้ดูอยู่ · ปิดแอปแล้วจะไม่เด้ง (ต้องมีเซิร์ฟเวอร์ push)
+   ไม่ใช้ service worker (ตกลงกันไว้ว่าไม่มี SW/แคช) → ได้บนคอมพิวเตอร์ · Chrome บน Android ไม่รองรับแบบนี้ */
+const ntfKey=()=>'cl.ntf.'+(S.me.id||'');
+const ntfOn=()=>{try{return 'Notification' in window&&Notification.permission==='granted'&&localStorage.getItem(ntfKey())==='1'}catch(e){return false}};
+let ntfAt=Date.now();
+function ntfShow(title,body,id){const opt={body,tag:'cl-'+id,icon:'icon-mg-192.png'};try{const n=new Notification(title,opt);n.onclick=()=>{focus();if(id)location.hash='#job-'+id;n.close()}}catch(e){}}
+function ntfCheck(){if(!S.loaded.jobs||!myGroup())return;const A=actItems().filter(x=>x.at>ntfAt);if(!A.length)return;ntfAt=Math.max(...A.map(x=>x.at));
+  if(!ntfOn()||document.visibilityState==='visible')return;
+  if(A.length>3)return ntfShow('CLEANLINE · ความเคลื่อนไหวใหม่ '+A.length+' รายการ',A.slice(0,3).map(x=>(x.j.title||'')+': '+x.h.text).join('\n'),A[0].j.id);
+  A.forEach(x=>ntfShow((S.names[x.h.by]||'ทีมงาน')+' · '+(x.j.title||cOf(x.j).name||'งาน'),x.h.text,x.j.id))}
+function ntfCard(){if(!('Notification' in window)||/Android/i.test(navigator.userAgent))return '';const p=Notification.permission,on=ntfOn();
+  return `<section class="card pad" style="display:flex;flex-direction:column;gap:12px" aria-label="แจ้งเตือนบนเครื่องนี้"><h2 style="margin:0;font-size:16px">แจ้งเตือนบนเครื่องนี้</h2>
+    <p class="sub" style="margin:0">เด้งแจ้งเตือนเมื่อมีคนบันทึกในงาน ขณะเปิดแอปค้างไว้ (สลับไปทำอย่างอื่นได้) · ถ้าปิดแอปไปแล้วจะไม่เด้ง</p>
+    ${p==='denied'?'<p class="sub" style="margin:0;color:#b45309">เครื่องนี้บล็อกการแจ้งเตือนไว้ เปิดได้ที่การตั้งค่าเว็บไซต์ของเบราว์เซอร์</p>':`<div><button type="button" class="btn ${on?'':'pri'}" data-ntfset="${on?0:1}">${on?'ปิดแจ้งเตือน':'เปิดแจ้งเตือน'}</button>${on?' <button type="button" class="btn ghost" data-ntftest>ลองแจ้งเตือน</button>':''}</div>`}</section>`}
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-ntfset],[data-ntftest]');if(!b)return;
+  if(b.dataset.ntftest!==undefined)return ntfShow('CLEANLINE','แจ้งเตือนบนเครื่องนี้ใช้งานได้','');
+  if(b.dataset.ntfset==='1'){const r=await Notification.requestPermission();if(r!=='granted'){render();return toast('ยังไม่ได้อนุญาตการแจ้งเตือน')}try{localStorage.setItem(ntfKey(),'1')}catch(x){}toast('เปิดแจ้งเตือนแล้ว')}
+  else{try{localStorage.removeItem(ntfKey())}catch(x){}toast('ปิดแจ้งเตือนแล้ว')}render()});
+function goalCheck(){const g=goalCfg();if(!g||!S.loaded.jobs||!myGroup())return;const n=goalNow();if(!goalHit(g,n))return;
+  const k='cl.goal.'+(S.me.id||'')+'.'+today().slice(0,7)+'.'+(g.jobs||0)+'.'+(g.kw||0);try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){return}
+  setTimeout(()=>celebrate('ทีมทำถึงเป้าเดือนนี้แล้ว',[g.jobs?'ติดตั้งเสร็จ '+n.jobs+' งาน':'',g.kw?n.kw.toLocaleString('th-TH')+' kW':''].filter(Boolean).join(' · ')),900)}
+function goalCard(){const g=S.config?.goal||{};
+  return `<section class="card pad" style="display:flex;flex-direction:column;gap:12px" aria-label="เป้าประจำเดือน"><h2 style="margin:0;font-size:16px">เป้าประจำเดือน</h2>
+    <p class="sub" style="margin:0">ใช้ทุกเดือนจนกว่าจะแก้ · หน้าแรกจะแสดงความคืบหน้า และฉลองเมื่อทีมทำถึงเป้า · เว้นว่างช่องที่ไม่ใช้</p>
+    <div class="gform"><label>ติดตั้งเสร็จ (งาน)<input id="glJobs" type="number" min="0" step="1" inputmode="numeric" value="${+g.jobs||''}"></label><label>กำลังติดตั้งรวม (kW)<input id="glKw" type="number" min="0" step="0.1" inputmode="decimal" value="${+g.kw||''}"></label><button type="button" class="btn pri" data-goalsave="1">บันทึกเป้า</button></div></section>`}
+document.addEventListener('click',async e=>{if(!e.target.closest('[data-goalsave]'))return;const n=v=>Math.max(0,Math.round((parseFloat(document.getElementById(v)?.value)||0)*10)/10);
+  const d={jobs:Math.round(n('glJobs')),kw:n('glKw'),updatedAt:Date.now()};try{await w('config/goal',d,'set');toast(d.jobs||d.kw?'บันทึกเป้าแล้ว':'ลบเป้าแล้ว')}catch(x){}});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pin]');if(!b)return;e.preventDefault();e.stopPropagation();pinSet(b.dataset.pin,b.dataset.off?false:!pins().includes(b.dataset.pin))},true);
 /* 18 กดเบอร์โทรแล้วคัดลอก: ห่อเบอร์ที่โชว์เป็นตัวหนังสือ (ไม่แตะช่องกรอก/ลิงก์/ปุ่ม) */
 const PH_RE=/(^|[^\d])(0\d{1,2}[- ]?\d{3}[- ]?\d{3,4})(?!\d)/g;
@@ -2839,6 +2937,7 @@ function render(){
   phWrap(app);if(r==='today'&&S.loaded.jobs&&!tourSeen())setTimeout(tour,700);
   mountApps();
   setupStick();
+  goalCheck();ntfCheck();
   if(aid){const el=document.getElementById(aid);if(el){el.focus();try{if(sel!=null)el.setSelectionRange(sel,sel)}catch(e){}}}
 }
 const APPS=[
@@ -3104,7 +3203,6 @@ function emptyStart(){
 /* ---------- all jobs ---------- */
 const svDate=j=>[j.surveyDate,j.queueDate].find(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x))||'';
 const PHC2={pre:'b',offer:'g',ins:'o',post:'v'};
-const xCan=j=>j.status==='lost'&&/^ยกเลิก \(จาก Excel\)/.test(j.lostReason||'');
 const stOf=j=>xCan(j)?'cancelled':j.status;
 function jobPill(j){return stOf(j)==='cancelled'?'<span class="pill gy">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy">ยังไม่ตกลง</span>':j.status==='done'?'<span class="pill ok">ปิดงานแล้ว</span>':`<span class="pill ${PHC2[phaseOf(j.stage)?.k]||'gy'}">${esc(STAGES[j.stage].name)}</span>`}
 const placeOf=(j,s,c)=>s.area||s.place||c.address||'';
@@ -3166,7 +3264,7 @@ function viewJobs(mode){
       <select class="sel" id="jeng" aria-label="คนสำรวจ"><option value="">ทุกคนสำรวจ</option>${engs.map(t=>`<option ${f.eng===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
       ${filtered?`<button class="btn sm ghost" data-clear="1">ล้างตัวกรอง</button>`:''}
       ${SV?'':`<div class="seg jst" role="tablist" aria-label="สถานะ">${cards.map(([k,t])=>`<button role="tab" class="${status===k?'on':''}" aria-selected="${status===k}" data-status="${k}">${t}<span class="n">${cnt[k]||0}</span></button>`).join('')}</div>`}
-      ${BOARD?'':`<span class="sub jcount">${list.length} งาน</span>`}
+      ${BOARD?'':`<span class="sub jcount">${list.length} งาน</span>`}${!svc&&shown.some(j=>agCls(j))?agLegend():''}
     </div>
     ${shown.length?`<div class="jtw"><table class="jt jt2 ${svc?'jt2s':'jt2n'}">
       <thead><tr>${svc?'<th class="c-site">ไซต์</th><th>อินเวอร์เตอร์</th><th class="c-sn">S/N</th><th class="c-kw">ขนาด</th><th class="c-dt">วันติดตั้ง</th><th class="c-st">สถานะ</th>':'<th class="c-no">เลขงาน</th><th class="c-site">ไซต์</th><th class="c-tm">ทีมขาย</th><th class="c-dt">วันสำรวจ</th><th class="c-kw">ขนาด</th><th class="c-st">สถานะ</th>'}<th class="c-act">จัดการ</th></tr></thead>
@@ -3180,7 +3278,7 @@ function viewJobs(mode){
         const now=j.status==='active'?`${j.stage===ST.DOCS?'รอเอกสารขนานไฟ':'รอ'+ownerOf(j)} · ${days(j.stageSince)} วัน`:j.status==='lost'?(j.lostReason||''):j.status==='cancelled'?(j.cancelReason||''):'';
         const st=svc||isInstalled(j)&&j.status==='done'?(careTags(j)||jobPill(j)):jobPill(j);
         const T=(v,cls)=>v?`<td class="${cls||''}" title="${esc(v)}">${esc(v)}</td>`:`<td class="${cls||''}"><span class="nil">—</span></td>`;
-        return `<tr data-sel="${esc(j.id)}" tabindex="0" class="${S.sel===j.id?'on':''}" aria-label="ดูรายละเอียด ${esc(nm)}">
+        return `<tr data-sel="${esc(j.id)}" tabindex="0" class="${S.sel===j.id?'on':''} ${agCls(j)}" aria-label="ดูรายละเอียด ${esc(nm)}">
         ${svc?'':T(j.jobNo?'#'+j.jobNo:'','c-no m')}
         <td class="c-site"><b title="${esc(nm)}">${esc(nm)}</b></td>
         ${svc?T(e.model||j.proposedModel,'m')+T(sn,'c-sn snm m')+T(kw?kw+' kW':'','c-kw m')+T(dd(j.installDate),'c-dt m')
@@ -3257,7 +3355,7 @@ function jobDrawer(j){
         <h2 id="drwT">${esc(j.title||c.name||'ไม่มีชื่อไซต์')}</h2>
         <div class="drm">${jobPill(j)}${inst?careTags(j):''}${rn||c.phone?`<span class="sub">${[rn,c.phone].filter(Boolean).map(esc).join(' · ')}</span>`:''}</div>
         ${j.status==='active'?`<div class="dtrack">${stageBar(j)}</div>${now}`:''}</div>
-      <button class="btn sm ghost drx" data-dclose="1" aria-label="ปิด">ปิด ✕</button>
+      <div class="drhb">${navCtl(j.id)}<button class="btn sm ghost drx" data-dclose="1" aria-label="ปิด">ปิด ✕</button></div>
     </header>
     ${facts}
     ${(()=>{const sj=j.siteId?siteJobs(j.siteId):[];return sj.length>1?`<div class="dsc" style="margin:0 20px 12px"><h4>งานของไซต์นี้ ${sj.length} งาน</h4>${sj.map(x=>`<a href="#job-${esc(x.id)}" class="dsj" style="display:flex;justify-content:space-between;gap:8px;padding:4px 0"><span>${esc(x.jobNo?'#'+x.jobNo:'ยังไม่มีเลข')} · ${esc(x.type==='addon'?'ติดตั้งเพิ่ม':'งานแรก')}${x.id===j.id?' (งานนี้)':''}</span>${jobPill(x)}</a>`).join('')}</div>`:''})()}
@@ -3278,7 +3376,6 @@ function jobDrawer(j){
 
 /* ---------- site registry ---------- */
 const CM_CH=['ลูกค้าโทรแจ้ง','LINE','เซลส์แจ้ง','แอปมอนิเตอร์','ตรวจพบตอนตรวจเช็ก','อื่นๆ'];
-function invUnits(e){e=e||{};const U=Array.isArray(e.units)?e.units.filter(u=>u&&(u.model||u.sn||u.wifiSn)):[];if(U.length)return U;return e.model||e.sn||e.wifiSn?[{role:'Master',model:e.model||'',sn:e.sn||'',wifiSn:e.wifiSn||''}]:[]}
 /* Master = ช่อง model/sn/wifiSn เดิม · units[0] ตามให้ตรงเสมอ */
 function eqSync(e){if(!e||!Array.isArray(e.units)||!e.units.length)return e;const u=[...e.units];u[0]={...u[0],role:'Master',model:e.model||'',sn:e.sn||'',wifiSn:e.wifiSn||''};return {...e,units:u}}
 const unitSns=e=>invUnits(e).flatMap(u=>[u.sn,u.wifiSn]).filter(Boolean).join(' ');
@@ -3515,7 +3612,6 @@ async function saveEq(){
   try{await w('products/'+id,{...v,category:cat,updatedAt:Date.now()},f.dataset.id?'update':'set');closeModal();toast('บันทึกแล้ว')}catch(e){}
 }
 /* ===== นำเข้าแคตตาล็อกจาก Excel (รูปแบบไฟล์ Catalog.xlsx: สินค้า ยี่ห้อ รุ่น เฟส กำลังผลิต Smart Meter[ยี่ห้อ,รุ่น] CT หมายเหตุ) ===== */
-const catNum=v=>{const m=String(v??'').replace(/,/g,'').match(/\d+(?:\.\d+)?/);return m?Number(m[0]):''};
 function catParse(rows,base=0){
   const hi=rows.findIndex(r=>(r||[]).some(c=>String(c??'').trim()==='สินค้า'));if(hi<0)throw new Error('ไม่พบหัวตาราง "สินค้า" ในไฟล์');
   const H=rows[hi].map(c=>String(c??'').trim());const col=t=>H.findIndex(x=>x===t);
@@ -3759,7 +3855,7 @@ function viewJob(id){
     if(n>1&&act&&n!==ST.ACCEPT&&n!==ST.SURVEY)btns+=`<button class="btn sm" data-act="back" style="align-self:flex-start;box-shadow:none;color:var(--mut)">ย้อนกลับขั้นก่อนหน้า</button>`;
     if(n===ST.ACCEPT){right=acceptCard(j,act);}
     else if(n===ST.BOOK&&act&&ready){right=acceptCard(j,act,nextRole);}
-    else if(n===ST.SURVEY){right=svCard(j,c,s,act);}
+    else if(n===ST.SURVEY){right=svCard(j,c,s,act);if(isImp(j)&&myGroup()==='admin')right+=`<section class="act" aria-label="ปิดงานสำรวจแทน"><div><h2>ปิดงานสำรวจแทนคนสำรวจ</h2><span class="sub">สำหรับงานที่นำเข้าจาก Excel และสำรวจเสร็จไปแล้วนอกระบบ · งานจะไปขั้น "${esc(STAGES[ST.OFFER].name)}"</span></div><div class="btns"><button class="btn" data-act="impsv">ปิดงานสำรวจแทน</button></div></section>`;}
     else if(n===ST.INSREQ){right=insCard(j,act);}
     else if(n===ST.INSTALL){right=asgCard(j,act);}
     else if(n===ST.COMM&&j.status==='active'){right=insFormCard(j,'');}
@@ -3789,7 +3885,7 @@ function viewJob(id){
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>
       <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p>${j.equipment&&j.equipment.plantName?`<p class="jplant">Plant <b>${esc(j.equipment.plantName)}</b></p>`:''}</div>
-    <div class="pha">${pinBtn(j)}${j.folderUrl&&safeUrl(j.folderUrl)?`<button class="btn" data-files="${esc(j.id)}">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</button>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
+    <div class="pha">${navCtl(j.id)}${pinBtn(j)}${j.folderUrl&&safeUrl(j.folderUrl)?`<button class="btn" data-files="${esc(j.id)}">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</button>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
       return mnu([fx?mi(`data-fname="${esc(j.id)}"`,'pen','เปลี่ยนชื่อโฟลเดอร์'):'',fx&&(cx||dx)?'<hr>':'',cx?mi('data-act="cancel"','xc','ยกเลิกคิว',1):'',dx?mi(`data-jdel="${esc(j.id)}"`,'trash','ลบงาน',1):''].filter(x=>x!=='<hr>'||fx&&(cx||dx)),'อื่นๆ')})()}</div></div>
   ${j.status==='active'?`<section class="card jst">
     <div class="jsc"><span class="sub">ขั้นปัจจุบัน</span><span class="pill ${PHC2[phaseOf(n)?.k]||'gy'} big${S.stAnim&&S.stAnim.id===j.id?' pp':''}">${esc(st.name)}</span></div>
@@ -3934,7 +4030,7 @@ function showVal([k,l,t],v){
   if(v===undefined||v===null||v===''||v===false)return null;
   if(t==='date'&&/^\d{4}-\d{2}-\d{2}$/.test(v))return fd(v);
   if(k==='proposedKw'||k==='wantKwp')return v+' kW';
-  if(k==='avgBill')return Number(v).toLocaleString('th-TH')+' บาท';
+  if(k==='avgBill'||k==='quotePrice')return Number(v).toLocaleString('th-TH')+' บาท';
   if(k==='phase')return v+' เฟส';
   return String(v);
 }
@@ -3942,7 +4038,7 @@ function summaryCard(j,c,s,curSecs){
   const n=j.status==='active'?j.stage:99;
   const secs=SECTIONS.filter(sec=>!curSecs.has(sec.id)&&(sec.id==='pm'?j.status==='done':Math.min(...sec.stages)<=n));
   if(!secs.length)return '';
-  const JT=[['ov','ภาพรวม',['cust','loc','order']],['sv','สำรวจ',['wo','site','req','survey']],['ins','ติดตั้ง',['install','eq']],['doc','ขนานไฟ',['docs']],['pm','ตรวจเช็คประจำปี',['pm']]];   // แท็บตามที่ผู้ใช้กำหนด · ภาพรวม = ลูกค้า ตำแหน่ง ผู้แจ้งงาน
+  const JT=[['ov','ภาพรวม',['cust','loc','order']],['sv','สำรวจ',['wo','site','req','survey']],['ins','ติดตั้ง',['quote','install','eq']],['doc','ขนานไฟ',['docs']],['pm','ตรวจเช็คประจำปี',['pm']]];   // แท็บตามที่ผู้ใช้กำหนด · ภาพรวม = ลูกค้า ตำแหน่ง ผู้แจ้งงาน
   if(S.jtabJob!==j.id){S.jtabJob=j.id;S.jtab='ov'}
   if(S.edit){const ge=JT.find(g=>g[2].includes(S.edit));if(ge)S.jtab=ge[0]}
   const jg=JT.find(g=>g[0]===S.jtab)||JT[0],jtab=jg[0];
@@ -3951,8 +4047,8 @@ function summaryCard(j,c,s,curSecs){
   const blocks=!jsecs.length?'<p class="sub" style="margin:16px 0 0">ยังไม่มีข้อมูลของขั้นนี้</p>':jsecs.map(sec=>{
     if(S.edit===sec.id)return secForm(sec,j,c,s,false);
     const obj=getT(sec.tgt,j,c,s);
-    const rows=sec.fields.map(f=>{const v=showVal(f,obj[f[0]]);return v==null?'':`<div class="kv ${f[2]==='area'||(f[3]&&f[3].full)?'full':''}"><span>${esc(f[1])}${sec.id==='eq'&&invUnits(obj).length>1&&['model','sn','wifiSn'].includes(f[0])?' (Master)':''}</span><b>${esc(v)}</b></div>`}).join('')
-      +(sec.id==='eq'?invUnits(obj).slice(1).map((u,i)=>`<div class="kv full"><span>Slave ${i+1}</span><b>${esc([u.model,u.sn&&'S/N '+u.sn,u.wifiSn&&'WiFi '+u.wifiSn].filter(Boolean).join(' · '))}</b></div>`).join(''):'');
+    const rows=sec.fields.map(f=>{const v=showVal(f,obj[f[0]]);return v==null?'':`<div class="kv ${f[2]==='area'||(f[3]&&f[3].full)?'full':''}"><span>${esc(f[1])}${sec.id==='eq'&&invUnits(obj).length>1&&['model','sn','wifiSn'].includes(f[0])?' (Master)':''}</span><b>${f[0]==='quoteUrl'&&safeUrl(v)?`<a class="lk" href="${esc(safeUrl(v))}" target="_blank" rel="noopener">เปิดไฟล์ใบเสนอราคา</a>`:esc(v)}${svTick(sec.id,f[0])}</b></div>`}).join('')
+      +(sec.id==='eq'?invUnits(obj).slice(1).map((u,i)=>`<div class="kv full"><span>Slave ${i+1}</span><b>${esc([u.model,u.sn&&'S/N '+u.sn,u.wifiSn&&'WiFi '+u.wifiSn].filter(Boolean).join(' · '))}${svTick(sec.id,'units')}</b></div>`).join(''):'');
     const canEd=!!S.db&&secEditable(sec,j);
     return `<div class="sblk"><div class="sh"><h3>${esc(sec.title)}</h3>${canEd?`<button class="lnk" data-edit="${sec.id}">แก้ไข</button>`:''}</div>${rows?`<div class="kvg">${rows}</div>`:'<span class="sub">ยังไม่มีข้อมูล</span>'}</div>`;
   }).join('');
@@ -4054,7 +4150,7 @@ function viewQueue(){
   const mI=Object.entries(by).filter(([k])=>k.startsWith(mK)).flatMap(([,L])=>L).filter(x=>x.k==='i').length;
   let sel=S.f.qsel;if(!sel||!sel.startsWith(mK))sel=t.startsWith(mK)?t:mK+'-01';
   const nm2=j=>j.title||cOf(j).name||'ไม่มีชื่อไซต์';
-  const chip=x=>`<button class="kce2 ${x.k}" data-osel="${esc(x.j.id)}" title="${x.k==='i'?'ติดตั้ง'+(x.of>1?' วันที่ '+x.day+'/'+x.of:''):x.k==='p'?'สำรวจ · รอตอบรับคิว':'สำรวจ'}${x.tm?' '+esc(x.tm):''} · ${esc(nm2(x.j))}"><i></i>${x.tm&&x.k!=='i'?`<b>${esc(x.tm)}</b>`:''}<span>${esc(nm2(x.j))}</span></button>`;
+  const chip=x=>`<button class="kce2 ${x.k} ${agCls(x.j)}" data-osel="${esc(x.j.id)}" title="${x.k==='i'?'ติดตั้ง'+(x.of>1?' วันที่ '+x.day+'/'+x.of:''):x.k==='p'?'สำรวจ · รอตอบรับคิว':'สำรวจ'}${x.tm?' '+esc(x.tm):''} · ${esc(nm2(x.j))}"><i></i>${x.tm&&x.k!=='i'?`<b>${esc(x.tm)}</b>`:''}<span>${esc(nm2(x.j))}</span></button>`;
   let cells='';
   for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=iso(d);const inM=d.getMonth()===m;
     if(i===35&&!inM)break;
@@ -4074,7 +4170,7 @@ function viewQueue(){
   const ws=new Date(sd);ws.setDate(sd.getDate()-((sd.getDay()+6)%7));const wd=[...Array(7)].map((_,i)=>{const d=new Date(ws);d.setDate(ws.getDate()+i);return d});
   const we=wd[6];const navLbl=qv==='week'?`${ws.getDate()} ${TM[ws.getMonth()]} – ${we.getDate()} ${TM[we.getMonth()]} ${we.getFullYear()+543}`:`${TD[sd.getDay()]} ${sd.getDate()} ${TMF[sd.getMonth()]} ${sd.getFullYear()+543}`;
   const stepNav=`<div class="kvn"><button class="ib" data-qstep="-1" aria-label="ก่อนหน้า">${svg('chev','currentColor',2)}</button><b>${navLbl}</b><button class="ib nx" data-qstep="1" aria-label="ถัดไป">${svg('chev','currentColor',2)}</button><button class="btn sm" data-qtoday="1">วันนี้</button></div>`;
-  const big=x=>{const j=x.j,s2=sOf(j),c=cOf(j);return `<button class="kvc ${x.k}" data-osel="${esc(j.id)}"><span class="kvt">${x.k==='i'?(x.of>1?'ติดตั้งวันที่ '+x.day+'/'+x.of:'ทั้งวัน'):esc(x.tm||'ไม่ระบุเวลา')}</span><b>${esc(nm2(j))}</b><span class="kvm">${x.k==='i'?'ติดตั้ง':x.k==='p'?'สำรวจ · รอตอบรับคิว':'สำรวจ'}${placeOf(j,s2,c)?' · '+esc(placeOf(j,s2,c)):''}${x.k!=='i'&&j.surveyor?' · '+esc(j.surveyor):''}</span></button>`};
+  const big=x=>{const j=x.j,s2=sOf(j),c=cOf(j);return `<button class="kvc ${x.k} ${agCls(x.j)}" data-osel="${esc(j.id)}"><span class="kvt">${x.k==='i'?(x.of>1?'ติดตั้งวันที่ '+x.day+'/'+x.of:'ทั้งวัน'):esc(x.tm||'ไม่ระบุเวลา')}</span><b>${esc(nm2(j))}</b><span class="kvm">${x.k==='i'?'ติดตั้ง':x.k==='p'?'สำรวจ · รอตอบรับคิว':'สำรวจ'}${placeOf(j,s2,c)?' · '+esc(placeOf(j,s2,c)):''}${x.k!=='i'&&j.surveyor?' · '+esc(j.surveyor):''}</span></button>`};
   const H0=8,H1=18,HN=H1-H0;
   const tparse=tm=>{const m=String(tm||'').match(/(\d{1,2})[:.](\d{2})/);return m?(+m[1])+(+m[2])/60:null};
   const evt=(x,col)=>{const j=x.j,s2=sOf(j),c=cOf(j);const h=tparse(x.tm);const top=Math.max(0,(h-H0)/HN*100),hh=Math.min(1.5,H1-h)/HN*100;
@@ -4168,7 +4264,7 @@ async function saveProfile(photo){
 }
 function viewSettings(){
   const adm=S.me.owner||S.me.edit;const mem=Object.values(S.members);
-  return pageHead('ตั้งค่า','')+`${S.me.role?profCard():''}
+  return pageHead('ตั้งค่า','')+`${S.me.role?profCard():''}${myGroup()==='admin'||S.me.owner?goalCard():''}${myGroup()?ntfCard():''}
 
   
   ${(S.me.role?isSys():adm)?`<section class="card pad" style="display:flex;flex-direction:column;gap:12px"><h2 style="margin:0;font-size:16px">นำเข้าตารางงาน</h2>
@@ -4295,6 +4391,7 @@ function slJobView(id){
     <section class="card pad"><h2>ข้อมูลงาน</h2>${R('ลูกค้า',esc([c.name,c.phone].filter(Boolean).join(' · ')))}${R('พื้นที่',esc(s.area||s.address||''))}${R('แผนที่',s.mapLink?`<a href="${esc(s.mapLink)}" target="_blank" rel="noopener">เปิด Google Maps</a>`:'')}
       ${R('ขอคิวสำรวจ',esc([fd(j.queueDate),j.queueTime].filter(Boolean).join(' ')))}${R('วันสำรวจ',j.stage>=2&&j.surveyDate?esc([fd(j.surveyDate),j.queueTime,j.surveyor].filter(Boolean).join(' · ')):'')}
       ${R('ลูกค้าสนใจ',esc([j.request&&j.request.wantKwp?j.request.wantKwp+' kWp':'',j.request&&j.request.systemType].filter(Boolean).join(' · ')))}${R('ระบบที่เสนอ',esc([j.proposedKw?j.proposedKw+' kWp':'',j.proposedModel].filter(Boolean).join(' · ')))}
+      ${R('ใบเสนอราคา',esc([j.quoteNo,j.quoteDate&&fd(j.quoteDate)].filter(Boolean).join(' · ')))}${R('ราคาเสนอ',j.quotePrice?esc(Number(j.quotePrice).toLocaleString('th-TH'))+' บาท':'')}${R('ไฟล์ใบเสนอราคา',safeUrl(j.quoteUrl)?`<a href="${esc(safeUrl(j.quoteUrl))}" target="_blank" rel="noopener">เปิดไฟล์</a>`:'')}
       ${R('วันติดตั้ง',j.installDate?esc(fd(j.installDate)):'')}${R('หมายเหตุ',esc(j.salesNote||''))}</section>
   </div><aside class="slaside">
     <section class="card pad"><h2>ความคืบหน้า</h2><ol class="slst">${steps}</ol></section>
@@ -4525,7 +4622,7 @@ function onFormSubmit(f,sub){const id=f.id;if(id==='mtF')return saveMeter();if(i
 document.addEventListener('submit',e=>{e.preventDefault();if(typeof e.target.onsubmit==='function')return;onFormSubmit(e.target,e.submitter)});
 /* ปุ่มบันทึกในฟอร์ม: เรียกเองแทนการ submit จริง (หน้าตัวอย่างในแชตบล็อกการ submit ฟอร์ม) · ตรวจช่องบังคับเหมือนเดิม */
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.form||b.type!=='submit')return;e.preventDefault();if(b.disabled)return;const f=b.form;if(!f.noValidate&&!f.checkValidity()){f.reportValidity();return}onFormSubmit(f,b)});
-window.addEventListener('hashchange',()=>{if(document.querySelector('.fmod'))closeModal();S.kbDirty=false;S.mp=null;if(route()!=='jobs'&&route()!=='service'&&!route().startsWith('site')){S.sel=null;document.body.classList.remove('dlock')}S.dirty.clear();S.edit=null;if(route()!=='new'){S.f.qd='';S.nf={}}else if(S.f.qd){S.nf={date:S.f.qd}}window.scrollTo(0,0);render()});
+window.addEventListener('hashchange',()=>{if(document.querySelector('.fmod'))closeModal();S.kbDirty=false;S.mp=null;if(route()!=='jobs'&&route()!=='service'&&!route().startsWith('site')){S.sel=null;document.body.classList.remove('dlock')}S.dirty.clear();S.edit=null;if(route()!=='new'){S.f.qd='';S.nf={}}else if(S.f.qd){S.nf={date:S.f.qd}}window.scrollTo(0,0);vt(render)});
 
 async function saveSec(id){
   const j=S.jobs[route().slice(4)];if(!j)return;
@@ -4533,10 +4630,10 @@ async function saveSec(id){
   const data=readForm(root,sec);const now=Date.now();sec.fields.forEach(f=>{if(fieldLocked(sec,f[0]))delete data[f[0]]});
   for(const f of sec.fields)if(f[2]==='url'&&data[f[0]]){const u=normUrl(data[f[0]]);if(!u){toast('ลิงก์ "'+f[1]+'" ต้องขึ้นต้นด้วย https://');return}data[f[0]]=u}
   const old=getT(sec.tgt,j,cOf(j),sOf(j))||{};const nv=v=>v===undefined||v===null||v===false?'':String(v);
-  const ch=sec.fields.filter(f=>f[2]!=='h'&&f[0] in data&&nv(data[f[0]])!==nv(old[f[0]])).map(f=>String(f[1]).replace(/\s*\(.*?\)/g,''));
+  const chF=sec.fields.filter(f=>f[2]!=='h'&&f[0] in data&&nv(data[f[0]])!==nv(old[f[0]]));const ch=chF.map(f=>String(f[1]).replace(/\s*\(.*?\)/g,''));const chK=chF.map(f=>f[0]);
   if(id==='eq'){const sl=[...root.querySelectorAll('.eqsl')].map(r=>{const o={role:'Slave'};r.querySelectorAll('[data-uk]').forEach(x=>o[x.dataset.uk]=x.value.trim());return o}).filter(u=>u.model||u.sn||u.wifiSn);
     if(sl.some(u=>!u.sn)){toast('ใส่ S/N ของเครื่อง Slave ให้ครบ');return}
-    const nu=sl.length?[{role:'Master'},...sl]:[];if(JSON.stringify(nu.slice(1))!==JSON.stringify(invUnits(old).slice(1).map(u=>({role:'Slave',model:u.model||'',sn:u.sn||'',wifiSn:u.wifiSn||''}))))ch.push('เครื่อง Slave');data.units=nu}
+    const nu=sl.length?[{role:'Master'},...sl]:[];if(JSON.stringify(nu.slice(1))!==JSON.stringify(invUnits(old).slice(1).map(u=>({role:'Slave',model:u.model||'',sn:u.sn||'',wifiSn:u.wifiSn||''}))))ch.push('เครื่อง Slave');data.units=nu;if(ch.includes('เครื่อง Slave'))chK.push('units')}
   if(!ch.length){toast('ยังไม่มีการเปลี่ยนแปลง');return}
   if(!await confirmBox('บันทึกการแก้ไข "'+String(sec.title).replace(/\s*\(.*?\)/g,'')+'"?','จะเปลี่ยน: '+ch.join(', ')+' · ข้อมูลเดิมจะถูกแทนที่','บันทึก','pri'))return;
   try{
@@ -4544,7 +4641,7 @@ async function saveSec(id){
     else if(sec.tgt==='site'){if(!j.siteId)return;await w('sites/'+j.siteId,{...data,updatedAt:now})}
     else if(sec.tgt==='job'){await w('jobs/'+j.id,{...data,updatedAt:now})}
     else{const k=sec.tgt.split('.')[1];const nd={...(j[k]||{}),...data};await w('jobs/'+j.id,{[k]:k==='equipment'?eqSync(nd):nd,updatedAt:now})}
-    S.dirty.delete(id);if(S.edit===id)S.edit=null;toast('บันทึกแล้ว');render();
+    S.dirty.delete(id);if(S.edit===id)S.edit=null;S.saved={sec:id,keys:chK,at:Date.now()};toast('บันทึกแล้ว');render();
   }catch(e){}
 }
 function nextJobNo(){
@@ -4571,6 +4668,9 @@ async function doAct0(a,jid){
     const lb=e2?`${fd(d)} – ${fd(e2)}`:fd(d);const tm=(($('#ins-t'))?.value||'').trim();
     await pushHist(j,ev('handoff',`จองคิวติดตั้ง ${lb}${tm?' · ผู้รับเหมา '+tm:''}`,{from:ST.INSREQ,to:ST.INSTALL}),{installDate:d,installEnd:e2,...(tm?{installTeam:tm}:{}),stage:ST.INSTALL,stageSince:now});
     toast('จองคิวติดตั้ง '+lb+' แล้ว');return}
+  if(a==='impsv'){if(!isImp(j)||n!==ST.SURVEY||j.status!=='active')return;
+    if(!await confirmBox('ปิดงานสำรวจแทนคนสำรวจ?','งานนำเข้าที่สำรวจเสร็จไปแล้ว · งานจะไปขั้น "'+STAGES[ST.OFFER].name+'" และบันทึกในไทม์ไลน์ว่าแอดมินปิดแทน','ปิดงานสำรวจ','pri'))return;
+    await pushHist(j,ev('handoff','แอดมินปิดงานสำรวจแทน (งานนำเข้าจาก Excel)',{from:ST.SURVEY,to:ST.OFFER}),{stage:ST.OFFER,stageSince:now});toast('ปิดงานสำรวจแล้ว');return}
   if(a==='decline'){const r=await ask('ขอเปลี่ยนวันสำรวจ','เหตุผล เช่น คนสำรวจไม่ว่างวันนั้น');if(r==null)return;
     await pushHist(j,ev('back','ขอเปลี่ยนวันสำรวจ: '+r,{from:ST.ACCEPT,to:ST.BOOK}),{stage:ST.BOOK,stageSince:now});return}
   if(a.startsWith('sv:')){
@@ -4662,10 +4762,8 @@ let us=0;async function userSearch(q){
     try{const hits=await S.user.search(q);$('#ures').innerHTML=(hits||[]).filter(h=>!S.members[h.id]).slice(0,8).map(h=>`<button class="btn sm" data-adduser="${esc(h.id)}">+ ${esc(h.name||'ไม่มีชื่อ')}</button>`).join('')||'<span class="sub">ไม่พบ</span>'}catch(e){}
   },250);
 }
-function pid(c,m){return (c+'-'+m).replace(/[^A-Za-z0-9_.-]+/g,'-').replace(/^[.]+/,'').slice(0,120)}
 
 /* ---------- import ---------- */
-function loadXLSX(){return new Promise((res,rej)=>{if(window.XLSX)return res();const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=res;s.onerror=()=>rej(new Error('โหลดตัวอ่าน Excel ไม่ได้'));document.head.appendChild(s)})}
 function xd(v){if(!(v instanceof Date)||isNaN(v))return '';const d=new Date(v.getTime()+12*3600e3);if(d.getFullYear()<2000)return '';return isoOf(d)}
 const xs=v=>v==null?'':(v instanceof Date?xd(v):String(v).trim());
 const real=v=>{const s=xs(v);return s&&s!=='-'?s:''};
@@ -4796,19 +4894,6 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const d=docum
 addEventListener('scroll',()=>closeAll(null),true);addEventListener('resize',()=>closeAll(null));})();
 
 /* รอบ 5d (ui-design-principles ข้อ 38–39): error เป็นการ์ดภาษาคน (ไอคอน + หัวข้อ + บอกว่าทำอะไรต่อ + ปิดได้) แทนป้ายดำที่หายเอง */
-function errInfo(e,fb){e=e||{};const c=e.code||'',m=String(e.message||e||'');
-  const human=m&&/[ก-๙]/.test(m)&&!/HTTP|\/exec|:\s*[a-z]+\//i.test(m)&&m.length<120;
-  if(c==='network')return {t:'ต่ออินเทอร์เน็ตไม่ได้',b:'ตรวจสัญญาณ แล้วกดอีกครั้ง'};
-  if(c==='server')return {t:'ระบบหลังบ้านไม่ตอบ',b:'รอสักครู่แล้วกดอีกครั้ง'};
-  if(c==='busy')return {t:'ระบบกำลังบันทึกงานอื่นอยู่',b:'รอสักครู่แล้วกดอีกครั้ง'};
-  if(c==='denied')return {t:'ทำส่วนนี้ไม่ได้',b:'บัญชีของคุณยังไม่มีสิทธิ์ทำส่วนนี้ ถ้าต้องทำ ให้คนที่ตั้งสิทธิ์ใน Console เพิ่มสิทธิ์ให้'};
-  if(c==='conflict')return {t:'มีคนแก้งานนี้ก่อนคุณ',b:human?m:'ดูข้อมูลล่าสุดแล้วกดอีกครั้ง'};
-  if(c==='not-found')return {t:'ไม่พบข้อมูลนี้แล้ว',b:'อาจถูกลบไปแล้ว ลองเปิดหน้านี้ใหม่'};
-  if(c==='auth')return {t:'ต้องเข้าสู่ระบบใหม่',b:human?m:'เข้าสู่ระบบอีกครั้งแล้วทำต่อได้เลย'};
-  return {t:fb||'ทำไม่สำเร็จ',b:human&&m!==fb?m:'ลองอีกครั้ง ถ้ายังไม่ได้ แจ้งออฟฟิศ'}}
-function showErr(e,fb){const {t,b}=errInfo(e,fb);let el=document.getElementById('errc');if(!el){el=document.createElement('div');el.id='errc';el.setAttribute('role','alert');document.body.appendChild(el)}
-  el.innerHTML=`<span class="ei"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></span><div><b>${esc(t)}</b><span>${esc(b)}</span></div><button type="button" class="ex" aria-label="ปิด">×</button>`;
-  el.hidden=false;el.querySelector('.ex').onclick=()=>{el.hidden=true};clearTimeout(showErr.t);showErr.t=setTimeout(()=>{el.hidden=true},12000)}
 
 (()=>{
 const IC={home:'<svg class="o" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><svg class="f" viewBox="0 0 24 24" fill="currentColor"><path d="M11.3 2.3a1 1 0 0 1 1.4 0l8.6 7.4c.4.3.7.8.7 1.3V20a2 2 0 0 1-2 2h-4.5v-6.5h-7V22H4a2 2 0 0 1-2-2v-9c0-.5.3-1 .7-1.3z"/></svg>',

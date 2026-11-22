@@ -713,9 +713,9 @@ window.__splOut=out;var iv=setInterval(function(){if(done){clearInterval(iv);ret
 <div class="dev" id="dev" hidden></div>
 <script src="config.js"></script>
 <script src="gdb.js"></script>
+<script src="shared.js"></script>
 <script>
 'use strict';
-const xCan=j=>j.status==='lost'&&/^ยกเลิก \(จาก Excel\)/.test(j.lostReason||'');
 const STAGES=[null,
  {name:'จองคิวสำรวจ',role:'sales'},
  {name:'รอจัดคนสำรวจ',role:'admin'},
@@ -729,17 +729,9 @@ const ST={BOOK:1,ACCEPT:2,SURVEY:3,OFFER:4,INSREQ:5,INSTALL:6,COMM:7,DOCS:8};
 const FOLDER_ROOT='\\\\PWM-SERVER\\Energy\\Solar';
 const GROUP_NAME={sales:'เซลส์',admin:'แอดมิน',lead:'หัวหน้าวิศวกร',eng:'วิศวกร'};
 const ROLE_NAME={eng:'วิศวกร / ผู้คุมงาน',lead:'หัวหน้าวิศวกร',admin:'แอดมิน'};
-const TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-const TMF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const TD=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
-const $=s=>document.querySelector(s);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function safeUrl(u){try{const x=new URL(String(u||'').trim());return /^https?:$/.test(x.protocol)?x.href:''}catch(e){return ''}}
 const pad=n=>String(n).padStart(2,'0');
-const isoOf=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const today=()=>isoOf(new Date());
-const isoAdd=(k,n)=>{const d=new Date(k+'T00:00:00');d.setDate(d.getDate()+n);return isoOf(d)};
-function fd(iso){if(!iso)return '—';const [y,m,d]=String(iso).split('-').map(Number);if(!y||!m)return esc(iso);return `${d} ${TM[m-1]} ${String(y+543).slice(2)}`}
 function fdt(ms){if(!ms)return '—';const d=new Date(ms);const t=`${pad(d.getHours())}:${pad(d.getMinutes())}`;if(isoOf(d)===today())return 'วันนี้ '+t;return `${d.getDate()} ${TM[d.getMonth()]} ${String(d.getFullYear()+543).slice(2)} ${t}`}
 function fdRange(a,b){if(!b||b===a)return fd(a);const [y1,m1,d1]=a.split('-').map(Number),[y2,m2]=b.split('-').map(Number);return y1===y2&&m1===m2?`${d1}–${fd(b)}`:`${fd(a)} – ${fd(b)}`}
 function fdLong(iso){const d=new Date(iso+'T00:00:00');return `วัน${TD[d.getDay()]}ที่ ${d.getDate()} ${TMF[d.getMonth()]} ${d.getFullYear()+543}`}
@@ -1718,7 +1710,6 @@ async function nsBackfill(id,dayIn,other){
   const ok=await svSave(id,{sv:v,...(fn&&fn!==(j.folderName||'')?{folderName:fn}:{})},{kind:'edit',text:'กรอกย้อนหลังโดย '+me().name+(other?' (แทน '+(assignee(j)||'—')+')':'')+' · สำรวจวันที่ '+fd(day)+' · '+(fn?'โฟลเดอร์ '+fn:'โฟลเดอร์ '+v.folder)},'เริ่มกรอกย้อนหลังได้เลย · รูปและลายเซ็นไม่บังคับ');
   if(ok){(S.nsPage=S.nsPage||{})[id]=1;if(route()!=='#ns-'+id)go('#ns-'+id);else render()}
 }
-const isImp=j=>/^x\d+$/.test(String(j&&j.id||''));
 const canBack=j=>!!j&&j.stage===ST.SURVEY&&!j.sv?.onsite&&(canAct(j)||canTake(j))&&(isImp(j)||((j.surveyDate||j.queueDate)&&(j.surveyDate||j.queueDate)<today()));
 async function backFrom(id){
   let j=C().jobs[id];if(!canBack(j)||S.busy)return;
@@ -1763,7 +1754,6 @@ async function saveMe(photo){const u=me();const n=(document.getElementById('pf-n
   catch(e){showErr(e,'บันทึกไม่ได้')}}
 document.addEventListener('change',async e=>{if(e.target.id!=='pf-photo'||!e.target.files||!e.target.files[0])return;
   S.pfName=(document.getElementById('pf-name')||{}).value;try{S.pfPhoto=await pfResize(e.target.files[0]);render()}catch(x){toast('อ่านรูปไม่ได้')}});
-function invUnits(e){e=e||{};const U=Array.isArray(e.units)?e.units.filter(u=>u&&(u.model||u.sn||u.wifiSn)):[];if(U.length)return U;return e.model||e.sn||e.wifiSn?[{role:'Master',model:e.model||'',sn:e.sn||'',wifiSn:e.wifiSn||''}]:[]}
 document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.icu;if(!k)return;const j=C().jobs[route().slice(3)];if(!j)return;const [i,f]=k.split(':');const u=(icDraft(j).slaves||[])[+i];if(u)u[f]=e.target.value});
 const destOf=j=>j.stage===ST.SURVEY&&canAct(j)?'#ns-'+j.id:j.stage===ST.COMM&&icCan(j)?'#ic-'+j.id:'#job-'+j.id;
 function nextJob(){
@@ -2542,19 +2532,6 @@ document.addEventListener('click',e=>{const bar=e.target.closest&&e.target.close
 addEventListener('online',()=>{if(location.hash==='#me')render()});addEventListener('offline',()=>{if(location.hash==='#me')render()});
 
 /* รอบ 5d (ui-design-principles ข้อ 38–39): error เป็นการ์ดภาษาคน (ไอคอน + หัวข้อ + บอกว่าทำอะไรต่อ + ปิดได้) แทนป้ายดำที่หายเอง */
-function errInfo(e,fb){e=e||{};const c=e.code||'',m=String(e.message||e||'');
-  const human=m&&/[ก-๙]/.test(m)&&!/HTTP|\/exec|:\s*[a-z]+\//i.test(m)&&m.length<120;
-  if(c==='network')return {t:'ต่ออินเทอร์เน็ตไม่ได้',b:'ตรวจสัญญาณ แล้วกดอีกครั้ง'};
-  if(c==='server')return {t:'ระบบหลังบ้านไม่ตอบ',b:'รอสักครู่แล้วกดอีกครั้ง'};
-  if(c==='busy')return {t:'ระบบกำลังบันทึกงานอื่นอยู่',b:'รอสักครู่แล้วกดอีกครั้ง'};
-  if(c==='denied')return {t:'ทำส่วนนี้ไม่ได้',b:'บัญชีของคุณยังไม่มีสิทธิ์ทำส่วนนี้ ถ้าต้องทำ ให้คนที่ตั้งสิทธิ์ใน Console เพิ่มสิทธิ์ให้'};
-  if(c==='conflict')return {t:'มีคนแก้งานนี้ก่อนคุณ',b:human?m:'ดูข้อมูลล่าสุดแล้วกดอีกครั้ง'};
-  if(c==='not-found')return {t:'ไม่พบข้อมูลนี้แล้ว',b:'อาจถูกลบไปแล้ว ลองเปิดหน้านี้ใหม่'};
-  if(c==='auth')return {t:'ต้องเข้าสู่ระบบใหม่',b:human?m:'เข้าสู่ระบบอีกครั้งแล้วทำต่อได้เลย'};
-  return {t:fb||'ทำไม่สำเร็จ',b:human&&m!==fb?m:'ลองอีกครั้ง ถ้ายังไม่ได้ แจ้งออฟฟิศ'}}
-function showErr(e,fb){const {t,b}=errInfo(e,fb);let el=document.getElementById('errc');if(!el){el=document.createElement('div');el.id='errc';el.setAttribute('role','alert');document.body.appendChild(el)}
-  el.innerHTML=`<span class="ei"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></span><div><b>${esc(t)}</b><span>${esc(b)}</span></div><button type="button" class="ex" aria-label="ปิด">×</button>`;
-  el.hidden=false;el.querySelector('.ex').onclick=()=>{el.hidden=true};clearTimeout(showErr.t);showErr.t=setTimeout(()=>{el.hidden=true},12000)}
 
 function celebrate(t,sub){setTimeout(()=>{const tt=document.getElementById('toast');if(tt)tt.hidden=true;document.getElementById('celeb')?.remove();
   document.body.insertAdjacentHTML('beforeend',`<div id="celeb" role="dialog" aria-modal="true" aria-labelledby="celebT"><div class="cb"><img src="mascot-run.webp" alt="" width="150" height="154"><b id="celebT">${esc(t)}</b><span>${esc(sub)}</span><button type="button" class="btn pri" data-celebok>กลับหน้างาน</button></div></div>`);

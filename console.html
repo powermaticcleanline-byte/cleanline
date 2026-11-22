@@ -66,6 +66,7 @@ input[type=text],input[type=tel]{width:150px}
 <div id="modal"><div class="bx" id="mbx"></div></div>
 <script src="config.js"></script>
 <script src="gdb.js"></script>
+<script src="shared.js"></script>
 <script>
 'use strict';
 const ROLE = {admin:'แอดมิน',dispatch:'หัวหน้าจัดงาน',lead:'หัวหน้าตรวจแบบ',eng:'วิศวกร',sales:'เซลส์'};
@@ -87,11 +88,8 @@ const EQF={
    ['meters','Smart meter ที่ใช้คู่ (คั่นด้วย ,)','text',{full:1,ph:'DDSU666, SDM120CT'}],['cts','CT ที่ใช้คู่ (คั่นด้วย ,)','text',{full:1,ph:'100/40mA, 100/5A'}]],
  'BATTERY':[['model','รุ่น','text',{req:1}],['brand','ยี่ห้อ','text'],['kwh','ความจุ (kWh)','number'],['volt','แรงดัน','sel',['LV','HV']],...LNK],
  'SOLAR PANEL':[['model','รุ่น','text',{req:1}],['brand','ยี่ห้อ','text'],['watt','กำลัง (W)','number'],['cell','ชนิดเซลล์','text'],...LNK]};
-const pid=(c,m)=>(c+'-'+m).replace(/[^A-Za-z0-9_.-]+/g,'-').replace(/^[.]+/,'').slice(0,120);
 const eqSpec=p=>p.category==='INVERTER'?[p.kw?p.kw+' kW':'',p.phase?p.phase+' เฟส':'',p.type].filter(Boolean).join(' · '):p.category==='BATTERY'?[p.kwh?p.kwh+' kWh':'',p.volt].filter(Boolean).join(' · '):[p.watt?p.watt+' W':'',p.cell].filter(Boolean).join(' · ');
 const S = {tab:'users', members:{}, joinreq:{}, logs:{}, forms:{}, products:{}, config:{}, eqc:'INVERTER', dq:'', eqq:'', me:null, db:null, health:null, backups:null, sys:{}, lq:'', lcol:'', lby:'', llim:150, edit:{}, busy:false, shares:null};
-const $ = s => document.querySelector(s);
-const esc = t => String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fdt = ms => { if(!ms) return '-'; const d=new Date(ms); return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}); };
 const ini = n => (String(n||'?').trim()[0]||'?');
 function toast(t,bad){const e=$('#toast');e.textContent=t;e.className=bad?'bad':'';e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',3500)}
@@ -192,7 +190,6 @@ function formBox(title,F,v){
   });
 }
 /* นำเข้าแคตตาล็อกจาก Excel (Catalog.xlsx: สินค้า ยี่ห้อ รุ่น เฟส กำลังผลิต Smart Meter CT หมายเหตุ) */
-const catNum=v=>{const m=String(v??'').replace(/,/g,'').match(/\d+(?:\.\d+)?/);return m?Number(m[0]):''};
 function catParse(rows){
   const hi=rows.findIndex(r=>(r||[]).some(c=>String(c??'').trim()==='สินค้า'));if(hi<0)throw new Error('ไม่พบหัวตาราง "สินค้า" ในไฟล์');
   const H=rows[hi].map(c=>String(c??'').trim());const col=t=>H.findIndex(x=>x===t);
@@ -209,7 +206,6 @@ function catParse(rows){
     Object.keys(d).forEach(k=>{if(d[k]===''||d[k]==null)delete d[k]});out.push(d)});
   return {out,bad};
 }
-function loadXLSX(){return new Promise((res,rej)=>{if(window.XLSX)return res();const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=res;s.onerror=()=>rej(new Error('โหลดตัวอ่าน Excel ไม่ได้'));document.head.appendChild(s)})}
 async function catImport(file){
   let r;try{await loadXLSX();const wb=XLSX.read(await file.arrayBuffer());const ws=wb.Sheets[wb.SheetNames[0]];r=catParse(XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:null}))}catch(e){return toast('อ่านไฟล์ไม่ได้: '+(e.message||e),true)}
   const have=S.products,seen=new Set(),L=[];r.out.forEach(d=>{const id=pid(d.category,d.model);if(seen.has(id))return;seen.add(id);L.push({id,d,upd:!!have[id]})});
