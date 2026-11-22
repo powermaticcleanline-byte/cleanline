@@ -635,6 +635,7 @@
       '#clf .cf-mn{width:40px;height:40px;border:0;background:none;border-radius:12px;color:#606f85;display:grid;place-items:center;cursor:pointer}#clf .cf-mn:hover{background:#eef0f3}#clf .cf-mn svg{width:18px;height:18px}' +
       '#clf .cf-em{padding:32px 16px;text-align:center;color:#606f85;font-size:14px}#clf .cf-drop{min-height:56px;margin:8px;border:1.5px dashed #c9cfd8;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:8px;color:#606f85;font-size:14px}#clf .cf-drop svg{width:20px;height:20px}#clf.cf-dg .cf-drop{border-color:#3d7c0e;background:#f2f7ea;color:#2f6b0a}' +
       '#clf .cf-gd{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:14px;font-weight:600;color:#2f6b0a;text-decoration:none}#clf .cf-gd svg{width:18px;height:18px}' +
+      '#clf .cf-fail{display:grid;gap:10px;padding:16px;border-radius:16px;background:#fff6f5;border:1px solid #f4c7c1}#clf .cf-fail>div:first-child{display:flex;justify-content:space-between;gap:16px;align-items:baseline}#clf .cf-fail b{font-size:16px;color:#9b1c1c}#clf .cf-fail>div>span{font-size:14px;color:#606f85}#clf .cf-fail ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}#clf .cf-fail li{display:flex;justify-content:space-between;gap:12px;font-size:14px}#clf .cf-fail li small{color:#9b1c1c;white-space:nowrap}#clf .cf-fail .cf-ac{display:flex;gap:8px;justify-content:flex-end}' +
       '#clf .cf-pg{display:grid;gap:8px;padding:16px;border-radius:16px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06)}#clf .cf-pg div{display:flex;justify-content:space-between;gap:16px;align-items:baseline}#clf .cf-pg b{font-size:16px}#clf .cf-pg span{font-size:14px;color:#606f85;white-space:nowrap}#clf .cf-pg i{display:block;height:8px;border-radius:999px;background:#e6eadf;overflow:hidden}#clf .cf-pg i::before{content:"";display:block;height:100%;width:var(--p);background:#3d7c0e;border-radius:inherit;transition:width .3s}#clf .cf-pg small{font-size:14px;color:#606f85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#clf .cf-st{font-size:14px;color:#2f6b0a;min-height:20px}#clf .cf-st.cf-bad{color:#c81e1e}' +
       '#clf .cf-pop{position:fixed;z-index:9100;width:220px;padding:6px;border-radius:16px;background:#fff;box-shadow:0 12px 32px -8px rgba(0,0,0,.3),0 0 0 1px rgba(0,0,0,.05)}#clf .cf-pop button{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:none;font:500 14px inherit;font-family:inherit;color:#16171d;text-align:left;cursor:pointer}#clf .cf-pop button:hover{background:#f5f6f8}#clf .cf-pop svg{width:18px;height:18px}#clf .cf-pop .cf-r{color:#c81e1e}' +
       '#clf .cf-dlg{position:fixed;inset:0;z-index:9200;background:rgba(16,20,12,.45);display:grid;place-items:center;padding:16px}#clf .cf-dlg>div{width:100%;max-width:400px;background:#fff;border-radius:24px;padding:24px}#clf .cf-dlg h3{margin:0 0 8px;font-size:20px;line-height:1.3}#clf .cf-dlg p{margin:0 0 16px;font-size:14px;color:#606f85;overflow-wrap:anywhere}#clf .cf-dlg input{width:100%;box-sizing:border-box;min-height:48px;padding:0 16px;border:1px solid #80858f;border-radius:14px;font:inherit;font-size:16px;margin-bottom:16px}#clf .cf-dlg .cf-ac{display:flex;gap:8px;justify-content:flex-end}' +
@@ -695,28 +696,47 @@
     }
     function act(p, okMsg) { say('กำลังบันทึก…'); return p.then(function () { return load(F.cur); }).then(function () { say(okMsg); }).catch(function (x) { say(errText(x), true); }); }
     function pg() {
-      var u = F.up; if (!u) return '';
+      var u = F.up;
+      if (!u) {   // จบแล้วมีไฟล์ไม่สำเร็จ → การ์ดบอกชื่อไฟล์ + ลองอีกครั้ง (เฉพาะไฟล์ที่พัง ไม่ซ้ำไฟล์ที่ขึ้นแล้ว)
+        var fl = F.fail; if (!fl || !fl.list.length) return '';
+        var re = fl.list.filter(function (x) { return x.f; }).length;
+        return '<div class="cf-fail" role="alert"><div><b>อัปโหลดไม่สำเร็จ ' + fl.list.length + ' ไฟล์</b><span>ไฟล์อื่นขึ้นครบแล้ว</span></div><ul>' +
+          fl.list.map(function (x) { return '<li><span>' + mid(x.name) + '</span><small>' + e(x.why) + '</small></li>'; }).join('') + '</ul><div class="cf-ac">' +
+          (re ? '<button class="cf-bt" data-upretry>' + I.up + 'ลองอีกครั้ง ' + re + ' ไฟล์</button>' : '') + '<button class="cf-bt cf-l" data-upx>ปิด</button></div></div>';
+      }
       var left = u.i > 1 ? Math.round((Date.now() - u.t0) / (u.i - 1) * (u.n - u.i + 1) / 1000) : 0;
       var eta = !left ? 'กำลังคำนวณเวลา' : left < 60 ? 'เหลือไม่ถึง 1 นาที' : 'เหลือประมาณ ' + Math.round(left / 60) + ' นาที';
-      return '<div class="cf-pg" role="status"><div><b>กำลังอัปโหลด ' + u.i + ' จาก ' + u.n + '</b><span>' + eta + '</span></div><i style="--p:' + Math.round((u.i - 1) / u.n * 100) + '%"></i><small>' + mid(u.name) + '</small></div>';
+      return '<div class="cf-pg" role="status"><div><b>กำลังอัปโหลด ' + u.i + ' จาก ' + u.n + '</b><span>' + eta + '</span></div><i style="--p:' + Math.round((u.i - 1) / u.n * 100) + '%"></i><small>' + mid(u.name) + (u.bad ? ' · ไม่สำเร็จ ' + u.bad + ' ไฟล์' : '') + '</small></div>';
     }
-    function upload(list) {
+    var MAXB = 20 * 1048576;
+    function soft(x) { var c = x && x.code; return !c || c === 'network' || c === 'server' || c === 'busy'; }
+    function upload(list, dest) {
       list = [].slice.call(list || []); if (!list.length) return;
-      var i = 0, big = list.filter(function (f) { return f.size > 20 * 1048576; });
-      if (big.length) { say(big[0].name + ' ใหญ่เกิน 20 MB อัปโหลดไม่ได้', true); return; }
-      var cur = F.cur, U = F.up = { n: list.length, i: 0, name: '', t0: Date.now() };
+      if (F.up) { F.up.q = F.up.q.concat(list); F.up.n += list.length; draw(); return; }   // กำลังอัปโหลดอยู่ → ต่อคิวเดิม
+      var cur = dest != null ? dest : F.cur, U = F.up = { q: list, n: list.length, i: 0, name: '', t0: Date.now(), ok: 0, bad: 0, fails: [] };
+      F.fail = null;
       function done() { if (F && F.up === U) F.up = null; }
+      function put(f, b64, tryN) {
+        return db.call('fput', { jobId: F.job, folderId: cur, name: f.name, mime: f.type || 'application/octet-stream', b64: b64 })
+          .catch(function (x) { if (tryN < 1 && soft(x)) return new Promise(function (ok) { setTimeout(ok, 1500); }).then(function () { return put(f, b64, tryN + 1); }); throw x; });
+      }
       function next() {
         if (!F || F.up !== U) return;   // ปิดหน้าแล้ว
-        if (i >= list.length) { done(); return load(cur).then(function () { say('อัปโหลดแล้ว ' + list.length + ' ไฟล์'); }); }
-        var f = list[i++]; U.i = i; U.name = f.name; draw();
+        if (U.i >= U.q.length) {
+          done(); F.fail = U.fails.length ? { list: U.fails, cur: cur } : null;
+          return load(cur).then(function () { say(U.fails.length ? 'อัปโหลดแล้ว ' + U.ok + ' จาก ' + U.n + ' ไฟล์' : 'อัปโหลดแล้ว ' + U.ok + ' ไฟล์', !!U.fails.length); });
+        }
+        var f = U.q[U.i++]; U.i = Math.min(U.i, U.n); U.name = f.name; draw();
+        if (f.size > MAXB) { U.bad++; U.fails.push({ name: f.name, why: 'ใหญ่เกิน 20 MB' }); return next(); }
         return new Promise(function (ok, no) { var rd = new FileReader(); rd.onload = function () { ok(String(rd.result).split(',')[1] || ''); }; rd.onerror = no; rd.readAsDataURL(f); })
-          .then(function (b64) { return db.call('fput', { jobId: F.job, folderId: cur, name: f.name, mime: f.type || 'application/octet-stream', b64: b64 }); })
-          .then(function (r) { if (F && F.cur === cur && F.r) F.r.files.push({ id: r.id, name: r.name, mime: f.type, size: f.size, at: Date.now(), url: 'https://drive.google.com/file/d/' + r.id + '/view', by: r.by || '' }); })   // ไฟล์ที่เสร็จขึ้นในตารางทันที
-          .then(next).catch(function (x) { done(); load(cur).then(function () { say(f.name + ': ' + errText(x), true); }); });
+          .then(function (b64) { return put(f, b64, 0); })
+          .then(function (r) { U.ok++; if (F && F.cur === cur && F.r) F.r.files.push({ id: r.id, name: r.name, mime: f.type, size: f.size, at: Date.now(), url: 'https://drive.google.com/file/d/' + r.id + '/view', by: r.by || '' }); },   // ไฟล์ที่เสร็จขึ้นในตารางทันที
+            function (x) { U.bad++; U.fails.push({ name: f.name, why: errText(x), f: f }); })
+          .then(next);
       }
       next();
     }
+    function busyLeft() { return F && F.up ? Math.max(0, F.up.n - F.up.i + 1) : 0; }
     function menu(id, btn) {
       var it = item(id); if (!it) return; var isF = !('mime' in it);
       var p = document.createElement('div'); p.className = 'cf-pop'; p.setAttribute('role', 'menu');
@@ -753,7 +773,12 @@
       function end() { v.remove(); }
       show(f);
     }
-    function close() { if (!F) return; var el = F.el; F = null; el.remove(); document.body.style.overflow = ''; if (history.state && history.state.clf) history.back(); }
+    function shut() { if (!F) return; var el = F.el; F = null; el.remove(); document.body.style.overflow = ''; if (history.state && history.state.clf) history.back(); }
+    function close() {   // กำลังอัปโหลด → ถามก่อน (เดิมปิดแล้วหยุดเงียบ)
+      if (!F) return; var n = busyLeft(); if (!n) return shut();
+      if (F.el.querySelector('.cf-dlg')) return;
+      dlg('ยังอัปโหลดไม่เสร็จ', 'อีก ' + n + ' ไฟล์ยังไม่ขึ้น ถ้าปิดตอนนี้ไฟล์ที่เหลือจะไม่ถูกอัปโหลด', null, 'ปิดเลย', true).then(function (y) { if (y) shut(); });
+    }
     function open(jobId, title, url) {
       if (typeof document === 'undefined') return;
       if (!document.getElementById('clf-css')) { var s = document.createElement('style'); s.id = 'clf-css'; s.textContent = CSS; document.head.appendChild(s); }
@@ -771,6 +796,8 @@
         var g = t.closest('[data-go]'); if (g) return load(g.dataset.go);
         var o = t.closest('[data-op]'); if (o) return view(item(o.dataset.op));
         if (t.closest('[data-up]')) return el.querySelector('input[type=file]').click();
+        if (t.closest('[data-upretry]') && F.fail) { var fl = F.fail; F.fail = null; return upload(fl.list.filter(function (x) { return x.f; }).map(function (x) { return x.f; }), fl.cur); }
+        if (t.closest('[data-upx]')) { F.fail = null; return draw(); }
         if (t.closest('[data-mk]')) return dlg('โฟลเดอร์ใหม่', '', '', 'สร้างโฟลเดอร์').then(function (v) { if (v) act(db.call('fmk', { jobId: F.job, folderId: F.cur, name: v }), 'สร้างโฟลเดอร์แล้ว'); });
       });
       el.addEventListener('keydown', function (ev) { var g = ev.target.closest && ev.target.closest('.cf-fd'); if (g && (ev.key === 'Enter' || ev.key === ' ') && ev.target === g) { ev.preventDefault(); load(g.dataset.go); } if (ev.key === 'Escape' && !el.querySelector('.cf-dlg,.cf-vw,.cf-pop')) close(); });
@@ -782,7 +809,10 @@
       el.querySelector('[data-close]').focus();
       load('');
     }
-    if (typeof window !== 'undefined') window.addEventListener('popstate', function () { if (F) { var el = F.el; F = null; el.remove(); document.body.style.overflow = ''; } });
+    if (typeof window !== 'undefined') {
+      window.addEventListener('popstate', function () { if (!F) return; if (busyLeft()) { try { history.pushState({ clf: 1 }, ''); } catch (x) {} return close(); } var el = F.el; F = null; el.remove(); document.body.style.overflow = ''; });
+      window.addEventListener('beforeunload', function (ev) { if (busyLeft()) { ev.preventDefault(); ev.returnValue = ''; } });
+    }
     return { open: open, close: close };
   })();
   window.CLGDB = { connect: connect, db: db, user: user, files: files, _st: st };
