@@ -388,6 +388,18 @@ main{padding:0;gap:0;max-width:none}
 .jprog i{height:6px;border-radius:3px;background:#eceef2}
 .jprog i.d{background:var(--acc)}
 .jprog i.c{background:var(--pri)}
+/* กล่องจองคิวหน้าแรกบนมือถือ: แถวเป็นการ์ด ไม่มีหัวตาราง ปุ่มเต็มแถว */
+@media(max-width:640px){
+.bkc .bkh{flex-wrap:wrap}.bkc .bkh .tabs{display:flex !important;width:100%;margin:12px 0 0 !important}
+.bkc .bkh .tabs button{flex:1 1 0;min-width:0;padding:0 6px !important;white-space:nowrap;font-size:14px;gap:4px}
+@media(max-width:360px){.bkc .bkh .tabs button{font-size:13px !important;padding:0 4px !important}.bkc .bkh .tabs button span{padding:0 6px}}
+.bkc .bt.hdr{display:none !important}
+.bkc .bt.sv,.bkc .bt.in{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;gap:8px 12px;padding:16px !important}
+.bkc .bt>.bkn,.bkc .bt>.insr,.bkc .bt>.bki,.bkc .bt>.bkb{grid-column:1/-1}
+.bkc .bt .bkb{justify-self:stretch;margin:4px 0 0 !important;background:none !important;box-shadow:none !important;border-radius:0 !important;overflow:visible}
+.bkc .bt .bkb .btn{flex:1 1 0;min-height:44px}
+.bkc .bt .bki{min-height:44px}
+}
 /* ===== ดูดีขึ้นอีก ===== */
 .cu .htl b,.cu .dst b{font-variant-numeric:tabular-nums}
 .cu .htl{animation:cuIn .5s cubic-bezier(.23,1,.32,1) both}
