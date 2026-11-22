@@ -679,7 +679,7 @@ html.framed #hmini{position:absolute}
 .upd{display:flex;align-items:center;gap:12px;background:var(--okSoft);border-radius:16px;padding:12px;margin-bottom:8px}.upd>svg{width:22px;height:22px;flex:none;border-radius:50%;background:var(--ok);color:#fff;padding:4px;stroke-width:3}
 .upd div{flex:1;min-width:0}.upd b{display:block;font-size:14px;font-weight:600;word-break:break-word}.upd small{display:block;font-size:12px;color:var(--mut)}.upd .lk{min-height:36px}
 .slw{box-shadow:inset 0 0 0 1.5px #fbd9b5,var(--sh)}.pill.o{background:var(--warnBg);color:var(--warn)}
-.slh .lsh b{display:flex;align-items:center;gap:8px}.slh .lsh svg{width:18px;height:18px;color:var(--warn)}
+.upslh .lsh b{display:flex;align-items:center;gap:8px}.upslh .lsh svg{width:18px;height:18px;color:var(--warn)}
 @media(prefers-reduced-motion:reduce){.mrig,.mrig *,.mhearts i,.hm.intro>*,#dayl .dlb{animation:none}.hring .fl,#hmini,.jsw .jr{transition-duration:0s}}
 </style>
 </head>
@@ -1736,11 +1736,11 @@ async function nsStart(id){
 /* แบบติดตั้ง / Single Line: อัปโหลดเข้าโฟลเดอร์งานใน Google Drive
    แบบติดตั้ง = ขั้นสุดท้ายของงานสำรวจ (sv.cad + sv.cadFiled + sv.drawFile)
    Single Line สำหรับผู้รับเหมา = ขึ้นเป็นงานให้ทุกคนใน Man เมื่อมีนัดติดตั้งแล้ว (j.singleLine) · ถึงวันติดตั้งแล้วยังไม่มี = เตือนสีส้ม ไม่บล็อก */
-const UPK={draw:{t:'แบบติดตั้ง',pre:'แบบติดตั้ง'},sl:{t:'Single Line สำหรับผู้รับเหมา',pre:'Single Line'}};
-const needSL=j=>j.status==='active'&&!!j.installDate&&j.stage>=ST.INSREQ&&j.stage<=ST.COMM&&!j.singleLine;
-const slLate=j=>needSL(j)&&j.installDate<=today();
+const UPK={draw:{t:'แบบติดตั้ง',pre:'แบบติดตั้ง',b:'อัปโหลดแบบติดตั้ง'},sl:{t:'Single Line สำหรับยื่นขนานไฟ',pre:'Single Line',b:'อัปโหลด Single Line'}};
+// Single Line สำหรับยื่นขนานไฟ: ขึ้นเมื่อติดตั้งเสร็จ (ขั้นเอกสารขนานไฟ) · อัปโหลดแล้ว = งานของ Man ขั้นนี้จบ
+const needSL=j=>j.status==='active'&&j.stage===ST.DOCS&&!j.singleLine;
 function upBox(j,k,f){const busy=S.upBusy===j.id+':'+k;
-  const pick=`<button type="button" class="btn ${f?'':'blu'} upb" style="width:100%" data-upk="${k}" data-upj="${esc(j.id)}" ${busy?'disabled':''}>${ic('cloud')}${busy?'กำลังอัปโหลด…':(f?'อัปโหลดใหม่':'อัปโหลด'+UPK[k].t)}</button>`;
+  const pick=`<button type="button" class="btn ${f?'':'blu'} upb" style="width:100%" data-upk="${k}" data-upj="${esc(j.id)}" ${busy?'disabled':''}>${ic('cloud')}${busy?'กำลังอัปโหลด…':(f?'อัปโหลดใหม่':UPK[k].b)}</button>`;
   return f?`<div class="upd">${ic('check')}<div><b>${esc(f.name||UPK[k].t)}</b><small>${[f.by&&C().members[f.by]?.name,f.at&&fdt(f.at)].filter(Boolean).map(esc).join(' · ')}</small></div>${f.url?`<button class="lk" data-open="${esc(f.url)}">เปิด</button>`:''}</div>${pick}`:pick}
 // ช่องเลือกไฟล์ตัวเดียวนอก #app — หน้าวาดใหม่ระหว่างเปิดหน้าต่างเลือกไฟล์ก็ไม่ทำให้ไฟล์ที่เลือกหาย
 function pickUp(k,id){let i=document.getElementById('upfile');if(!i){i=document.createElement('input');i.type='file';i.id='upfile';i.hidden=true;i.accept='.pdf,image/*,.dwg,.dxf';i.addEventListener('change',()=>upJobFile(i));document.body.appendChild(i)}
@@ -1756,12 +1756,12 @@ async function upJobFile(inp){const f=inp.files&&inp.files[0],k=inp.dataset.upk,
     if(k==='draw'){const v={...(C().jobs[j.id].sv||{}),cad:Date.now(),cadFiled:Date.now(),drawFile:rec};await svSave(j.id,{sv:v},{kind:'edit',text:'อัปโหลดแบบติดตั้ง '+r.name},'อัปโหลดแบบติดตั้งแล้ว')}
     else{await S.api.updateJob(j.id,{singleLine:rec},{kind:'edit',text:'อัปโหลด Single Line สำหรับผู้รับเหมา '+r.name});toast('อัปโหลด Single Line แล้ว')}
   }catch(e){showErr(e,'อัปโหลดไม่สำเร็จ')}finally{S.upBusy=null;render()}}
-function slCard(j){if(!(j.status==='active'&&j.installDate&&j.stage>=ST.INSREQ&&j.stage<=ST.COMM)&&!j.singleLine)return '';
-  return `<section class="card jc2 ${slLate(j)?'slw':''}"><div class="jh"><b>Single Line สำหรับผู้รับเหมา</b>${needSL(j)?`<em class="pill ${slLate(j)?'o':''}">${slLate(j)?'ถึงวันติดตั้งแล้ว':'รออัปโหลด'}</em>`:''}</div>
-   ${needSL(j)?`<p class="hint">นัดติดตั้ง ${esc(fdRange(j.installDate,j.installEnd))} · ใครใน Man อัปโหลดก็ได้</p>`:''}${upBox(j,'sl',j.singleLine||null)}</section>`}
-function slHome(){const L=S.api.listAllJobs().filter(needSL).sort((a,b)=>a.installDate<b.installDate?-1:1);if(!L.length)return '';
-  return `<section class="ls slh"><div class="lsh"><b>${ic('doc')}รออัปโหลด Single Line</b><span class="cnt">${L.length}</span></div>
-   ${L.slice(0,5).map(j=>`<button class="jr" data-go="#job-${esc(j.id)}"><div class="jrm"><b>${esc(j.title||sOf(j).label||'งาน')}</b><small>ติดตั้ง ${esc(fdRange(j.installDate,j.installEnd))}${j.jobNo?' · #'+esc(j.jobNo):''}</small></div><span class="jrr">${slLate(j)?'<em class="pill o">ถึงวันแล้ว</em>':''}</span>${ic('go','jrc')}</button>`).join('')}
+function slCard(j){if(!needSL(j)&&!j.singleLine)return '';
+  return `<section class="card jc2 upslc"><div class="jh"><b>${UPK.sl.t}</b>${needSL(j)?'<em class="pill o">รออัปโหลด</em>':''}</div>
+   ${needSL(j)?'<p class="hint">ติดตั้งเสร็จแล้ว · อัปโหลดแล้วจบงานของ Man ขั้นนี้ · ใครใน Man อัปโหลดก็ได้</p>':''}${upBox(j,'sl',j.singleLine||null)}</section>`}
+function slHome(){const L=S.api.listAllJobs().filter(needSL).sort((a,b)=>(a.stageSince||0)-(b.stageSince||0));if(!L.length)return '';
+  return `<section class="ls upslh"><div class="lsh"><b>${ic('doc')}รออัปโหลด Single Line</b><span class="cnt">${L.length}</span></div>
+   ${L.slice(0,5).map(j=>`<button class="jr" data-go="#job-${esc(j.id)}"><div class="jrm"><b>${esc(j.title||sOf(j).label||'งาน')}</b><small>ยื่นขนานไฟ${j.installDate?' · ติดตั้ง '+esc(fdRange(j.installDate,j.installEnd)):''}${j.jobNo?' · #'+esc(j.jobNo):''}</small></div><span class="jrr"></span>${ic('go','jrc')}</button>`).join('')}
    ${L.length>5?`<button class="lk" data-slall>ดูทั้งหมด ${L.length} งาน</button>`:''}</section>`}
 async function nsCad(id,k,on){
   const j=C().jobs[id];if(!j||!canAct(j))return;const v={...(j.sv||{})};

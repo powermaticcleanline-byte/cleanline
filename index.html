@@ -2782,11 +2782,11 @@ function introToday(app){if(matchMedia('(prefers-reduced-motion: reduce)').match
       document.body.appendChild(el);const x=Math.min(innerWidth-316,Math.max(16,e.clientX+12)),y=r.bottom+8+el.offsetHeight>innerHeight?r.top-el.offsetHeight-8:r.bottom+8;el.style.left=x+'px';el.style.top=y+'px'},450)});
   ['scroll','mousedown','keydown','hashchange'].forEach(t=>addEventListener(t,hide,true))})();
 
-function manFiles(j){const df=j.sv&&j.sv.drawFile,sl=j.singleLine,needSl=!!j.installDate&&j.stage>=ST.INSREQ,late=needSl&&!sl&&j.installDate<=today();
+function manFiles(j){const df=j.sv&&j.sv.drawFile,sl=j.singleLine,needSl=j.stage>=ST.DOCS;
   const ln=(t,f,miss)=>`<li class="${f?'ok':''}"><span class="k">${f?'✓':'·'}</span><span>${esc(t)}${f?` · <a class="lk" href="${esc(safeUrl(f.url)||'#')}" target="_blank" rel="noopener">เปิดไฟล์</a>`:` <span class="sub">${esc(miss)}</span>`}</span></li>`;
-  if(!df&&!needSl)return '';
-  return `<section class="act" aria-label="ไฟล์จากแอป Man"><div><h2>ไฟล์จากแอป Man</h2>${late?'<span class="tag warn" style="height:auto;padding:4px 8px">ถึงวันติดตั้งแล้ว ยังไม่มี Single Line</span>':''}</div>
-   <ul class="need">${df?ln('แบบติดตั้ง',df,''):''}${needSl?ln('Single Line สำหรับผู้รับเหมา',sl,'รอทีมใน Man อัปโหลด'):''}</ul></section>`}
+  if(!df&&!needSl&&!sl)return '';
+  return `<section class="act" aria-label="ไฟล์จากแอป Man"><div><h2>ไฟล์จากแอป Man</h2></div>
+   <ul class="need">${df?ln('แบบติดตั้ง',df,''):''}${needSl||sl?ln('Single Line สำหรับยื่นขนานไฟ',sl,'รอทีมใน Man อัปโหลด'):''}</ul></section>`}
 /* 19 ปักหมุดงาน (เก็บในเครื่อง แยกต่อคน) */
 const pinKey=()=>'cl.pins.'+(S.me.id||'');
 function pins(){try{return JSON.parse(localStorage.getItem(pinKey())||'[]').filter(id=>S.jobs[id])}catch(e){return []}}
@@ -3847,7 +3847,7 @@ function viewJob(id){
     else if(n===ST.SURVEY){right=svCard(j,c,s,act);if(isImp(j)&&myGroup()==='admin')right+=`<section class="act" aria-label="ปิดงานสำรวจแทน"><div><h2>ปิดงานสำรวจแทนคนสำรวจ</h2><span class="sub">สำหรับงานที่นำเข้าจาก Excel และสำรวจเสร็จไปแล้วนอกระบบ · งานจะไปขั้น "${esc(STAGES[ST.OFFER].name)}"</span></div><div class="btns"><button class="btn" data-act="impsv">ปิดงานสำรวจแทน</button></div></section>`;}
     else if(n===ST.INSREQ){right=insCard(j,act);}
     else if(n===ST.INSTALL){right=asgCard(j,act);}
-    else if(n===ST.COMM&&j.status==='active'){right=insFormCard(j,'');}
+    else if(n===ST.COMM&&j.status==='active'){right=insFormCard(j,'');if(isImp(j)&&['admin','dispatch'].includes(myGroup()))right+=`<section class="act" aria-label="ติดตั้งเสร็จแล้ว"><div><h2>ติดตั้งเสร็จไปแล้ว</h2><span class="sub">สำหรับงานที่นำเข้าจาก Excel และติดตั้งเสร็จนอกระบบ · ไม่ต้องมีใบงานติดตั้ง · งานจะไปขั้น "${esc(STAGES[ST.DOCS].name)}" แล้วทีมใน Man อัปโหลด Single Line</span></div><div class="btns"><button class="btn" data-act="impins">ย้ายไป${esc(STAGES[ST.DOCS].name)}</button></div></section>`;}
     else    right=`<section class="act" aria-label="ขั้นปัจจุบัน">
       <div><h2>${n===LAST?'ปิดงาน':'ส่งต่อให้'+esc(nextRole)}</h2><span class="sub">ครบ ${done} จาก ${nd.length}</span></div>
       ${nd.length?`<div class="pbar"><i style="width:${Math.round(done/nd.length*100)}%"></i></div><ul class="need">${nd.map(x=>`<li class="${x.ok?'ok':''}"><span class="k">${x.ok?'✓':''}</span>${esc(x.l)}</li>`).join('')}</ul>`:''}
@@ -3855,7 +3855,7 @@ function viewJob(id){
       ${act?'':`<span class="sub">รอ${esc(ownerOf(j))}ดำเนินการ</span>`}
     </section>`;
     // ไฟล์จาก Man: แบบติดตั้ง (หลังสำรวจ) · Single Line สำหรับผู้รับเหมา (หลังมีนัดติดตั้ง) — ออฟฟิศดูสถานะ/เปิดไฟล์ได้
-    if(j.status==='active'&&n>=ST.OFFER&&n<=ST.COMM)right+=manFiles(j);
+    if(j.status==='active'&&n>=ST.OFFER&&n<=ST.DOCS)right+=manFiles(j);
     if(j.resurvey&&n<=ST.SURVEY)right=`<span class="tag warn" style="height:auto;padding:8px 8px;align-self:flex-start">สำรวจซ้ำ · เดิมสำรวจไว้ ${j.resurvey.days} วัน</span>`+right;
   }else if(j.status==='cancelled'){
     right=`<section class="act"><h2>ยกเลิก</h2><span class="sub">${esc(j.cancelReason||'')}${j.cancelledAt?' · '+fdt(j.cancelledAt):''}</span>${canCancel()?(j.autoCancelled?'<button class="btn dk" data-act="resume">เปิดงานต่อ</button><button class="btn" data-act="rebook">จองใหม่</button>':'<button class="btn dk" data-act="rebook">จองใหม่</button>'):''}</section>`;
@@ -4670,6 +4670,9 @@ async function doAct0(a,jid){
     const lb=e2?`${fd(d)} – ${fd(e2)}`:fd(d);const tm=(($('#ins-t'))?.value||'').trim();
     await pushHist(j,ev('handoff',`จองคิวติดตั้ง ${lb}${tm?' · ผู้รับเหมา '+tm:''}`,{from:ST.INSREQ,to:ST.INSTALL}),{installDate:d,installEnd:e2,...(tm?{installTeam:tm}:{}),stage:ST.INSTALL,stageSince:now});
     toast('จองคิวติดตั้ง '+lb+' แล้ว');return}
+  if(a==='impins'){if(!isImp(j)||n!==ST.COMM||j.status!=='active')return;
+    if(!await confirmBox('ติดตั้งเสร็จไปแล้ว?','งานนำเข้าที่ติดตั้งเสร็จนอกระบบ · งานจะไปขั้น "'+STAGES[ST.DOCS].name+'" โดยไม่มีใบงานติดตั้ง และบันทึกในไทม์ไลน์','ย้ายขั้น','pri'))return;
+    await pushHist(j,ev('handoff','ติดตั้งเสร็จนอกระบบ ย้ายไปเอกสารขนานไฟ (งานนำเข้าจาก Excel)',{from:ST.COMM,to:ST.DOCS}),{stage:ST.DOCS,stageSince:now});toast('ย้ายไปเอกสารขนานไฟแล้ว');return}
   if(a==='impsv'){if(!isImp(j)||n!==ST.SURVEY||j.status!=='active')return;
     if(!await confirmBox('ปิดงานสำรวจแทนคนสำรวจ?','งานนำเข้าที่สำรวจเสร็จไปแล้ว · งานจะไปขั้น "'+STAGES[ST.OFFER].name+'" และบันทึกในไทม์ไลน์ว่าแอดมินปิดแทน','ปิดงานสำรวจ','pri'))return;
     await pushHist(j,ev('handoff','แอดมินปิดงานสำรวจแทน (งานนำเข้าจาก Excel)',{from:ST.SURVEY,to:ST.OFFER}),{stage:ST.OFFER,stageSince:now});toast('ปิดงานสำรวจแล้ว');return}
