@@ -2640,7 +2640,7 @@ function canAct(j){if(!j)return false;const r=myRole();if(j.stage===ST.ACCEPT||j
 function secEditable(sec,j){
   if(isDispatch())return sec.id==='install'||sec.id==='wo';
   if(F_SURVEY_SECS.includes(sec.id))return false;
-  if(sec.id==='wo')return false;
+  if(sec.id==='wo')return myGroup()==='admin';   // แอดมินแก้เลขใบงาน/หมายเหตุใบงานได้ (คนสำรวจล็อกไว้ เปลี่ยนผ่านปุ่มจัดทีม)
   if(sec.id==='eq')return (j&&(j.stage>=ST.DOCS||j.status==='done'));
   return true}
 function canDraw(){return ['eng','lead'].includes(myGroup())}
@@ -4626,6 +4626,7 @@ async function saveSec(id){
   const j=S.jobs[route().slice(4)];if(!j)return;
   const sec=SECTIONS.find(x=>x.id===id);const root=document.querySelector(`[data-sec="${id}"]`);
   const data=readForm(root,sec);const now=Date.now();sec.fields.forEach(f=>{if(fieldLocked(sec,f[0]))delete data[f[0]]});
+  if(id==='wo'&&!isDispatch())Object.keys(data).forEach(k=>{if(!['jobNo','woNote'].includes(k))delete data[k]});   // แอดมินแก้ได้แค่เลขใบงาน + หมายเหตุใบงาน (ทีมสำรวจเปลี่ยนผ่านปุ่มจัดทีม)
   for(const f of sec.fields)if(f[2]==='url'&&data[f[0]]){const u=normUrl(data[f[0]]);if(!u){toast('ลิงก์ "'+f[1]+'" ต้องขึ้นต้นด้วย https://');return}data[f[0]]=u}
   const old=getT(sec.tgt,j,cOf(j),sOf(j))||{};const nv=v=>v===undefined||v===null||v===false?'':String(v);
   const chF=sec.fields.filter(f=>f[2]!=='h'&&f[0] in data&&nv(data[f[0]])!==nv(old[f[0]]));const ch=chF.map(f=>String(f[1]).replace(/\s*\(.*?\)/g,''));const chK=chF.map(f=>f[0]);
@@ -4633,12 +4634,24 @@ async function saveSec(id){
     if(sl.some(u=>!u.sn)){toast('ใส่ S/N ของเครื่อง Slave ให้ครบ');return}
     const nu=sl.length?[{role:'Master'},...sl]:[];if(JSON.stringify(nu.slice(1))!==JSON.stringify(invUnits(old).slice(1).map(u=>({role:'Slave',model:u.model||'',sn:u.sn||'',wifiSn:u.wifiSn||''}))))ch.push('เครื่อง Slave');data.units=nu;if(ch.includes('เครื่อง Slave'))chK.push('units')}
   if(!ch.length){toast('ยังไม่มีการเปลี่ยนแปลง');return}
-  if(!await confirmBox('บันทึกการแก้ไข "'+String(sec.title).replace(/\s*\(.*?\)/g,'')+'"?','จะเปลี่ยน: '+ch.join(', ')+' · ข้อมูลเดิมจะถูกแทนที่','บันทึก','pri'))return;
+  // แก้เลขใบงาน: ตรวจรูปแบบ/ซ้ำ · ยืนยัน · จองเลขใหม่ ปล่อยเลขเก่า
+  const noOld=String(j.jobNo||''),noNew=id==='wo'&&'jobNo' in data?String(data.jobNo||'').trim():noOld;
+  if(noNew!==noOld){
+    if(!noNew){toast('ลบเลขใบงานไม่ได้ ใส่เลขใหม่แทน');return}
+    if(!/^\d{7}$/.test(noNew)){toast('เลขใบงานต้องเป็นตัวเลข 7 หลัก (ปี 2 + เดือน 2 + ลำดับ 3) เช่น '+nextJobNo());return}
+    const dupJ=Object.values(S.jobs).find(x=>x.id!==j.id&&String(x.jobNo||'')===noNew);
+    if(dupJ){toast('เลข '+noNew+' ซ้ำกับงาน '+(dupJ.title||dupJ.id));return}
+    try{const r=snapData(await S.db.doc('jobnos/'+noNew).get());if(r&&r.jid&&r.jid!==j.id){toast('เลข '+noNew+' ถูกจองให้งานอื่นแล้ว');return}}catch(e){}
+    data.jobNo=noNew;
+    if(!await confirmBox('เปลี่ยนเลขใบงานเป็น '+noNew+'?',(noOld?'จาก '+noOld+' · ':'')+'ชื่อโฟลเดอร์งานใน Google Drive จะเปลี่ยนตาม'+(noOld?' · เลขเดิมจะว่างให้ใช้ใหม่ได้':''),'เปลี่ยนเลข','pri'))return;
+  }
+  if(noNew===noOld&&!await confirmBox('บันทึกการแก้ไข "'+String(sec.title).replace(/\s*\(.*?\)/g,'')+'"?','จะเปลี่ยน: '+ch.join(', ')+' · ข้อมูลเดิมจะถูกแทนที่','บันทึก','pri'))return;
   try{
     if(sec.tgt==='customer'){if(!j.customerId)return;await w('customers/'+j.customerId,{...data,updatedAt:now})}
     else if(sec.tgt==='site'){if(!j.siteId)return;await w('sites/'+j.siteId,{...data,updatedAt:now})}
     else if(sec.tgt==='job'){await w('jobs/'+j.id,{...data,updatedAt:now})}
     else{const k=sec.tgt.split('.')[1];const nd={...(j[k]||{}),...data};await w('jobs/'+j.id,{[k]:k==='equipment'?eqSync(nd):nd,updatedAt:now})}
+    if(noNew!==noOld){try{await S.db.doc('jobnos/'+noNew).set({jid:j.id,at:Date.now(),by:S.me.id||null});if(noOld)await S.db.doc('jobnos/'+noOld).set({jid:null,freedAt:Date.now(),by:S.me.id||null,was:j.id})}catch(e){console.warn('jobnos',e)}}
     S.dirty.delete(id);if(S.edit===id)S.edit=null;S.saved={sec:id,keys:chK,at:Date.now()};toast('บันทึกแล้ว');render();
   }catch(e){}
 }
@@ -4834,6 +4847,9 @@ async function runImport(file){
         done+=part.length;pg(done,tasks.length)}
     }else await pool(tasks.map(([p,d])=>()=>S.db.doc(p).set(d)),pg);
     const c={active:0,lost:0,done:0};items.forEach(x=>c[x.job.status]++);
+    // จองเลขใบงานของงานที่นำเข้า (กันงานใหม่ได้เลขซ้ำถ้างานนำเข้าถูกลบทีหลัง) · เลขที่จองไว้ให้งานอื่นแล้ว ข้ามไป
+    {const seen=new Set();const R=items.filter(x=>x.job.jobNo&&!seen.has(x.job.jobNo)&&seen.add(x.job.jobNo)).map(x=>['jobnos/'+x.job.jobNo,{jid:x.id,at:Date.now(),by:S.me.id||null,src:'import'}]);
+      for(let i=0;i<R.length;i+=15){const part=R.slice(i,i+15);try{if(!S.db.batch)throw 0;const b=S.db.batch();part.forEach(([p,d])=>b.set(S.db.doc(p),d));await b.commit()}catch(e){for(const [p,d] of part){try{await S.db.doc(p).set(d)}catch(x){}}}}}
     logRaw('import',`นำเข้า Excel ${file.name||''}: ${items.length} งาน · ${prods.length} รุ่นสินค้า`);
     const nos={};items.forEach(x=>{if(x.job.jobNo)nos[x.job.jobNo]=(nos[x.job.jobNo]||0)+1});
     const dup=Object.keys(nos).filter(k=>nos[k]>1);const noNo=items.filter(x=>!x.job.jobNo).length;
