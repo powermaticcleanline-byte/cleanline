@@ -67,6 +67,7 @@
           st.ver[c] = r.ver[c]; st.loaded[c] = true;
         });
         Object.keys(changed).forEach(emit);
+        if (Object.keys(changed).length) cacheSave();
       })
       .catch(function (e) {
         if (e.code === 'network') { st.fails++; if (st.fails >= 2) banner('net', 'เชื่อมต่อไม่ได้ กำลังลองใหม่…'); }
@@ -235,6 +236,58 @@
     signOut: function () { signOut(''); }
   };
 
+  /* ---------- จำข้อมูลไว้ในเครื่อง (IndexedDB) ----------
+   * เปิดแอปครั้งถัดไป: แสดงข้อมูลชุดล่าสุดทันที แล้วดึงจากตัวกลางเฉพาะที่เปลี่ยน (ไม่ต้องโหลดใหม่ทั้งหมดทุกครั้ง)
+   * ผูกกับหน้า + บัญชี + บทบาท · ตัวกลางเปลี่ยน epoch = ล้างแล้วโหลดใหม่ · ออกจากระบบ = ลบทิ้ง */
+  var IDB = 'cl-cache', ISTORE = 'snap', CACHE_DAYS = 7;
+  function idb() {
+    if (idb.p) return idb.p;
+    idb.p = new Promise(function (res) {
+      try {
+        var r = indexedDB.open(IDB, 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore(ISTORE); };
+        r.onsuccess = function () { res(r.result); };
+        r.onerror = r.onblocked = function () { res(null); };
+      } catch (e) { res(null); }
+    });
+    return idb.p;
+  }
+  function cacheKey() { return st.me ? st.page + ':' + st.me.id + ':' + (st.me.role || '') : null; }
+  function cacheLoad() {
+    var k = cacheKey(); if (!k) return Promise.resolve(false);
+    return idb().then(function (d) {
+      if (!d) return false;
+      return new Promise(function (res) {
+        try {
+          var q = d.transaction(ISTORE, 'readonly').objectStore(ISTORE).get(k);
+          q.onsuccess = function () {
+            var c = q.result;
+            if (!c || !c.data || Date.now() - (c.at || 0) > CACHE_DAYS * 864e5) return res(false);
+            st.data = c.data; st.ver = c.ver || {}; st.epoch = c.epoch || null;
+            Object.keys(c.data).forEach(function (col) { st.loaded[col] = true; });
+            st.fromCache = true;
+            res(true);
+          };
+          q.onerror = function () { res(false); };
+        } catch (e) { res(false); }
+      });
+    });
+  }
+  function cacheSave() {
+    clearTimeout(cacheSave.t);
+    cacheSave.t = setTimeout(function () {
+      var k = cacheKey(); if (!k) return;
+      idb().then(function (d) {
+        if (!d) return;
+        try { d.transaction(ISTORE, 'readwrite').objectStore(ISTORE).put({ data: st.data, ver: st.ver, epoch: st.epoch, at: Date.now() }, k); } catch (e) {}
+      });
+    }, 1500);
+  }
+  function cacheClear() {
+    clearTimeout(cacheSave.t);
+    return idb().then(function (d) { if (!d) return; try { d.transaction(ISTORE, 'readwrite').objectStore(ISTORE).clear(); } catch (e) {} });
+  }
+
   /* ---------- เข้าสู่ระบบด้วย Google ---------- */
   function connect(page) {
     st.page = page;
@@ -247,9 +300,12 @@
     st.me = me;
     if (me.pending) { st.wasPending = 1; return screen('pending').then(function () { return api({ op: 'me' }).then(function (r) { st.wait = r.wait; return gate(r.me); }); }); }
     if ((me.pages || []).indexOf(st.page) < 0) return screen('wrong', me).then(function () { return gate(me); });
-    if (st.page === 'admin') { remember(me); if (st.wasPending || st.stepping) { stepsRun(me); schedule(0); return { db: db, user: user, me: clone(me) }; } }
-    hideScreen(); schedule(0);
-    return { db: db, user: user, me: clone(me) };
+    var ret = { db: db, user: user, me: clone(me) };
+    return cacheLoad().then(function () {
+      if (st.page === 'admin') { remember(me); if (st.wasPending || st.stepping) { stepsRun(me); schedule(0); return ret; } }
+      hideScreen(); schedule(0);
+      return ret;
+    });
   }
   function signIn(msg) {
     return loadGis().then(function () {
@@ -321,8 +377,9 @@
   }
   function hhmm(ms) { var d = new Date(ms), p = function (x) { return (x < 10 ? '0' : '') + x; }; var t = new Date(); return (d.toDateString() === t.toDateString() ? 'วันนี้ ' : d.getDate() + '/' + (d.getMonth() + 1) + ' ') + p(d.getHours()) + ':' + p(d.getMinutes()); }
   function signOut(msg) {
-    st.token = null; st.me = null;
+    st.token = null; st.me = null; st.data = {}; st.ver = {}; st.loaded = {};
     try { localStorage.removeItem(SKEY); } catch (e) {}
+    cacheClear();
     try { window.google && google.accounts.id.disableAutoSelect(); } catch (e) {}
     clearTimeout(st.timer);
     if (msg !== undefined && typeof document !== 'undefined') { signIn(msg).then(function () { location.reload(); }); }
@@ -815,5 +872,5 @@
     }
     return { open: open, close: close };
   })();
-  window.CLGDB = { connect: connect, db: db, user: user, files: files, _st: st };
+  window.CLGDB = { connect: connect, db: db, user: user, files: files, _st: st, _cacheClear: cacheClear };
 })();
