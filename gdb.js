@@ -303,11 +303,21 @@
       setTimeout(function () {
         stepsShow(4);
         var box = document.querySelector('#clg .mg-in');
-        if (box) box.innerHTML = '<div class="mg-h" role="heading" aria-level="1">สวัสดี คุณ' + esc(me.name || '') + '</div><p class="mg-s">กำลังพาไปหน้าภาพรวม</p>';
-        var art = document.querySelector('#clg .mg-m'); if (art) art.src = 'mascot-cheer.webp';
-        setTimeout(function () { var el = document.getElementById('clg'); st.stepping = 0; st.wasPending = 0; if (!el) return; el.classList.add('mg-out'); setTimeout(hideScreen, 320); }, 900);
+        var t = new Date(), p2 = function (x) { return (x < 10 ? '0' : '') + x; };
+        if (box) box.innerHTML = '<div class="mg-h" role="heading" aria-level="1">สวัสดี คุณ' + esc(me.name || '') + '</div><p class="mg-s">กำลังพาไปหน้าภาพรวม</p>' +
+          '<p class="mg-rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>บันทึกเข้าระบบ <b>' + p2(t.getHours()) + ':' + p2(t.getMinutes()) + '</b> น.</p>';
+        setTimeout(function () { var el = document.getElementById('clg'); st.stepping = 0; st.wasPending = 0; if (!el) return; el.classList.add('mg-out'); setTimeout(hideScreen, 320); }, 1400);
       }, 350);
     })();
+  }
+  var TH_DW = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'], TH_MO = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+  function thDate(d) { return 'วัน' + TH_DW[d.getDay()] + 'ที่ ' + d.getDate() + ' ' + TH_MO[d.getMonth()] + ' ' + (d.getFullYear() + 543); }
+  /* หน้าเข้าสู่ระบบ Management (แบบ J): นาฬิกาเดินตามเวลาจริง */
+  function mgLive() {
+    var root = document.getElementById('clg'); if (!root || root.className !== 'mg') return;
+    var ck = root.querySelector('.mg-ck'), p2 = function (x) { return (x < 10 ? '0' : '') + x; };
+    var draw = function () { if (!document.body.contains(ck)) return clearInterval(iv); var n = new Date(); ck.innerHTML = p2(n.getHours()) + '<s>' + (n.getSeconds() % 2 ? ':' : '\u00a0') + '</s>' + p2(n.getMinutes()); };
+    var iv = setInterval(draw, 500); draw();
   }
   function hhmm(ms) { var d = new Date(ms), p = function (x) { return (x < 10 ? '0' : '') + x; }; var t = new Date(); return (d.toDateString() === t.toDateString() ? 'วันนี้ ' : d.getDate() + '/' + (d.getMonth() + 1) + ' ') + p(d.getHours()) + ':' + p(d.getMinutes()); }
   function signOut(msg) {
@@ -370,24 +380,29 @@
       '#clg.man #clg-btn{justify-content:center;margin:0 0 4px}#clg.man .cg-m{text-align:center}' +
       '#clg.man .cm-ft{margin-top:10px;font-size:12.5px;color:#6b6f7b;text-align:center}' +
       '#clg.man .cg-p{font-size:15px;color:#3a3d47}#clg.man .b{background:#16171d}#clg.man .b.l{background:#eceee8;color:#16171d}' +
-      '#clg.mg{display:grid;grid-template-columns:1fr;place-items:center;padding:24px;overflow:auto;background:#f1f0ee;color:#16171d;font-family:"Noto Sans Thai Looped","Noto Sans Thai",Inter,system-ui,sans-serif}' +
-      '#clg.mg .mg-c{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);width:100%;max-width:1040px;min-height:min(600px,calc(100vh - 48px));padding:12px;border-radius:28px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04),0 24px 64px -32px rgba(0,0,0,.18)}' +
-      '#clg.mg .mg-art{position:relative;display:grid;place-items:center;border-radius:20px;background:linear-gradient(160deg,#eff8e4 0%,#dbefc2 100%);overflow:hidden}' +
-      '#clg.mg .mg-lg{position:absolute;left:24px;top:24px;height:20px;width:auto}' +
-      '#clg.mg .mg-m{width:min(78%,340px);height:auto;filter:drop-shadow(0 24px 32px rgba(40,70,10,.18))}' +
-      '#clg.mg .mg-f{position:relative;display:flex;flex-direction:column;padding:24px 24px 24px 48px}' +
-      '#clg.mg .mg-tp{align-self:flex-end;font-size:14px;color:#606f85}#clg.mg .mg-tp b{color:#16171d;font-weight:600}' +
-      '#clg.mg .mg-in{flex:1;display:flex;flex-direction:column;justify-content:center;width:100%;max-width:320px;margin:0 auto}' +
-      '#clg.mg .mg-h{font-size:40px;line-height:1.2;font-weight:700;letter-spacing:-.02em}' +
-      '#clg.mg .mg-s{margin:8px 0 24px;font-size:14px;line-height:1.5;color:#606f85}' +
+      '#clg.mg{display:block;overflow:auto;background:#fff;color:#16171d;font-family:"Noto Sans Thai Looped","Noto Sans Thai",Inter,system-ui,sans-serif}' +
+      '#clg.mg .mg-c{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:100vh}' +
+      '#clg.mg .mg-art{position:relative;background:#16171d;color:#fff;overflow:hidden;min-height:560px}' +
+      '#clg.mg .mg-art::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 50% at 25% 75%,rgba(147,210,9,.13),transparent 70%)}' +
+      '#clg.mg .mg-lg{position:absolute;left:64px;top:64px;height:24px;width:auto;filter:brightness(0) invert(1)}' +
+      '#clg.mg .mg-ck{position:absolute;left:56px;bottom:128px;font-size:clamp(96px,13vw,168px);font-weight:600;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;font-family:"Inter Tight",Inter,system-ui,sans-serif}' +
+      '#clg.mg .mg-ck s{text-decoration:none;opacity:.35}' +
+      '#clg.mg .mg-dt{position:absolute;left:64px;bottom:88px;margin:0;font-size:20px;color:#a7ae9c}' +
+      '#clg.mg .mg-ft{position:absolute;left:64px;bottom:40px;margin:0;font-size:13px;color:#6d7466}' +
+      '#clg.mg .mg-f{position:relative;display:flex;align-items:center;justify-content:center;padding:64px}' +
+      '#clg.mg .mg-in{width:100%;max-width:400px}' +
+      '#clg.mg .mg-k{margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:.08em;color:#3d7c0e}' +
+      '#clg.mg .mg-h{font-size:44px;line-height:1.15;font-weight:700;letter-spacing:-.01em}' +
+      '#clg.mg .mg-s{margin:12px 0 40px;font-size:18px;line-height:1.5;color:#606f85}' +
       '#clg.mg #clg-btn{justify-content:flex-start;margin:0}#clg.mg .cg-m{margin-top:12px}' +
-      '#clg.mg .mg-ft{align-self:center;font-size:12px;color:#8a909a}' +
+      '#clg.mg .mg-hp{position:absolute;right:64px;bottom:40px;margin:0;font-size:13px;color:#8a909a}' +
+      '#clg.mg .mg-rec{display:flex;align-items:center;gap:10px;margin:0;padding:12px 14px;border-radius:12px;background:#f1f8e6;color:#2f5f0a;font-weight:600}#clg.mg .mg-rec svg{width:20px;height:20px;flex:none}#clg.mg .mg-rec b{font-variant-numeric:tabular-nums;margin:0 2px}' +
       '#clg.mg .cg-p{font-size:14px;color:#3a3d47}#clg.mg .b{background:#16171d}#clg.mg .b.l{background:#eeefea;color:#16171d}' +
       '#clg.mg{transition:opacity .3s ease}#clg.mg.mg-out{opacity:0}' +
       '#clg.mg .mg-av{flex:none;position:relative;overflow:hidden;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#b6e36b,#458c10);color:#fff;display:grid;place-items:center;font-weight:700;font-size:20px}#clg.mg .mg-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}#clg.mg .mg-av.sm{width:32px;height:32px;font-size:14px}' +
       '#clg.mg .mg-ac{position:relative;display:flex;align-items:center;gap:12px;padding:12px 44px 12px 12px;border-radius:20px;border:1px solid #e6e8ec;margin-bottom:16px}#clg.mg .mg-ac b,#clg.mg .mg-me b{display:block;font-size:16px}#clg.mg .mg-ac small,#clg.mg .mg-me small{display:block;font-size:13px;color:#606f85;overflow-wrap:anywhere}' +
       '#clg.mg .mg-x{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:50%;background:none;color:#6b7280;font-size:20px;cursor:pointer}#clg.mg .mg-x:hover{background:#f1f2f4}' +
-      '#clg.mg .mg-lk{display:block;margin:4px auto 0;min-height:44px;padding:0 12px;border:0;background:none;color:#3d7c0e;font:600 14px inherit;font-family:inherit;cursor:pointer}' +
+      '#clg.mg .mg-lk{display:block;margin:4px 0 0;min-height:44px;padding:0;border:0;background:none;color:#3d7c0e;font:600 14px inherit;font-family:inherit;cursor:pointer}' +
       '#clg.mg .mg-st{list-style:none;margin:8px 0 20px;padding:0;display:grid;gap:12px}#clg.mg .mg-st li{display:flex;align-items:center;gap:12px;font-size:15px;color:#8a909a}#clg.mg .mg-st li.mg-now,#clg.mg .mg-st li.mg-ok{color:#16171d}#clg.mg .mg-st li.mg-now{font-weight:500}#clg.mg .mg-st small{margin-left:auto;font-size:13px;color:#606f85}' +
       '#clg.mg .mg-st i,#clg.mg .mg-tl i{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid #d9dce2;background:#fff;display:grid;place-items:center;box-sizing:border-box;position:relative;z-index:1}' +
       '#clg.mg .mg-st li.mg-now i{border-color:#458c10;border-top-color:transparent;animation:mgSp .8s linear infinite}#clg.mg li.mg-ok i{background:#458c10;border-color:#458c10}#clg.mg li.mg-ok i::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}' +
@@ -400,7 +415,7 @@
       '#clg.mg .mg-row{display:flex;gap:8px}#clg.mg .mg-row .b{flex:1;margin:0}' +
       '#clg.mg .mg-cp{display:flex;align-items:center;justify-content:center;width:100%;margin-top:12px;min-height:44px;border:1px dashed #cfd4c8;border-radius:12px;background:none;color:#3d7c0e;font:600 14px inherit;font-family:inherit;cursor:pointer}#clg.mg .mg-cp.mg-cpok{border-style:solid;background:#eef7e2}' +
       '@media (prefers-reduced-motion:reduce){#clg.mg .mg-st li.mg-now i,#clg.mg .mg-tl li.mg-now i::after{animation:none}#clg.mg,#clg.mg .mg-bar i{transition:none}}' +
-      '@media (max-width:760px){#clg.mg{padding:0;place-items:stretch;background:#fff}#clg.mg .mg-c{grid-template-columns:1fr;grid-template-rows:auto 1fr;min-height:100vh;border-radius:0;box-shadow:none;padding:8px}#clg.mg .mg-art{height:38vh;min-height:240px;padding-top:40px;box-sizing:border-box}#clg.mg .mg-m{width:auto;height:auto;max-width:72%;max-height:86%}#clg.mg .mg-f{padding:24px 16px 16px}#clg.mg .mg-tp{display:none}#clg.mg .mg-h{font-size:32px}#clg.mg .mg-in{max-width:none;justify-content:flex-start}}' +
+      '@media (max-width:760px){#clg.mg .mg-c{grid-template-columns:1fr;grid-template-rows:320px 1fr}#clg.mg .mg-art{min-height:0}#clg.mg .mg-lg{left:24px;top:28px;height:20px}#clg.mg .mg-ck{left:20px;bottom:64px;font-size:96px}#clg.mg .mg-dt{left:24px;bottom:32px;font-size:16px}#clg.mg .mg-ft{display:none}#clg.mg .mg-f{align-items:flex-start;padding:40px 24px 72px}#clg.mg .mg-in{max-width:none}#clg.mg .mg-h{font-size:32px}#clg.mg .mg-s{font-size:16px;margin:8px 0 32px}#clg.mg .mg-hp{left:0;right:0;bottom:24px;text-align:center}}' +
       '#clg-bn{position:fixed;right:20px;bottom:20px;z-index:99998;background:#f0b23a;color:#15230f;border-radius:999px;padding:8px 16px;font:600 14px Inter,"Noto Sans Thai",Prompt,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:92vw;text-align:center}';
     document.head.appendChild(s);
   }
@@ -491,9 +506,10 @@
       var HM = { login: LA ? ['ยินดีต้อนรับกลับ', 'เครื่องนี้เคยเข้าในชื่อนี้'] : ['เข้าสู่ระบบ', 'ใช้บัญชี Google ของบริษัท'], pending: ['อีกนิดเดียว', 'ส่งคำขอเข้าใช้แล้ว รออนุมัติบัญชีนี้'], wrong: ['บัญชีนี้ใช้ Management ไม่ได้', 'ลองเปลี่ยนบัญชี หรือไปหน้าที่บัญชีนี้ใช้ได้'] };
       frame = function (body) {
         var hd = HM[kind] || HM.login;
-        return '<div class="mg-c"><div class="mg-art"><img class="mg-lg" src="logo.webp" alt="CLEANLINE"><img class="mg-m" src="mascot-wave.webp" alt="" width="488" height="512"></div>' +
-          '<div class="mg-f"><div class="mg-tp">CLEANLINE <b>Management</b></div><div class="mg-in"><div class="mg-h" role="heading" aria-level="1">' + hd[0] + '</div><p class="mg-s">' + hd[1] + '</p>' + body + '</div>' +
-          '<div class="mg-ft">แผนก Energy เพาเวอร์เมติค</div></div></div>';
+        return '<div class="mg-c"><div class="mg-art"><img class="mg-lg" src="logo.webp" alt="CLEANLINE">' +
+          '<div class="mg-ck" aria-hidden="true"></div><p class="mg-dt">' + thDate(new Date()) + '</p><p class="mg-ft">แผนก Energy เพาเวอร์เมติค</p></div>' +
+          '<div class="mg-f"><div class="mg-in"><p class="mg-k">CLEANLINE MANAGEMENT</p><div class="mg-h" role="heading" aria-level="1">' + hd[0] + '</div><p class="mg-s">' + hd[1] + '</p>' + body + '</div>' +
+          '<p class="mg-hp">ติดปัญหาเข้าไม่ได้ ติดต่อผู้ดูแลระบบ</p></div></div>';
       };
     } else if (st.page === 'engineer') {
       el.className = 'man';
@@ -517,6 +533,7 @@
           '<div id="clg-btn"></div>' + (la ? '<button type="button" class="mg-lk" id="clg-other">ใช้บัญชีอื่น</button>' : '') + '<div class="cg-m" id="clg-m">' + esc(msg || '') + '</div>');
         var fg = function () { forget(); screen('login', null, msg); renderGBtn(); };
         if (la) { document.getElementById('clg-forget').onclick = fg; document.getElementById('clg-other').onclick = fg; }
+        mgLive();
         riseSun(sn);
         return;
       }
@@ -529,6 +546,7 @@
           '<div class="mg-auto"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="#eceef2"/><circle id="clg-ring" cx="10" cy="10" r="8" stroke="#458c10" stroke-dasharray="50.3" stroke-dashoffset="0" stroke-linecap="round"/></svg><span id="clg-m">เช็กให้เองอีก 30 วินาที</span></div>' +
           '<div class="mg-row"><button type="button" class="b" id="clg-re">ตรวจตอนนี้</button><button type="button" class="b l" id="clg-out">เปลี่ยนบัญชี</button></div>' +
           '<button type="button" class="mg-cp" id="clg-cp">คัดลอกข้อความขออนุมัติ ส่งทาง LINE</button>');
+        mgLive();
         var left = 30, done = 0, ring = document.getElementById('clg-ring');
         var fin = function () { if (done) return; done = 1; clearInterval(tk); setScreenMsg('กำลังตรวจ…'); res(); };
         var tk = setInterval(function () { if (!document.getElementById('clg-ring')) { clearInterval(tk); return; } left--; if (left <= 0) return fin(); setScreenMsg('เช็กให้เองอีก ' + left + ' วินาที'); ring.style.strokeDashoffset = (50.3 * (1 - left / 30)).toFixed(1); }, 1000);
