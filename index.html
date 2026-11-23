@@ -2972,8 +2972,8 @@ function hdr(r){
   const T=(k,h,t,x='')=>`<a href="${h}" class="tnv ${navIs(r,k)?'on':''}" ${navIs(r,k)?'aria-current="page"':''} ${x}>${t}</a>`;
   const lg=document.querySelector('.side .logo img');
   return `<header class="tb pmbar">
-    <div class="gsw wide" role="search"><label class="gs" title="ค้นหา">${svg('search','currentColor',2)}<input id="gq" type="search" placeholder="ค้นหาชื่อไซต์, เลขงาน, เบอร์โทร, S/N…" aria-label="ค้นหางานทั้งหมด" autocomplete="off" aria-controls="gqr"><kbd data-cmdk title="เปิดช่องค้นหาและสั่งงาน">Ctrl K</kbd></label><div class="gqr" id="gqr" role="listbox" hidden></div></div>
-    <div class="tbr"><div class="appw" id="appw"></div><div class="ntw">${bellBtn()}${S.bell?bellPanel():''}</div>
+    <div class="gsw wide" role="search"><label class="gs" title="ค้นหา">${svg('search','currentColor',2)}<input id="gq" type="search" placeholder="ค้นหาชื่อไซต์, เลขงาน, เบอร์โทร, S/N…" aria-label="ค้นหางานทั้งหมด" autocomplete="off" aria-controls="gqr"></label><div class="gqr" id="gqr" role="listbox" hidden></div></div>
+    <div class="tbr" data-svanchor><div class="appw" id="appw"></div><div class="ntw">${bellBtn()}${S.bell?bellPanel():''}</div>
     <div class="pfw"><button type="button" class="tav" id="pfbtn" aria-haspopup="menu" aria-expanded="${!!S.pf}" title="${esc(name)}" style="padding:0;overflow:hidden">${avImg()}</button>
     ${S.pf?`<div class="pfm" role="menu"><div class="pfh"><span class="tav" style="padding:0;overflow:hidden">${avImg()}</span><span><b>${esc(name||'ผู้ใช้')}</b><small>${esc(isSys()?'ผู้ดูแลระบบ':(ROLES[myRole()]||['แอดมิน'])[0])} · แผนก Energy</small></span></div>
     <a role="menuitem" href="#settings" class="pfi">${svg('gear','currentColor',2)}ตั้งค่า</a>

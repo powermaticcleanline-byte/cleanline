@@ -126,15 +126,41 @@
   Doc.prototype.delete = function () { return write(this, 'delete', null); };
   Doc.prototype.onSnapshot = function (fn, err) { return sub(this.c, { fn: fn, err: err, doc: this.id }); };
 
-  // แถบ "กำลังบันทึก…" เมื่อรอนานเกินครึ่งวินาที
-  var pending = 0, pendT = null;
-  function saving(on) {
-    pending += on ? 1 : -1;
-    clearTimeout(pendT);
-    if (pending > 0) pendT = setTimeout(function () { banner('save', 'กำลังบันทึก…'); }, 500);
-    else banner('save', '');
+  // สถานะบันทึก (ผู้ใช้เลือกแบบ 2 · 23 พ.ย.): ไอคอนเมฆมุมขวาบน วงเขียววิ่งรอบระหว่างรอตัวกลาง ครบวง → เมฆติ๊กถูกสีเขียว แล้วจาง
+  // บันทึกเร็ว (<0.3 วิ) ไม่โชว์ · พัง → หายเงียบ ให้ showErr ของหน้าเว็บบอก
+  var pending = 0, pendT = null, svT = null, svOn = '';
+  var SV_UP = '<path d="M7 18a4.6 4.4 0 0 1 0-9 5 4.5 0 0 1 10.9 2H18a3.5 3.5 0 0 1 0 7"/><path d="M9.5 15.5L12 13l2.5 2.5M12 13v7"/>';
+  var SV_OK = '<path d="M7 18a4.6 4.4 0 0 1 0-9 5 4.5 0 0 1 10.9 2H18a3.5 3.5 0 0 1 0 7z"/><path d="M9.5 14.5l1.8 1.8 3.4-3.4"/>';
+  function svShow(k) {
+    if (typeof document === 'undefined') return;
+    var el = document.getElementById('clg-sv');
+    clearTimeout(svT); svOn = k;
+    if (!k) { if (el) el.className = ''; return; }
+    css();
+    if (!el) { el = document.createElement('div'); el.id = 'clg-sv'; el.setAttribute('role', 'status'); el.innerHTML = '<svg class="rg" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16" pathLength="100"/></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"></svg>'; document.body.appendChild(el); }
+    // หน้าเว็บที่มีปุ่มมุมขวาบน (Management: แถบไอคอนบนสุด) ใส่ data-svanchor → วางไว้ซ้ายของกลุ่มนั้น ไม่ทับรูปโปรไฟล์
+    var an = document.querySelector('[data-svanchor]'), ar = null;
+    if (an) [].some.call(an.querySelectorAll('*'), function (x) { var r = x.getBoundingClientRect(); if (r.width > 20 && r.height > 20) { ar = r; return true; } return false; });
+    if (ar && ar.width) { el.style.top = Math.round(ar.top + (ar.height - 36) / 2) + 'px'; el.style.right = Math.round(innerWidth - ar.left + 8) + 'px'; }
+    else { el.style.top = ''; el.style.right = ''; }
+    var c = el.querySelector('circle');
+    el.setAttribute('aria-label', k === 'ok' ? 'บันทึกแล้ว' : 'กำลังบันทึก');
+    if (k === 'busy') {
+      el.querySelector('.ic').innerHTML = SV_UP; el.className = '';
+      c.style.transition = 'none'; c.style.strokeDasharray = '0 100'; void el.offsetWidth;
+      el.className = 'on'; c.style.transition = 'stroke-dasharray 5s cubic-bezier(.15,.75,.3,1)'; c.style.strokeDasharray = '88 12';
+    } else {
+      c.style.transition = 'stroke-dasharray .35s ease-out'; c.style.strokeDasharray = '100 0';
+      svT = setTimeout(function () { el.querySelector('.ic').innerHTML = SV_OK; el.className = 'on ok'; svT = setTimeout(function () { svOn = ''; el.className = 'ok'; }, 1300); }, 350);
+    }
   }
-  function track(p) { saving(true); return p.then(function (r) { saving(false); return r; }, function (e) { saving(false); throw e; }); }
+  function saving(on, failed) {
+    pending += on ? 1 : -1; if (pending < 0) pending = 0;
+    clearTimeout(pendT);
+    if (pending > 0) { if (svOn !== 'busy') pendT = setTimeout(function () { svShow('busy'); }, 300); }
+    else if (svOn === 'busy') svShow(failed ? '' : 'ok');
+  }
+  function track(p) { saving(true); return p.then(function (r) { saving(false); return r; }, function (e) { saving(false, true); throw e; }); }
   // แสดงผลทันทีในเครื่อง (ไม่ต้องรอตัวกลาง) · ถ้าตัวกลางไม่ยอม → คืนค่าเดิม
   function localAfter(c, id, mode, data) {
     var cur = (st.data[c] || {})[id];
@@ -473,6 +499,11 @@
       '#clg.mg .mg-cp{display:flex;align-items:center;justify-content:center;width:100%;margin-top:12px;min-height:44px;border:1px dashed #cfd4c8;border-radius:12px;background:none;color:#3d7c0e;font:600 14px inherit;font-family:inherit;cursor:pointer}#clg.mg .mg-cp.mg-cpok{border-style:solid;background:#eef7e2}' +
       '@media (prefers-reduced-motion:reduce){#clg.mg .mg-st li.mg-now i,#clg.mg .mg-tl li.mg-now i::after{animation:none}#clg.mg,#clg.mg .mg-bar i{transition:none}}' +
       '@media (max-width:760px){#clg.mg .mg-c{grid-template-columns:1fr;grid-template-rows:320px 1fr}#clg.mg .mg-art{min-height:0}#clg.mg .mg-lg{left:24px;top:28px;height:20px}#clg.mg .mg-ck{left:20px;bottom:64px;font-size:96px}#clg.mg .mg-dt{left:24px;bottom:32px;font-size:16px}#clg.mg .mg-ft{display:none}#clg.mg .mg-f{align-items:flex-start;padding:40px 24px 72px}#clg.mg .mg-in{max-width:none}#clg.mg .mg-h{font-size:32px}#clg.mg .mg-s{font-size:16px;margin:8px 0 32px}#clg.mg .mg-hp{left:0;right:0;bottom:24px;text-align:center}}' +
+      '#clg-sv{position:fixed;top:calc(env(safe-area-inset-top,0px) + var(--sv-top,12px));right:var(--sv-right,12px);z-index:99998;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);color:#8a909a;pointer-events:none;opacity:0;transform:scale(.85);transition:opacity .25s,transform .25s,color .3s}' +
+      '#clg-sv.on{opacity:1;transform:none}#clg-sv.ok{color:#3d7c0e}#clg-sv.ok:not(.on){transition:opacity .6s,transform .6s}' +
+      '#clg-sv .rg{position:absolute;inset:0;width:36px;height:36px;transform:rotate(-90deg)}#clg-sv circle{fill:none;stroke:#3d7c0e;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:0 100}' +
+      '#clg-sv .ic{position:absolute;left:8px;top:8px;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}' +
+      '@media (prefers-reduced-motion:reduce){#clg-sv,#clg-sv circle{transition:none!important}}' +
       '#clg-bn{position:fixed;right:20px;bottom:20px;z-index:99998;background:#f0b23a;color:#15230f;border-radius:999px;padding:8px 16px;font:600 14px Inter,"Noto Sans Thai",Prompt,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:92vw;text-align:center}';
     document.head.appendChild(s);
   }
