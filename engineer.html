@@ -1741,7 +1741,8 @@ async function nsStart(id){
    Single Line สำหรับผู้รับเหมา = ขึ้นเป็นงานให้ทุกคนใน Man เมื่อมีนัดติดตั้งแล้ว (j.singleLine) · ถึงวันติดตั้งแล้วยังไม่มี = เตือนสีส้ม ไม่บล็อก */
 const UPK={draw:{t:'แบบติดตั้ง',pre:'แบบติดตั้ง',b:'อัปโหลดแบบติดตั้ง'},sl:{t:'Single Line สำหรับยื่นขนานไฟ',pre:'Single Line',b:'อัปโหลด Single Line'}};
 // Single Line สำหรับยื่นขนานไฟ: ขึ้นเมื่อติดตั้งเสร็จ (ขั้นเอกสารขนานไฟ) · อัปโหลดแล้ว = งานของ Man ขั้นนี้จบ
-const needSL=j=>j.status==='active'&&j.stage===ST.DOCS&&!j.singleLine;
+// ยื่นเอกสารต่อการไฟฟ้าแล้ว (เช่น งานนำเข้าจาก Excel หรือออฟฟิศติ๊ก) = ไม่ต้องอัปโหลด
+const needSL=j=>j.status==='active'&&j.stage===ST.DOCS&&!j.singleLine&&!j.docs?.sentTon;
 function upBox(j,k,f){const busy=S.upBusy===j.id+':'+k;
   const pick=`<button type="button" class="btn ${f?'':'blu'} upb" style="width:100%" data-upk="${k}" data-upj="${esc(j.id)}" ${busy?'disabled':''}>${ic('cloud')}${busy?'กำลังอัปโหลด…':(f?'อัปโหลดใหม่':UPK[k].b)}</button>`;
   return f?`<div class="upd">${ic('check')}<div><b>${esc(f.name||UPK[k].t)}</b><small>${[f.by&&C().members[f.by]?.name,f.at&&fdt(f.at)].filter(Boolean).map(esc).join(' · ')}</small></div>${f.url?`<button class="lk" data-open="${esc(f.url)}">เปิด</button>`:''}</div>${pick}`:pick}

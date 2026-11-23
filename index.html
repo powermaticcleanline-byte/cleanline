@@ -2786,7 +2786,7 @@ function manFiles(j){const df=j.sv&&j.sv.drawFile,sl=j.singleLine,needSl=j.stage
   const ln=(t,f,miss)=>`<li class="${f?'ok':''}"><span class="k">${f?'✓':'·'}</span><span>${esc(t)}${f?` · <a class="lk" href="${esc(safeUrl(f.url)||'#')}" target="_blank" rel="noopener">เปิดไฟล์</a>`:` <span class="sub">${esc(miss)}</span>`}</span></li>`;
   if(!df&&!needSl&&!sl)return '';
   return `<section class="act" aria-label="ไฟล์จากแอป Man"><div><h2>ไฟล์จากแอป Man</h2></div>
-   <ul class="need">${df?ln('แบบติดตั้ง',df,''):''}${needSl||sl?ln('Single Line สำหรับยื่นขนานไฟ',sl,'รอทีมใน Man อัปโหลด'):''}</ul></section>`}
+   <ul class="need">${df?ln('แบบติดตั้ง',df,''):''}${needSl||sl?ln('Single Line สำหรับยื่นขนานไฟ',sl,j.docs?.sentTon?'ยื่นการไฟฟ้าแล้ว ไม่ต้องอัปโหลด':'รอทีมใน Man อัปโหลด'):''}</ul></section>`}
 /* 19 ปักหมุดงาน (เก็บในเครื่อง แยกต่อคน) */
 const pinKey=()=>'cl.pins.'+(S.me.id||'');
 function pins(){try{return JSON.parse(localStorage.getItem(pinKey())||'[]').filter(id=>S.jobs[id])}catch(e){return []}}
