@@ -270,6 +270,7 @@ html.framed.bandtop .sbar{background:#3c7f0e;color:#fff}
 .slh{text-align:center;padding:20px 16px 16px;background:linear-gradient(180deg,#f1f8e8,#fff)}.slh b{display:block;font-size:20px;font-weight:600;margin-top:8px}.slh small{color:var(--mut);font-size:14px}
 .slb{padding:8px 16px}
 .sr{display:flex;justify-content:space-between;gap:16px;padding:8px 0;font-size:14px}.sr>span{color:var(--mut);flex:none;max-width:46%}.sr>b{font-weight:400;text-align:right;word-break:break-word}
+.slst{font-size:16px;font-weight:600;color:var(--accTx);padding:4px 0 4px}
 .sr.st{flex-direction:column;gap:2px}.sr.st>span{max-width:none}.sr.st>b{text-align:left}.sr>b small{display:block;color:var(--mut);font-weight:400;font-size:14px}
 .sr.it>span{color:var(--ink);max-width:70%;flex:1}.sr.it>span small{display:block;color:var(--mut);font-size:12px}.sr.it>b{font-size:16px;font-weight:600;white-space:nowrap}.sr.it>b em{font-style:normal;font-size:16px;color:var(--mut);font-weight:400}
 .slp+.slp{margin-top:8px;padding-top:8px;border-top:1px solid var(--ln)}
@@ -1901,13 +1902,17 @@ function viewToday(){
      ${list.length?list.map(j=>`<div class="jsw" data-sw="${esc(j.id)}"><div class="jsu" aria-hidden="true"><span>${ic('phone')} โทร</span><span>นำทาง ${ic('nav')}</span></div>${jrow(j,all)}</div>`).join(''):emptyMascot(tab==='today'?'วันนี้ไม่มีงานนัด':tab==='tomorrow'?'พรุ่งนี้ยังไม่มีงานนัด':'ไม่มีงานค้าง',!all?'ดูได้ว่าทีมมีงานอะไรบ้าง':'',!all?'<button class="btn" data-scope="all">ดูงานของทุกคน</button>':'')}</section>
    </main>`;
 }
+// ใบสำรวจ: ข้อมูลหน้างานแยกเป็นแถว (เดิมต่อกันบรรทัดเดียว)
+function siteRows(s){const sp=x=>String(x).replace(/(\d)(sq)/i,'$1 $2');
+  return [['ระบบไฟ',[s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')],['มิเตอร์',s.meterSize],['เมนเบรกเกอร์',s.mainBreaker],['สายเมน',s.wireSize&&sp(s.wireSize)],
+   ['ประเภทบ้าน',s.houseType],['โครงหลังคา',s.roofStructure],['หลังคา',s.roofType]].filter(x=>x[1])}
 function slip(j){
   const c=cOf(j),s=sOf(j),r=j.request||{},props=propsView(j),st=svSteps(j,s),nOk=st.filter(x=>x.ok).length;
   const head=j.status==='done'?['ok','ปิดงานแล้ว']:xCan(j)?['no','ยกเลิก']:j.status==='lost'?['no','ลูกค้ายังไม่ตกลง']:j.status==='cancelled'?['no','ยกเลิก']:j.stage>ST.SURVEY?['ok','ส่งเซลส์แล้ว']:nOk===8?['ok','สำรวจครบแล้ว']:['wip','กำลังสำรวจ '+nOk+'/8'];
   const row=(l,v)=>`<div class="sr"><span>${l}</span><b>${v}</b></div>`;
   const dash='<i class="nil">—</i>',v=x=>x===undefined||x===null||x===''?dash:esc(x);
   const yn=x=>x===true?'<em class="yes">ต้องการ</em>':x===false?'ไม่ต้องการ':dash;
-  const site=[s.phase?s.phase+' เฟส':'',s.utility,s.meterSize?'มิเตอร์ '+s.meterSize:'',s.mainBreaker?'เมน '+s.mainBreaker:'',s.wireSize?'สาย '+s.wireSize:'',s.houseType,s.roofStructure?'โครง'+s.roofStructure:'',s.roofType].filter(Boolean).join(' · ');
+  const site=siteRows(s);
   return `<section class="slip"><div class="slh"><img class="sllogo" src="${CL_LOGO}" alt="CLEANLINE"><small>ใบสำรวจ #${esc(j.jobNo||'—')} · ${fd(j.surveyDate||j.queueDate)}${j.queueTime?' '+esc(j.queueTime):''}</small></div>
    <div class="slb">${row('ลูกค้า',v(c.name)+(c.phone?`<small>${esc(c.phone)}</small>`:''))}${row('ไซต์',v(s.address))}${row('ทีมขาย',v(j.salesTeam))}${row('ผู้สำรวจ',v(j.surveyor||j.surveyTeam))}</div>
    <div class="slc"></div>
@@ -1916,7 +1921,9 @@ function slip(j){
      :'<p class="hint" style="margin:0;text-align:center">ยังไม่ได้เสนออุปกรณ์</p>'}</div>
    <div class="slc"></div>
    <div class="slb">${row('ลูกค้าอยากได้',v([r.systemType,r.wantKwp?r.wantKwp+' kWp':''].filter(Boolean).join(' · ')))}${row('โครงการรัฐ (ลด 50,000)',yn(r.govSubsidy))}${row('ลดหย่อนภาษี',yn(r.taxDeduction))}
-    <div class="sr st"><span>หน้างาน</span><b>${site?esc(site):dash}</b></div>${r.note?row('หมายเหตุลูกค้า',esc(r.note)):''}${j.proposedNote?row('หมายเหตุขนาด',esc(j.proposedNote)):''}</div>
+${r.note?row('หมายเหตุลูกค้า',esc(r.note)):''}${j.proposedNote?row('หมายเหตุขนาด',esc(j.proposedNote)):''}</div>
+   <div class="slc"></div>
+   <div class="slb"><div class="slst">หน้างาน</div>${site.length?site.map(([l,x])=>row(l,esc(x))).join(''):row('ข้อมูลหน้างาน',dash)}</div>
    <div class="slf">CLEANLINE · แผนก Energy · Powermatic</div></section>`;
 }
 const segTH=(()=>{try{return new Intl.Segmenter('th',{granularity:'word'})}catch(e){return null}})();
@@ -1934,7 +1941,7 @@ async function slipCanvas(j){
   const W=1080,P=72,IW=W-P*2,F='Prompt, Sarabun, sans-serif';
   const FT={h:`600 38px ${F}`,b:`400 32px ${F}`,bb:`600 32px ${F}`,c:`400 26px ${F}`},LH={h:52,b:46,c:36};
   const INK='#16171d',MUT='#7a7e8a',GRN='#3f8410',LINE='#e6e8ee';
-  const site=[s.phase?s.phase+' เฟส':'',s.utility,s.meterSize?'มิเตอร์ '+s.meterSize:'',s.mainBreaker?'เมน '+s.mainBreaker:'',s.wireSize?'สาย '+s.wireSize:'',s.houseType,s.roofStructure?'โครง'+s.roofStructure:'',s.roofType].filter(Boolean).join(' · ');
+  const site=siteRows(s);
   const yn=x=>x===true?['ต้องการ',GRN]:x===false?['ไม่ต้องการ',INK]:['—',MUT];
   const ops=[{t:'head'}];
   const kv=(l,v,sub,col)=>ops.push({t:'kv',l,v:v||'—',sub,col});
@@ -1946,7 +1953,8 @@ async function slipCanvas(j){
   ops.push({t:'cut'});
   kv('ลูกค้าอยากได้',[r.systemType,r.wantKwp?r.wantKwp+' kWp':''].filter(Boolean).join(' · '));
   {const [v,cl]=yn(r.govSubsidy);kv('โครงการรัฐ (ลด 50,000)',v,null,cl)}{const [v,cl]=yn(r.taxDeduction);kv('ลดหย่อนภาษี',v,null,cl)}
-  kv('หน้างาน',site);if(r.note)kv('หมายเหตุลูกค้า',r.note);if(j.proposedNote)kv('หมายเหตุขนาด',j.proposedNote);
+  if(r.note)kv('หมายเหตุลูกค้า',r.note);if(j.proposedNote)kv('หมายเหตุขนาด',j.proposedNote);
+  ops.push({t:'cut'},{t:'sec',l:'หน้างาน'});if(site.length)site.forEach(([l,x])=>kv(l,x));else kv('ข้อมูลหน้างาน','—');
   ops.push({t:'foot'});
   const cv=document.createElement('canvas'),g=cv.getContext('2d');
   const txt=(t,x,y,font,col,al='left')=>{g.font=font;g.fillStyle=col;g.textAlign=al;g.fillText(t,x,y);g.textAlign='left'};
@@ -1966,6 +1974,7 @@ async function slipCanvas(j){
         if(draw){nl.forEach((t,i)=>txt(t,P,y+34+i*LH.b,FT.b,INK));sl.forEach((t,i)=>txt(t,P,y+34+nl.length*LH.b+i*LH.c-6,FT.c,MUT));
           txt(' '+o.u,W-P,y+34,FT.b,MUT,'right');txt(String(o.q),W-P-uw,y+34,FT.bb,INK,'right')}
         y+=nl.length*LH.b+sl.length*LH.c+12;continue}
+      if(o.t==='sec'){if(draw)txt(o.l,P,y+40,FT.h,GRN);y+=LH.h+12;continue}
       if(o.t==='note'){if(draw)txt(o.l,W/2,y+34,FT.b,MUT,'center');y+=LH.b+20;continue}
       if(o.t==='foot'){if(draw)txt('CLEANLINE · แผนก Energy · Powermatic · บันทึก '+fdt(Date.now()),W/2,y+52,FT.c,'#a3a7b2','center');y+=80;continue}
     }return y+P/2};
