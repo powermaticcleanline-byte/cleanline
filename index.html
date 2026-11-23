@@ -2329,7 +2329,7 @@ body.pgsc .pg>.ph:has(+ .card.jst) h1{font-size:24px!important;line-height:1.25!
 
 /* 5o */
 .ib.ibx{visibility:hidden;pointer-events:none}
-.asgmiss[hidden]{display:none!important}
+.asgmiss[hidden],.fld[hidden]{display:none!important}
 @media (max-width:640px){
 #app>.pg .jtabs.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent)}
 #app>.pg .sjl{min-height:44px}
@@ -3639,6 +3639,7 @@ async function catImport(file){
         if(x.ex){if(x.ex.note)delete d.note;await w('products/'+x.ex.id,d,'update')}else await w('products/'+pid(d.category,d.model),d,'set')}
       m.innerHTML='';toast(`นำเข้าแคตตาล็อกแล้ว ${go.length} รุ่น`)}catch(e){b.disabled=false;b.textContent='ลองบันทึกอีกครั้ง'}};
 }
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='acc-eng'){const o=document.querySelector('label[for="acc-out"]');if(o){o.hidden=e.target.value!=='__out';if(!o.hidden)document.getElementById('acc-out').focus()}}});
 document.addEventListener('change',e=>{if(e.target.id==='eqxfile'){const f=e.target.files[0];e.target.value='';if(f)catImport(f)}});
 
 /* ===== แบบฟอร์มเอกสาร: เก็บแบบฟอร์มล่าสุดที่ทีมใช้ ===== */
@@ -3927,7 +3928,7 @@ function bookPanel(){
   const svRow=j=>{const di=j.queueDate?dayInfo(j.queueDate,j.id):null;const st=!j.queueDate?['gy','ยังไม่ระบุวัน']:di.closed?['r','วันปิดรับคิว']:di.left<=0?['o','คิวเต็มแล้ว']:['ok','ว่าง '+di.left+' ที่'];
     return `<div class="bt sv">${cust(j)}<span>${teamTag(j.salesTeam)||'—'}<small>${esc(j.salesPerson||'')}</small></span>
       <span><b>${wd(j.queueDate)}</b><small>${esc(j.queueTime||'')}</small></span><span><span class="pill ${st[0]==='r'?'rd':st[0]}">${st[1]}</span></span>
-      <select class="bki" id="acc-eng-${esc(j.id)}" aria-label="คนสำรวจ" ${j.queueDate?'':'disabled'}><option value="">เลือกคนสำรวจ</option>${j.queueDate?SV_TEAMS.map(t=>{const b=S.me.role?teamBlock(t,j.queueDate,j.id,j.queueTime,j):(teamSlots(t,j.queueDate,j.id)?'':'เต็ม');return `<option value="${esc(t)}" ${b?'disabled':''} ${j.surveyTeam===t?'selected':''}>${esc(t)} · ${esc(b||teamWhy(t,j.queueDate,j.id,j.queueTime,j))}</option>`}).join(''):''}</select>
+      <select class="bki" id="acc-eng-${esc(j.id)}" aria-label="คนสำรวจ" ${j.queueDate?'':'disabled'}><option value="">เลือกคนสำรวจ</option><option value="__out">คนนอกระบบ · พิมพ์ชื่อ</option>${j.queueDate?SV_TEAMS.map(t=>{const b=S.me.role?teamBlock(t,j.queueDate,j.id,j.queueTime,j):(teamSlots(t,j.queueDate,j.id)?'':'เต็ม');return `<option value="${esc(t)}" ${b?'disabled':''} ${j.surveyTeam===t?'selected':''}>${esc(t)} · ${esc(b||teamWhy(t,j.queueDate,j.id,j.queueTime,j))}</option>`}).join(''):''}</select>
       <span class="bkb"><button class="btn sm pri" data-act="accept" data-jid="${esc(j.id)}">ตอบรับ</button><button class="btn sm" data-act="decline" data-jid="${esc(j.id)}">ขอเปลี่ยนวัน</button></span></div>`};
   const insRow=j=>{const d0=j.wantInstallDate||'';const L=d0?installsOn(d0,j.id):[];
     return `<div class="bt in">${cust(j)}<span><b>${j.proposedKw?esc(j.proposedKw)+' kW':'—'}</b><small>${esc(j.salesTeam||'')}</small></span>
@@ -3954,7 +3955,8 @@ function acceptCard(j,act,book){   // book = ชื่อคนจัดงา�
     <div><h2>ส่งใบงานสำรวจ</h2><span class="sub">${esc(j.salesPerson||'เซลส์')} ${j.salesTeam?'('+esc(j.salesTeam)+')':''} · จองคิวแล้ว</span></div>
     <div class="qreq"><b>${j.queueDate?`${TD[new Date(j.queueDate+'T00:00:00').getDay()]} ${fd(j.queueDate)}`:'ยังไม่ระบุวัน'}</b><span>${esc(j.queueTime||'')}</span></div>
     ${di.closed?`<span class="tag crit" style="height:auto;padding:8px 8px">วันนั้นปิดรับคิว: ${esc(di.closed)}</span>`:clash?'<span class="tag crit" style="height:auto;padding:8px 8px">เวลานี้มีคิวอื่นแล้ว</span>':j.queueDate?`<span class="sub">วันนั้นมีคิวอื่น ${di.L.length} งาน${di.L.length?': '+di.L.map(x=>esc((x.queueTime||'')+' '+(x.title||''))).join(' · '):''}</span>`:'<span class="sub">ยังไม่มีวันคิว เลือกวันในส่วนผู้แจ้งงานและคิวสำรวจ</span>'}
-    <label class="fld" for="acc-eng">คนสำรวจ<select id="acc-eng" class="sel" ${act?'':'disabled'}><option value="">— เลือก —</option>${opts}</select></label>
+    <label class="fld" for="acc-eng">คนสำรวจ<select id="acc-eng" class="sel" ${act?'':'disabled'}><option value="">— เลือก —</option>${opts}<option value="__out">คนนอกระบบ · พิมพ์ชื่อ</option></select></label>
+    <label class="fld" for="acc-out" hidden>ชื่อคนสำรวจ (นอกระบบ)<input id="acc-out" placeholder="ชื่อเล่นหรือชื่อจริง" ${act?'':'disabled'}><span class="sub">ทีมใน Man กรอกผลสำรวจแทนได้ ระบบบันทึกว่าใครกรอก</span></label>
     ${S.me.role&&act&&locked.length?`<button class="lnk" type="button" data-unlock="${esc(j.id)}" style="align-self:flex-start">ขอใช้ ${locked.map(esc).join(' / ')}</button>`:''}
     ${S.me.role?`<label class="fld" for="acc-help">คนไปด้วย (ไม่บังคับ)<input id="acc-help" value="${esc(j.surveyHelpers||'')}" placeholder="เช่น ปอ" ${act?'':'disabled'}></label>`:''}
     <label class="fld" for="acc-note">หมายเหตุใบงาน (ไม่บังคับ)<input id="acc-note" value="${esc(j.woNote||'')}" ${act?'':'disabled'}></label>
@@ -4659,10 +4661,13 @@ async function doAct0(a,jid){
   const j=S.jobs[jid||route().slice(4)];if(!j)return;const n=j.stage;const now=Date.now();
   if(a==='note'){const v=$('#note').value.trim();if(!v)return;await pushHist(j,ev('note',v));return}
   if(a==='accept'){
-    const eng=(($('#acc-eng-'+j.id)||$('#acc-eng'))?.value||'').trim();if(!eng)return toast('เลือกคนสำรวจก่อน');if(SV_TEAMS.includes(eng)&&j.queueDate){const b=S.me.role?teamBlock(eng,j.queueDate,j.id,j.queueTime,j):(teamSlots(eng,j.queueDate,j.id)?'':teamWhy(eng,j.queueDate,j.id));if(b)return toast(eng+' · '+b)}
-    const who=Object.entries(S.members||{}).find(([,m])=>m.name===eng);const help=(($('#acc-help'))?.value||'').trim();
+    let eng=(($('#acc-eng-'+j.id)||$('#acc-eng'))?.value||'').trim();if(!eng)return toast('เลือกคนสำรวจก่อน');
+    const outSv=eng==='__out';   // คนสำรวจนอกระบบ: เก็บชื่อ ไม่มี surveyorId · ทีมใน Man กรอกแทนได้
+    if(outSv){eng=(($('#acc-out'))?.value||'').trim()||((await ask('ชื่อคนสำรวจ (นอกระบบ)','ชื่อเล่นหรือชื่อจริง'))||'').trim();if(!eng)return toast('พิมพ์ชื่อคนสำรวจก่อน');
+      if(Object.values(S.members||{}).some(m=>m.name===eng))return toast(eng+' อยู่ในระบบแล้ว เลือกจากรายการแทน')}if(SV_TEAMS.includes(eng)&&j.queueDate){const b=S.me.role?teamBlock(eng,j.queueDate,j.id,j.queueTime,j):(teamSlots(eng,j.queueDate,j.id)?'':teamWhy(eng,j.queueDate,j.id));if(b)return toast(eng+' · '+b)}
+    const who=outSv?null:Object.entries(S.members||{}).find(([,m])=>m.name===eng);const help=(($('#acc-help'))?.value||'').trim();
     const no=j.jobNo||await claimJobNo(j.id);const wn=(($('#acc-note-'+j.id)||$('#acc-note'))?.value||'').trim();
-    await pushHist(j,ev('handoff',`ส่งใบงาน ${no} · สำรวจ ${fd(j.queueDate)} ${j.queueTime||''} · ${eng}${help?' + '+help:''}`,{from:j.stage,to:ST.SURVEY}),{jobNo:no,surveyor:eng,surveyTeam:SV_TEAMS.includes(eng)?eng:'',...(S.me.role?{surveyorId:who?who[0]:'',surveyHelpers:help}:{}),surveyDate:j.queueDate,woNote:wn,stage:ST.SURVEY,stageSince:now});
+    await pushHist(j,ev('handoff',`ส่งใบงาน ${no} · สำรวจ ${fd(j.queueDate)} ${j.queueTime||''} · ${eng}${outSv?' (นอกระบบ)':''}${help?' + '+help:''}`,{from:j.stage,to:ST.SURVEY}),{jobNo:no,surveyor:eng,surveyTeam:SV_TEAMS.includes(eng)?eng:'',...(S.me.role?{surveyorId:who?who[0]:'',surveyHelpers:help}:{}),surveyDate:j.queueDate,woNote:wn,stage:ST.SURVEY,stageSince:now});
     toast('ส่งใบงาน '+no+' ให้ '+eng+(help?' + '+help:'')+' แล้ว');return}
   if(a==='bookins'){
     const d=(($('#ins-d-'+j.id)||$('#ins-d'))?.value||'').trim();if(!d)return toast('เลือกวันเริ่มติดตั้งก่อน');

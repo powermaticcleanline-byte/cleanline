@@ -1054,7 +1054,8 @@ function viewJob(id){
     ['doc','ใบสำรวจ',`data-go="#rpt-${esc(j.id)}"`,hasSurvey(j)],['cam','บันทึกสลิป',`data-slipimg="${esc(j.id)}"`,hasSurvey(j)]];
   const appt=j.stage<=ST.SURVEY?row('วันนัดสำรวจ',fd(j.surveyDate||j.queueDate)+(j.queueTime?' · '+esc(j.queueTime):''))+row('ผู้สำรวจ',esc([j.surveyor||'ยังไม่ระบุ',j.surveyTeam].filter(Boolean).join(' · ')))
     :row('วันติดตั้ง',j.installDate?fdRange(j.installDate,j.installEnd):'ยังไม่กำหนด')+row('ผู้คุมงาน',esc(j.supervisor||'ยังไม่ระบุ'))+row('ทีมติดตั้ง',esc(j.installTeam||'ยังไม่ระบุ'))+row('ผู้สำรวจ',esc(j.surveyor||''));
-  const cta=j.stage===ST.SURVEY?(canTake(j)?`<button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ แล้วสำรวจ</button>`:canAct(j)?`<button class="btn pri" data-go="#ns-${esc(j.id)}">${ic('play')}${j.sv?.onsite?'สำรวจต่อ':'เริ่มสำรวจ'}</button>`:'')
+  const osv=outSv(j)&&canBack(j);   // คนสำรวจนอกระบบ ยังไม่มีใครกรอก
+  const cta=j.stage===ST.SURVEY?(osv?`<button class="btn blu" data-bfjob="${esc(j.id)}">${ic('doc')}กรอกผลสำรวจแทน</button>`:canTake(j)?`<button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ แล้วสำรวจ</button>`:canAct(j)?`<button class="btn pri" data-go="#ns-${esc(j.id)}">${ic('play')}${j.sv?.onsite?'สำรวจต่อ':'เริ่มสำรวจ'}</button>`:'')
     :j.stage===ST.COMM?(canTake(j)?`<button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ แล้วเปิดใบงานติดตั้ง</button>`:icCan(j)?`<button class="btn pri" data-go="#ic-${esc(j.id)}">${ic('doc')}ใบงานติดตั้ง</button>`:'')
     :j.stage===ST.INSTALL&&j.status==='active'&&me().role==='lead'?`<button class="btn pri" data-lead="${esc(j.id)}">${ic('users')}มอบงานติดตั้ง</button>`:'';
   return `<div class="jb"><div class="hbin">
@@ -1062,7 +1063,7 @@ function viewJob(id){
     <h1>${esc(j.title||s.label||'งาน')}</h1><p>${esc([c.name,s.area].filter(Boolean).join(' · '))}</p></div></div>
    <main class="wrap jm ${cta?'hasbar':''}">
     <section class="qa jqa">${qa.map(([i,t,a,on])=>`<button ${a} ${on?'':'disabled'}><span class="ki ki-b">${ic(i)}</span><small>${t}</small></button>`).join('')}</section>
-    ${canTake(j)?`<div class="take"><b>งานนี้ของ ${esc(assignee(j)||'ยังไม่ระบุ')}</b><p>ถ้าเจ้าของงานติดธุระ กดรับงานต่อแล้วทำแทนได้ทันที ระบบบันทึกในประวัติงาน</p><button class="btn blu" style="width:100%" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ</button></div>`:''}
+    ${osv?`<div class="take"><b>${esc(j.surveyor)} สำรวจ (นอกระบบ)</b><p>${esc(j.surveyor)} ไม่ได้ใช้แอป · คนในทีมกรอกผลสำรวจแทนได้ ชื่อผู้สำรวจยังเป็น ${esc(j.surveyor)} และระบบบันทึกว่าใครกรอก</p><button class="btn blu" style="width:100%" data-bfjob="${esc(j.id)}">${ic('doc')}กรอกผลสำรวจแทน</button></div>`:canTake(j)?`<div class="take"><b>งานนี้ของ ${esc(assignee(j)||'ยังไม่ระบุ')}</b><p>ถ้าเจ้าของงานติดธุระ กดรับงานต่อแล้วทำแทนได้ทันที ระบบบันทึกในประวัติงาน</p><button class="btn blu" style="width:100%" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ</button></div>`:''}
     ${openReqs(j.id).map(m=>`<button class="alert alb" data-msgjump>${ic('bolt')}<span><b>${esc((C().members[m.by]||{}).name?C().members[m.by].name+' ':'')}ขอข้อมูลเพิ่ม</b>${esc(m.text)}</span>${ic('go')}</button>`).join('')}
     <section class="card jc2"><div class="jst"><span class="pill ${stt.c==='f-red'?'r':stt.c==='f-grn'?'g':''}">${esc(now)}</span><small>ขั้น ${j.stage} จาก 8</small></div>${prog}
      ${next?`<div class="jnx">${ic('go')}<span>ถัดไป: <b>${esc(next)}</b></span></div>`:''}</section>
@@ -1075,7 +1076,7 @@ function viewJob(id){
      ${j.salesNote?`<div class="jnote"><small>หมายเหตุจากเซลส์</small>${esc(j.salesNote)}</div>`:''}${j.woNote?`<div class="jnote"><small>หมายเหตุใบงาน</small>${esc(j.woNote)}</div>`:''}</section>
     ${slCard(j)}${chatCard(j)}
     ${hist.length?`<section class="card jc2"><div class="jh"><b>ความเคลื่อนไหวล่าสุด</b></div><ul class="tl hist">${hist.map(x=>`<li><span class="dt"></span><b>${esc(x.text)}</b><small>${fdt(x.at)} · ${esc(nameOf(x.by))}${x.n>1?` · ${x.n} ครั้ง`:''}</small></li>`).join('')}</ul></section>`:''}
-   </main>${cta?`<div class="abar"><div class="in" style="display:grid;gap:8px">${canBack(j)?`<button class="btn" data-bfjob="${esc(j.id)}">${ic('doc')}สำรวจไปแล้ว · กรอกย้อนหลัง</button>`:''}${cta}</div></div>`:''}`;
+   </main>${cta?`<div class="abar"><div class="in" style="display:grid;gap:8px">${canBack(j)&&!osv?`<button class="btn" data-bfjob="${esc(j.id)}">${ic('doc')}สำรวจไปแล้ว · กรอกย้อนหลัง</button>`:''}${cta}</div></div>`:''}`;
 }
 function scopeBar(){
   const u=me();if(u.role==='lead')return '';
@@ -1164,7 +1165,8 @@ function draftOf(j){
     folder:j.sv?.folder||j.folderUrl||`${FOLDER_ROOT}\\${beYear(j.surveyDate||j.queueDate)}\\${j.jobNo||''} ${j.title||s.label||''}`.trim(),
     signWho:'ลูกค้า',signName:c.name||'',signRel:''};
 }
-const bfMine=j=>/^x\d+$/.test(String(j&&j.id||''))&&!!j.sv?.backfillBy&&j.sv.backfillBy===me().id;
+const outSv=j=>!!j&&!!j.surveyor&&!j.surveyorId&&!/^x\d+$/.test(String(j.id||''));   // คนสำรวจนอกระบบ (ออฟฟิศพิมพ์ชื่อ)
+const bfMine=j=>(/^x\d+$/.test(String(j&&j.id||''))||outSv(j))&&!!j.sv?.backfillBy&&j.sv.backfillBy===me().id;
 const canAct=j=>actionable(j)&&j.stage===ST.SURVEY&&(ownedByMe(j)||me().role==='lead'||bfMine(j));
 const needDraw=j=>j.stage===ST.SURVEY&&!!j.sv?.sign&&!(j.sv?.cad&&j.sv?.cadFiled);
 function fld(path,label,type,opts,req,ph,val){
@@ -1716,7 +1718,7 @@ async function nsBackfill(id,dayIn,other){
   const ok=await svSave(id,{sv:v,...(fn&&fn!==(j.folderName||'')?{folderName:fn}:{})},{kind:'edit',text:'กรอกย้อนหลังโดย '+me().name+(other?' (แทน '+(assignee(j)||'—')+')':'')+' · สำรวจวันที่ '+fd(day)+' · '+(fn?'โฟลเดอร์ '+fn:'โฟลเดอร์ '+v.folder)},'เริ่มกรอกย้อนหลังได้เลย · รูปและลายเซ็นไม่บังคับ');
   if(ok){(S.nsPage=S.nsPage||{})[id]=1;if(route()!=='#ns-'+id)go('#ns-'+id);else render()}
 }
-const canBack=j=>!!j&&j.stage===ST.SURVEY&&!j.sv?.onsite&&(canAct(j)||canTake(j))&&(isImp(j)||((j.surveyDate||j.queueDate)&&(j.surveyDate||j.queueDate)<today()));
+const canBack=j=>!!j&&j.stage===ST.SURVEY&&!j.sv?.onsite&&(canAct(j)||canTake(j))&&(isImp(j)||outSv(j)||((j.surveyDate||j.queueDate)&&(j.surveyDate||j.queueDate)<today()));
 async function backFrom(id){
   let j=C().jobs[id];if(!canBack(j)||S.busy)return;
   const other=!canAct(j),who=assignee(j)||'—';
