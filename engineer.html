@@ -1658,7 +1658,7 @@ function viewNs(id){
   let body='';
   if(pg===1)body=`<h2 class="nsp">ข้อมูลหน้างาน</h2>${miss}<div class="card">${SITE_F.map(f=>fld('site.'+f[0],f[1],f[2],f[3],0,f[5],d.site[f[0]])).join('')}</div>`;
   if(pg===2)body=`<h2 class="nsp">ลูกค้าอยากได้</h2>${miss}<div class="card">${REQ_F.map(f=>fld('request.'+f[0],f[1],f[2],f[3],0,f[5],d.request[f[0]])).join('')}</div>`;
-  if(pg===3)body=`<h2 class="nsp">ที่เสนอ</h2>${miss}<button class="cgo" data-go="#tool-calc-${esc(j.id)}">${ic('sun')}<span><b>คำนวณจากค่าไฟ</b><small>ได้ขนาด รุ่น จำนวนแผง แล้วกดใส่ในแบบให้เลย</small></span>${ic('go')}</button><button class="cgo" data-go="#tool-load-${esc(j.id)}">${ic('bolt')}<span><b>วิเคราะห์โหลด</b><small>จากไฟล์มิเตอร์ momohub · ประหยัด คืนทุน ออกรายงาน PDF</small></span>${ic('go')}</button><div class="card"><div id="eqbox">${eqBlock(d,0)}</div></div><div class="card"><h2>${ic('nav')}สายไฟ (ใช้คิดราคา)</h2>${cableFields(d)}</div>`;
+  if(pg===3)body=`<h2 class="nsp">ที่เสนอ</h2>${miss}<button class="cgo" data-go="#tool-calc-${esc(j.id)}">${ic('sun')}<span><b>คำนวณจากค่าไฟ</b><small>ได้ขนาด รุ่น จำนวนแผง แล้วกดใส่ในแบบให้เลย</small></span>${ic('go')}</button><div class="card"><div id="eqbox">${eqBlock(d,0)}</div></div><div class="card"><h2>${ic('nav')}สายไฟ (ใช้คิดราคา)</h2>${cableFields(d)}</div>`;
   if(pg===4){const resign=!v.sign||S.nsResign===id;
     body=`<h2 class="nsp">รูป · ลายเซ็น</h2>${miss}<button class="cgo" data-go="#tool-drone-${esc(j.id)}">${ic('nav')}<span><b>เข็มทิศบนรูปโดรน</b><small>วัดทิศหลังคาจากรูปมุมสูง แล้วบันทึกเข้ารูปหลังคา</small></span>${ic('go')}</button>
     <div class="card"><h2>${ic('cam')}รูปหน้างาน</h2>${photoTiles(j,false)}</div>
@@ -2056,6 +2056,13 @@ async function loadCsv(inp){
   try{const parsed=SolarCalc.parseCSV(await f.text());S.ld={ctx:route().slice(10),name:f.name,parsed};Object.keys(S.t).filter(k=>/^ld\d+$/.test(k)).forEach(k=>delete S.t[k]);render();toast(`อ่านไฟล์แล้ว ${parsed.days.length} วัน · ${fmt(parsed.rows)} แถว`)}
   catch(e){toast(e.message||'อ่านไฟล์ไม่ได้')}finally{inp.value=''}
 }
+/* เลือกงานที่จะวิเคราะห์ (เปิดจากเมนูเครื่องมือ) · เลือกแล้วไฟล์ที่อ่านไว้ยังอยู่ */
+function lJobPick(ctx){
+  const L=S.api.listAllJobs().filter(x=>x.status==='active'&&(ownedByMe(x)||x.id===ctx)).sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'th'));
+  return `<section class="card"><b class="sth">งาน <small class="op">(เลือกเพื่อใส่ชื่อลูกค้าในรายงานและบันทึกผลเข้างาน)</small></b>
+    <select data-ljob style="width:100%;font:inherit;padding:10px;border-radius:12px;border:1px solid #d9ddd2;background:#fff"><option value="">— ไม่ผูกกับงาน —</option>${L.map(x=>`<option value="${esc(x.id)}" ${x.id===ctx?'selected':''}>${esc(x.title||x.jobNo||x.id)}${x.loadAnalysis?' · วิเคราะห์แล้ว':''}</option>`).join('')}</select></section>`;
+}
+function lPickJob(id){if(S.ld){S.ld.ctx=id;if(S.t.lpkg)S.t._lctx=id}go('#tool-load'+(id?'-'+id:''))}   // เลือกระบบไว้แล้ว = ใช้ค่าเดิม ไม่ดึงจากใบสำรวจทับ
 function lRun(){if(!S.ld)return null;const I=lInput();if(!I)return {need:'เลือก Package'};try{return {I,R:SolarCalc.run(S.ld.parsed,I,lData())}}catch(e){return {need:e.message}}}
 function toolLoad(ctx){
   lPrefill(ctx);const j=ctx&&C().jobs[ctx],D=lData(),P=lPkg(),ld=S.ld&&S.ld.ctx===ctx?S.ld:null;
@@ -2082,7 +2089,7 @@ function toolLoad(ctx){
   if(!ld)res=saved?lSavedCard(saved,ctx):`<div class="card cnote">${ic('bolt')}<span>เลือกไฟล์ CSV จากมิเตอร์ แล้วเลือกระบบ จะเห็นค่าไฟที่ประหยัดได้ คืนทุน และออกรายงานให้ลูกค้าได้</span></div>`;
   else if(!X||X.need)res=`<div class="card cnote">${ic('bolt')}<span>${esc(X&&X.need||'เลือก Package')}</span></div>`;
   else res=lResult(X.R,ctx);
-  return `${j?`<div class="cjob">${ic('doc')}<span>งาน <b>${esc(j.title||'')}</b>${saved?` · บันทึกผลไว้แล้ว ${fdt2(saved.at)}`:''}</span></div>`:''}${up}${sys}<div id="lres">${res}</div>`;
+  return `${lJobPick(ctx)}${j&&saved?`<div class="cjob">${ic('doc')}<span>บันทึกผลไว้แล้ว ${fdt2(saved.at)}</span></div>`:''}${up}${sys}<div id="lres">${res}</div>`;
 }
 const fdt2=ms=>{if(!ms)return '';const d=new Date(ms);return fd(isoOf(d))+' '+pad(d.getHours())+':'+pad(d.getMinutes())};
 function lSummary(R,I){const {_cols,...r}=R;return {...r,pkg:{name:R.pkg.name,inverter:R.pkg.inverter,type:R.pkg.type,phase:R.pkg.phase,kw:R.pkg.kw,panels:R.pkg.panels},battery:R.battery?{model:R.battery.model,usable:R.battery.usable}:null,input:I,source:lData().source}}
@@ -2713,7 +2720,7 @@ function onField(e){const el=e.target;const f=el.dataset?.f;if(!f)return;const i
 function rerenderEq(d){const box=$('#eqbox');if(!box)return;const req=!!box.closest('#svdesign');box.innerHTML=eqBlock(d,req?1:0)}
 document.addEventListener('touchstart',e=>{const w=e.target.closest('[data-swipe]');S.sw=w?[e.touches[0].clientX,e.touches[0].clientY]:null},{passive:true});
 document.addEventListener('touchend',e=>{if(!S.sw)return;const dx=e.changedTouches[0].clientX-S.sw[0],dy=e.changedTouches[0].clientY-S.sw[1];S.sw=null;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){S.t.cm=(+TV('cm',0))+(dx<0?1:-1);render()}});
-document.addEventListener('input',onField);document.addEventListener('change',e=>{onField(e);if(e.target.dataset?.photo)onPhotos(e.target);if(e.target.dataset?.icscan)icScan(e.target);if(e.target.dataset?.drone!==undefined&&e.target.files?.[0])droneLoad(e.target.files[0]);if(e.target.dataset?.loadcsv!==undefined)loadCsv(e.target);if(e.target.dataset?.nscad)nsCad(route().slice(3),e.target.dataset.nscad,e.target.checked)});
+document.addEventListener('input',onField);document.addEventListener('change',e=>{onField(e);if(e.target.dataset?.photo)onPhotos(e.target);if(e.target.dataset?.icscan)icScan(e.target);if(e.target.dataset?.drone!==undefined&&e.target.files?.[0])droneLoad(e.target.files[0]);if(e.target.dataset?.loadcsv!==undefined)loadCsv(e.target);if(e.target.dataset?.ljob!==undefined)lPickJob(e.target.value);if(e.target.dataset?.nscad)nsCad(route().slice(3),e.target.dataset.nscad,e.target.checked)});
 window.addEventListener('hashchange',()=>{S.navd=true;if(route()!=='noti')S.notiPrev=null;
   if(S.nsLast&&route()!=='ns-'+S.nsLast.id){const x=S.nsLast;S.nsLast=null;if(x.pg>0)nsSave(x.id,x.pg)}});
 function landing(msg){
