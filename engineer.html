@@ -2128,8 +2128,11 @@ function lSitePick(){
 const lB64=blob=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]||'');r.onerror=no;r.readAsDataURL(blob)});
 function lH2c(){return S.h2c||(S.h2c=new Promise((ok,no)=>{const s=document.createElement('script');s.src='html2canvas.min.js';s.onload=()=>ok(window.html2canvas);s.onerror=()=>{S.h2c=null;no(new Error('โหลดตัวสร้าง PDF ไม่ได้'))};document.head.appendChild(s)}))}
 /* รายงาน HTML → รูปทีละหน้า (html2canvas) → PDF A4 (เขียนไฟล์ PDF เอง ไม่ต้องใช้ไลบรารีเพิ่ม) */
+/* html2canvas วาดตัวอักษรบน canvas ของหน้าแอป → ต้องโหลดฟอนต์ Sarabun ในหน้าแอปด้วย ไม่งั้นระยะตัวอักษรเพี้ยน */
+async function lFonts(){if(!document.getElementById('lfont')){const st=document.createElement('style');st.id='lfont';st.textContent=lFontCss();document.head.appendChild(st)}
+  try{await Promise.all([400,600,700].map(w=>document.fonts.load(w+" 16px Sarabun","กขคงจ ABC 123")))}catch(e){}}
 async function lPdf(html){
-  const h2c=await lH2c(),f=document.createElement('iframe');
+  await lFonts();const h2c=await lH2c(),f=document.createElement('iframe');
   f.style.cssText='position:fixed;left:-10000px;top:0;width:820px;height:2400px;border:0';document.body.appendChild(f);
   try{await new Promise(ok=>{f.onload=ok;f.srcdoc=html});const d=f.contentDocument;
     try{await d.fonts.ready}catch(e){}await Promise.all([...d.images].map(i=>i.complete?0:new Promise(ok=>{i.onload=i.onerror=ok})));
@@ -2186,55 +2189,58 @@ function lChart(S2,o){
   const X=i=>L+pw*i/1439,Yv=v=>T+ph*(ym-v)/(ym-y0);
   const pts=a=>{let d='';for(let i=0;i<a.length;i++)d+=(i?'L':'M')+X(i).toFixed(1)+','+Yv(a[i]).toFixed(1);return d};
   let g='';
-  for(let v=y0;v<=ym+1e-9;v+=step)g+=`<line x1="${L}" x2="${W-R}" y1="${Yv(v).toFixed(1)}" y2="${Yv(v).toFixed(1)}" stroke="${v===0?'#9a9ca1':'#e6e8e3'}"/><text x="${L-6}" y="${(Yv(v)+3.5).toFixed(1)}" text-anchor="end" font-size="${small?9:10}" fill="#5C5D62">${v}</text>`;
+  for(let v=y0;v<=ym+1e-9;v+=step)g+=`<line x1="${L}" x2="${W-R}" y1="${Yv(v).toFixed(1)}" y2="${Yv(v).toFixed(1)}" stroke="${v===0?'#9a9ca1':'#e6e8e3'}"/><text x="${L-6}" y="${(Yv(v)+3.5).toFixed(1)}" text-anchor="end" font-size="${small?9:12}" fill="#5C5D62">${v}</text>`;
   for(let h=0;h<=24;h++){const x=(L+pw*h*60/1439).toFixed(1),lab=small?h%6===0:h%2===0;
     g+=`<line x1="${x}" x2="${x}" y1="${T}" y2="${T+ph}" stroke="${h%6===0?'#e1e3de':'#f1f2ef'}"/>`;
-    if(lab)g+=`<text x="${x}" y="${H-B+14}" text-anchor="${h===24?'end':h===0?'start':'middle'}" font-size="${small?9:10}" fill="#5C5D62">${pad(h===24?23:h)}:${h===24?'59':'00'}</text>`}
+    if(lab)g+=`<text x="${x}" y="${H-B+14}" text-anchor="${h===24?'end':h===0?'start':'middle'}" font-size="${small?9:12}" fill="#5C5D62">${pad(h===24?23:h)}:${h===24?'59':'00'}</text>`}
   let body='';
   sers.forEach(s=>{const a=S2[s.k];
     if(s.fill)body+=`<path d="${pts(a)} L${X(1439).toFixed(1)},${Yv(0).toFixed(1)} L${X(0).toFixed(1)},${Yv(0).toFixed(1)} Z" fill="${s.c}" fill-opacity=".28"/>`;
     body+=`<path d="${pts(a)}" fill="none" stroke="${s.c}" stroke-width="${s.w}" stroke-linejoin="round"${s.dash?` stroke-dasharray="${s.dash}"`:''}/>`});
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="พฤติกรรมการใช้ไฟฟ้ารายนาที เทียบกับกำลังผลิต Solar" style="display:block">${g}${body}
-    <text x="${L-6}" y="${T-6}" text-anchor="end" font-size="${small?9:10}" fill="#5C5D62">kW</text><text x="${W-R}" y="${H-2}" text-anchor="end" font-size="${small?9:10}" fill="#5C5D62">เวลา (น.)</text></svg>`;
+    <text x="${L-6}" y="${T-6}" text-anchor="end" font-size="${small?9:12}" fill="#5C5D62">kW</text><text x="${W-R}" y="${H-2}" text-anchor="end" font-size="${small?9:12}" fill="#5C5D62">เวลา (น.)</text></svg>`;
 }
-function lLegend(S2,small){return `<div style="display:grid;grid-template-columns:repeat(${small?1:2},minmax(0,1fr));gap:${small?'2px':'4px 18px'};font-size:${small?12:11}px;color:#3d3e42;margin-top:6px">${lSerOn(S2).map(s=>`<span style="display:flex;align-items:center;gap:6px"><svg width="22" height="8" aria-hidden="true"><line x1="0" x2="22" y1="4" y2="4" stroke="${s.c}" stroke-width="${s.fill?6:2}" ${s.fill?'stroke-opacity=".45"':''} ${s.dash?`stroke-dasharray="${s.dash}"`:''}/></svg><span>${s.th}${small?'':` <small style="color:#6B6C71">· ${s.en}</small>`}</span></span>`).join('')}</div>`}
+function lLegend(S2,small){return `<div style="display:grid;grid-template-columns:repeat(${small?1:2},minmax(0,1fr));gap:${small?'2px':'4px 18px'};font-size:${small?12:13}px;color:#3d3e42;margin-top:6px">${lSerOn(S2).map(s=>`<span style="display:flex;align-items:center;gap:6px"><svg width="22" height="8" aria-hidden="true"><line x1="0" x2="22" y1="4" y2="4" stroke="${s.c}" stroke-width="${s.fill?6:2}" ${s.fill?'stroke-opacity=".45"':''} ${s.dash?`stroke-dasharray="${s.dash}"`:''}/></svg><span>${s.th}${small?'':` <small style="color:#6B6C71">· ${s.en}</small>`}</span></span>`).join('')}</div>`}
 /* ---------- รายงาน A4 2 หน้า (ดูในแอป + สร้าง PDF) · j = งานของไซต์ที่เลือกตอนบันทึก (ยังไม่เลือก = ไม่มีชื่อลูกค้า) ---------- */
+/* ฟอนต์รายงาน: Sarabun (Cadson Demak · SIL Open Font License · ไฟล์อยู่ในโฟลเดอร์ fonts/) */
+function lFontCss(){const u=f=>new URL('fonts/'+f,location.href).href,TH='U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC',LA='U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
+  return [400,600,700].map(w=>`@font-face{font-family:'Sarabun';font-weight:${w};font-style:normal;font-display:block;src:url(${u('sarabun-thai-'+w+'-normal.woff2')}) format('woff2');unicode-range:${TH}}@font-face{font-family:'Sarabun';font-weight:${w};font-style:normal;font-display:block;src:url(${u('sarabun-latin-'+w+'-normal.woff2')}) format('woff2');unicode-range:${LA}}`).join('')}
 function lReportHtml(R,j){
   const c=j?cOf(j):{},s=j?sOf(j):{},E=R.energy,m=R.money,b=R.bill,f0=v=>fmt(v),f2=v=>fmt(v,2);
-  const logo=new URL('logo.webp',location.href).href,today=fd(isoOf(new Date()));
+  const logo=new URL('logo.webp',location.href).href,ff=lFontCss(),today=fd(isoOf(new Date()));
   const yr=Array.from({length:25},(_,i)=>m.year*(i+1)-R.price.total),vmax=Math.max(...yr,1),vmin=Math.min(...yr,0);
   const W=698,H=150,L=60,T=12,pw=W-L-8,ph=H-T-26,bw=pw/25,Yv=v=>T+ph*(vmax-v)/(vmax-vmin);
   let pay='';yr.forEach((v,i)=>{const x=L+i*bw+3,y0=Yv(0),y1=Yv(v);pay+=`<rect x="${x.toFixed(1)}" y="${Math.min(y0,y1).toFixed(1)}" width="${(bw-6).toFixed(1)}" height="${Math.abs(y1-y0).toFixed(1)}" rx="2" fill="${v>=0?'#92D400':'#B8B9BD'}"/>`;
     if([1,5,10,15,20,25].includes(i+1))pay+=`<text x="${(x+(bw-6)/2).toFixed(1)}" y="${H-6}" text-anchor="middle" font-size="11" fill="#6B6C71">ปี ${i+1}</text>`});
   pay+=`<line x1="${L}" x2="${W-8}" y1="${Yv(0)}" y2="${Yv(0)}" stroke="#26272B"/><text x="${L-8}" y="${Yv(0)+4}" text-anchor="end" font-size="11" fill="#6B6C71">0</text>`;
   if(R.payback&&R.payback<=25){const x=L+R.payback*bw;pay+=`<line x1="${x}" x2="${x}" y1="${T}" y2="${Yv(0)}" stroke="#3F6B00" stroke-dasharray="4 3"/><text x="${x+6}" y="${T+12}" font-size="12" font-weight="600" fill="#3F6B00">คืนทุน ${fmt(R.payback,1)} ปี</text>`}
-  const pk=R.pkg,bat=R.battery,css=`@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;background:#e9ebe6;font-family:'IBM Plex Sans Thai','Noto Sans Thai',sans-serif;color:#26272B}
-.pg{width:210mm;height:297mm;margin:12px auto;background:#fff;padding:12mm 13mm 10mm;display:flex;flex-direction:column;gap:18px;overflow:hidden}
+  const pk=R.pkg,bat=R.battery,css=`@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;background:#e9ebe6;font-family:'Sarabun','TH Sarabun New','TH Sarabun PSK',sans-serif;color:#26272B}
+.pg{width:210mm;height:297mm;margin:12px auto;background:#fff;padding:11mm 13mm 9mm;display:flex;flex-direction:column;gap:14px;overflow:hidden}
 @media print{body{background:#fff}.pg{margin:0;page-break-after:always}.bar{display:none}}
-.hd{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:3px solid #92D400}.hd img{height:26px}.hd div{font-size:11px;color:#6B6C71;text-align:right;line-height:1.5}
-h1{margin:0;font-size:23px;line-height:1.3}h2{margin:0;font-size:16px;font-weight:600}.sub{font-size:12px;color:#6B6C71;margin-top:2px}
-.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.meta span{display:block;font-size:11px;color:#6B6C71}.meta b{font-size:13px}
+.hd{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:3px solid #92D400}.hd img{height:26px}.hd div{font-size:13px;color:#6B6C71;text-align:right;line-height:1.5}
+h1{margin:0;font-size:26px;line-height:1.3}h2{margin:0;font-size:18px;font-weight:600}.sub{font-size:13px;color:#6B6C71;margin-top:2px}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.meta span{display:block;font-size:13px;color:#6B6C71}.meta b{font-size:14px}
 .hero{background:#F2F9E3;border-radius:12px;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.hero small{font-size:13px;color:#5C5D62}.hero .big{font-size:42px;font-weight:700;color:#3F6B00;line-height:1.05}.hero .big i{font-size:18px;font-style:normal;font-weight:600}
-.kp{display:flex;gap:16px}.kp div{padding-left:16px;border-left:1px solid #CFE3A8}.kp b{display:block;font-size:22px;line-height:1.2}.kp b i{font-size:13px;font-style:normal;font-weight:500}.kp span{font-size:11px;color:#5C5D62}
+.hero small{font-size:14px;color:#5C5D62}.hero .big{white-space:nowrap;font-size:47px;font-weight:700;color:#3F6B00;line-height:1.05}.hero .big i{font-size:20px;font-style:normal;font-weight:600}
+.kp{display:flex;gap:16px}.kp div{white-space:nowrap;padding-left:16px;border-left:1px solid #CFE3A8}.kp b{display:block;font-size:25px;line-height:1.2}.kp b i{font-size:14px;font-style:normal;font-weight:500}.kp span{font-size:13px;color:#5C5D62}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.st{border:1px solid #D9DADD;border-radius:8px;padding:11px 13px}.st span{display:block;font-size:11px;color:#5C5D62}.st b{font-size:19px}.st b i{font-size:11px;font-style:normal;font-weight:500;color:#5C5D62}.st.g b{color:#3F6B00}
-.lg{display:flex;gap:18px;font-size:11px;color:#5C5D62}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;font-weight:500;color:#5C5D62;padding:7px 0;border-bottom:1px solid #D9DADD;width:34%}td{padding:7px 0;border-bottom:1px solid #D9DADD;font-weight:600}td.r{text-align:right}
-.roi{display:flex;align-items:center;justify-content:space-between;background:#F2F9E3;border-radius:8px;padding:12px 16px}.roi div{font-size:12px;color:#5C5D62;line-height:1.7}.roi b{font-size:30px;color:#3F6B00}
-.note{font-size:11px;color:#6B6C71;line-height:1.6;margin:0}.ft{margin-top:auto;padding-top:10px;border-top:1px solid #D9DADD;display:flex;justify-content:space-between;font-size:11px;color:#6B6C71}
+.st{border:1px solid #D9DADD;border-radius:8px;padding:8px 12px}.st span{display:block;font-size:13px;color:#5C5D62}.st b{font-size:22px}.st b i{font-size:13px;font-style:normal;font-weight:500;color:#5C5D62}.st.g b{color:#3F6B00}
+.lg{display:flex;gap:18px;font-size:13px;color:#5C5D62}table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;font-weight:500;color:#5C5D62;padding:7px 0;border-bottom:1px solid #D9DADD;width:34%}td{padding:7px 0;border-bottom:1px solid #D9DADD;font-weight:600}td.r{text-align:right}
+.roi{display:flex;align-items:center;justify-content:space-between;background:#F2F9E3;border-radius:8px;padding:12px 16px}.roi div{font-size:13px;color:#5C5D62;line-height:1.7}.roi b{font-size:34px;color:#3F6B00}
+.note{font-size:13px;color:#6B6C71;line-height:1.6;margin:0}.ft{margin-top:auto;padding-top:10px;border-top:1px solid #D9DADD;display:flex;justify-content:space-between;font-size:13px;color:#6B6C71}
 .bar{position:sticky;top:0;background:#26272B;color:#fff;padding:10px;text-align:center}.bar button{font:inherit;padding:8px 18px;border-radius:999px;border:0;background:#92D400;font-weight:600;cursor:pointer}`;
   const hd=n=>`<div class="hd"><img src="${logo}" alt="CLEANLINE"><div>${esc(j&&j.jobNo||'')}${j&&j.jobNo?'<br>':''}หน้า ${n} / 2</div></div>`;
   const ft=`<div class="ft"><span>CLEANLINE · แผนก Energy</span><span>ออกรายงานวันที่ ${today}</span></div>`;
   const sysName=`${esc(pk.name)}${R.units>1?' × '+R.units:''}`;
   return `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>รายงาน Solar Rooftop ${esc(c.name||'')}</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet"><style>${css}</style></head><body>
+<style>${ff}${css}</style></head><body>
 <section class="pg">${hd(1)}
 <h1>รายงานพฤติกรรมการใช้ไฟฟ้า และประมาณการผลิตไฟฟ้าจาก Solar Rooftop</h1>
 <div class="meta"><div><span>ลูกค้า</span><b>${esc(c.name||'-')}</b></div><div><span>สถานที่ติดตั้ง</span><b>${esc([s.label,s.area].filter(Boolean).join(' · ')||'-')}</b></div><div><span>ช่วงตรวจวัด</span><b>${fd(R.from)} – ${fd(R.to)} (${R.days.length} วัน)</b></div><div><span>ระบบที่นำเสนอ</span><b>${sysName}</b></div></div>
 <div class="hero"><div><small>ประหยัดค่าไฟฟ้าได้ประมาณ</small><div class="big">${f0(m.month)} <i>บาท/เดือน</i></div></div>
 <div class="kp"><div><b>${f0(m.year)} <i>บาท</i></b><span>ประหยัดต่อปี</span></div><div><b>${fmt(R.payback,1)} <i>ปี</i></b><span>ระยะเวลาคืนทุน</span></div><div><b>${fmt(b.cut*100)}%</b><span>ค่าไฟลดลงต่อเดือน</span></div></div></div>
 <div><h2>กราฟที่ 1 พฤติกรรมการใช้ไฟฟ้า และ Simulate กำลังการผลิตไฟฟ้าของ Solar Rooftop</h2><div class="sub">ค่าเฉลี่ยรายนาทีจากการตรวจวัดจริง ${R.days.length} วัน (${fd(R.from)} – ${fd(R.to)}) ช่วงเวลา 00:00 – 23:59 น.</div></div>
-<div>${lChart(R.series,{w:698,h:330})}${lLegend(R.series,0)}</div>
+<div>${lChart(R.series,{w:698,h:285})}${lLegend(R.series,0)}</div>
 <div><h2>สรุปปริมาณหน่วยไฟฟ้าต่อวัน (kWh)</h2><div class="sub">ตามพฤติกรรมการใช้ไฟฟ้า และปริมาณหน่วยที่ Solar Rooftop ผลิตได้</div></div>
 <div class="g3">${[['ปริมาณโหลดใช้งานเฉลี่ย','Total load',E.load],R.series.minPhase?['เฟสที่ใช้ไฟต่ำสุด × 3','Minimum phase energy',E.minPhase]:null,['กำลังการผลิต Solar สูงสุด','Character inverter',E.solarMax],
   ['กำลังการผลิต Solar ตามโหลด','Inverter output limit',E.solarUsed,1],['Solar ส่วนเกิน (ชาร์จแบตได้)','Charger',E.excess],bat?['แบตเตอรี่จ่ายไฟ (ประสิทธิภาพ 90%)','Discharged',E.battery,1]:null]
