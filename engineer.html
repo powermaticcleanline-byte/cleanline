@@ -721,6 +721,7 @@ window.__splOut=out;var iv=setInterval(function(){if(done){clearInterval(iv);ret
 <script src="config.js"></script>
 <script src="gdb.js"></script>
 <script src="shared.js"></script>
+<script src="solarcalc.js"></script>
 <script>
 'use strict';
 const STAGES=[null,
@@ -1657,7 +1658,7 @@ function viewNs(id){
   let body='';
   if(pg===1)body=`<h2 class="nsp">ข้อมูลหน้างาน</h2>${miss}<div class="card">${SITE_F.map(f=>fld('site.'+f[0],f[1],f[2],f[3],0,f[5],d.site[f[0]])).join('')}</div>`;
   if(pg===2)body=`<h2 class="nsp">ลูกค้าอยากได้</h2>${miss}<div class="card">${REQ_F.map(f=>fld('request.'+f[0],f[1],f[2],f[3],0,f[5],d.request[f[0]])).join('')}</div>`;
-  if(pg===3)body=`<h2 class="nsp">ที่เสนอ</h2>${miss}<button class="cgo" data-go="#tool-calc-${esc(j.id)}">${ic('sun')}<span><b>คำนวณจากค่าไฟ</b><small>ได้ขนาด รุ่น จำนวนแผง แล้วกดใส่ในแบบให้เลย</small></span>${ic('go')}</button><div class="card"><div id="eqbox">${eqBlock(d,0)}</div></div><div class="card"><h2>${ic('nav')}สายไฟ (ใช้คิดราคา)</h2>${cableFields(d)}</div>`;
+  if(pg===3)body=`<h2 class="nsp">ที่เสนอ</h2>${miss}<button class="cgo" data-go="#tool-calc-${esc(j.id)}">${ic('sun')}<span><b>คำนวณจากค่าไฟ</b><small>ได้ขนาด รุ่น จำนวนแผง แล้วกดใส่ในแบบให้เลย</small></span>${ic('go')}</button><button class="cgo" data-go="#tool-load-${esc(j.id)}">${ic('bolt')}<span><b>วิเคราะห์โหลด</b><small>จากไฟล์มิเตอร์ momohub · ประหยัด คืนทุน ออกรายงาน PDF</small></span>${ic('go')}</button><div class="card"><div id="eqbox">${eqBlock(d,0)}</div></div><div class="card"><h2>${ic('nav')}สายไฟ (ใช้คิดราคา)</h2>${cableFields(d)}</div>`;
   if(pg===4){const resign=!v.sign||S.nsResign===id;
     body=`<h2 class="nsp">รูป · ลายเซ็น</h2>${miss}<button class="cgo" data-go="#tool-drone-${esc(j.id)}">${ic('nav')}<span><b>เข็มทิศบนรูปโดรน</b><small>วัดทิศหลังคาจากรูปมุมสูง แล้วบันทึกเข้ารูปหลังคา</small></span>${ic('go')}</button>
     <div class="card"><h2>${ic('cam')}รูปหน้างาน</h2>${photoTiles(j,false)}</div>
@@ -2018,15 +2019,193 @@ function arow(j,mine){
 const route=()=>(location.hash||'#today').slice(1);
 let rq=0;const schedule=()=>{cancelAnimationFrame(rq);rq=requestAnimationFrame(()=>{if(route().startsWith('ic-')&&(S.sigDown||document.activeElement?.matches?.('#app input:not([type=file]),#app textarea'))){S.deferR=1;return}render()})};
 document.addEventListener('focusout',()=>{if(S.deferR){S.deferR=0;setTimeout(schedule,0)}});
-const TOOLS=[['cal','today','ปฏิทิน','ki-b'],['calc','sun','จำลองระบบ','ki-o'],['drone','nav','เข็มทิศโดรน','ki-v'],['route','pin','เส้นทางวันนี้','ki-g'],['spec','box','สเปกสินค้า','ki-m']];
+const TOOLS=[['cal','today','ปฏิทิน','ki-b'],['calc','sun','จำลองระบบ','ki-o'],['drone','nav','เข็มทิศโดรน','ki-v'],['route','pin','เส้นทางวันนี้','ki-g'],['spec','box','สเปกสินค้า','ki-m'],['load','bolt','วิเคราะห์โหลด','ki-v']];
 const TV=(k,d)=>S.t[k]??d;
 const tchips=(k,opts,cur)=>`<div class="chips2 tch">${opts.map(([v,t])=>`<button class="${String(cur)===String(v)?'on':''}" data-tv="${k}" data-v="${esc(v)}">${esc(t)}</button>`).join('')}</div>`;
 const fmt=(v,d=0)=>Number(v).toLocaleString('th-TH',{maximumFractionDigits:d,minimumFractionDigits:d});
+/* ---------- วิเคราะห์โหลด (จากไฟล์ CSV ของ momohub) ----------
+ * สูตรอยู่ใน solarcalc.js (ย้ายจาก Excel รายงานการตรวจวัดโหลด Solar 7.6.3 · ผลตรงกับ Excel ทุกคอลัมน์)
+ * ค่าที่เลือกเก็บใน S.t (ขึ้นต้นด้วย l) · ไฟล์ที่อ่านแล้วเก็บใน S.ld · บันทึกผลเข้างานที่ jobs/<id>.loadAnalysis */
+const L_DIRS=['ทิศใต้','ทิศตะวันออกเฉียงใต้','ทิศตะวันตกเฉียงใต้','ทิศตะวันออก','ทิศตะวันตก','ทิศตะวันออกเฉียงเหนือ','ทิศตะวันตกเฉียงเหนือ','ทิศเหนือ'];
+const L_SUP=['3 เฟส','เฟส 1','เฟส 2','เฟส 3'];
+/* ราคาและค่าตั้งต้น: ตอนนี้ใช้ค่าในไฟล์ solarcalc.js · ภายหลังเปลี่ยนให้อ่านจาก Console ที่ฟังก์ชันนี้ที่เดียว */
+const lData=()=>SolarCalc.DEFAULTS;
+const lShow=i=>i===1||+TV('lr'+i+'n',0)>0||TV('_lrs'+i,'')==='1';
+const lPkg=()=>lData().packages.find(p=>p.name===TV('lpkg',''))||null;
+function lPrefill(ctx){
+  if(S.t._lctx===ctx)return;S.t._lctx=ctx;
+  ['lpkg','lun','lbat','lbq','lext','lsup','lmet','lr1d','lr1n','lr2d','lr2n','lr3d','lr3n','lr4d','lr4n','_lrs2','_lrs3','_lrs4'].forEach(k=>delete S.t[k]);
+  Object.keys(S.t).filter(k=>/^ld\d+$/.test(k)).forEach(k=>delete S.t[k]);
+  const j=ctx&&C().jobs[ctx];if(!j)return;
+  const D=lData(),pr=(draftOf(j).props||[])[0]||{},P=D.packages.find(p=>p.inverter===pr.proposedModel);
+  if(P){S.t.lpkg=P.name;const n=+pr.inverterQty||1;S.t.lun=n;const pq=+pr.panelQty||0;if(pq>P.panels*n)S.t.lext=pq-P.panels*n;S.t.lr1n=Math.max(pq,P.panels*n)}
+  if(pr.batteryModel&&D.batteries.some(b=>b.model===pr.batteryModel)){S.t.lbat=pr.batteryModel;S.t.lbq=+pr.batteryQty||1}
+  const ph=String(sOf(j).phase||'');if(ph==='1')S.t.lsup='เฟส 1';
+  const sv=j.loadAnalysis&&j.loadAnalysis.input;if(sv){const I=sv;S.t.lpkg=I.pkg;S.t.lun=I.units;S.t.lbat=I.battery||'-';S.t.lbq=I.batteries||1;S.t.lext=I.extraPanels||0;S.t.lsup=I.supply;S.t.lmet=I.meter;
+    (I.roofs||[]).forEach((r,i)=>{S.t['lr'+(i+1)+'d']=r.dir;S.t['lr'+(i+1)+'n']=r.n})}
+}
+function lInput(){
+  const P=lPkg();if(!P)return null;const hyb=P.kind===2,bat=hyb?TV('lbat','-'):'-';
+  const roofs=[1,2,3,4].map(i=>({dir:TV('lr'+i+'d','ทิศใต้'),n:+TV('lr'+i+'n',0)||0})).filter(r=>r.n>0);
+  const nd=S.ld?S.ld.parsed.days.length:0;
+  return {pkg:P.name,units:+TV('lun',1)||1,battery:bat,batteries:bat==='-'?0:+TV('lbq',1)||1,extraPanels:+TV('lext',0)||0,roofs,
+    supply:TV('lsup',P.phase==='1 เฟส'?'เฟส 1':'3 เฟส'),meter:TV('lmet','tou'),days:Array.from({length:nd},(_,i)=>TV('ld'+i,'1')!=='0')};
+}
+async function loadCsv(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  try{const parsed=SolarCalc.parseCSV(await f.text());S.ld={ctx:route().slice(10),name:f.name,parsed};Object.keys(S.t).filter(k=>/^ld\d+$/.test(k)).forEach(k=>delete S.t[k]);render();toast(`อ่านไฟล์แล้ว ${parsed.days.length} วัน · ${fmt(parsed.rows)} แถว`)}
+  catch(e){toast(e.message||'อ่านไฟล์ไม่ได้')}finally{inp.value=''}
+}
+function lRun(){if(!S.ld)return null;const I=lInput();if(!I)return {need:'เลือก Package'};try{return {I,R:SolarCalc.run(S.ld.parsed,I,lData())}}catch(e){return {need:e.message}}}
+function toolLoad(ctx){
+  lPrefill(ctx);const j=ctx&&C().jobs[ctx],D=lData(),P=lPkg(),ld=S.ld&&S.ld.ctx===ctx?S.ld:null;
+  if(S.ld&&!ld)S.ld=null;
+  const saved=j&&j.loadAnalysis;
+  const up=`<section class="card"><b class="sth">1. ไฟล์จากมิเตอร์ (momohub)</b>
+    ${ld?`<div class="sr"><span>${ic('doc')}</span><b>${esc(ld.name)}<small>${fmt(ld.parsed.rows)} แถว · ${ld.parsed.days.length} วัน</small></b></div>
+      <span class="cl">วันที่ใช้คำนวณ <small class="op">(แตะเพื่อตัดวันที่ผิดปกติออก)</small></span>
+      <div class="chips2 tch">${ld.parsed.days.map((d,i)=>{const on=TV('ld'+i,'1')!=='0';return `<button class="${on?'on':''}" data-tv="ld${i}" data-v="${on?'0':'1'}">${fd(d.date)}${d.maxGap>=30?' ⚠':''}</button>`}).join('')}</div>`
+     :`<p class="hint" style="margin:0 0 8px">ใน momohub เลือก Power1, Power2, Power3, Total Power · ตั้งวันที่ให้ครบ 5 วัน แล้วกด Export</p>`}
+    <label class="btn ${ld?'':'pri'}" style="position:relative;overflow:hidden;width:100%;margin-top:8px">${ld?'เปลี่ยนไฟล์':'เลือกไฟล์ CSV'}<input type="file" accept=".csv,text/csv" data-loadcsv style="position:absolute;inset:0;opacity:0"></label></section>`;
+  const sys=`<section class="card"><b class="sth">2. ระบบที่เสนอ</b>
+    <span class="cl">Package</span>${tchips('lpkg',D.packages.map(p=>[p.name,p.name]),TV('lpkg',''))}
+    ${P?`<p class="hint" style="margin:4px 2px 0">${esc(P.inverter)} · ${esc(P.type)} · ${esc(P.phase)} · แผง ${P.panels} แผง/ชุด</p>${tstep('lun','จำนวนชุด',1)}
+    ${P.kind===2?`<span class="cl">แบตเตอรี่</span>${tchips('lbat',[['-','ไม่มี'],...D.batteries.map(b=>[b.model,b.model.replace(/^CBL0\d-/,'')])],TV('lbat','-'))}${TV('lbat','-')!=='-'?tstep('lbq','จำนวนลูก',1):''}`:''}
+    ${tstep('lext','เพิ่มแผง',0)}
+    <span class="cl">ทิศหลังคาและจำนวนแผง <small class="op">(รวม ${P.panels*(+TV('lun',1)||1)+(+TV('lext',0)||0)} แผง)</small></span>
+    ${[1,2,3,4].filter(lShow).map(i=>`<div class="pface">${tstep('lr'+i+'n','แนวที่ '+i+' (แผง)',0)}${tchips('lr'+i+'d',L_DIRS.map(x=>[x,x.replace('ทิศ','')]),TV('lr'+i+'d','ทิศใต้'))}</div>`).join('')}
+    ${(i=>i?`<button class="lk" data-tv="_lrs${i}" data-v="1">+ เพิ่มหลังคาอีกแนว</button>`:'')([2,3,4].find(i=>!lShow(i)))}
+    <div class="cgrid"><div><span class="cl">จ่ายไฟเข้า</span>${tchips('lsup',L_SUP.map(x=>[x,x]),TV('lsup',P.phase==='1 เฟส'?'เฟส 1':'3 เฟส'))}</div>
+    <div><span class="cl">มิเตอร์ไฟ</span>${tchips('lmet',[['tou','TOU'],['normal','ธรรมดา']],TV('lmet','tou'))}</div></div>`:''}</section>`;
+  const X=ld?lRun():null;
+  let res='';
+  if(!ld)res=saved?lSavedCard(saved,ctx):`<div class="card cnote">${ic('bolt')}<span>เลือกไฟล์ CSV จากมิเตอร์ แล้วเลือกระบบ จะเห็นค่าไฟที่ประหยัดได้ คืนทุน และออกรายงานให้ลูกค้าได้</span></div>`;
+  else if(!X||X.need)res=`<div class="card cnote">${ic('bolt')}<span>${esc(X&&X.need||'เลือก Package')}</span></div>`;
+  else res=lResult(X.R,ctx);
+  return `${j?`<div class="cjob">${ic('doc')}<span>งาน <b>${esc(j.title||'')}</b>${saved?` · บันทึกผลไว้แล้ว ${fdt2(saved.at)}`:''}</span></div>`:''}${up}${sys}<div id="lres">${res}</div>`;
+}
+const fdt2=ms=>{if(!ms)return '';const d=new Date(ms);return fd(isoOf(d))+' '+pad(d.getHours())+':'+pad(d.getMinutes())};
+function lSummary(R,I){const {_cols,...r}=R;return {...r,pkg:{name:R.pkg.name,inverter:R.pkg.inverter,type:R.pkg.type,phase:R.pkg.phase,kw:R.pkg.kw,panels:R.pkg.panels},battery:R.battery?{model:R.battery.model,usable:R.battery.usable}:null,input:I,source:lData().source}}
+function lResult(R,ctx){
+  S.t._lres=R;const j=ctx&&C().jobs[ctx],E=R.energy,m=R.money,b=R.bill;
+  return `<section class="card cres">
+    <div class="chero"><small>ประหยัดค่าไฟได้ประมาณ</small><b>${fmt(m.month)}<em> บาท/เดือน</em></b><span>ค่าไฟตอนนี้ ~${fmt(b.now)} เหลือประมาณ <strong>${fmt(Math.max(0,b.after))}</strong> บาท/เดือน (ลด ${fmt(b.cut*100)}%)</span></div>
+    ${lChart(R.profile,{w:340,h:150,small:1})}
+    <div class="clg2" style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#5b6656;margin:4px 0 10px"><span>━ การใช้ไฟ</span><span style="color:#4f9a12">■ Solar ที่ใช้จริง</span><span style="color:#8fb35a">┅ กำลังผลิต Solar</span></div>
+    <div class="cstat"><div><b>${fmt(R.payback,1)}</b><small>ปี คืนทุน</small></div><div><b>${fmt(m.year)}</b><small>บาท/ปี</small></div><div><b>${fmt(R.roi.pct*100)}%</b><small>ROI ${R.roi.years} ปี</small></div></div>
+    <div class="slb">
+     <div class="sr"><span>ใช้ไฟเฉลี่ย</span><b>${fmt(E.load,2)}<small>kWh/วัน</small></b></div>
+     <div class="sr"><span>Solar ผลิตได้สูงสุด</span><b>${fmt(E.solarMax,2)}<small>kWh/วัน</small></b></div>
+     <div class="sr"><span>Solar ใช้กับโหลดจริง</span><b>${fmt(E.solarUsed,2)}<small>kWh/วัน</small></b></div>
+     ${R.battery?`<div class="sr"><span>แบตจ่ายไฟ</span><b>${fmt(E.battery,2)}<small>kWh/วัน</small></b></div>`:''}
+     <div class="sr"><span>ค่าไฟต่อหน่วย (รวม VAT)</span><b>${fmt(m.rate,2)}<small>บาท</small></b></div>
+     ${R.price.lines.map(l=>`<div class="sr"><span>${esc(l.item)} ×${l.qty}</span><b>${fmt(l.qty*l.unit)}<small>บาท</small></b></div>`).join('')}
+     <div class="sr"><span><b>ราคาระบบ (รวม VAT 7%)</b></span><b>${fmt(R.price.total)}<small>บาท</small></b></div>
+    </div>
+    ${R.warnings.map(w=>`<p class="twarn">${ic('bell')}${esc(w)}</p>`).join('')}
+    <p class="hint" style="margin:8px 2px 0">ช่วงที่วัด ${fd(R.from)} – ${fd(R.to)} (${R.days.length} วัน) · ราคาจาก ${esc(lData().source)}</p>
+    <div class="dact" style="margin-top:10px">${j&&canAct(j)?`<button class="btn pri" data-lsave="${esc(ctx)}" ${S.busy?'disabled':''}>${ic('check')}บันทึกเข้างาน</button>`:''}<button class="btn" data-lrpt="1">${ic('doc')}ออกรายงาน PDF</button></div>
+  </section>`;
+}
+function lSavedCard(s,ctx){
+  return `<section class="card cres"><div class="chero"><small>ผลที่บันทึกไว้ · ${fdt2(s.at)}${s.byName?' · '+esc(s.byName):''}</small><b>${fmt(s.money.month)}<em> บาท/เดือน</em></b>
+    <span>${esc(s.pkg.name)}${s.units>1?' ×'+s.units:''}${s.battery?' · '+esc(s.battery.model)+' ×'+s.batteries:''} · คืนทุน ${fmt(s.payback,1)} ปี · ราคา ${fmt(s.price.total)} บาท</span></div>
+    <div class="dact"><button class="btn" data-lrpt="saved">${ic('doc')}ออกรายงาน PDF</button></div>
+    <p class="hint" style="margin:8px 2px 0">เลือกไฟล์ CSV ใหม่ถ้าต้องการคำนวณอีกครั้ง</p></section>`;
+}
+async function lSave(id){
+  const R=S.t._lres,j=C().jobs[id];if(!R||!j||S.busy)return;
+  S.busy=true;render();
+  try{const I=lInput(),sm=lSummary(R,I);sm.at=Date.now();sm.byName=me().name;sm.file=S.ld&&S.ld.name||'';
+    await S.api.updateJob(id,{loadAnalysis:sm},{kind:'edit',text:`วิเคราะห์โหลด: ${R.pkg.name}${R.units>1?' ×'+R.units:''} · ประหยัด ~${fmt(R.money.month)} บาท/เดือน · คืนทุน ${fmt(R.payback,1)} ปี`});
+    toast('บันทึกผลวิเคราะห์โหลดเข้างานแล้ว')}
+  catch(e){showErr(e,'บันทึกไม่สำเร็จ')}finally{S.busy=false;render()}
+}
+/* กราฟการใช้ไฟเฉลี่ยต่อวัน เทียบกับกำลังผลิต Solar (ทุก 15 นาที) */
+function lChart(p,o){
+  const W=o.w,H=o.h,L=o.small?30:40,R=8,T=18,B=24,pw=W-L-R,ph=H-T-B;
+  const mx=Math.max(1,...p.load,...p.solar),step=mx>40?10:mx>20?5:mx>8?2:1,ym=Math.ceil(mx/step)*step;
+  const X=i=>L+pw*i/95,Yv=v=>T+ph*(1-Math.max(0,v)/ym);
+  const line=a=>a.map((v,i)=>(i?'L':'M')+X(i).toFixed(1)+','+Yv(v).toFixed(1)).join(' ');
+  const area=a=>line(a)+` L${X(95).toFixed(1)},${Yv(0).toFixed(1)} L${X(0).toFixed(1)},${Yv(0).toFixed(1)} Z`;
+  let g='';for(let v=0;v<=ym;v+=step){g+=`<line x1="${L}" x2="${W-R}" y1="${Yv(v)}" y2="${Yv(v)}" stroke="#e3e8da"/><text x="${L-6}" y="${Yv(v)+4}" text-anchor="end" font-size="10" fill="#6b6c71">${v}</text>`}
+  for(let h=0;h<=24;h+=o.small?6:3)g+=`<text x="${(L+pw*h/24).toFixed(1)}" y="${H-8}" text-anchor="${h===24?'end':h===0?'start':'middle'}" font-size="10" fill="#6b6c71">${pad(h)}:00</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="การใช้ไฟเฉลี่ยต่อวันเทียบกับกำลังผลิต Solar" style="display:block">${g}
+    <path d="${area(p.solar)}" fill="#92D400" fill-opacity=".22"/><path d="${area(p.used)}" fill="#92D400" fill-opacity=".9"/>
+    <path d="${line(p.solar)}" fill="none" stroke="#3F6B00" stroke-width="1.3" stroke-dasharray="5 4"/><path d="${line(p.load)}" fill="none" stroke="#26272B" stroke-width="1.8" stroke-linejoin="round"/>
+    <text x="2" y="10" font-size="10" fill="#6b6c71">kW</text></svg>`;
+}
+/* ---------- รายงาน PDF (A4 2 หน้า) · เปิดหน้าต่างใหม่แล้วสั่งพิมพ์ / บันทึกเป็น PDF ---------- */
+function lReport(which){
+  const ctx=route().slice(10),j=ctx&&C().jobs[ctx];
+  const R=which==='saved'?(j&&j.loadAnalysis):S.t._lres;if(!R)return;
+  const w=window.open('','_blank');if(!w){toast('เบราว์เซอร์บล็อกหน้าต่างใหม่ · อนุญาต pop-up แล้วกดอีกครั้ง');return}
+  w.document.open();w.document.write(lReportHtml(R,j));w.document.close();
+}
+function lReportHtml(R,j){
+  const c=j?cOf(j):{},s=j?sOf(j):{},E=R.energy,m=R.money,b=R.bill,f0=v=>fmt(v),f2=v=>fmt(v,2);
+  const logo=new URL('logo.webp',location.href).href,today=fd(isoOf(new Date()));
+  const yr=Array.from({length:25},(_,i)=>m.year*(i+1)-R.price.total),vmax=Math.max(...yr,1),vmin=Math.min(...yr,0);
+  const W=698,H=150,L=60,T=12,pw=W-L-8,ph=H-T-26,bw=pw/25,Yv=v=>T+ph*(vmax-v)/(vmax-vmin);
+  let pay='';yr.forEach((v,i)=>{const x=L+i*bw+3,y0=Yv(0),y1=Yv(v);pay+=`<rect x="${x.toFixed(1)}" y="${Math.min(y0,y1).toFixed(1)}" width="${(bw-6).toFixed(1)}" height="${Math.abs(y1-y0).toFixed(1)}" rx="2" fill="${v>=0?'#92D400':'#B8B9BD'}"/>`;
+    if([1,5,10,15,20,25].includes(i+1))pay+=`<text x="${(x+(bw-6)/2).toFixed(1)}" y="${H-6}" text-anchor="middle" font-size="11" fill="#6B6C71">ปี ${i+1}</text>`});
+  pay+=`<line x1="${L}" x2="${W-8}" y1="${Yv(0)}" y2="${Yv(0)}" stroke="#26272B"/><text x="${L-8}" y="${Yv(0)+4}" text-anchor="end" font-size="11" fill="#6B6C71">0</text>`;
+  if(R.payback&&R.payback<=25){const x=L+R.payback*bw;pay+=`<line x1="${x}" x2="${x}" y1="${T}" y2="${Yv(0)}" stroke="#3F6B00" stroke-dasharray="4 3"/><text x="${x+6}" y="${T+12}" font-size="12" font-weight="600" fill="#3F6B00">คืนทุน ${fmt(R.payback,1)} ปี</text>`}
+  const pk=R.pkg,bat=R.battery,css=`@page{size:A4;margin:0}*{box-sizing:border-box}body{margin:0;background:#e9ebe6;font-family:'IBM Plex Sans Thai','Noto Sans Thai',sans-serif;color:#26272B}
+.pg{width:210mm;height:297mm;margin:12px auto;background:#fff;padding:12mm 13mm 10mm;display:flex;flex-direction:column;gap:18px;overflow:hidden}
+@media print{body{background:#fff}.pg{margin:0;page-break-after:always}.bar{display:none}}
+.hd{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:3px solid #92D400}.hd img{height:26px}.hd div{font-size:11px;color:#6B6C71;text-align:right;line-height:1.5}
+h1{margin:0;font-size:23px;line-height:1.3}h2{margin:0;font-size:16px;font-weight:600}.sub{font-size:12px;color:#6B6C71;margin-top:2px}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.meta span{display:block;font-size:11px;color:#6B6C71}.meta b{font-size:13px}
+.hero{background:#F2F9E3;border-radius:12px;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.hero small{font-size:13px;color:#5C5D62}.hero .big{font-size:42px;font-weight:700;color:#3F6B00;line-height:1.05}.hero .big i{font-size:18px;font-style:normal;font-weight:600}
+.kp{display:flex;gap:16px}.kp div{padding-left:16px;border-left:1px solid #CFE3A8}.kp b{display:block;font-size:22px;line-height:1.2}.kp b i{font-size:13px;font-style:normal;font-weight:500}.kp span{font-size:11px;color:#5C5D62}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.st{border:1px solid #D9DADD;border-radius:8px;padding:11px 13px}.st span{display:block;font-size:11px;color:#5C5D62}.st b{font-size:19px}.st b i{font-size:11px;font-style:normal;font-weight:500;color:#5C5D62}.st.g b{color:#3F6B00}
+.lg{display:flex;gap:18px;font-size:11px;color:#5C5D62}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;font-weight:500;color:#5C5D62;padding:7px 0;border-bottom:1px solid #D9DADD;width:34%}td{padding:7px 0;border-bottom:1px solid #D9DADD;font-weight:600}td.r{text-align:right}
+.roi{display:flex;align-items:center;justify-content:space-between;background:#F2F9E3;border-radius:8px;padding:12px 16px}.roi div{font-size:12px;color:#5C5D62;line-height:1.7}.roi b{font-size:30px;color:#3F6B00}
+.note{font-size:11px;color:#6B6C71;line-height:1.6;margin:0}.ft{margin-top:auto;padding-top:10px;border-top:1px solid #D9DADD;display:flex;justify-content:space-between;font-size:11px;color:#6B6C71}
+.bar{position:sticky;top:0;background:#26272B;color:#fff;padding:10px;text-align:center}.bar button{font:inherit;padding:8px 18px;border-radius:999px;border:0;background:#92D400;font-weight:600;cursor:pointer}`;
+  const hd=n=>`<div class="hd"><img src="${logo}" alt="CLEANLINE"><div>${esc(j&&j.jobNo||'')}${j&&j.jobNo?'<br>':''}หน้า ${n} / 2</div></div>`;
+  const ft=`<div class="ft"><span>CLEANLINE · แผนก Energy</span><span>ออกรายงานวันที่ ${today}</span></div>`;
+  const sysName=`${esc(pk.name)}${R.units>1?' × '+R.units:''}`;
+  return `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>รายงาน Solar Rooftop ${esc(c.name||'')}</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet"><style>${css}</style></head><body>
+<div class="bar"><button onclick="print()">พิมพ์ / บันทึกเป็น PDF</button></div>
+<section class="pg">${hd(1)}
+<h1>รายงานพฤติกรรมการใช้ไฟฟ้า และประมาณการผลิตไฟฟ้าจาก Solar Rooftop</h1>
+<div class="meta"><div><span>ลูกค้า</span><b>${esc(c.name||'-')}</b></div><div><span>สถานที่ติดตั้ง</span><b>${esc([s.label,s.area].filter(Boolean).join(' · ')||'-')}</b></div><div><span>ช่วงตรวจวัด</span><b>${fd(R.from)} – ${fd(R.to)} (${R.days.length} วัน)</b></div><div><span>ระบบที่นำเสนอ</span><b>${sysName}</b></div></div>
+<div class="hero"><div><small>ประหยัดค่าไฟฟ้าได้ประมาณ</small><div class="big">${f0(m.month)} <i>บาท/เดือน</i></div></div>
+<div class="kp"><div><b>${f0(m.year)} <i>บาท</i></b><span>ประหยัดต่อปี</span></div><div><b>${fmt(R.payback,1)} <i>ปี</i></b><span>ระยะเวลาคืนทุน</span></div><div><b>${fmt(b.cut*100)}%</b><span>ค่าไฟลดลงต่อเดือน</span></div></div></div>
+<div><h2>การใช้ไฟฟ้าเฉลี่ยต่อวัน เทียบกับกำลังผลิต Solar</h2><div class="sub">ค่าเฉลี่ยจากการตรวจวัดจริง ${R.days.length} วัน ทุก 15 นาที ช่วงเวลา 00:00 – 23:59 น.</div></div>
+${lChart(R.profile,{w:698,h:270})}
+<div class="lg"><span>━ ความต้องการใช้ไฟฟ้า</span><span style="color:#4f9a12">■ ไฟจาก Solar ที่ใช้กับโหลดจริง</span><span style="color:#3F6B00">┅ กำลังผลิต Solar ทั้งหมด</span></div>
+<h2>สรุปพลังงานต่อวัน</h2>
+<div class="g4"><div class="st"><span>ปริมาณการใช้ไฟฟ้าเฉลี่ย</span><b>${f2(E.load)} <i>kWh</i></b></div><div class="st"><span>กำลังผลิต Solar สูงสุด</span><b>${f2(E.solarMax)} <i>kWh</i></b></div>
+<div class="st"><span>Solar ใช้กับโหลดโดยตรง</span><b>${f2(E.solarUsed)} <i>kWh</i></b></div><div class="st"><span>${bat?'แบตเตอรี่จ่ายไฟ':'Solar ส่วนเกิน'}</span><b>${f2(bat?E.battery:E.excess)} <i>kWh</i></b></div></div>
+${ft}</section>
+<section class="pg">${hd(2)}
+<div><h2>ระบบ Solar Rooftop ที่นำเสนอ</h2><div class="sub">${sysName} · ${esc(pk.type)}</div></div>
+<table><tr><th>Inverter</th><td>Cleanline ${esc(pk.inverter)} × ${R.units} (${pk.kw} kW · ${esc(pk.phase)})</td></tr>
+<tr><th>แผงโซลาร์เซลล์</th><td>${esc(SolarCalc.DEFAULTS.panel.brand)} ${esc(SolarCalc.DEFAULTS.panel.model)} ${SolarCalc.DEFAULTS.panel.watt} W × ${R.panels} แผง${R.extraPanels?` (เพิ่ม ${R.extraPanels} แผง)`:''}</td></tr>
+<tr><th>กำลังการผลิตติดตั้ง</th><td>${fmt(R.panels*SolarCalc.DEFAULTS.panel.watt/1000,2)} kWp</td></tr>
+<tr><th>แบตเตอรี่</th><td>${bat?esc(bat.model)+' × '+R.batteries:'ไม่มี'}</td></tr>
+<tr><th>อัตราค่าไฟ (รวม VAT)</th><td>${R.meter==='tou'?`TOU · On-Peak ${f2(m.rate)} / Off-Peak ${f2(m.offRate)} บาท/หน่วย`:`ปกติ ${f2(m.rate)} บาท/หน่วย`}</td></tr></table>
+<div><h2>ค่าไฟฟ้าก่อนและหลังติดตั้ง</h2></div>
+<div class="g3"><div class="st"><span>ค่าไฟปัจจุบันเฉลี่ย</span><b>${f0(b.now)} <i>บาท/เดือน</i></b></div><div class="st"><span>ค่าไฟหลังติดตั้ง</span><b>${f0(Math.max(0,b.after))} <i>บาท/เดือน</i></b></div><div class="st g"><span>ประหยัดได้</span><b>${f0(m.month)} <i>บาท/เดือน</i></b></div></div>
+<div><h2>ราคาระบบและระยะเวลาคืนทุน</h2><div class="sub">เงินที่ประหยัดได้สะสม หักค่าระบบ ${f0(R.price.total)} บาท (รวม VAT 7%)</div></div>
+<table>${R.price.lines.map(l=>`<tr><th>${esc(l.item)}</th><td class="r">${l.qty} × ${f0(l.unit)} = ${f0(l.qty*l.unit)} บาท</td></tr>`).join('')}
+<tr><th>VAT 7%</th><td class="r">${f0(R.price.vat)} บาท</td></tr><tr><th><b>รวม</b></th><td class="r">${f0(R.price.total)} บาท</td></tr></table>
+<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="เงินที่ประหยัดสะสมหักค่าระบบ 25 ปี">${pay}</svg>
+<div class="roi"><div>ผลตอบแทนจากการลงทุน ${R.roi.years} ปี (ROI)<br>((${f0(m.year)} × ${R.roi.years}) − ${f0(R.price.total)}) ÷ ${f0(R.price.total)} × 100</div><b>${fmt(R.roi.pct*100)}%</b></div>
+<p class="note">หมายเหตุ: ค่าในรายงานเป็นการประมาณการจากพฤติกรรมการใช้ไฟฟ้าช่วงที่ตรวจวัด อาจคลาดเคลื่อนจากปัจจัยภายนอก เช่น สภาพอากาศ และการลดลงของค่าไฟเป็นไปตามการใช้งานที่เหมือนเดิม ไม่มีการใช้งานเพิ่มเติม</p>
+${ft}</section></body></html>`;
+}
 function viewTool(name){
   const ix=name.indexOf('-'),ctx=ix>0?name.slice(ix+1):'';name=ix>0?name.slice(0,ix):name;
   if(name==='sim')return simView(ctx);
   const t=TOOLS.find(x=>x[0]===name);if(!t)return viewToday();
-  const body={cal:toolCal,calc:toolCalc,drone:toolDrone,route:toolRoute,spec:toolSpec}[name](ctx);
+  const body={cal:toolCal,calc:toolCalc,drone:toolDrone,route:toolRoute,spec:toolSpec,load:toolLoad}[name](ctx);
   return topBar(t[2],{back:true})+`<div class="glow"></div><main class="wrap tool">${body}</main>`;
 }
 function calEvents(){
@@ -2496,6 +2675,8 @@ document.addEventListener('click',e=>{
     rerenderEq(dr);return}
   if(d.open){const u=safeUrl(d.open);if(u)window.open(u,'_blank','noopener');return}
   if(d.tv){const v=d.tv==='cm'?+d.v:d.v;S.t[d.tv]=v;if('today' in d)delete S.t.cd;if(d.tv==='pk'&&C().jobs[S.t.cj])pkgFrom(C().jobs[S.t.cj],+v);if(d.tv!=='opt'&&d.tv!=='wd'&&d.tv!=='wk')delete S.t.opt;render();return}
+  if(d.lsave){lSave(d.lsave);return}
+  if(d.lrpt){lReport(d.lrpt);return}
   if('calccopy' in d){copyText(calcText(),'ผลคำนวณระบบ');return}
   if(d.calcapply){calcApply(d.calcapply);return}
   if('simplay' in d){simPlay();return}
@@ -2532,7 +2713,7 @@ function onField(e){const el=e.target;const f=el.dataset?.f;if(!f)return;const i
 function rerenderEq(d){const box=$('#eqbox');if(!box)return;const req=!!box.closest('#svdesign');box.innerHTML=eqBlock(d,req?1:0)}
 document.addEventListener('touchstart',e=>{const w=e.target.closest('[data-swipe]');S.sw=w?[e.touches[0].clientX,e.touches[0].clientY]:null},{passive:true});
 document.addEventListener('touchend',e=>{if(!S.sw)return;const dx=e.changedTouches[0].clientX-S.sw[0],dy=e.changedTouches[0].clientY-S.sw[1];S.sw=null;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){S.t.cm=(+TV('cm',0))+(dx<0?1:-1);render()}});
-document.addEventListener('input',onField);document.addEventListener('change',e=>{onField(e);if(e.target.dataset?.photo)onPhotos(e.target);if(e.target.dataset?.icscan)icScan(e.target);if(e.target.dataset?.drone!==undefined&&e.target.files?.[0])droneLoad(e.target.files[0]);if(e.target.dataset?.nscad)nsCad(route().slice(3),e.target.dataset.nscad,e.target.checked)});
+document.addEventListener('input',onField);document.addEventListener('change',e=>{onField(e);if(e.target.dataset?.photo)onPhotos(e.target);if(e.target.dataset?.icscan)icScan(e.target);if(e.target.dataset?.drone!==undefined&&e.target.files?.[0])droneLoad(e.target.files[0]);if(e.target.dataset?.loadcsv!==undefined)loadCsv(e.target);if(e.target.dataset?.nscad)nsCad(route().slice(3),e.target.dataset.nscad,e.target.checked)});
 window.addEventListener('hashchange',()=>{S.navd=true;if(route()!=='noti')S.notiPrev=null;
   if(S.nsLast&&route()!=='ns-'+S.nsLast.id){const x=S.nsLast;S.nsLast=null;if(x.pg>0)nsSave(x.id,x.pg)}});
 function landing(msg){
