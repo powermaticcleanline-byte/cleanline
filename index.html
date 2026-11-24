@@ -2651,6 +2651,10 @@ const sOf=j=>S.sites[j.siteId]||{};
 const phaseOf=n=>PHASES.find(p=>p.st.includes(n));
 const teamTag=t=>t?`<span class="team ${t.startsWith('SA-')?'pm':''}">${esc(t)}</span>`:'';
 const realName=c=>[c.firstName,c.lastName].filter(Boolean).join(' ');
+// ชื่องานอัตโนมัติจากชื่อลูกค้า: บุคคล = "คุณ<ชื่อ นามสกุล>" · บริษัท/หน่วยงาน = ชื่อเต็มไม่มี "คุณ"
+const ORG_RE=/^(บริษัท|บจก|บมจ|หจก|ห้างหุ้นส่วน|ห้าง|ร้าน|โรงเรียน|โรงแรม|โรงงาน|โรงพยาบาล|วัด|มูลนิธิ|สมาคม|สหกรณ์|องค์การ|เทศบาล|มหาวิทยาลัย|นิติบุคคล)/;
+const autoTitle=c=>{const n=realName(c||{}).trim();return !n?'':ORG_RE.test(n)?n:'คุณ'+n};
+const badTitle=t=>/^คุณ[\s\-–—.]*$/.test(String(t||'').trim());   // ชื่อหลอก เช่น "คุณ- -" จากการจองที่ใส่ชื่อเป็นขีด
 function roleWho(r){const L=Object.values(S.members||{}).filter(m=>m&&m.status!=='suspended'&&(m.role===r)).map(m=>m.name).filter(Boolean);
   return L.length?L.join(' / '):({admin:'ออฟฟิศ',dispatch:'คนจัดงาน',lead:'คนตรวจแบบ',eng:'คนหน้างาน',sales:'เซลส์'}[r]||'')}
 /* ขั้นถัดไปเป็นของใคร (ชื่อคน) */
@@ -3875,7 +3879,7 @@ function viewJob(id){
   return `${datalists()}
   <div class="ph"><div>
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
-      <h1>${esc(j.title||c.name||'งานใหม่')}</h1>
+      <h1>${esc(j.title||c.name||'งานใหม่')}</h1>${badTitle(j.title)&&autoTitle(c)&&!isSales()?`<button type="button" class="lnk" data-act="fixtitle" style="display:block;margin:2px 0 6px">ใช้ชื่อลูกค้าเป็นชื่องาน · ${esc(autoTitle(c))}</button>`:''}
       <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p>${j.equipment&&j.equipment.plantName?`<p class="jplant">Plant <b>${esc(j.equipment.plantName)}</b></p>`:''}</div>
     <div class="pha">${navCtl(j.id)}${pinBtn(j)}${j.folderUrl&&safeUrl(j.folderUrl)?`<button class="btn" data-files="${esc(j.id)}">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</button>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
       return mnu([fx?mi(`data-fname="${esc(j.id)}"`,'pen','เปลี่ยนชื่อโฟลเดอร์'):'',fx&&(cx||dx)?'<hr>':'',cx?mi('data-act="cancel"','xc','ยกเลิกคิว',1):'',dx?mi(`data-jdel="${esc(j.id)}"`,'trash','ลบงาน',1):''].filter(x=>x!=='<hr>'||fx&&(cx||dx)),'อื่นๆ')})()}</div></div>
@@ -4640,7 +4644,13 @@ async function saveSec(id){
   }
   if(noNew===noOld&&!await confirmBox('บันทึกการแก้ไข "'+String(sec.title).replace(/\s*\(.*?\)/g,'')+'"?','จะเปลี่ยน: '+ch.join(', ')+' · ข้อมูลเดิมจะถูกแทนที่','บันทึก','pri'))return;
   try{
-    if(sec.tgt==='customer'){if(!j.customerId)return;await w('customers/'+j.customerId,{...data,updatedAt:now})}
+    if(sec.tgt==='customer'){if(!j.customerId)return;const oc=cOf(j);await w('customers/'+j.customerId,{...data,updatedAt:now});
+      // ชื่องานที่ระบบตั้งจากชื่อลูกค้าเดิม (หรือชื่อหลอก) → เปลี่ยนตามชื่อใหม่ ทั้งงานนี้และงานอื่นของลูกค้าคนนี้ · ชื่อที่ตั้งเองไม่แตะ
+      const nc={...oc,...data},nt=autoTitle(nc),ot=autoTitle(oc),olds=[ot,'คุณ'+realName(oc),'คุณ'+(oc.firstName||'')].filter(Boolean);
+      if(nt&&nt!==ot){const isAuto=t=>badTitle(t)||olds.some(o=>t===o||t.startsWith(o+' ')&&/ kW$/.test(t));
+        for(const x of Object.values(S.jobs))if(x.customerId===j.customerId&&isAuto(String(x.title||''))){const kw=String(x.title).match(/ \d[\d.]* kW$/);await w('jobs/'+x.id,{title:nt+(kw?kw[0]:''),updatedAt:now})}
+        const st=S.sites&&S.sites[j.siteId];if(st&&isAuto(String(st.label||'')))await w('sites/'+j.siteId,{label:nt,updatedAt:now});
+        if(realName(nc)!==String(oc.name||''))await w('customers/'+j.customerId,{name:realName(nc)})}}
     else if(sec.tgt==='site'){if(!j.siteId)return;await w('sites/'+j.siteId,{...data,updatedAt:now})}
     else if(sec.tgt==='job'){await w('jobs/'+j.id,{...data,updatedAt:now})}
     else{const k=sec.tgt.split('.')[1];const nd={...(j[k]||{}),...data};await w('jobs/'+j.id,{[k]:k==='equipment'?eqSync(nd):nd,updatedAt:now})}
@@ -4659,6 +4669,7 @@ async function doAct(a,jid){
 }
 async function doAct0(a,jid){
   const j=S.jobs[jid||route().slice(4)];if(!j)return;const n=j.stage;const now=Date.now();
+  if(a==='fixtitle'){const nt=autoTitle(cOf(j));if(!nt||!badTitle(j.title))return;await w('jobs/'+j.id,{title:nt,updatedAt:now});const st=S.sites&&S.sites[j.siteId];if(st&&badTitle(st.label))await w('sites/'+j.siteId,{label:nt,updatedAt:now});toast('ตั้งชื่องานเป็น '+nt);render();return}
   if(a==='note'){const v=$('#note').value.trim();if(!v)return;await pushHist(j,ev('note',v));return}
   if(a==='accept'){
     let eng=(($('#acc-eng-'+j.id)||$('#acc-eng'))?.value||'').trim();if(!eng)return toast('เลือกคนสำรวจก่อน');
@@ -4747,7 +4758,7 @@ async function createJob0(mode){
   const f=nfRead();const r=nfReady();
   if(!r.ok){nfRefresh();return toast('ยังขาด: '+r.miss.join(', '))}
   const di=dayInfo(f.date);if(di.closed||di.left<1||di.taken.includes(f.time)){f.time='';nfRefresh();return toast('คิวนี้ถูกจองไปแล้ว เลือกเวลาใหม่')}
-  const now=Date.now();const name=`คุณ${f.first} ${f.last}`;
+  const now=Date.now();const name=autoTitle({firstName:f.first,lastName:f.last})||`คุณ${f.first} ${f.last}`;
   try{
     const ad=f.parent?S.jobs[f.parent]:null;
     const cid=ad?ad.customerId:S.db.collection('customers').doc().id;
