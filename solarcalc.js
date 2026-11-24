@@ -119,7 +119,7 @@
      * ระดับพลังงานในแบตเก็บเป็นค่าติดลบ (ลบมาก = ไฟเต็มมาก) · Bc = -(ความจุใช้งานได้ × จำนวนลูก) (AN1)
      * แถวแรก (00:00) ต่อจากแถวสุดท้าย (23:59) → วนคำนวณจนค่าคงที่ */
     var Bc = hasBatt ? -(B.usable * nb) : 0;
-    var AL = new Float64Array(MIN), AM = new Float64Array(MIN + 1), AN = new Float64Array(MIN);
+    var AL = new Float64Array(MIN), AM = new Float64Array(MIN + 1), AN = new Float64Array(MIN), AG = new Float64Array(MIN);
     for (t = 0; t < MIN; t++) AL[t] = AF[t] / 60;
     var step = function (al, am) { var s = al + am; if (s > 0) return 0; return s < Bc ? am : s; };
     var start = 0;
@@ -133,6 +133,7 @@
     for (t = 0; t < MIN; t++) {
       var s = AL[t] + AM[t];
       AN[t] = s > 0 ? 0 : (s < Bc ? 0 : AM[t + 1]);                                            // AN ("0" = ว่าง/เต็ม)
+      AG[t] = (s > 0 || s < Bc) ? 0 : AF[t];                                                   // AG Battery power (AN = "0" → 0)
       if (AL[t] > 0 && AN[t] < 0) {
         AU += AL[t];                                                                           // AU4 ไฟที่แบตจ่ายทั้งวัน
         if (t > h9 && t <= h22) AV += AL[t]; else if (t > h22 || t < h9) AW += AL[t];          // AV4 On-Peak / AW4 Off-Peak
@@ -178,14 +179,17 @@
     sel.forEach(function (d) { if (d.maxGap >= 30) warn.push('วันที่ ' + d.date + ' ข้อมูลขาดยาว ' + d.maxGap + ' นาที'); });
 
     /* โปรไฟล์ทุก 15 นาที สำหรับกราฟ */
+    var r2 = function (a) { return Array.prototype.map.call(a, function (x) { return Math.round(x * 100) / 100; }); };
     var q = function (a) { var o = []; for (var i = 0; i < MIN; i += 15) { var x = 0; for (var k = 0; k < 15; k++) x += a[i + k]; o.push(Math.round(x / 15 * 100) / 100); } return o; };
     return {
       days: sel.map(function (d) { return d.date; }), from: sel[0].date, to: sel[nd - 1].date,
       pkg: P, units: units, battery: B, batteries: nb, extraPanels: extra, panels: panelsTotal, supply: supply, meter: tou ? 'tou' : 'normal',
       energy: E, money: money, price: price, payback: payback, bill: bill, roi: roi,
       profile: { load: q(Y), solar: q(AC), used: q(AE), battery: q(AF) },
+      /* ข้อมูลรายนาที 1,440 จุด สำหรับกราฟในรายงาน (เหมือนกราฟในหน้าปริ้นท์ของ Excel) */
+      series: { load: r2(Y), minPhase: supply === '3 เฟส' ? r2(Z) : null, solar: r2(AC), used: r2(AE), battery: r2(AG) },
       warnings: warn,
-      _cols: { Y: Y, Z: Z, AA: AA, AC: AC, AE: AE, AF: AF, AM: AM, AN: AN, AU: AU, AV: AV, AW: AW }
+      _cols: { Y: Y, Z: Z, AA: AA, AC: AC, AE: AE, AF: AF, AG: AG, AM: AM, AN: AN, AU: AU, AV: AV, AW: AW }
     };
   }
 

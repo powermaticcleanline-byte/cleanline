@@ -2077,8 +2077,7 @@ function lResult(R){
   S.t._lres=R;const E=R.energy,m=R.money,b=R.bill;
   return `<section class="card cres">
     <div class="chero"><small>ประหยัดค่าไฟได้ประมาณ</small><b>${fmt(m.month)}<em> บาท/เดือน</em></b><span>ค่าไฟตอนนี้ ~${fmt(b.now)} เหลือประมาณ <strong>${fmt(Math.max(0,b.after))}</strong> บาท/เดือน (ลด ${fmt(b.cut*100)}%)</span></div>
-    ${lChart(R.profile,{w:340,h:150,small:1})}
-    <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#5b6656;margin:4px 0 10px"><span>━ การใช้ไฟ</span><span style="color:#4f9a12">■ Solar ที่ใช้จริง</span><span style="color:#8fb35a">┅ กำลังผลิต Solar</span></div>
+    ${lChart(R.series,{w:340,h:190,small:1})}${lLegend(R.series,1)}<div style="height:10px"></div>
     <div class="cstat"><div><b>${fmt(R.payback,1)}</b><small>ปี คืนทุน</small></div><div><b>${fmt(m.year)}</b><small>บาท/ปี</small></div><div><b>${fmt(R.roi.pct*100)}%</b><small>ROI ${R.roi.years} ปี</small></div></div>
     <div class="slb">
      <div class="sr"><span>ใช้ไฟเฉลี่ย</span><b>${fmt(E.load,2)}<small>kWh/วัน</small></b></div>
@@ -2171,20 +2170,34 @@ async function lSave(jobId){
     ld.saved={jobId,site:site||j.title,folder:sub.name||('วิเคราะห์โหลด '+stamp),url:'https://drive.google.com/drive/folders/'+sub.id};toast('บันทึกแล้ว · '+(site||j.title))}
   catch(e){showErr(e,'บันทึกไม่สำเร็จ')}finally{ld.busy=null;render()}
 }
-/* กราฟการใช้ไฟเฉลี่ยต่อวัน เทียบกับกำลังผลิต Solar (ทุก 15 นาที) */
-function lChart(p,o){
-  const W=o.w,H=o.h,L=o.small?30:40,R=8,T=18,B=24,pw=W-L-R,ph=H-T-B;
-  const mx=Math.max(1,...p.load,...p.solar),step=mx>40?10:mx>20?5:mx>8?2:1,ym=Math.ceil(mx/step)*step;
-  const X=i=>L+pw*i/95,Yv=v=>T+ph*(1-Math.max(0,v)/ym);
-  const line=a=>a.map((v,i)=>(i?'L':'M')+X(i).toFixed(1)+','+Yv(v).toFixed(1)).join(' ');
-  const area=a=>line(a)+` L${X(95).toFixed(1)},${Yv(0).toFixed(1)} L${X(0).toFixed(1)},${Yv(0).toFixed(1)} Z`;
-  let g='';for(let v=0;v<=ym;v+=step){g+=`<line x1="${L}" x2="${W-R}" y1="${Yv(v)}" y2="${Yv(v)}" stroke="#e3e8da"/><text x="${L-6}" y="${Yv(v)+4}" text-anchor="end" font-size="10" fill="#6b6c71">${v}</text>`}
-  for(let h=0;h<=24;h+=o.small?6:3)g+=`<text x="${(L+pw*h/24).toFixed(1)}" y="${H-8}" text-anchor="${h===24?'end':h===0?'start':'middle'}" font-size="10" fill="#6b6c71">${pad(h)}:00</text>`;
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="การใช้ไฟเฉลี่ยต่อวันเทียบกับกำลังผลิต Solar" style="display:block">${g}
-    <path d="${area(p.solar)}" fill="#92D400" fill-opacity=".22"/><path d="${area(p.used)}" fill="#92D400" fill-opacity=".9"/>
-    <path d="${line(p.solar)}" fill="none" stroke="#3F6B00" stroke-width="1.3" stroke-dasharray="5 4"/><path d="${line(p.load)}" fill="none" stroke="#26272B" stroke-width="1.8" stroke-linejoin="round"/>
-    <text x="2" y="10" font-size="10" fill="#6b6c71">kW</text></svg>`;
+/* กราฟที่ 1 (เหมือนหน้าปริ้นท์ใน Excel): ข้อมูลรายนาที 1,440 จุด 5 เส้น
+ * Total load power · Minimum load phase (เฉพาะ 3 เฟส) · Character inverter power · Inverter output limit · Battery power */
+const L_SER=[
+  {k:'minPhase',c:'#E07B39',w:1.1,th:'เฟสที่ใช้ไฟต่ำสุด × 3',en:'Minimum load phase (kW) **Only 3 phases**'},
+  {k:'load',c:'#1F4E79',w:1.3,th:'ความต้องการใช้ไฟฟ้า',en:'Total load power (kW)'},
+  {k:'solar',c:'#3F6B00',w:1.4,th:'กำลังผลิต Solar สูงสุด',en:'Character inverter power (kW)',dash:'5 3'},
+  {k:'used',c:'#86C400',w:1.3,th:'Solar ที่ใช้ได้จริง',en:'Inverter output limit (kW)',fill:1},
+  {k:'battery',c:'#7B3FA0',w:1.1,th:'แบตเตอรี่ (+จ่าย / −ชาร์จ)',en:'Battery power (kW)'}];
+function lSerOn(S2){return L_SER.filter(s=>S2[s.k]&&(s.k!=='battery'||S2.battery.some(v=>v)))}
+function lChart(S2,o){
+  const W=o.w,H=o.h,small=o.small,L=small?30:44,R=10,T=small?14:18,B=small?24:34,pw=W-L-R,ph=H-T-B,sers=lSerOn(S2);
+  const all=sers.flatMap(s=>S2[s.k]),mx=Math.max(1,...all),mn=Math.min(0,...all);
+  const span=mx-mn,step=span>80?20:span>40?10:span>16?5:span>8?2:1,ym=Math.ceil(mx/step)*step,y0=Math.floor(mn/step)*step;
+  const X=i=>L+pw*i/1439,Yv=v=>T+ph*(ym-v)/(ym-y0);
+  const pts=a=>{let d='';for(let i=0;i<a.length;i++)d+=(i?'L':'M')+X(i).toFixed(1)+','+Yv(a[i]).toFixed(1);return d};
+  let g='';
+  for(let v=y0;v<=ym+1e-9;v+=step)g+=`<line x1="${L}" x2="${W-R}" y1="${Yv(v).toFixed(1)}" y2="${Yv(v).toFixed(1)}" stroke="${v===0?'#9a9ca1':'#e6e8e3'}"/><text x="${L-6}" y="${(Yv(v)+3.5).toFixed(1)}" text-anchor="end" font-size="${small?9:10}" fill="#5C5D62">${v}</text>`;
+  for(let h=0;h<=24;h++){const x=(L+pw*h*60/1439).toFixed(1),lab=small?h%6===0:h%2===0;
+    g+=`<line x1="${x}" x2="${x}" y1="${T}" y2="${T+ph}" stroke="${h%6===0?'#e1e3de':'#f1f2ef'}"/>`;
+    if(lab)g+=`<text x="${x}" y="${H-B+14}" text-anchor="${h===24?'end':h===0?'start':'middle'}" font-size="${small?9:10}" fill="#5C5D62">${pad(h===24?23:h)}:${h===24?'59':'00'}</text>`}
+  let body='';
+  sers.forEach(s=>{const a=S2[s.k];
+    if(s.fill)body+=`<path d="${pts(a)} L${X(1439).toFixed(1)},${Yv(0).toFixed(1)} L${X(0).toFixed(1)},${Yv(0).toFixed(1)} Z" fill="${s.c}" fill-opacity=".28"/>`;
+    body+=`<path d="${pts(a)}" fill="none" stroke="${s.c}" stroke-width="${s.w}" stroke-linejoin="round"${s.dash?` stroke-dasharray="${s.dash}"`:''}/>`});
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="พฤติกรรมการใช้ไฟฟ้ารายนาที เทียบกับกำลังผลิต Solar" style="display:block">${g}${body}
+    <text x="${L-6}" y="${T-6}" text-anchor="end" font-size="${small?9:10}" fill="#5C5D62">kW</text><text x="${W-R}" y="${H-2}" text-anchor="end" font-size="${small?9:10}" fill="#5C5D62">เวลา (น.)</text></svg>`;
 }
+function lLegend(S2,small){return `<div style="display:grid;grid-template-columns:repeat(${small?1:2},minmax(0,1fr));gap:${small?'2px':'4px 18px'};font-size:${small?12:11}px;color:#3d3e42;margin-top:6px">${lSerOn(S2).map(s=>`<span style="display:flex;align-items:center;gap:6px"><svg width="22" height="8" aria-hidden="true"><line x1="0" x2="22" y1="4" y2="4" stroke="${s.c}" stroke-width="${s.fill?6:2}" ${s.fill?'stroke-opacity=".45"':''} ${s.dash?`stroke-dasharray="${s.dash}"`:''}/></svg><span>${s.th}${small?'':` <small style="color:#6B6C71">· ${s.en}</small>`}</span></span>`).join('')}</div>`}
 /* ---------- รายงาน A4 2 หน้า (ดูในแอป + สร้าง PDF) · j = งานของไซต์ที่เลือกตอนบันทึก (ยังไม่เลือก = ไม่มีชื่อลูกค้า) ---------- */
 function lReportHtml(R,j){
   const c=j?cOf(j):{},s=j?sOf(j):{},E=R.energy,m=R.money,b=R.bill,f0=v=>fmt(v),f2=v=>fmt(v,2);
@@ -2220,12 +2233,12 @@ h1{margin:0;font-size:23px;line-height:1.3}h2{margin:0;font-size:16px;font-weigh
 <div class="meta"><div><span>ลูกค้า</span><b>${esc(c.name||'-')}</b></div><div><span>สถานที่ติดตั้ง</span><b>${esc([s.label,s.area].filter(Boolean).join(' · ')||'-')}</b></div><div><span>ช่วงตรวจวัด</span><b>${fd(R.from)} – ${fd(R.to)} (${R.days.length} วัน)</b></div><div><span>ระบบที่นำเสนอ</span><b>${sysName}</b></div></div>
 <div class="hero"><div><small>ประหยัดค่าไฟฟ้าได้ประมาณ</small><div class="big">${f0(m.month)} <i>บาท/เดือน</i></div></div>
 <div class="kp"><div><b>${f0(m.year)} <i>บาท</i></b><span>ประหยัดต่อปี</span></div><div><b>${fmt(R.payback,1)} <i>ปี</i></b><span>ระยะเวลาคืนทุน</span></div><div><b>${fmt(b.cut*100)}%</b><span>ค่าไฟลดลงต่อเดือน</span></div></div></div>
-<div><h2>การใช้ไฟฟ้าเฉลี่ยต่อวัน เทียบกับกำลังผลิต Solar</h2><div class="sub">ค่าเฉลี่ยจากการตรวจวัดจริง ${R.days.length} วัน ทุก 15 นาที ช่วงเวลา 00:00 – 23:59 น.</div></div>
-${lChart(R.profile,{w:698,h:270})}
-<div class="lg"><span>━ ความต้องการใช้ไฟฟ้า</span><span style="color:#4f9a12">■ ไฟจาก Solar ที่ใช้กับโหลดจริง</span><span style="color:#3F6B00">┅ กำลังผลิต Solar ทั้งหมด</span></div>
-<h2>สรุปพลังงานต่อวัน</h2>
-<div class="g4"><div class="st"><span>ปริมาณการใช้ไฟฟ้าเฉลี่ย</span><b>${f2(E.load)} <i>kWh</i></b></div><div class="st"><span>กำลังผลิต Solar สูงสุด</span><b>${f2(E.solarMax)} <i>kWh</i></b></div>
-<div class="st"><span>Solar ใช้กับโหลดโดยตรง</span><b>${f2(E.solarUsed)} <i>kWh</i></b></div><div class="st"><span>${bat?'แบตเตอรี่จ่ายไฟ':'Solar ส่วนเกิน'}</span><b>${f2(bat?E.battery:E.excess)} <i>kWh</i></b></div></div>
+<div><h2>กราฟที่ 1 พฤติกรรมการใช้ไฟฟ้า และ Simulate กำลังการผลิตไฟฟ้าของ Solar Rooftop</h2><div class="sub">ค่าเฉลี่ยรายนาทีจากการตรวจวัดจริง ${R.days.length} วัน (${fd(R.from)} – ${fd(R.to)}) ช่วงเวลา 00:00 – 23:59 น.</div></div>
+<div>${lChart(R.series,{w:698,h:330})}${lLegend(R.series,0)}</div>
+<div><h2>สรุปปริมาณหน่วยไฟฟ้าต่อวัน (kWh)</h2><div class="sub">ตามพฤติกรรมการใช้ไฟฟ้า และปริมาณหน่วยที่ Solar Rooftop ผลิตได้</div></div>
+<div class="g3">${[['ปริมาณโหลดใช้งานเฉลี่ย','Total load',E.load],R.series.minPhase?['เฟสที่ใช้ไฟต่ำสุด × 3','Minimum phase energy',E.minPhase]:null,['กำลังการผลิต Solar สูงสุด','Character inverter',E.solarMax],
+  ['กำลังการผลิต Solar ตามโหลด','Inverter output limit',E.solarUsed,1],['Solar ส่วนเกิน (ชาร์จแบตได้)','Charger',E.excess],bat?['แบตเตอรี่จ่ายไฟ (ประสิทธิภาพ 90%)','Discharged',E.battery,1]:null]
+  .filter(Boolean).map(x=>`<div class="st${x[3]?' g':''}"><span>${x[0]} <small style="color:#8a8b90">· ${x[1]}</small></span><b>${f2(x[2])} <i>kWh</i></b></div>`).join('')}</div>
 ${ft}</section>
 <section class="pg">${hd(2)}
 <div><h2>ระบบ Solar Rooftop ที่นำเสนอ</h2><div class="sub">${sysName} · ${esc(pk.type)}</div></div>
