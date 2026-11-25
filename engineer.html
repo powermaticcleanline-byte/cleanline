@@ -691,6 +691,32 @@ html.framed #hmini{position:absolute}
 .lsel{display:block;width:100%;height:48px;border:1px solid #80858f;border-radius:12px;background:#fff;font:inherit;font-size:16px;padding:0 12px;margin:6px 0 2px}
 .lrow{margin-top:14px}.lrow .chips2,.lrow .tch{flex-wrap:wrap;overflow:visible}
 .lrx{border:0;background:none;font-size:22px;color:#6a6f7e;height:44px;padding:0}.lrs{display:block;font-size:12px;color:#6a6f7e;margin-top:6px}
+/* ---------- จอคอม (html.desk · ≥1024px · ไม่ได้เปิดกรอบมือถือ) ----------
+ * เมนูล่าง → แถบซ้าย · เนื้อหากว้างขึ้น · แผ่นจากล่าง → หน้าต่างกลางจอ */
+html.desk{--side:236px;--nav:0px;--safe:0px}
+html.desk body{padding-left:var(--side)}
+html.desk .nav{top:0;bottom:0;right:auto;width:var(--side);border-radius:0;padding:0;box-shadow:1px 0 0 rgba(20,24,40,.08);backdrop-filter:none;-webkit-backdrop-filter:none;background:#fff}
+html.desk .nav .in{flex-direction:column;align-items:stretch;height:100%;max-width:none;padding:20px 14px;gap:4px}
+html.desk .nav .in::before{content:'CLEANLINE Man';display:block;order:-2;font-weight:700;font-size:18px;letter-spacing:.02em;color:var(--ink);padding:6px 12px 18px}
+html.desk .nav button{flex:none;flex-direction:row;justify-content:flex-start;gap:12px;height:48px;padding:0 12px;border-radius:12px;font-size:16px}
+html.desk .nav button:hover{background:#f3f5f1}
+html.desk .nav button.on{background:#eaf5dc}
+html.desk .nav button.on::after,html.desk .nav button.on::before{display:none}
+html.desk .nav .bd{position:static;margin-left:auto;box-shadow:none}
+html.desk .nav .navc{order:-1;margin-bottom:10px;background:#f3f5f1;color:var(--mut)}
+html.desk .nav .navc span{position:static;width:auto;height:auto;background:none;box-shadow:none;color:inherit;display:flex}
+html.desk .nav .navc span svg{stroke:currentColor;width:22px;height:22px;stroke-width:2}
+html.desk .nav .navc small{font-size:16px;font-weight:500;color:var(--mut)}
+html.desk .wrap,html.desk .top .in,html.desk .hbin,html.desk .abar .in{max-width:880px}
+html.desk .wrap{padding:8px 32px 40px}html.desk .top .in,html.desk .hbin{padding-left:32px;padding-right:32px}
+html.desk .hb{border-radius:0 0 0 30px}
+html.desk .abar{left:var(--side);bottom:0;padding:12px 32px 16px}
+html.desk .hasbar{padding-bottom:96px}
+html.desk .ov{left:var(--side);align-items:center}
+html.desk .sheet{border-radius:24px;max-width:520px;max-height:calc(100vh - 64px);overflow:auto;padding-bottom:24px}
+html.desk #toast{left:calc(50% + var(--side)/2);bottom:32px}
+html.desk #errc{left:calc(var(--side) + 24px);right:24px;bottom:24px}
+html.desk .dev{display:none}
 </style>
 </head>
 <body>
@@ -2829,9 +2855,10 @@ const DEVICES=[['360','Android 360',360,780],['390','iPhone 390',390,844],['430'
 const FR={on:lsGet('cle.frame',null),dev:lsGet('cle.dev','390')};
 function frameApply(){
   const wide=innerWidth>=600&&matchMedia('(pointer:fine)').matches;
-  const on=FR.on===null?wide:FR.on&&innerWidth>=480;
+  const on=FR.on===true&&innerWidth>=480;   // จอคอม: ค่าเริ่ม = เลย์เอาต์จอคอม (เดิมเปิดกรอบมือถือ) · กรอบมือถือเปิดได้จากปุ่มมุมซ้าย
   const d=DEVICES.find(x=>x[0]===FR.dev)||DEVICES[1];
   const H=document.documentElement;H.classList.toggle('framed',on);
+  H.classList.toggle('desk',!on&&innerWidth>=1024);
   H.style.setProperty('--pw',d[2]+'px');H.style.setProperty('--ph',d[3]+'px');
   H.style.setProperty('--sc',String(Math.min(1,(innerHeight-24)/(d[3]+24),(innerWidth-24)/(d[2]+24))));
   const dv=$('#dev');dv.hidden=innerWidth<480;
