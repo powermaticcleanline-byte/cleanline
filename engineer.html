@@ -692,35 +692,154 @@ html.framed #hmini{position:absolute}
 .lrow{margin-top:14px}.lrow .chips2,.lrow .tch{flex-wrap:wrap;overflow:visible}
 .lrx{border:0;background:none;font-size:22px;color:#6a6f7e;height:44px;padding:0}.lrs{display:block;font-size:12px;color:#6a6f7e;margin-top:6px}
 /* ---------- จอคอม (html.desk · ≥1024px · ไม่ได้เปิดกรอบมือถือ) ----------
- * เมนูล่าง → แถบซ้าย · เนื้อหากว้างขึ้น · แผ่นจากล่าง → หน้าต่างกลางจอ */
-html.desk{--side:236px;--nav:0px;--safe:0px}
-html.desk body{padding-left:var(--side)}
-html.desk .nav{top:0;bottom:0;right:auto;width:var(--side);border-radius:0;padding:0;box-shadow:1px 0 0 rgba(20,24,40,.08);backdrop-filter:none;-webkit-backdrop-filter:none;background:#fff}
-html.desk .nav .in{flex-direction:column;align-items:stretch;height:100%;max-width:none;padding:20px 14px;gap:4px}
-html.desk .nav .in::before{content:'CLEANLINE Man';display:block;order:-2;font-weight:700;font-size:18px;letter-spacing:.02em;color:var(--ink);padding:6px 12px 18px}
-html.desk .nav button{flex:none;flex-direction:row;justify-content:flex-start;gap:12px;height:48px;padding:0 12px;border-radius:12px;font-size:16px}
-html.desk .nav button:hover{background:#f3f5f1}
-html.desk .nav button.on{background:#eaf5dc}
-html.desk .nav button.on::after,html.desk .nav button.on::before{display:none}
-html.desk .nav .bd{position:static;margin-left:auto;box-shadow:none}
-html.desk .nav .navc{order:-1;margin-bottom:10px;background:#f3f5f1;color:var(--mut)}
-html.desk .nav .navc span{position:static;width:auto;height:auto;background:none;box-shadow:none;color:inherit;display:flex}
-html.desk .nav .navc span svg{stroke:currentColor;width:22px;height:22px;stroke-width:2}
-html.desk .nav .navc small{font-size:16px;font-weight:500;color:var(--mut)}
-html.desk .wrap,html.desk .top .in,html.desk .hbin,html.desk .abar .in{max-width:1400px}
-@media (min-width:1280px){
-html.desk .wrap.hm,html.desk .wrap.jm{columns:2;column-gap:20px}
-html.desk .wrap.hm>*,html.desk .wrap.jm>*{break-inside:avoid;-webkit-column-break-inside:avoid}
-html.desk .wrap.jm>.jqa{column-span:all}
-}
-html.desk .wrap{padding:8px 32px 40px}html.desk .top .in,html.desk .hbin{padding-left:32px;padding-right:32px}
-html.desk .hb{border-radius:0 0 0 30px}
-html.desk .abar{left:var(--side);bottom:0;padding:12px 32px 16px}
+ * ออกแบบแยกจากมือถือ (อ้างอิงเว็บแอปแบบ Google Drive): แถบซ้าย + แถบบน + แผ่นขาว · หน้าหลัก/หน้างาน มีโครงของจอคอมเอง (hmDesk · viewJob DESK)
+ * มือถือไม่เปลี่ยน */
+html.desk{--side:256px;--topb:64px;--nav:0px;--safe:0px;--dbg:#f3f4f2;--dln:#e4e7e1;--drow:#eef0ec}
+html.desk body{padding:var(--topb) 0 0 var(--side);background:var(--dbg)}
+html.desk .glow{display:none}
+/* แถบซ้าย */
+html.desk .dnav{position:fixed;left:0;top:0;bottom:0;right:auto;width:var(--side);height:auto;display:flex;flex-direction:column;gap:2px;padding:12px 12px 16px 16px;background:var(--dbg);border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;overflow:auto;z-index:30}
+html.desk .dbrand{display:flex;align-items:center;gap:10px;height:40px;padding:0 8px 0 6px;margin-bottom:12px;font-size:19px;font-weight:600;color:#2f6b0a}
+html.desk .dbrand img{width:32px;height:32px;border-radius:9px}
+html.desk .dnew{display:inline-flex;align-self:flex-start;align-items:center;gap:12px;height:56px;max-width:100%;padding:0 24px 0 18px;margin-bottom:14px;border-radius:16px;background:#fff;color:var(--ink);font-size:15px;font-weight:500;box-shadow:0 1px 2px rgba(20,24,40,.2),0 2px 6px 2px rgba(20,24,40,.08)}
+html.desk .dnew:hover{background:#f4f9ee}html.desk .dnew svg{color:#3d7c0e}
+html.desk .dnew span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html.desk .dni{display:flex;align-items:center;gap:14px;width:100%;min-height:40px;padding:0 16px;border-radius:999px;font-size:15px;font-weight:500;color:var(--ink2);text-align:left}
+html.desk .dni svg{width:20px;height:20px;flex:none}
+html.desk .dni span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html.desk .dni:hover{background:#e8ebe5}
+html.desk .dni.on{background:#dcebcb;color:#2a5f09;font-weight:600}
+html.desk .dni .bd{position:static;flex:none;min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--red);color:#fff;font-size:12px;font-weight:600;display:grid;place-items:center;box-shadow:none}
+html.desk .dsh{font-size:13px;font-weight:500;color:var(--mut);padding:18px 16px 6px}
+/* แถบบน */
+html.desk .dtop{position:fixed;top:0;left:var(--side);right:0;height:var(--topb);z-index:29;display:flex;align-items:center;gap:12px;padding:0 24px 0 8px;background:var(--dbg)}
+html.desk .dcrumb{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--mut);white-space:nowrap}
+html.desk .dcrumb button{padding:6px 8px;border-radius:8px;color:var(--mut)}html.desk .dcrumb button:hover{background:#e8ebe5;color:var(--ink)}
+html.desk .dcrumb svg{width:16px;height:16px}html.desk .dcrumb b{font-weight:500;color:var(--ink)}
+html.desk .dq{flex:0 1 640px;display:flex;align-items:center;gap:12px;height:48px;padding:0 20px;border-radius:999px;background:#e7eae4;color:#5b606b;font-size:15px;text-align:left}
+html.desk .dq:hover{background:#dfe3db}html.desk .dq svg{width:20px;height:20px;flex:none}
+html.desk .dq span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html.desk .dcrumb+.dq{flex-basis:420px;margin-left:auto}
+html.desk .dsp{flex:1}
+html.desk .dcrumb~.dsp{display:none}
+html.desk .dib{position:relative;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--ink2)}
+html.desk .dib:hover,html.desk .dav:hover{background:#e8ebe5}
+html.desk .dib .bd{position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--red);color:#fff;font-size:11px;font-weight:600;display:grid;place-items:center}
+html.desk .dav{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;padding:0}
+html.desk .dav .av{width:36px!important;height:36px!important;font-size:15px!important;margin:0!important}
+/* หน้าอื่นที่ยังใช้หัวแบบเดิม */
+html.desk .top,html.desk .top.solid{top:var(--topb);background:var(--dbg);backdrop-filter:none;-webkit-backdrop-filter:none}
+html.desk .top .in{max-width:none;margin:0;padding:0 24px 8px 8px}
+html.desk .top .ttl{text-align:left;font-size:20px;font-weight:600}
+/* แผ่นขาว */
+html.desk .wrap{max-width:none;margin:0 16px 16px 0;padding:24px 28px 32px;background:#fff;border-radius:20px;min-height:calc(100vh - var(--topb) - 16px)}
+html.desk .top~.wrap{min-height:calc(100vh - var(--topb) - 76px)}
+html.desk .card,html.desk .nx,html.desk .ls,html.desk .qa{box-shadow:none;border:1px solid var(--dln);border-radius:16px}
+html.desk .jr{border-radius:10px;padding-left:8px;padding-right:8px;margin:0 -8px;width:calc(100% + 16px)}
+html.desk .jr:hover{background:#f5f7f2}
+html.desk .search{box-shadow:none;background:#f0f3ee;min-height:48px}
+html.desk .search:focus-within{background:#fff;box-shadow:0 0 0 1px #3d7c0e}
+/* ส่วนประกอบหน้าจอคอม */
+html.desk .dhead{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+html.desk .dht{flex:1;min-width:240px}
+html.desk .dht h1{margin:0;font-size:26px;font-weight:500;line-height:1.3;overflow-wrap:anywhere}
+html.desk .dht p{margin:4px 0 0;color:var(--mut);font-size:15px}
+html.desk .dact{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-items:center}
+html.desk .ob,html.desk .pb,html.desk .dact .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:auto;min-height:40px;height:40px;padding:0 18px 0 14px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap}
+html.desk .ob{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px #d4d9d0}
+html.desk .ob:hover{background:#f3f7ee}
+html.desk .ob:disabled{color:#a7acb5;background:#fff;box-shadow:inset 0 0 0 1px #e6e9e3;cursor:default}
+html.desk .ob svg,html.desk .pb svg,html.desk .dact .btn svg{width:18px;height:18px;flex:none}
+html.desk .pb,html.desk .dact .btn.pri,html.desk .dact .btn.blu{background:#3d7c0e;color:#fff;box-shadow:none}
+html.desk .pb:hover,html.desk .dact .btn.pri:hover,html.desk .dact .btn.blu:hover{background:#346c0b}
+html.desk .dcols{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:start}
+html.desk .djob .dcols{grid-template-columns:minmax(0,1fr) 400px}
+html.desk .dcol{min-width:0}
+@media (max-width:1279px){html.desk .dcols,html.desk .djob .dcols{grid-template-columns:minmax(0,1fr)}html.desk .dhm .dcol+.dcol{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}html.desk .dhm .dcol+.dcol>*{margin:0}html.desk .djob .dcol+.dcol{order:-1}}
+html.desk .dsec{margin-bottom:28px}
+html.desk .dsec h2,html.desk .dbox h2{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:17px;font-weight:500}
+html.desk .dbox h2 small{font-size:14px;font-weight:400;color:var(--mut)}
+html.desk .dmut{color:var(--mut);font-size:15px;margin:8px 0}
+/* งานวันนี้ */
+html.desk .dday{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+html.desk .dday li{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:start}
+html.desk .dtm{padding-top:18px;text-align:right;font-size:14px;font-weight:600;color:var(--ink2);line-height:1.3}
+html.desk .dtc{position:relative;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 16px 14px 20px;border:1px solid var(--dln);border-radius:14px}
+html.desk .dtc::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:#3d7c0e}
+html.desk .dday li.done .dtc::before{background:#c9d1c2}
+html.desk .dtx{flex:1;min-width:260px}
+html.desk .dtt{display:block;font-size:17px;font-weight:600;text-align:left;padding:0;margin-bottom:6px}
+html.desk .dtt:hover{text-decoration:underline;text-underline-offset:3px}
+html.desk .dtmeta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:14px;color:var(--mut)}
+html.desk .dtmeta>span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+html.desk .dtmeta svg{width:15px;height:15px}
+html.desk .dstep{gap:3px!important}html.desk .dstep i{width:16px;height:6px;border-radius:3px;background:#e6e9e2}html.desk .dstep i.ok{background:var(--acc)}
+html.desk .dtb{display:flex;gap:8px;flex-wrap:wrap}
+/* ตารางงาน */
+html.desk .dtabs{display:flex;align-items:center;gap:22px;border-bottom:1px solid var(--dln);margin-bottom:2px}
+html.desk .dtabs [role=tab]{position:relative;display:flex;align-items:center;gap:6px;min-height:44px;padding:0;font-size:15px;font-weight:500;color:var(--mut)}
+html.desk .dtabs [role=tab] span{font-size:12px;padding:1px 7px;border-radius:99px;background:#eef0f3;color:#4b5563}
+html.desk .dtabs [role=tab].on{color:var(--ink)}
+html.desk .dtabs [role=tab].on::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:#3d7c0e}
+html.desk .dtbl{width:100%;border-collapse:collapse;font-size:14px}
+html.desk .dtbl th{text-align:left;font-size:13px;font-weight:500;color:var(--mut);padding:12px 8px;border-bottom:1px solid var(--dln);white-space:nowrap}
+html.desk .dtbl td{height:52px;padding:0 8px;border-bottom:1px solid var(--drow);white-space:nowrap}
+html.desk .dtbl td.nm{width:38%;max-width:0;overflow:hidden;text-overflow:ellipsis;font-size:15px;font-weight:500}
+html.desk .dtbl td.mu{color:var(--ink2)}
+html.desk .dtbl tbody tr{cursor:pointer}
+html.desk .dtbl tbody tr:hover td{background:#f6f8f3}
+html.desk .dtbl tbody tr:focus-visible{outline:2px solid #3d7c0e;outline-offset:-2px}
+/* ขวา: ต้องทำ + มาสคอต */
+html.desk .dbox{border:1px solid var(--dln);border-radius:16px;padding:16px;margin-bottom:16px}
+html.desk .dtodo{display:flex;align-items:center;gap:12px;width:100%;padding:10px 8px;margin:0 -8px;width:calc(100% + 16px);border-radius:10px;text-align:left}
+html.desk .dtodo:hover{background:#f6f8f3}
+html.desk .dtodo>span:nth-child(2){flex:1;min-width:0}
+html.desk .dtodo b{display:block;font-size:15px;font-weight:500}
+html.desk .dtodo small{display:block;font-size:13px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html.desk .dtodo>svg{color:#9aa0a8;width:18px;height:18px;flex:none}
+html.desk .dic{width:36px;height:36px;flex:none;border-radius:10px;background:#fdeedf;color:#b4520a;display:grid;place-items:center}
+html.desk .dic svg{width:18px;height:18px}
+html.desk .dms{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:16px;background:#f5f8f0}
+html.desk .dms img{width:76px;height:auto;flex:none}
+html.desk .dms b{display:block;font-size:15px;font-weight:600}html.desk .dms small{font-size:13px;color:var(--mut)}
+/* หน้างาน */
+html.desk .dstp{list-style:none;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));margin:0 0 14px;padding:0}
+html.desk .dstp li{position:relative;padding-top:28px;text-align:center;font-size:13px;color:var(--mut);line-height:1.3}
+html.desk .dstp li::before{content:'';position:absolute;top:10px;left:0;right:0;height:3px;background:#e1e5dd}
+html.desk .dstp li:first-child::before{left:50%}html.desk .dstp li:last-child::before{right:50%}
+html.desk .dstp li.ok::before,html.desk .dstp li.now::before{background:var(--acc)}
+html.desk .dstp li.now::before{right:50%}html.desk .dstp li.now:first-child::before{display:none}
+html.desk .dstp i{position:absolute;top:3px;left:calc(50% - 8.5px);width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px #d4d9d0;z-index:1}
+html.desk .dstp li.ok i{background:var(--acc);box-shadow:none}
+html.desk .dstp li.now i{box-shadow:inset 0 0 0 5px var(--acc),0 0 0 5px #e3f0d4}
+html.desk .dstp li.now span{color:var(--ink);font-weight:600}
+html.desk .dnow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 20px;font-size:14px;color:var(--mut)}
+html.desk .dnow b{color:var(--ink);font-weight:500}
+html.desk .dprog{max-width:520px;margin:-8px 0 20px}
+html.desk .djob .card{border:0;border-radius:0;padding:0;margin-bottom:28px;background:none}
+html.desk .djob .card .jh{margin-bottom:6px}html.desk .djob .card .jh b{font-size:17px;font-weight:500}
+html.desk .djob .card .sr{display:grid;grid-template-columns:170px minmax(0,1fr);gap:16px;padding:12px 0;border-bottom:1px solid var(--drow);font-size:15px}
+html.desk .djob .card .sr>span{color:var(--mut)}html.desk .djob .card .sr>b{font-weight:400;text-align:left}
+html.desk .djob .dcol+.dcol .card{border:1px solid var(--dln);border-radius:16px;padding:16px;margin-bottom:16px;background:#fff}
+html.desk .djob .dcol+.dcol .upslc{background:#fff8f0;border-color:#f6dcc0}
+html.desk .djob .take{margin-bottom:20px}
+/* ส่วนอื่น */
+html.desk .abar{left:var(--side);bottom:0;padding:12px 40px 16px 24px}
+html.desk .abar .in{max-width:none}
 html.desk .hasbar{padding-bottom:96px}
 html.desk .ov{left:var(--side);align-items:center}
 html.desk .sheet{border-radius:24px;max-width:520px;max-height:calc(100vh - 64px);overflow:auto;padding-bottom:24px}
 html.desk #toast{left:calc(50% + var(--side)/2);bottom:32px}
 html.desk #errc{left:calc(var(--side) + 24px);right:24px;bottom:24px}
+html.desk .mev{padding-top:24px!important}
+html.desk .mehero{margin:0;border-radius:16px;background:#f5f7f2;color:var(--ink);padding:24px 24px 56px}
+html.desk .mehero::after{display:none}
+html.desk .mehero h1{color:var(--ink)}
+html.desk .mehero .mrole{background:#e3eed6;color:#2a5f09}
+html.desk .mehero .mdot{background:#3d7c0e}
+html.desk .mehero .mav .av{box-shadow:0 0 0 4px #fff}
+html.desk .mehero img.mm{filter:none}
+html.desk .mestat{margin:-32px 24px 16px;box-shadow:0 0 0 1px var(--dln)}
 html.desk .dev{display:none}
 </style>
 </head>
@@ -1101,6 +1220,26 @@ function viewJob(id){
   const cta=j.stage===ST.SURVEY?(osv?`<button class="btn blu" data-bfjob="${esc(j.id)}">${ic('doc')}กรอกผลสำรวจแทน</button>`:canTake(j)?`<button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ แล้วสำรวจ</button>`:canAct(j)?`<button class="btn pri" data-go="#ns-${esc(j.id)}">${ic('play')}${j.sv?.onsite?'สำรวจต่อ':'เริ่มสำรวจ'}</button>`:'')
     :j.stage===ST.COMM?(canTake(j)?`<button class="btn blu" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ แล้วเปิดใบงานติดตั้ง</button>`:icCan(j)?`<button class="btn pri" data-go="#ic-${esc(j.id)}">${ic('doc')}ใบงานติดตั้ง</button>`:'')
     :j.stage===ST.INSTALL&&j.status==='active'&&me().role==='lead'?`<button class="btn pri" data-lead="${esc(j.id)}">${ic('users')}มอบงานติดตั้ง</button>`:'';
+  if(DESK()){   // จอคอม: หน้างานแบบเว็บแอป (หัว + ปุ่มเรียงขวา · เส้นขั้นงาน 8 ขั้น · ข้อมูลซ้าย · งานที่ต้องทำ/แชตขวา)
+    const live=j.status==='active'&&!xCan(j)||j.status==='done';
+    const stp=live?`<ol class="dstp" aria-label="ขั้นงาน">${STAGES.slice(1).map((x,i)=>{const n=i+1,k=j.status==='done'||n<j.stage?'ok':n===j.stage?'now':'';return `<li class="${k}"${k==='now'?' aria-current="step"':''}><i></i><span>${esc(x.name)}</span></li>`}).join('')}</ol>`:'';
+    return `<main class="wrap djob">
+    <div class="dhead"><div class="dht"><h1>${esc(j.title||s.label||'งาน')}</h1><p>${esc([c.name,s.area,'#'+(j.jobNo||'—')].filter(Boolean).join(' · '))}</p></div>
+     <div class="dact">${qa.map(([i,t,a,on])=>`<button class="ob" ${a} ${on?'':'disabled'}>${ic(i)}<span>${t}</span></button>`).join('')}${cta&&canBack(j)&&!osv?`<button class="ob" data-bfjob="${esc(j.id)}">${ic('doc')}<span>กรอกย้อนหลัง</span></button>`:''}${cta}</div></div>
+    ${stp}<div class="dnow"><span class="pill ${stt.c==='f-red'?'r':stt.c==='f-grn'?'g':''}">${esc(now)}</span>${next?`<span>ถัดไป: <b>${esc(next)}</b></span>`:''}</div>${prog?`<div class="dprog">${prog}</div>`:''}
+    <div class="dcols"><div class="dcol">
+    ${osv?`<div class="take"><b>${esc(j.surveyor)} สำรวจ (นอกระบบ)</b><p>${esc(j.surveyor)} ไม่ได้ใช้แอป · คนในทีมกรอกผลสำรวจแทนได้ ชื่อผู้สำรวจยังเป็น ${esc(j.surveyor)} และระบบบันทึกว่าใครกรอก</p><button class="btn blu" style="width:100%" data-bfjob="${esc(j.id)}">${ic('doc')}กรอกผลสำรวจแทน</button></div>`:canTake(j)?`<div class="take"><b>งานนี้ของ ${esc(assignee(j)||'ยังไม่ระบุ')}</b><p>ถ้าเจ้าของงานติดธุระ กดรับงานต่อแล้วทำแทนได้ทันที ระบบบันทึกในประวัติงาน</p><button class="btn blu" style="width:100%" data-take="${esc(j.id)}">${ic('swap')}รับงานต่อ</button></div>`:''}
+    ${openReqs(j.id).map(m=>`<button class="alert alb" data-msgjump>${ic('bolt')}<span><b>${esc((C().members[m.by]||{}).name?C().members[m.by].name+' ':'')}ขอข้อมูลเพิ่ม</b>${esc(m.text)}</span>${ic('go')}</button>`).join('')}
+    ${pv.length?`<section class="card jc2"><div class="jh"><b>สิ่งที่เสนอ</b>${pv.length>1?`<span class="cnt">${pv.length} แบบ</span>`:''}</div>
+      ${pv.map((p,k)=>`<div class="slp"><div class="slph"><span>${pv.length>1?'แบบที่ '+(k+1)+' · ':''}${esc(p.systemType||'')}</span><b>${p.kw?esc(p.kw)+' kW':'—'}</b></div>
+       ${quoteItems(j,p).map(x=>`<div class="sr it"><span>${esc(x.t)}</span><b>${x.approx?'~':''}${esc(x.q)} <em>${x.u}</em></b></div>`).join('')}</div>`).join('')}</section>`:''}
+    <section class="card jc2"><div class="jh"><b>ลูกค้าและไซต์</b></div>${row('ลูกค้า',esc(c.name||'—'))}${row('โทร',esc(c.phone||''))}${row('ที่อยู่',esc(s.address||''))}${row('ทีมขาย',esc([j.salesTeam,j.salesPerson].filter(Boolean).join(' · ')))}</section>
+    <section class="card jc2"><div class="jh"><b>นัดหมาย</b></div>${appt}${j.folderUrl&&safeUrl(j.folderUrl)?`<div class="sr"><span>โฟลเดอร์งาน</span><b><button class="lk" style="min-height:24px;padding:0" data-files="${esc(j.id)}">เปิดไฟล์งาน</button> · <button class="lk" style="min-height:24px;padding:0" data-fname="${esc(j.id)}">เปลี่ยนชื่อ</button></b></div>`:''}
+     ${r.systemType||r.wantKwp?row('ลูกค้าอยากได้',esc([r.systemType,r.wantKwp?r.wantKwp+' kWp':''].filter(Boolean).join(' · '))):''}
+     ${j.salesNote?`<div class="jnote"><small>หมายเหตุจากเซลส์</small>${esc(j.salesNote)}</div>`:''}${j.woNote?`<div class="jnote"><small>หมายเหตุใบงาน</small>${esc(j.woNote)}</div>`:''}</section>
+    ${hist.length?`<section class="card jc2"><div class="jh"><b>ความเคลื่อนไหวล่าสุด</b></div><ul class="tl hist">${hist.map(x=>`<li><span class="dt"></span><b>${esc(x.text)}</b><small>${fdt(x.at)} · ${esc(nameOf(x.by))}${x.n>1?` · ${x.n} ครั้ง`:''}</small></li>`).join('')}</ul></section>`:''}
+    </div><div class="dcol">${slCard(j)}${chatCard(j)}</div></div></main>`;
+  }
   return `<div class="jb"><div class="hbin">
     <div class="jbt"><button class="jbk" data-back aria-label="ย้อนกลับ">${ic('back')}</button><span class="jbn">#${esc(j.jobNo||'—')}</span></div>
     <h1>${esc(j.title||s.label||'งาน')}</h1><p>${esc([c.name,s.area].filter(Boolean).join(' · '))}</p></div></div>
@@ -1128,7 +1267,23 @@ function scopeBar(){
   return `<button class="mine-t ${on?'on':''}" data-scope="${on?'all':'mine'}" aria-pressed="${on}"><span class="sw"><i></i></span>เฉพาะงานของฉัน <b>${nMine}</b></button>`;
 }
 function pendBanner(){return S.pending.length?`<div class="pend">${ic('cloud')}รอส่ง ${S.pending.length} รายการ (จะส่งเมื่อมีสัญญาณ)</div>`:''}
+const DESK=()=>document.documentElement.classList.contains('desk');
+/* จอคอม: แถบซ้าย (ปุ่มงานถัดไป · เมนู · เครื่องมือ) + แถบบน (ตำแหน่ง · ค้นหา · แจ้งเตือน · โปรไฟล์) */
+function deskNav(nk){
+  const u=me(),rt=route(),nNew=S.api.listMyJobs(u.id).filter(unread).length,nN=notiNew(),nx=nextJob(),tool=rt.startsWith('tool-');
+  const B=(h,k,t,icon,bd='')=>{const on=nk===k&&!tool&&rt!=='noti';return `<button data-go="${h}" class="dni ${on?'on':''}" ${on?'aria-current="page"':''}>${ic(icon)}<span>${t}</span>${bd}</button>`};
+  const jid=/^(job|rpt|ic|ns)-/.test(rt)?rt.slice(rt.indexOf('-')+1):'',jj=jid&&C().jobs[jid];
+  const crumb=jj?`<nav class="dcrumb" aria-label="ตำแหน่ง"><button data-go="#mine">งานทั้งหมด</button>${ic('go')}<b>${esc(jj.jobNo?'#'+jj.jobNo:(jj.title||'งาน'))}</b></nav>`:'';
+  const nxl=nx?(nx.stage===ST.SURVEY?(nx.sv?.onsite?'สำรวจต่อ':'เริ่มสำรวจ'):'เปิดงานถัดไป'):'';
+  return `<nav class="dnav" aria-label="เมนูหลัก"><div class="dbrand"><img src="icon-man-192.png" alt="" width="32" height="32"><span>CLEANLINE Man</span></div>
+   ${nx?`<button class="dnew" data-go="${destOf(nx)}" title="${esc(nx.title||'')}">${ic(nx.stage===ST.SURVEY?'play':'go')}<span>${nxl}</span></button>`:''}
+   ${B('#today','today','หน้าหลัก','home')}${B('#mine','mine','งานทั้งหมด','list',nNew?`<span class="bd">${nNew}</span>`:'')}${B('#service','service','บริการ','tool')}${B('#me','me','ฉัน','me')}
+   <div class="dsh">เครื่องมือ</div>${TOOLS.map(([k,i,t])=>`<button data-go="#tool-${k}" class="dni ${rt==='tool-'+k?'on':''}">${ic(i)}<span>${t}</span></button>`).join('')}</nav>
+   <header class="dtop">${crumb}<button class="dq" data-qa="#find">${ic('search')}<span>ค้นหา ชื่อ เลขงาน ที่อยู่ เบอร์ S/N</span></button><span class="dsp"></span>
+    <button class="dib" data-go="#noti" aria-label="การแจ้งเตือน${nN?' ใหม่ '+nN+' เรื่อง':''}">${ic('bell')}${nN?`<span class="bd">${nN}</span>`:''}</button><button class="dav" data-go="#me" aria-label="โปรไฟล์ของฉัน">${meAv(u,'')}</button></header>`;
+}
 function navBar(r){
+  if(DESK())return deskNav(r);
   const u=me();const nNew=S.api.listMyJobs(u.id).filter(unread).length;
   const B=(h,k,t,icon,bd='')=>`<button data-go="${h}" class="${r===k?'on':''}" aria-label="${t}" ${r===k?'aria-current="page"':''}>${ic(icon)}<span>${t}</span>${bd}</button>`;
   return `<nav class="nav" aria-label="เมนูหลัก"><div class="in">${B('#today','today','หน้าหลัก','home')}${B('#mine','mine','งาน','list',nNew?`<span class="bd">${nNew}</span>`:'')}
@@ -1932,7 +2087,9 @@ function viewToday(){
   const qa=TOOLS.map(([k,i,t,c])=>['#tool-'+k,i,t,c,k==='cal'?L.today.length:0]);
   const D=dayJobs(),dn=D.filter(x=>x.done).length,RC=2*Math.PI*42,first=!S.hmIntro,hr=new Date().getHours();
   const rtx=!D.length?'<b>วันนี้ไม่มีงานนัด</b>ดูงานพรุ่งนี้ได้ด้านล่าง':dn>=D.length?'<b>เสร็จครบแล้ว</b>เก่งมาก พักได้เลย':dn?`<b>เหลืออีก ${D.length-dn} งาน</b>ทำไปแล้ว ${dn} งาน`:`<b>วันนี้มี ${D.length} งาน</b>${D[0].tm?'เริ่ม '+esc(D[0].tm)+' น.':'ไปลุยกัน'}`;
-  S.hmPose=mPose(D,dn);if(first)requestAnimationFrame(()=>hmAfter(dn,D.length));
+  S.hmPose=mPose(D,dn);
+  if(DESK())return hmDesk({u,T,TM1,all,L,tab,list,nx,D,dn,hr});
+  if(first)requestAnimationFrame(()=>hmAfter(dn,D.length));
   return `<div class="hb hb2"><div class="hbin">
     <div class="hbt"><button class="hbav" data-go="#me" aria-label="โปรไฟล์ของฉัน">${meAv(u,'hav')}</button><div class="hbn"><small>${esc(fdLong(T))}</small></div>
      <button class="hbi" data-go="#noti" aria-label="การแจ้งเตือน${nNew?' ใหม่ '+nNew+' เรื่อง':''}">${ic('bell')}${nNew?`<span class="bd">${nNew}</span>`:''}</button></div>
@@ -1947,6 +2104,34 @@ function viewToday(){
      <div class="tb" role="tablist">${[['today','วันนี้'],['tomorrow','พรุ่งนี้'],['all',all?'ค้างทั้งหมด':'รอฉันทั้งหมด']].map(([k,t])=>`<button role="tab" aria-selected="${k===tab}" class="${k===tab?'on':''}" data-tab="${k}">${t} <span>${L[k].length}</span></button>`).join('')}</div>
      ${list.length?list.map(j=>`<div class="jsw" data-sw="${esc(j.id)}"><div class="jsu" aria-hidden="true"><span>${ic('phone')} โทร</span><span>นำทาง ${ic('nav')}</span></div>${jrow(j,all)}</div>`).join(''):emptyMascot(tab==='today'?'วันนี้ไม่มีงานนัด':tab==='tomorrow'?'พรุ่งนี้ยังไม่มีงานนัด':'ไม่มีงานค้าง',!all?'ดูได้ว่าทีมมีงานอะไรบ้าง':'',!all?'<button class="btn" data-scope="all">ดูงานของทุกคน</button>':'')}</section>
    </main>`;
+}
+/* จอคอม: หน้าหลักแบบเว็บแอป · งานวันนี้เรียงตามเวลา + ตารางงาน · ขวา = ต้องทำ + มาสคอต */
+function hmDesk({u,T,TM1,all,L,tab,list,nx,D,dn,hr}){
+  const pc=c=>({'f-red':'r','f-grn':'g','f-vio':'v','f-org':'o','f-mut':'m'}[c]||'');
+  const whenOf=j=>{const d=j.stage===ST.SURVEY?(j.surveyDate||j.queueDate):(j.installDate||'');const tm=timeOf(j);return d?(d===T?'วันนี้':d===TM1?'พรุ่งนี้':fd(d))+(tm&&j.stage===ST.SURVEY?' '+tm:''):(tm||'—')};
+  const day=D.length?D:nx?[{j:nx,k:kindOf(nx).t,tm:timeOf(nx)||'',done:false,nx:1}]:[];
+  const card=x=>{const j=x.j,s=sOf(j),pr=progressOf(j),sv=j.stage===ST.SURVEY,st=sv&&pr?svSteps(j,s):null,nxt=st&&st.find(y=>!y.ok);
+    const lbl=sv&&canAct(j)?(j.sv?.onsite?'สำรวจต่อ':'เริ่มสำรวจ'):'เปิดงาน';
+    const d=x.nx?(j.stage===ST.SURVEY?(j.surveyDate||j.queueDate):j.installDate):'';
+    return `<li class="${x.done?'done':''}"><span class="dtm">${x.nx?esc(d===TM1?'พรุ่งนี้':fd(d)):''}${x.tm?(x.nx?'<br>':'')+esc(x.tm):x.nx?'':'ทั้งวัน'}</span><div class="dtc">
+     <div class="dtx"><button class="dtt" data-go="${destOf(j)}">${esc(j.title||s.label||'')}</button>
+      <div class="dtmeta"><span class="pill ${kindOf(j).c==='ins'?'g':''}">${esc(x.k)}</span>${s.area||s.address?`<span>${ic('pin')}${esc(s.area||s.address)}</span>`:''}${st?`<span class="dstep">${st.map(y=>`<i class="${y.ok?'ok':''}"></i>`).join('')}</span><span>${nxt?'ถัดไป: '+esc(nxt.t):'ครบทุกขั้น'}</span>`:''}</div></div>
+     <div class="dtb">${x.done?'<span class="pill g">เสร็จแล้ว</span>':`<button class="ob" data-map="${esc(j.id)}" ${mapUrl(j)?'':'disabled'}>${ic('nav')}<span>นำทาง</span></button><button class="ob" data-tel="${esc(j.id)}" ${telOf(j)?'':'disabled'}>${ic('phone')}<span>โทร</span></button><button class="pb" data-go="${destOf(j)}">${ic(sv?'play':'go')}<span>${lbl}</span></button>`}</div></div></li>`};
+  const SL=S.api.listAllJobs().filter(needSL).sort((a,b)=>(a.stageSince||0)-(b.stageSince||0));
+  const line=!D.length?'วันนี้ว่าง พักผ่อนบ้างนะ':dn>=D.length?'วันนี้ครบแล้ว เยี่ยมมาก!':hr<11?'เช้านี้ไปลุยกัน!':hr<16?'บ่ายนี้สู้ต่อ!':'อีกนิดเดียว!';
+  return `<main class="wrap dhm">
+   <div class="dhead"><div class="dht"><h1>${hr<11?'อรุณสวัสดิ์':hr<16?'สวัสดีตอนบ่าย':'สวัสดีตอนเย็น'} ${esc(u.name||'')}</h1><p>${esc(fdLong(T))} · ${D.length?`วันนี้มี ${D.length} งาน เสร็จแล้ว ${dn}`:'วันนี้ไม่มีงานนัด'}</p></div>
+    <div class="dact"><button class="ob" data-dayline>${ic('pin')}<span>เส้นทางวันนี้</span></button></div></div>
+   <div class="dcols"><div class="dcol">
+    <section class="dsec"><h2>${D.length?'งานวันนี้':'งานถัดไป'}</h2>${day.length?`<ol class="dday">${day.map(card).join('')}</ol>`:'<p class="dmut">ไม่มีงานนัดที่รออยู่ · งานใหม่จะขึ้นที่นี่ทันที</p>'}</section>
+    ${pendBanner()}
+    <section class="dsec"><div class="dtabs" role="tablist">${[['today','วันนี้'],['tomorrow','พรุ่งนี้'],['all',all?'ค้างทั้งหมด':'รอฉันทั้งหมด']].map(([k,t])=>`<button role="tab" aria-selected="${k===tab}" class="${k===tab?'on':''}" data-tab="${k}">${t} <span>${L[k].length}</span></button>`).join('')}<span class="dsp"></span><button class="lk" data-go="#mine">ดูทั้งหมด</button></div>
+     ${list.length?`<table class="dtbl"><thead><tr><th>งาน</th><th>เลขงาน</th><th>พื้นที่</th><th>สถานะ</th><th>วันนัด</th>${all?'<th>ผู้รับผิดชอบ</th>':''}</tr></thead><tbody>${list.map(j=>{const s=sOf(j),st=statusOf(j);return `<tr data-go="${destOf(j)}" tabindex="0"><td class="nm">${esc(j.title||s.label||'')}${unread(j)?' <i class="nd2"></i>':''}</td><td class="mu">${esc(j.jobNo?'#'+j.jobNo:'—')}</td><td class="mu">${esc(s.area||'')}</td><td><span class="pill ${pc(st.c)}">${esc(st.t.replace(/^ขั้น \d+ · /,''))}</span></td><td class="mu">${esc(whenOf(j))}</td>${all?`<td class="mu">${esc(assignee(j)||'—')}</td>`:''}</tr>`}).join('')}</tbody></table>`
+      :`<p class="dmut">${tab==='today'?'วันนี้ไม่มีงานนัด':tab==='tomorrow'?'พรุ่งนี้ยังไม่มีงานนัด':'ไม่มีงานค้าง'}${!all?' · <button class="lk" data-scope="all">ดูงานของทุกคน</button>':''}</p>`}</section>
+   </div><div class="dcol">
+    <section class="dbox"><h2>ต้องทำ <small>${SL.length}</small></h2>${SL.length?SL.map(j=>`<button class="dtodo" data-go="#job-${esc(j.id)}"><span class="dic">${ic('doc')}</span><span><b>อัปโหลด Single Line</b><small>${esc([j.title||sOf(j).label,j.jobNo?'#'+j.jobNo:''].filter(Boolean).join(' · '))}</small></span>${ic('go')}</button>`).join(''):'<p class="dmut">ไม่มีงานค้าง</p>'}</section>
+    <div class="dms"><img src="${MPOSE[S.hmPose]}" alt="" width="76" height="78"><div><b>${line}</b><small>${D.length&&dn<D.length?`เหลืออีก ${D.length-dn} งานวันนี้`:'ขอให้เป็นวันที่ดี'}</small></div></div>
+   </div></div></main>`;
 }
 // ใบสำรวจ: ข้อมูลหน้างานแยกเป็นแถว (เดิมต่อกันบรรทัดเดียว)
 function siteRows(s){const sp=x=>String(x).replace(/(\d)(sq)/i,'$1 $2');
@@ -2863,7 +3048,7 @@ function frameApply(){
   const on=FR.on===true&&innerWidth>=480;   // จอคอม: ค่าเริ่ม = เลย์เอาต์จอคอม (เดิมเปิดกรอบมือถือ) · กรอบมือถือเปิดได้จากปุ่มมุมซ้าย
   const d=DEVICES.find(x=>x[0]===FR.dev)||DEVICES[1];
   const H=document.documentElement;H.classList.toggle('framed',on);
-  H.classList.toggle('desk',!on&&innerWidth>=1024);
+  const dk=!on&&innerWidth>=1024,was=H.classList.contains('desk');H.classList.toggle('desk',dk);if(dk!==was&&S.api&&S.api.me())render();
   H.style.setProperty('--pw',d[2]+'px');H.style.setProperty('--ph',d[3]+'px');
   H.style.setProperty('--sc',String(Math.min(1,(innerHeight-24)/(d[3]+24),(innerWidth-24)/(d[2]+24))));
   const dv=$('#dev');dv.hidden=innerWidth<480;
