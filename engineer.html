@@ -788,7 +788,9 @@ function svSteps(j,s){
    {k:'sign',t:'ลูกค้าเซ็นปิดงานสำรวจ',ok:!!v.sign||!!v.backfill,at:v.sign?.at},
    {k:'draw',t:'อัปโหลดแบบติดตั้ง',ok:!!(v.cad&&v.cadFiled),at:v.cadFiled}];
 }
-const COLS=['jobs','customers','sites','products','members','services','meters','messages','photos'];
+const COLS=['jobs','customers','sites','products','members','services','meters','messages','photos','pricing'];
+// pricing = ราคาวิเคราะห์โหลด (ตัวกลาง 1.2.14+) · ไม่รอโหลด เพราะตัวกลางเก่าไม่ส่งกล่องนี้ (แอปจะค้าง)
+const COLS_WAIT=COLS.filter(c=>c!=='pricing');
 class ConflictError extends Error{constructor(){super('งานนี้มีคนดำเนินการไปแล้ว');this.code='conflict'}}
 /* งานสำรวจเป็นของฉันไหม: มี surveyorId → ตรง id · ไม่มี → ตรงชื่อ หรือส่งให้ทีมของฉัน (ข้อมูลแบบเดิม) */
 function svMine(j,u){if(!j||!u)return false;if(j.surveyorId)return j.surveyorId===u.id;
@@ -860,9 +862,9 @@ class ClaudeDbAdapter extends BaseAdapter{
       const t=setTimeout(res,10000);
       COLS.forEach(col=>this.db.collection(col).onSnapshot(snap=>{
         const o={};snap.docs.forEach(d=>{o[d.id]={id:d.id,...d.data()}});this.c[col]=o;
-        this.loaded.add(col);if(this.loaded.size===COLS.length){clearTimeout(t);res()}
+        this.loaded.add(col);if(COLS_WAIT.every(c=>this.loaded.has(c))){clearTimeout(t);res()}
         this._emit();
-      },e=>{console.warn(col,e);this.loaded.add(col);if(this.loaded.size===COLS.length){clearTimeout(t);res()}}));
+      },e=>{console.warn(col,e);this.loaded.add(col);if(COLS_WAIT.every(c=>this.loaded.has(c))){clearTimeout(t);res()}}));
     });
     const m=this.c.members[uid]||{};let name='';
     try{const ps=await this.u.profiles([uid]);name=ps?.[uid]?.name||''}catch(e){}
@@ -2032,7 +2034,8 @@ const fmt=(v,d=0)=>Number(v).toLocaleString('th-TH',{maximumFractionDigits:d,min
 const L_DIRS=['ทิศใต้','ทิศตะวันออกเฉียงใต้','ทิศตะวันตกเฉียงใต้','ทิศตะวันออก','ทิศตะวันตก','ทิศตะวันออกเฉียงเหนือ','ทิศตะวันตกเฉียงเหนือ','ทิศเหนือ'];
 const L_SUP=['3 เฟส','เฟส 1','เฟส 2','เฟส 3'];
 /* ราคาและค่าตั้งต้น: ตอนนี้ใช้ค่าในไฟล์ solarcalc.js · ภายหลังเปลี่ยนให้อ่านจาก Console ที่ฟังก์ชันนี้ที่เดียว */
-const lData=()=>SolarCalc.DEFAULTS;
+// ราคา/Package/แบต/แผง/ค่าไฟ ตั้งใน Console (pricing/load) · ไม่อยู่ในไฟล์เว็บ
+const lData=()=>{const c=C(),doc=c.pricing&&c.pricing.load,k=doc?String(doc.updatedAt||'')+JSON.stringify(doc).length:'-';if(lData._k!==k){lData._k=k;lData._v=SolarCalc.fromPricing(doc)}return lData._v};
 const lShow=i=>i===1||+TV('lr'+i+'n',0)>0||TV('_lrs'+i,'')==='1';
 const lPkg=()=>lData().packages.find(p=>p.name===TV('lpkg',''))||null;
 function lInput(){
@@ -2052,6 +2055,7 @@ function toolLoad(){
   const ld=S.ld;
   if(ld&&ld.view==='report'&&S.t._lres)return lReportView();
   const D=lData(),P=lPkg();
+  if(!D.ready)return `<section class="card"><b class="sth">ยังไม่มีตารางราคา</b><p class="hint">ให้ผู้ดูแลระบบตั้ง Package แผง และค่าไฟ ใน Console › ราคาวิเคราะห์โหลด ก่อน</p></section>`;
   const up=`<section class="card"><b class="sth">1. ไฟล์จากมิเตอร์ (momohub)</b>
     ${ld?`<div class="sr"><span>${ic('doc')}</span><b>${esc(ld.name)}<small>${fmt(ld.parsed.rows)} แถว · ${ld.parsed.days.length} วัน</small></b></div>
       <span class="cl">วันที่ใช้คำนวณ <small class="op">(แตะเพื่อตัดวันที่ผิดปกติออก)</small></span>
@@ -2249,8 +2253,8 @@ ${ft}</section>
 <section class="pg">${hd(2)}
 <div><h2>ระบบ Solar Rooftop ที่นำเสนอ</h2><div class="sub">${sysName} · ${esc(pk.type)}</div></div>
 <table><tr><th>Inverter</th><td>Cleanline ${esc(pk.inverter)} × ${R.units} (${pk.kw} kW · ${esc(pk.phase)})</td></tr>
-<tr><th>แผงโซลาร์เซลล์</th><td>${esc(SolarCalc.DEFAULTS.panel.brand)} ${esc(SolarCalc.DEFAULTS.panel.model)} ${SolarCalc.DEFAULTS.panel.watt} W × ${R.panels} แผง${R.extraPanels?` (เพิ่ม ${R.extraPanels} แผง)`:''}</td></tr>
-<tr><th>กำลังการผลิตติดตั้ง</th><td>${fmt(R.panels*SolarCalc.DEFAULTS.panel.watt/1000,2)} kWp</td></tr>
+<tr><th>แผงโซลาร์เซลล์</th><td>${esc(lData().panel.brand)} ${esc(lData().panel.model)} ${lData().panel.watt} W × ${R.panels} แผง${R.extraPanels?` (เพิ่ม ${R.extraPanels} แผง)`:''}</td></tr>
+<tr><th>กำลังการผลิตติดตั้ง</th><td>${fmt(R.panels*lData().panel.watt/1000,2)} kWp</td></tr>
 <tr><th>แบตเตอรี่</th><td>${bat?esc(bat.model)+' × '+R.batteries:'ไม่มี'}</td></tr>
 <tr><th>อัตราค่าไฟ (รวม VAT)</th><td>${R.meter==='tou'?`TOU · On-Peak ${f2(m.rate)} / Off-Peak ${f2(m.offRate)} บาท/หน่วย`:`ปกติ ${f2(m.rate)} บาท/หน่วย`}</td></tr></table>
 <div><h2>ค่าไฟฟ้าก่อนและหลังติดตั้ง</h2></div>
