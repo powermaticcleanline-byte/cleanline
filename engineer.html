@@ -682,6 +682,14 @@ html.framed #hmini{position:absolute}
 .slw{box-shadow:inset 0 0 0 1.5px #fbd9b5,var(--sh)}.pill.o{background:var(--warnBg);color:var(--warn)}
 .upslh .lsh b{display:flex;align-items:center;gap:8px}.upslh .lsh svg{width:18px;height:18px;color:var(--warn)}
 @media(prefers-reduced-motion:reduce){.mrig,.mrig *,.mhearts i,.hm.intro>*,#dayl .dlb{animation:none}.hring .fl,#hmini,.jsw .jr{transition-duration:0s}}
+.lrf{margin-top:4px}.lrh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.lrh em{font-style:normal;font-size:13px}.lrh .ok{color:var(--accTx)}.lrh .wn{color:#a34b08}
+.lrr{display:grid;grid-template-columns:1fr 76px 32px;gap:8px;align-items:center;margin-top:8px}
+.lrr select,.lrr input{height:44px;border:1px solid #80858f;border-radius:12px;background:#fff;font:inherit;font-size:16px;padding:0 10px;min-width:0;width:100%}
+.lrr input{text-align:center;padding:0 4px}.lrr input.auto{background:#f3f5f1;border-color:#d6dbd2;color:#4b5563}
+.lrr input::-webkit-inner-spin-button,.lrr input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.lrr input{-moz-appearance:textfield}
+@media(max-width:360px){.lrr{grid-template-columns:1fr 56px 24px;gap:6px}.lrr select{font-size:15px;padding:0 4px 0 8px}.lrx{font-size:20px}}
+.lrow{margin-top:14px}.lrow .chips2,.lrow .tch{flex-wrap:wrap;overflow:visible}
+.lrx{border:0;background:none;font-size:22px;color:#6a6f7e;height:44px;padding:0}.lrs{display:block;font-size:12px;color:#6a6f7e;margin-top:6px}
 </style>
 </head>
 <body>
@@ -2036,14 +2044,21 @@ const L_SUP=['3 เฟส','เฟส 1','เฟส 2','เฟส 3'];
 /* ราคาและค่าตั้งต้น: ตอนนี้ใช้ค่าในไฟล์ solarcalc.js · ภายหลังเปลี่ยนให้อ่านจาก Console ที่ฟังก์ชันนี้ที่เดียว */
 // ราคา/Package/แบต/แผง/ค่าไฟ ตั้งใน Console (pricing/load) · ไม่อยู่ในไฟล์เว็บ
 const lData=()=>{const c=C(),doc=c.pricing&&c.pricing.load,k=doc?String(doc.updatedAt||'')+JSON.stringify(doc).length:'-';if(lData._k!==k){lData._k=k;lData._v=SolarCalc.fromPricing(doc)}return lData._v};
-const lShow=i=>i===1||+TV('lr'+i+'n',0)>0||TV('_lrs'+i,'')==='1';
+const lShow=i=>i===1||TV('_lrs'+i,'')==='1';
+// ทิศหลังคา: แถว 2–4 ใส่จำนวนเอง · แถวแรกได้แผงที่เหลือ (รวมครบเสมอ)
+// ระบบไฟบ้าน 1 เฟส / 3 เฟส · Package 1 เฟสบนบ้าน 3 เฟส ต้องบอกว่าจ่ายเข้าเฟสไหน (Excel: ระบบไฟบ้าน + กำหนดการจ่ายเฟส)
+const lHouse=P=>TV('lhs',P&&P.phase==='1 เฟส'?'1 เฟส':'3 เฟส');
+const lSupply=P=>lHouse(P)==='1 เฟส'?'เฟส 1':P.phase==='1 เฟส'?(['เฟส 1','เฟส 2','เฟส 3'].includes(TV('lsup',''))?TV('lsup'):'เฟส 1'):'3 เฟส';
+const lTot=P=>P?(P.panels*(+TV('lun',1)||1)+(+TV('lext',0)||0)):0;
+function lRoofs(P){const L=[1,2,3,4].filter(lShow).map(i=>({i,dir:TV('lr'+i+'d','ทิศใต้'),n:i===1?0:Math.max(0,+TV('lr'+i+'n',0)||0)}));
+  const rest=L.slice(1).reduce((a,r)=>a+r.n,0),tot=lTot(P);L[0].n=Math.max(0,tot-rest);return {L,tot,over:Math.max(0,rest-tot)}}
 const lPkg=()=>lData().packages.find(p=>p.name===TV('lpkg',''))||null;
 function lInput(){
   const P=lPkg();if(!P)return null;const hyb=P.kind===2,bat=hyb?TV('lbat','-'):'-';
-  const roofs=[1,2,3,4].map(i=>({dir:TV('lr'+i+'d','ทิศใต้'),n:+TV('lr'+i+'n',0)||0})).filter(r=>r.n>0);
+  const roofs=lRoofs(P).L.filter(r=>r.n>0).map(r=>({dir:r.dir,n:r.n}));
   const nd=S.ld?S.ld.parsed.days.length:0;
   return {pkg:P.name,units:+TV('lun',1)||1,battery:bat,batteries:bat==='-'?0:+TV('lbq',1)||1,extraPanels:+TV('lext',0)||0,roofs,
-    supply:TV('lsup',P.phase==='1 เฟส'?'เฟส 1':'3 เฟส'),meter:TV('lmet','tou'),days:Array.from({length:nd},(_,i)=>TV('ld'+i,'1')!=='0')};
+    supply:lSupply(P),meter:TV('lmet','tou'),days:Array.from({length:nd},(_,i)=>TV('ld'+i,'1')!=='0')};
 }
 async function loadCsv(inp){
   const f=inp.files&&inp.files[0];if(!f)return;
@@ -2067,11 +2082,17 @@ function toolLoad(){
     ${P?`<p class="hint" style="margin:4px 2px 0">${esc(P.inverter)} · ${esc(P.type)} · ${esc(P.phase)} · แผง ${P.panels} แผง/ชุด</p>${tstep('lun','จำนวนชุด',1)}
     ${P.kind===2?`<span class="cl">แบตเตอรี่</span>${tchips('lbat',[['-','ไม่มี'],...D.batteries.map(b=>[b.model,b.model.replace(/^CBL0\d-/,'')])],TV('lbat','-'))}${TV('lbat','-')!=='-'?tstep('lbq','จำนวนลูก',1):''}`:''}
     ${tstep('lext','เพิ่มแผง',0)}
-    <span class="cl">ทิศหลังคาและจำนวนแผง <small class="op">(รวม ${P.panels*(+TV('lun',1)||1)+(+TV('lext',0)||0)} แผง)</small></span>
-    ${[1,2,3,4].filter(lShow).map(i=>`<div class="pface">${tstep('lr'+i+'n','แนวที่ '+i+' (แผง)',0)}${tchips('lr'+i+'d',L_DIRS.map(x=>[x,x.replace('ทิศ','')]),TV('lr'+i+'d','ทิศใต้'))}</div>`).join('')}
-    ${(i=>i?`<button class="lk" data-tv="_lrs${i}" data-v="1">+ เพิ่มหลังคาอีกแนว</button>`:'')([2,3,4].find(i=>!lShow(i)))}
-    <div class="cgrid"><div><span class="cl">จ่ายไฟเข้า</span>${tchips('lsup',L_SUP.map(x=>[x,x]),TV('lsup',P.phase==='1 เฟส'?'เฟส 1':'3 เฟส'))}</div>
-    <div><span class="cl">มิเตอร์ไฟ</span>${tchips('lmet',[['tou','TOU'],['normal','ธรรมดา']],TV('lmet','tou'))}</div></div>`:''}</section>`;
+    ${(()=>{const {L,tot,over}=lRoofs(P),M=lData().dirs||{},eff=tot?Math.round(L.reduce((a,r)=>a+r.n*(M[r.dir]??1),0)/tot*100):0;
+      return `<div class="lrf"><div class="lrh"><span class="cl">ทิศหลังคา</span>${over?`<em class="wn">เกิน ${over} แผง</em>`:`<em class="ok">ครบ ${tot} แผง · ผลิต ${eff}%</em>`}</div>
+      ${L.map(r=>`<div class="lrr"><select data-lrd="${r.i}" aria-label="ทิศหลังคา">${L_DIRS.map(x=>`<option value="${esc(x)}" ${x===r.dir?'selected':''}>${esc(x.replace('ทิศ',''))}</option>`).join('')}</select>
+        ${r.i===1?`<input value="${r.n}" readonly aria-label="จำนวนแผง" class="auto">`:`<input id="t-lr${r.i}n" data-t="lr${r.i}n" data-lrn type="number" inputmode="numeric" min="0" value="${esc(TV('lr'+r.i+'n',0))}" aria-label="จำนวนแผง">`}
+        ${r.i===1?'<span></span>':`<button type="button" class="lrx" data-lrx="${r.i}" aria-label="ลบทิศนี้">×</button>`}</div>`).join('')}
+      ${L.length>1?'<small class="lrs">แถวแรกได้แผงที่เหลือเอง</small>':''}
+      ${(n=>n?`<button class="lk" data-lradd="${n}">+ เพิ่มทิศ</button>`:'')([2,3,4].find(i=>!lShow(i)))}</div>`})()}
+    <div class="lrow"><span class="cl">ระบบไฟฟ้า</span>${tchips('lhs',[['1 เฟส','1 เฟส'],['3 เฟส','3 เฟส']],lHouse(P))}
+      ${lHouse(P)==='1 เฟส'&&P.phase!=='1 เฟส'?'<p class="twarn">Package นี้เป็น 3 เฟส ใช้กับไฟบ้าน 1 เฟสไม่ได้</p>':''}</div>
+    ${lHouse(P)==='3 เฟส'&&P.phase==='1 เฟส'?`<div class="lrow"><span class="cl">จ่ายไฟเข้าเฟส</span>${tchips('lsup',[['เฟส 1','เฟส 1'],['เฟส 2','เฟส 2'],['เฟส 3','เฟส 3']],lSupply(P))}</div>`:''}
+    <div class="lrow"><span class="cl">มิเตอร์ไฟ</span>${tchips('lmet',[['tou','TOU'],['normal','ธรรมดา']],TV('lmet','tou'))}</div>`:''}</section>`;
   const X=ld?lRun():null;
   const res=!ld?`<div class="card cnote">${ic('bolt')}<span>เลือกไฟล์ CSV จากมิเตอร์ แล้วเลือกระบบ จะเห็นค่าไฟที่ประหยัดได้ คืนทุน และดูรายงานก่อนบันทึกได้</span></div>`
     :(!X||X.need)?`<div class="card cnote">${ic('bolt')}<span>${esc(X&&X.need||'เลือก Package')}</span></div>`:lResult(X.R);
@@ -2740,9 +2761,11 @@ document.addEventListener('click',e=>{
     else{const k=+d.propdel;ask('ลบแบบที่ '+(k+1)+'?','ข้อมูลของแบบนี้จะหายจากใบงาน (มีผลเมื่อกดบันทึก)',{ok:'ลบแบบนี้',danger:true}).then(y=>{if(y){dr.props.splice(k,1);dr.pi=0;rerenderEq(dr)}});return}
     rerenderEq(dr);return}
   if(d.open){const u=safeUrl(d.open);if(u)window.open(u,'_blank','noopener');return}
+  if(d.lradd){const i=d.lradd,used=[1,2,3,4].filter(lShow).map(k=>TV('lr'+k+'d','ทิศใต้'));S.t['_lrs'+i]='1';S.t['lr'+i+'d']=L_DIRS.find(x=>!used.includes(x));S.t['lr'+i+'n']=0;render();const el=$('#t-lr'+i+'n');if(el){el.focus();el.select()}return}
+  if(d.lrx){const i=d.lrx;S.t['_lrs'+i]='0';S.t['lr'+i+'n']=0;render();return}
   if(d.tv){const v=d.tv==='cm'?+d.v:d.v;S.t[d.tv]=v;if('today' in d)delete S.t.cd;if(d.tv==='pk'&&C().jobs[S.t.cj])pkgFrom(C().jobs[S.t.cj],+v);if(d.tv!=='opt'&&d.tv!=='wd'&&d.tv!=='wk')delete S.t.opt;render();return}
   if(d.lsave){lSitePick();return}
-  if(d.lview){if(S.ld){if(d.lview==='report'){const x=lRun()||{},R=x.R||{};if(!(R.energy&&R.energy.solarMax>0)){toast('ใส่จำนวนแผงตามทิศหลังคาก่อน');return}S.t._lres=R}S.ld.view=d.lview;render();scrollTo(0,0)}return}
+  if(d.lview){if(S.ld){if(d.lview==='report'){const P_=lPkg();if(P_&&lHouse(P_)==='1 เฟส'&&P_.phase!=='1 เฟส'){toast('Package 3 เฟส ใช้กับไฟบ้าน 1 เฟสไม่ได้');return}const x=lRun()||{},R=x.R||{};if(!(R.energy&&R.energy.solarMax>0)){toast('ใส่จำนวนแผงตามทิศหลังคาก่อน');return}S.t._lres=R}S.ld.view=d.lview;render();scrollTo(0,0)}return}
   if('calccopy' in d){copyText(calcText(),'ผลคำนวณระบบ');return}
   if(d.calcapply){calcApply(d.calcapply);return}
   if('simplay' in d){simPlay();return}
@@ -2779,7 +2802,7 @@ function onField(e){const el=e.target;const f=el.dataset?.f;if(!f)return;const i
 function rerenderEq(d){const box=$('#eqbox');if(!box)return;const req=!!box.closest('#svdesign');box.innerHTML=eqBlock(d,req?1:0)}
 document.addEventListener('touchstart',e=>{const w=e.target.closest('[data-swipe]');S.sw=w?[e.touches[0].clientX,e.touches[0].clientY]:null},{passive:true});
 document.addEventListener('touchend',e=>{if(!S.sw)return;const dx=e.changedTouches[0].clientX-S.sw[0],dy=e.changedTouches[0].clientY-S.sw[1];S.sw=null;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){S.t.cm=(+TV('cm',0))+(dx<0?1:-1);render()}});
-document.addEventListener('input',onField);document.addEventListener('change',e=>{onField(e);if(e.target.dataset?.photo)onPhotos(e.target);if(e.target.dataset?.icscan)icScan(e.target);if(e.target.dataset?.drone!==undefined&&e.target.files?.[0])droneLoad(e.target.files[0]);if(e.target.dataset?.loadcsv!==undefined)loadCsv(e.target);if(e.target.dataset?.nscad)nsCad(route().slice(3),e.target.dataset.nscad,e.target.checked)});
+document.addEventListener('input',onField);document.addEventListener('change',e=>{onField(e);if(e.target.dataset?.lrd){S.t['lr'+e.target.dataset.lrd+'d']=e.target.value;render();return}if(e.target.dataset?.lrn!==undefined){S.t[e.target.dataset.t]=Math.max(0,parseInt(e.target.value)||0);render();return}if(e.target.dataset?.photo)onPhotos(e.target);if(e.target.dataset?.icscan)icScan(e.target);if(e.target.dataset?.drone!==undefined&&e.target.files?.[0])droneLoad(e.target.files[0]);if(e.target.dataset?.loadcsv!==undefined)loadCsv(e.target);if(e.target.dataset?.nscad)nsCad(route().slice(3),e.target.dataset.nscad,e.target.checked)});
 window.addEventListener('hashchange',()=>{S.navd=true;if(route()!=='noti')S.notiPrev=null;
   if(S.nsLast&&route()!=='ns-'+S.nsLast.id){const x=S.nsLast;S.nsLast=null;if(x.pg>0)nsSave(x.id,x.pg)}});
 function landing(msg){
