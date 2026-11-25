@@ -707,7 +707,12 @@ html.desk .nav .navc{order:-1;margin-bottom:10px;background:#f3f5f1;color:var(--
 html.desk .nav .navc span{position:static;width:auto;height:auto;background:none;box-shadow:none;color:inherit;display:flex}
 html.desk .nav .navc span svg{stroke:currentColor;width:22px;height:22px;stroke-width:2}
 html.desk .nav .navc small{font-size:16px;font-weight:500;color:var(--mut)}
-html.desk .wrap,html.desk .top .in,html.desk .hbin,html.desk .abar .in{max-width:880px}
+html.desk .wrap,html.desk .top .in,html.desk .hbin,html.desk .abar .in{max-width:1400px}
+@media (min-width:1280px){
+html.desk .wrap.hm,html.desk .wrap.jm{columns:2;column-gap:20px}
+html.desk .wrap.hm>*,html.desk .wrap.jm>*{break-inside:avoid;-webkit-column-break-inside:avoid}
+html.desk .wrap.jm>.jqa{column-span:all}
+}
 html.desk .wrap{padding:8px 32px 40px}html.desk .top .in,html.desk .hbin{padding-left:32px;padding-right:32px}
 html.desk .hb{border-radius:0 0 0 30px}
 html.desk .abar{left:var(--side);bottom:0;padding:12px 32px 16px}
