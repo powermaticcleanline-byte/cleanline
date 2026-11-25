@@ -2738,7 +2738,7 @@ document.addEventListener('click',e=>{
   if(d.open){const u=safeUrl(d.open);if(u)window.open(u,'_blank','noopener');return}
   if(d.tv){const v=d.tv==='cm'?+d.v:d.v;S.t[d.tv]=v;if('today' in d)delete S.t.cd;if(d.tv==='pk'&&C().jobs[S.t.cj])pkgFrom(C().jobs[S.t.cj],+v);if(d.tv!=='opt'&&d.tv!=='wd'&&d.tv!=='wk')delete S.t.opt;render();return}
   if(d.lsave){lSitePick();return}
-  if(d.lview){if(S.ld){S.ld.view=d.lview;render();scrollTo(0,0)}return}
+  if(d.lview){if(S.ld){if(d.lview==='report'){const x=lRun()||{},R=x.R||{};if(!(R.energy&&R.energy.solarMax>0)){toast('ใส่จำนวนแผงตามทิศหลังคาก่อน');return}S.t._lres=R}S.ld.view=d.lview;render();scrollTo(0,0)}return}
   if('calccopy' in d){copyText(calcText(),'ผลคำนวณระบบ');return}
   if(d.calcapply){calcApply(d.calcapply);return}
   if('simplay' in d){simPlay();return}
