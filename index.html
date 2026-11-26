@@ -379,7 +379,7 @@ main{padding:0;gap:0;max-width:none}
 .jmeta{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 /* เปิดงานคลิกเดียว + ย้อนกลับ (แบบ Gmail) */
 .jhd{display:flex;align-items:flex-start;gap:10px}.jback{all:unset;box-sizing:border-box;flex:none;width:40px;height:40px;margin:-6px 0 0 -8px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--ink,#16171a)}.jback:hover{background:rgba(22,23,26,.06)}.jback:focus-visible{outline:2px solid var(--focus,#2f6b0a);outline-offset:2px}.jback svg{width:22px;height:22px}
-tr[data-sel]{cursor:pointer}tr[data-sel].lastop td{background:#eef6e6!important;transition:background .8s}
+tr[data-sel],tr[data-fmrow],tr[data-mtedit]{cursor:pointer}tr[data-sel].lastop td{background:#eef6e6!important;transition:background .8s}
 .colR{min-width:0}.rtw{display:flex;flex-direction:column;min-width:0}.rtl span{min-width:0;overflow-wrap:anywhere}.rtabs button{padding:0 18px}.rtabs button i{font-style:normal;font-size:12px;margin-left:6px;min-width:20px;height:20px;border-radius:10px;background:rgba(0,0,0,.08);display:inline-grid;place-items:center;padding:0 6px}
 .rtabs button.on{background:var(--sf,#fff)!important;box-shadow:inset 0 3px 0 var(--acc,#2f6b0a)!important}
 .rbody{background:var(--sf,#fff);border-radius:0 16px 16px 16px;box-shadow:0 0 0 1px rgba(16,24,40,.08),0 12px 30px -16px rgba(16,24,40,.25);padding:24px;display:flex;flex-direction:column;min-width:0}
@@ -392,6 +392,12 @@ tr[data-sel]{cursor:pointer}tr[data-sel].lastop td{background:#eef6e6!important;
 .trn{display:flex;flex-direction:column;min-width:0}.trn b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.trn small{font-size:13px;color:var(--mut,#606f85)}.trc .trx{all:unset;box-sizing:border-box;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:#b42318}.trc .trx:hover{background:#fdecec}.trc .trx:focus-visible{outline:2px solid var(--focus,#2f6b0a);outline-offset:2px}.trc .trx svg{width:20px;height:20px}
 .trem{display:flex;flex-direction:column;align-items:center;gap:6px;padding:48px 16px}.trem svg{width:40px;height:40px;color:#b8bcc4}
 @media (max-width:640px){.trr{grid-template-columns:minmax(0,1fr) auto auto;padding:10px 0}.trr .pill{grid-column:1/-1;justify-self:start}}
+.stc{display:flex;flex-direction:column;gap:12px}.sth{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px}.sth h2{margin:0;font-size:16px}
+.stv{display:flex;gap:16px;align-items:center}.stv>div{display:flex;flex-direction:column;gap:2px;min-width:0}.stv b{font-weight:600}
+.stg{display:flex;gap:32px;flex-wrap:wrap}.stg span{display:flex;flex-direction:column;gap:2px}.stg b{font-size:18px;font-weight:600}
+.stc .save{display:flex;justify-content:flex-end;gap:8px}
+/* 1ข: ท้ายแถวเหลือปุ่ม ⋯ ปุ่มเดียว → คอลัมน์จัดการแคบลง ตารางไม่ล้นการ์ด */
+@media (min-width:641px){table.jt2 th.c-act,table.jt2 td.c-act{width:88px!important;text-align:center}.jtw>table.jt2{min-width:860px!important}.jt2.jt2s th.c-sn{width:150px}.jt2.jt2s th.c-site{width:auto}}
 .need-hint{font-size:13px;color:var(--mute,#6b7078);margin:2px 0 4px}
 .jno{font-size:14px;font-weight:700;color:var(--mut)}
 .jst{display:flex;align-items:center;gap:28px;padding:16px 24px;flex-wrap:wrap}
@@ -2179,13 +2185,13 @@ button.phc{white-space:nowrap}
 </style>
 <style>body.rocat [data-fmnew],body.rocat [data-fmedit],body.rocat [data-fmdel],body.rocat [data-eqnew],body.rocat [data-eqedit],body.rocat [data-eqdel],body.rocat label[for="eqxfile"]{display:none!important}
 /* รอบ 4w: เมนู "อื่นๆ" */
-details.mnu{position:relative;display:inline-flex}
+details.mnu{position:relative;display:inline-flex}body.rocat .mnu-p hr.fmhr{display:none}
 details.mnu>summary{list-style:none;cursor:pointer;user-select:none}
 details.mnu>summary::-webkit-details-marker{display:none}
 details.mnu>summary.btn svg{width:18px;height:18px}
 details.mnu[open]>summary{background:#f3f4f6}
 .mnu-p{position:fixed;z-index:90;min-width:220px;padding:8px;background:#fff;border-radius:14px;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 12px 32px -8px rgba(0,0,0,.25);display:flex;flex-direction:column;text-align:left}
-.mnu-p .mi{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:0;background:none;border-radius:10px;font:inherit;font-size:16px;font-weight:500;color:#16171d;text-align:left;cursor:pointer;white-space:nowrap}
+.mnu-p .mi{text-decoration:none;display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:0;background:none;border-radius:10px;font:inherit;font-size:16px;font-weight:500;color:#16171d;text-align:left;cursor:pointer;white-space:nowrap}
 .mnu-p .mi svg{width:18px;height:18px;flex:none}
 .mnu-p .mi:hover,.mnu-p .mi:focus-visible{background:#f3f4f6;outline:0}
 .mnu-p .mi.mdg{color:#c81e1e}
@@ -2973,12 +2979,21 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-ntfs
 function goalCheck(){const g=goalCfg();if(!g||!S.loaded.jobs||!myGroup())return;const n=goalNow();if(!goalHit(g,n))return;
   const k='cl.goal.'+(S.me.id||'')+'.'+today().slice(0,7)+'.'+(g.jobs||0)+'.'+(g.kw||0);try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){return}
   setTimeout(()=>celebrate('ทีมทำถึงเป้าเดือนนี้แล้ว',[g.jobs?'ติดตั้งเสร็จ '+n.jobs+' งาน':'',g.kw?n.kw.toLocaleString('th-TH')+' kW':''].filter(Boolean).join(' · ')),900)}
-function goalCard(){const g=S.config?.goal||{};
-  return `<section class="card pad" style="display:flex;flex-direction:column;gap:12px" aria-label="เป้าประจำเดือน"><h2 style="margin:0;font-size:16px">เป้าประจำเดือน</h2>
-    <p class="sub" style="margin:0">ใช้ทุกเดือนจนกว่าจะแก้ · หน้าแรกจะแสดงความคืบหน้า และฉลองเมื่อทีมทำถึงเป้า · เว้นว่างช่องที่ไม่ใช้</p>
-    <div class="gform"><label>ติดตั้งเสร็จ (งาน)<input id="glJobs" type="number" min="0" step="1" inputmode="numeric" value="${+g.jobs||''}"></label><label>กำลังติดตั้งรวม (kW)<input id="glKw" type="number" min="0" step="0.1" inputmode="decimal" value="${+g.kw||''}"></label><button type="button" class="btn pri" data-goalsave="1">บันทึกเป้า</button></div></section>`}
-document.addEventListener('click',async e=>{if(!e.target.closest('[data-goalsave]'))return;const n=v=>Math.max(0,Math.round((parseFloat(document.getElementById(v)?.value)||0)*10)/10);
-  const d={jobs:Math.round(n('glJobs')),kw:n('glKw'),updatedAt:Date.now()};try{await w('config/goal',d,'set');toast(d.jobs||d.kw?'บันทึกเป้าแล้ว':'ลบเป้าแล้ว')}catch(x){}});
+function goalCard(){const g=S.config?.goal||{};const has=+g.jobs||+g.kw;
+  if(!S.goalEdit)return `<section class="card pad stc" aria-label="เป้าประจำเดือน"><div class="sth"><h2>เป้าประจำเดือน</h2><button type="button" class="lnk" data-goaledit="1">แก้ไข</button></div>
+    ${has?`<div class="stg">${+g.jobs?`<span><small class="sub">ติดตั้งเสร็จ</small><b>${+g.jobs} งาน</b></span>`:''}${+g.kw?`<span><small class="sub">กำลังติดตั้งรวม</small><b>${(+g.kw).toLocaleString('th-TH')} kW</b></span>`:''}</div>`:'<p class="sub" style="margin:0">ยังไม่ได้ตั้งเป้า กด "แก้ไข" เพื่อตั้ง</p>'}
+    <p class="sub" style="margin:0">ใช้ทุกเดือนจนกว่าจะแก้ · หน้าแรกแสดงความคืบหน้า และฉลองเมื่อทีมทำถึงเป้า</p></section>`;
+  return `<section class="card pad stc editing" aria-label="เป้าประจำเดือน"><div class="sth"><h2>เป้าประจำเดือน</h2></div>
+    <div class="gform"><label>ติดตั้งเสร็จ (งาน)<input id="glJobs" type="number" min="0" step="1" inputmode="numeric" value="${+g.jobs||''}"></label><label>กำลังติดตั้งรวม (kW)<input id="glKw" type="number" min="0" step="0.1" inputmode="decimal" value="${+g.kw||''}"></label></div>
+    <p class="sub" style="margin:0">เว้นว่างช่องที่ไม่ใช้ · ว่างทั้งสองช่อง = ไม่ใช้เป้า</p>
+    <div class="save"><button class="btn sm" type="button" data-goalcancel="1">ยกเลิก</button><button type="button" class="btn pri sm" data-goalsave="1">บันทึก</button></div></section>`}
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-goalsave],[data-goaledit],[data-goalcancel],[data-pfedit],[data-pfcancel]');if(!t)return;
+  if(t.dataset.goaledit){S.goalEdit=true;render();$('#glJobs')?.focus();return}
+  if(t.dataset.goalcancel){S.goalEdit=false;render();return}
+  if(t.dataset.pfedit){S.pfEdit=true;render();$('#pfname')?.focus();return}
+  if(t.dataset.pfcancel){S.pfEdit=false;S.pf2=null;S.pfn=null;render();return}
+  const n=v=>Math.max(0,Math.round((parseFloat(document.getElementById(v)?.value)||0)*10)/10);const old={...(S.config?.goal||{})};
+  const d={jobs:Math.round(n('glJobs')),kw:n('glKw'),updatedAt:Date.now()};try{await w('config/goal',d,'set');S.goalEdit=false;render();undoable(d.jobs||d.kw?'บันทึกเป้าแล้ว':'เลิกใช้เป้าแล้ว',()=>w('config/goal',{jobs:+old.jobs||0,kw:+old.kw||0,updatedAt:Date.now()},'set'),'คืนเป้าเดิมแล้ว')}catch(x){}});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pin]');if(!b)return;e.preventDefault();e.stopPropagation();pinSet(b.dataset.pin,b.dataset.off?false:!pins().includes(b.dataset.pin))},true);
 /* 18 กดเบอร์โทรแล้วคัดลอก: ห่อเบอร์ที่โชว์เป็นตัวหนังสือ (ไม่แตะช่องกรอก/ลิงก์/ปุ่ม) */
 const PH_RE=/(^|[^\d])(0\d{1,2}[- ]?\d{3}[- ]?\d{3,4})(?!\d)/g;
@@ -3098,6 +3113,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.pf){S.pf=false;re
   if(e.key==='Escape'&&S.sel){closeDrawer();return}
   if(e.key==='Escape'&&document.querySelector('.fmod')){closeModal();return}
   if(e.target.matches?.('.kd[data-qsel]')&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){e.preventDefault();const st={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key]||0;const d=new Date(e.target.dataset.qsel+'T00:00:00');d.setDate(d.getDate()+st);const k=isoOf(d);const el=document.querySelector(`.kd[data-qsel="${k}"]`);if(el&&!el.classList.contains('ko')){S.f.qsel=k;render();setTimeout(()=>document.querySelector('.kd.kon')?.focus(),0)}return}
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('tr[data-fmrow],tr[data-mtedit]')){e.preventDefault();e.target.click();return}
   if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('tr[data-sel]')){e.preventDefault();location.hash='job-'+e.target.dataset.sel;return}
   if(e.key==='Escape'&&route().startsWith('job-')&&!document.querySelector('.fmod,#modal .modal,.mnu[open]')&&!S.mp&&!S.eqv&&!S.apps&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName||'')){e.preventDefault();jobBack();return}
   if(e.key==='Escape'&&S.mp){S.mp=null;render();return}if(e.key==='Escape'&&S.eqv){S.eqv=null;closeModal();return}if(e.key==='Escape'&&S.apps){S.apps=false;render();$('#appbtn')?.focus()}});
@@ -3397,9 +3413,8 @@ function viewJobs(mode){
         const kw=e.kw||j.proposedKw;const sn=e.sn||'';
         const ib=(ic,lab,attr,off)=>off?`<span class="ib ibx" data-ibk="${ic}" aria-hidden="true"></span>`:`<button type="button" class="ib" data-ibk="${ic}" ${attr} aria-label="${lab}" title="${lab}">${svg(ic,'currentColor',2)}</button>`;
         const tel=c.phone?`<a class="ib" href="tel:${esc(String(c.phone).replace(/[^\d+]/g,''))}" aria-label="โทร ${esc(c.phone)}" title="โทร ${esc(c.phone)}">${svg('phone','currentColor',2)}</a>`:ib('phone','','','ยังไม่มีเบอร์โทร');
-        const view=ib('eye','ดูรายละเอียด',`data-sel="${esc(j.id)}"`);
-        const acts=svc?[view,ib('wrench','บันทึกแจ้งซ่อม',`data-svnew="CM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('check','บันทึกตรวจเช็ก',`data-svnew="PM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('copy','คัดลอก S/N',`data-cpy="${esc(sn)}"`,sn?'':'ยังไม่มี S/N')]
-          :[ib('pen','แก้ไขข้อมูล',`data-regedit="${esc(j.id)}"`),ib('file','คัดลอกที่อยู่โฟลเดอร์',`data-cpy="${esc(j.folderPath||'')}"`,j.folderPath?'':'ยังไม่มีที่อยู่โฟลเดอร์'),mnu([mi(`data-jdel="${esc(j.id)}"`,'trash','ย้ายไปถังขยะ',1)],'','ib')];
+        const acts=svc?[mnu([j.siteId?mi(`data-svnew="CM" data-sid="${esc(j.siteId)}"`,'wrench','บันทึกแจ้งซ่อม'):'',j.siteId?mi(`data-svnew="PM" data-sid="${esc(j.siteId)}"`,'check','บันทึกตรวจเช็ก'):'',sn?mi(`data-cpy="${esc(sn)}"`,'copy','คัดลอก S/N'):''],'','ib')]
+          :[mnu([mi(`data-regedit="${esc(j.id)}"`,'pen','แก้ไขข้อมูล'),j.folderPath?mi(`data-cpy="${esc(j.folderPath)}"`,'file','คัดลอกที่อยู่โฟลเดอร์'):'',canTrash('jobs')?'<hr>':'',canTrash('jobs')?mi(`data-jdel="${esc(j.id)}"`,'trash','ย้ายไปถังขยะ',1):''],'','ib')];
         const now=j.status==='active'?`${j.stage===ST.DOCS?'รอเอกสารขนานไฟ':'รอ'+ownerOf(j)} · ${days(j.stageSince)} วัน`:j.status==='lost'?(j.lostReason||''):j.status==='cancelled'?(j.cancelReason||''):'';
         const st=svc||isInstalled(j)&&j.status==='done'?(careTags(j)||jobPill(j)):jobPill(j);
         const T=(v,cls)=>v?`<td class="${cls||''}" title="${esc(v)}">${esc(v)}</td>`:`<td class="${cls||''}"><span class="nil">—</span></td>`;
@@ -3799,9 +3814,9 @@ function viewForms(){
     </div>
     ${list.length?`<div class="jtw"><table class="jt jt2 jt2f"><thead><tr><th class="c-cd">รหัส</th><th class="c-site">ชื่อเอกสาร</th><th class="c-ct">หมวด</th><th class="c-us">ใช้ตอนไหน</th><th class="c-dt">อัปเดต</th><th class="c-act">จัดการ</th></tr></thead><tbody>
       ${list.map(x=>{const T=(v,cls)=>v?`<td class="${cls}" title="${esc(v)}">${esc(v)}</td>`:`<td class="${cls}"><span class="nil">—</span></td>`;
-        return `<tr><td class="c-cd m"><b class="fmcd">${esc(x.code||'—')}</b>${x.rev?`<small>${esc(x.rev)}</small>`:''}</td>
+        return `<tr data-fmrow="${esc(x.id)}" tabindex="0" aria-label="${esc(x.name)}"><td class="c-cd m"><b class="fmcd">${esc(x.code||'—')}</b>${x.rev?`<small>${esc(x.rev)}</small>`:''}</td>
         <td class="c-site"><b title="${esc(x.name)}">${esc(x.name)}</b></td>${T(x.cat,'c-ct m')}${T(x.used,'c-us m')}${T(x.updatedAt?kbDate(x.updatedAt):'','c-dt m')}
-        <td class="c-act"><div class="ibs">${isWeb(x.file)?`<a class="ib" href="${esc(x.file)}" target="_blank" rel="noopener" aria-label="เปิดไฟล์" title="เปิดไฟล์">${svg('eye','currentColor',2)}</a>`:`<button type="button" class="ib" disabled title="${x.file?'ไฟล์บน NAS เปิดจากเบราว์เซอร์ไม่ได้ ใช้ปุ่มคัดลอกแทน':'ยังไม่มีไฟล์'}" aria-label="เปิดไฟล์">${svg('eye','currentColor',2)}</button>`}${x.file?ib('copy',isWeb(x.file)?'คัดลอกลิงก์':'คัดลอกที่อยู่ไฟล์',`data-cpy="${esc(x.file)}"`):`<button type="button" class="ib" disabled title="ยังไม่มีไฟล์" aria-label="คัดลอก">${svg('copy','currentColor',2)}</button>`}${ib('pen','แก้ไข',`data-fmedit="${esc(x.id)}"`)}</div></td></tr>`}).join('')}
+        <td class="c-act"><div class="ibs">${mnu([isWeb(x.file)?`<a class="mi" role="menuitem" href="${esc(x.file)}" target="_blank" rel="noopener">${svg('eye','currentColor',2)}เปิดไฟล์</a>`:'',x.file?mi(`data-cpy="${esc(x.file)}"`,'copy',isWeb(x.file)?'คัดลอกลิงก์':'คัดลอกที่อยู่ไฟล์'):'',mi(`data-fmedit="${esc(x.id)}"`,'pen','แก้ไข'),canTrash('forms')?'<hr class="fmhr">':'',canTrash('forms')?mi(`data-fmdel="${esc(x.id)}"`,'trash','ย้ายไปถังขยะ',1):''],'','ib')}</div></td></tr>`}).join('')}
     </tbody></table></div>`:`<div class="empty">${all.length?'ไม่มีแบบฟอร์มที่ตรงกับคำค้น':'ยังไม่มีแบบฟอร์ม กด "เพิ่มแบบฟอร์ม" แล้วใส่ลิงก์หรือที่อยู่ไฟล์บน NAS'}</div>`}
   </section>`;
 }
@@ -3854,9 +3869,9 @@ function viewMeter(){
   <section class="card"><div class="phd"><div class="ptl">${svg('cal','currentColor',2)}ตารางการใช้เครื่อง 6 สัปดาห์</div><div class="mlg"><span><i class="booked"></i>จองแล้ว</span><span><i class="out"></i>ติดตั้งอยู่</span><span><i class="returned"></i>คืนแล้ว</span></div></div>${tl}</section>
   <section class="card tq" style="margin-top:16px"><div class="phd"><div class="ptl">${svg('list','currentColor',2)}รายการจอง</div><span class="sub">${list.length} รายการ</span></div>
     ${list.length?`<div class="jtw"><table class="jt jt2 jt2m"><thead><tr><th class="c-dv">เครื่อง</th><th class="c-site">ลูกค้า / ไซต์</th><th class="c-dt2">ช่วงวัน</th><th class="c-src">ที่มา</th><th class="c-st">สถานะ</th><th class="c-act">จัดการ</th></tr></thead><tbody>
-    ${list.map(b=>{const s2=st(b);return `<tr><td class="c-dv"><b class="mdv">${b.device||'—'}</b></td><td class="c-site"><b title="${esc(nm(b))}">${esc(nm(b))}</b>${b.borrower?`<small class="mtbw">ผู้ยืม ${esc(b.borrower)}</small>`:''}</td>
+    ${list.map(b=>{const s2=st(b);return `<tr data-mtedit="${esc(b.id)}" tabindex="0" aria-label="แก้ไขการจอง ${esc(nm(b))}"><td class="c-dv"><b class="mdv">${b.device||'—'}</b></td><td class="c-site"><b title="${esc(nm(b))}">${esc(nm(b))}</b>${b.borrower?`<small class="mtbw">ผู้ยืม ${esc(b.borrower)}</small>`:''}</td>
       <td class="m">${fd(b.from)} – ${fd(b.to)}</td><td class="m">${b.source==='job'?'ใบแจ้งงานสำรวจ':'ขอเฉพาะเครื่อง'}${b.team?' · '+esc(b.team):''}</td><td class="c-st"><span class="pill ${s2[0]}">${s2[1]}</span></td>
-      <td class="c-act"><div class="ibs">${ib('pen','แก้ไข',`data-mtedit="${esc(b.id)}"`)}${ib('bolt','ติดตั้งเครื่องแล้ว',`data-mtout="${esc(b.id)}"`,b.status!=='booked'||!b.device?'ใช้ได้เมื่อจองแล้ว':'')}${ib('check','รับเครื่องคืน',`data-mtret="${esc(b.id)}"`,b.status!=='out'?'ใช้ได้เมื่อติดตั้งอยู่':'')}${b.jobId?ib('eye','ดูงาน',`data-osel="${esc(b.jobId)}"`):ib('eye','','','ไม่ได้มาจากใบแจ้งงาน')}</div></td></tr>`}).join('')}
+      <td class="c-act"><div class="ibs">${mnu([mi(`data-mtedit="${esc(b.id)}"`,'pen','แก้ไข'),b.status==='booked'&&b.device?mi(`data-mtout="${esc(b.id)}"`,'bolt','ติดตั้งเครื่องแล้ว'):'',b.status==='out'?mi(`data-mtret="${esc(b.id)}"`,'check','รับเครื่องคืน'):'',b.jobId?mi(`data-osel="${esc(b.jobId)}"`,'eye','ดูงาน'):''],'','ib')}</div></td></tr>`}).join('')}
     </tbody></table></div>`:'<div class="empty">ยังไม่มีการจอง กด "จองเครื่อง" เพื่อเริ่ม</div>'}</section>`;
 }
 function viewKb(){
@@ -4398,20 +4413,23 @@ function viewCustomers(){
 
 /* ---------- settings ---------- */
 function profCard(){
-  const m=S.members[S.me.id]||{};const pv=S.pf2??m.photo??'';
-  return `<section class="card pad" style="display:flex;flex-direction:column;gap:16px;max-width:640px"><h2 style="margin:0;font-size:16px">โปรไฟล์</h2>
-    <div style="display:flex;gap:16px;align-items:center">
-      <label for="pfphoto" style="cursor:pointer;flex:none;position:relative"><span style="display:block;width:84px;height:84px;border-radius:50%;overflow:hidden;background:#eef0f3">${pv?`<img src="${esc(pv)}" alt="" style="width:100%;height:100%;object-fit:cover">`:avImg()}</span><span class="sub" style="display:block;text-align:center;margin-top:4px">เปลี่ยนรูป</span><input type="file" id="pfphoto" accept="image/*" hidden></label>
-      <div style="display:flex;flex-direction:column;gap:8px;flex:1">
-        <label class="fld" for="pfname">ชื่อที่แสดง<input id="pfname" value="${esc(S.pfn??m.name??nm(S.me.id)??'')}" maxlength="40"></label>
-        <span class="sub">${esc(S.me.email||'')}</span></div></div>
-    <div style="display:flex;gap:8px"><button class="btn pri" id="pfsave" type="button">บันทึก</button>${pv&&!S.pf2?'<button class="btn" id="pfdelphoto" type="button">ใช้รูปเริ่มต้น</button>':''}</div></section>`;
+  const m=S.members[S.me.id]||{};const pv=S.pf2??m.photo??'';const name=m.name??nm(S.me.id)??'';
+  const av=sz=>`<span style="display:block;width:${sz}px;height:${sz}px;border-radius:50%;overflow:hidden;background:#eef0f3;flex:none">${pv?`<img src="${esc(pv)}" alt="" style="width:100%;height:100%;object-fit:cover">`:avImg()}</span>`;
+  if(!S.pfEdit)return `<section class="card pad stc" aria-label="โปรไฟล์"><div class="sth"><h2>โปรไฟล์</h2><button type="button" class="lnk" data-pfedit="1">แก้ไข</button></div>
+    <div class="stv">${av(64)}<div><b>${esc(name)}</b><span class="sub">${esc(S.me.email||'')}</span></div></div></section>`;
+  return `<section class="card pad stc editing" aria-label="โปรไฟล์"><div class="sth"><h2>โปรไฟล์</h2></div>
+    <div class="stv"><label for="pfphoto" style="cursor:pointer;flex:none">${av(84)}<span class="sub" style="display:block;text-align:center;margin-top:4px">เปลี่ยนรูป</span><input type="file" id="pfphoto" accept="image/*" hidden></label>
+      <div style="display:flex;flex-direction:column;gap:8px;flex:1"><label class="fld" for="pfname">ชื่อที่แสดง<input id="pfname" value="${esc(S.pfn??name)}" maxlength="40"></label>
+        <span class="sub">${esc(S.me.email||'')}</span>${pv&&!S.pf2?'<button class="lnk" id="pfdelphoto" type="button" style="align-self:flex-start">ใช้รูปเริ่มต้น</button>':''}</div></div>
+    <div class="save"><button class="btn sm" type="button" data-pfcancel="1">ยกเลิก</button><button class="btn pri sm" id="pfsave" type="button">บันทึก</button></div></section>`;
 }
 function shrinkImg(file,max){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.85))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(file)})}
 async function saveProfile(photo){
   const name=($('#pfname')?.value||'').trim();if(!name)return toast('ใส่ชื่อที่แสดงก่อน');
   const p={name};if(photo!==undefined)p.photo=photo;else if(S.pf2)p.photo=S.pf2;
-  try{await S.db.call('profile',p);S.pf2=null;S.pfn=null;S.names[S.me.id]=name;S.db.refresh();toast('บันทึกโปรไฟล์แล้ว');render()}catch(e){showErr(e,'บันทึกไม่ได้')}
+  const m0=S.members[S.me.id]||{},old={name:m0.name||nm(S.me.id)||name,photo:m0.photo||''};
+  try{await S.db.call('profile',p);S.pf2=null;S.pfn=null;S.pfEdit=false;S.names[S.me.id]=name;S.db.refresh();render();
+    undoable('บันทึกโปรไฟล์แล้ว',async()=>{await S.db.call('profile',old);S.names[S.me.id]=old.name;S.db.refresh();render()},'คืนโปรไฟล์เดิมแล้ว')}catch(e){showErr(e,'บันทึกไม่ได้')}
 }
 function viewSettings(){
   const adm=S.me.owner||S.me.edit;const mem=Object.values(S.members);
@@ -4650,7 +4668,7 @@ async function saveMeterNow(){const v=readF('mtN');const E=$('#mtNE');const dev=
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{
   if(e.target.closest('.ibs a'))return;
-  const t=e.target.closest('[data-mpop],[data-mpy],[data-mpick],[data-mn],[data-bk],[data-jmo],[data-viewas],[data-nd],[data-nt],[data-nm],[data-copy],[data-go],[data-qclose],[data-cmo],[data-cnosv],[data-cst],[data-cnn],[data-cclr],[data-cnp],[data-edit],[data-qm],[data-qd],[data-status],[data-phase],[data-mine],[data-minetoggle],[data-clear],[data-kbt],[data-eqc],[data-eqnew],[data-eqedit],[data-eqdel],[data-jdel],[data-mtnew],[data-mtedit],[data-mtout],[data-mtret],[data-mtcancel],[data-sbtog],[data-eqview],[data-cpy],[data-eqdoc],[data-eqx],[data-eqt],[data-hday],[data-qv],[data-qstep],[data-qtoday],[data-jv],[data-cday],[data-wbt],[data-fmnew],[data-fmedit],[data-fmdel],[data-fmc],[data-eqjobs],[data-qk],[data-qsel],[data-sst],[data-osel],[data-dtab],[data-regedit],[data-impedit],[data-svnew],[data-svedit],[data-svdel],[data-cpy],[data-mclose],[data-kbc],[data-kbs],[data-kbdel],[data-dclose],[data-sel],[data-jback],[data-rtab],[data-trres],[data-trdel],[data-trempty],[data-more],[data-pg],[data-pgto],[data-act],[data-save],[data-cancel],[data-mdel],[data-pdel],#padd,#ximport,[data-adduser]');
+  if(e.target.closest('a.mi[target]'))return;const t=e.target.closest('[data-mpop],[data-fmrow],[data-mpy],[data-mpick],[data-mn],[data-bk],[data-jmo],[data-viewas],[data-nd],[data-nt],[data-nm],[data-copy],[data-go],[data-qclose],[data-cmo],[data-cnosv],[data-cst],[data-cnn],[data-cclr],[data-cnp],[data-edit],[data-qm],[data-qd],[data-status],[data-phase],[data-mine],[data-minetoggle],[data-clear],[data-kbt],[data-eqc],[data-eqnew],[data-eqedit],[data-eqdel],[data-jdel],[data-mtnew],[data-mtedit],[data-mtout],[data-mtret],[data-mtcancel],[data-sbtog],[data-eqview],[data-cpy],[data-eqdoc],[data-eqx],[data-eqt],[data-hday],[data-qv],[data-qstep],[data-qtoday],[data-jv],[data-cday],[data-wbt],[data-fmnew],[data-fmedit],[data-fmdel],[data-fmc],[data-eqjobs],[data-qk],[data-qsel],[data-sst],[data-osel],[data-dtab],[data-regedit],[data-impedit],[data-svnew],[data-svedit],[data-svdel],[data-cpy],[data-mclose],[data-kbc],[data-kbs],[data-kbdel],[data-dclose],[data-sel],[data-jback],[data-rtab],[data-trres],[data-trdel],[data-trempty],[data-more],[data-pg],[data-pgto],[data-act],[data-save],[data-cancel],[data-mdel],[data-pdel],#padd,#ximport,[data-adduser]');
   if(!t)return;
   if(t.dataset.cnp){S.f.cnp=!S.f.cnp;render();return}
   if(t.dataset.mpop){const k=t.dataset.mpop;if(S.mp&&S.mp.key===k){S.mp=null}else{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+(S.f[k]||0));S.mp={key:k,y:d.getFullYear()}}render();return}
@@ -4700,6 +4718,7 @@ document.addEventListener('click',async e=>{
   if(t.dataset.jdel){const id=t.dataset.jdel;closeModal();try{await toTrash('jobs',id)}catch(e){return}S.sel=null;document.body.classList.remove('dlock');if(route()==='job-'+id)location.hash='jobs';else render();return}
   if(t.dataset.fmnew){openForm();return}
   if(t.dataset.fmedit){openForm(t.dataset.fmedit);return}
+  if(t.dataset.fmrow){const x=S.forms[t.dataset.fmrow]||{};if(!document.body.classList.contains('rocat'))openForm(x.id||t.dataset.fmrow);else if(isWeb(x.file))window.open(x.file,'_blank','noopener');return}
   if(t.dataset.fmc!==undefined){S.f.fmc=t.dataset.fmc;render();return}
   if(t.dataset.fmdel){const id=t.dataset.fmdel;closeModal();await toTrash('forms',id).catch(()=>{});return}
   if(t.dataset.eqdel){const id=t.dataset.eqdel;closeModal();await toTrash('products',id).catch(()=>{});return}
@@ -5069,15 +5088,19 @@ addEventListener('scroll',()=>{const b=document.body,y=scrollY;if(!b.classList.c
 
 /* รอบ 4w: เมนู "อื่นๆ" — วางแผงด้วย fixed · ปิดเมื่อคลิกนอก/เลือกรายการ/Esc/เลื่อนหน้า · กดปุ่ม ⋯ ในแถวตารางไม่เปิดแผงงาน */
 (function(){const closeAll=x=>document.querySelectorAll('details.mnu[open]').forEach(d=>{if(d!==x)d.open=false});
-document.addEventListener('toggle',e=>{const d=e.target;if(!d.matches||!d.matches('details.mnu')||!d.open)return;closeAll(d);
+const unclip=d=>{(d._uc||[]).forEach(([el,v])=>el.style.overflow=v);d._uc=null};
+document.addEventListener('toggle',e=>{const d=e.target;if(!d.matches||!d.matches('details.mnu'))return;if(!d.open){unclip(d);return}closeAll(d);
+  /* การ์ดที่ตัดขอบ (overflow) จะบังเมนู → เปิดขอบชั่วคราวระหว่างที่เมนูเปิด แล้วคืนค่าเดิมเมื่อปิด */
+  window._mnuT=Date.now();d._uc=[];for(let el=d.parentElement;el&&el!==document.body;el=el.parentElement){const c=getComputedStyle(el);if(c.overflow!=='visible'||c.overflowX!=='visible'||c.overflowY!=='visible'){d._uc.push([el,el.style.overflow]);el.style.overflow='visible'}}
+  const place=()=>{if(!d.open)return;
   const s=d.querySelector('summary').getBoundingClientRect(),p=d.querySelector('.mnu-p'),r=p.getBoundingClientRect();
   let top=s.bottom+6;if(top+r.height>innerHeight-8)top=Math.max(8,s.top-6-r.height);const left=Math.max(8,Math.min(innerWidth-r.width-8,s.right-r.width));
   let cb=d.parentElement,o={top:0,left:0};while(cb&&cb!==document.body){const c=getComputedStyle(cb);if(c.transform!=='none'||c.filter!=='none'||(c.backdropFilter&&c.backdropFilter!=='none')||(c.webkitBackdropFilter&&c.webkitBackdropFilter!=='none')||c.perspective!=='none'||/paint|layout|strict|content/.test(c.contain)){o=cb.getBoundingClientRect();break}cb=cb.parentElement}
-  p.style.top=(top-o.top)+'px';p.style.left=(left-o.left)+'px'},true);   /* ชดเชยกรอบที่มี backdrop-filter/transform (fixed จะอิงกรอบนั้นแทนจอ) */
+  p.style.top=(top-o.top)+'px';p.style.left=(left-o.left)+'px'};place();requestAnimationFrame(place)},true);   /* ชดเชยกรอบที่มี backdrop-filter/transform (fixed จะอิงกรอบนั้นแทนจอ) */
 document.addEventListener('click',e=>{const d=e.target.closest&&e.target.closest('details.mnu');closeAll(d);if(!d)return;
-  if(e.target.closest('.mi')){d.open=false;return}if(e.target.closest('summary'))e.stopPropagation()},true);
+  if(e.target.closest('.mi')){d.open=false;return}if(e.target.closest('summary')){window._mnuT=Date.now();e.stopPropagation()}},true);
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const d=document.querySelector('details.mnu[open]');if(!d)return;d.open=false;d.querySelector('summary').focus();e.stopPropagation()},true);
-addEventListener('scroll',()=>closeAll(null),true);addEventListener('resize',()=>closeAll(null));})();
+addEventListener('scroll',()=>{if(Date.now()-(window._mnuT||0)>250)closeAll(null)},true);addEventListener('resize',()=>closeAll(null));})();
 
 /* รอบ 5d (ui-design-principles ข้อ 38–39): error เป็นการ์ดภาษาคน (ไอคอน + หัวข้อ + บอกว่าทำอะไรต่อ + ปิดได้) แทนป้ายดำที่หายเอง */
 
