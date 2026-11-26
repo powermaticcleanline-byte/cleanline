@@ -2771,13 +2771,17 @@ function logRaw(act,text,extra={}){
 /* เลขใบงานไม่ซ้ำ: จองเลขใน jobnos/<เลข> แล้วอ่านกลับ ถ้ามีคนจองทับก็ขยับเลขถัดไป */
 const bumpNo=no=>no.slice(0,4)+String((+no.slice(4)||0)+1).padStart(3,'0');
 const snapData=sn=>{if(!sn)return null;const ex=typeof sn.exists==='function'?sn.exists():sn.exists;return ex===false?null:(sn.data?sn.data():null)};
+/* การจองเลขค้างอยู่จริงไหม: งานเจ้าของต้องยังอยู่ และใช้เลขนี้อยู่ (หรือเพิ่งจองไม่ถึง 10 นาที กำลังสร้างงาน)
+   งานที่ลบไปแล้ว / เปลี่ยนเลขไปแล้ว / จองแล้วไม่ได้ใช้ → ถือว่าเลขว่าง */
+const NO_HOLD=10*60e3;
+function noHeld(r,no,jid){if(!r||!r.jid||r.jid===jid)return false;const o=S.jobs[r.jid];if(!o)return false;return String(o.jobNo||'')===String(no)||Date.now()-(+r.at||0)<NO_HOLD}
 async function claimJobNo(jid){
   let no=nextJobNo();
   for(let a=0;a<10;a++){
     if(Object.values(S.jobs).some(x=>x.id!==jid&&x.jobNo===no)){no=bumpNo(no);continue}
     try{
       const ref=S.db.doc('jobnos/'+no);const cur=snapData(await ref.get());
-      if(cur&&cur.jid&&cur.jid!==jid){no=bumpNo(no);continue}
+      if(noHeld(cur,no,jid)){no=bumpNo(no);continue}
       await ref.set({jid,at:Date.now(),by:S.me.id||null});
       await new Promise(r=>setTimeout(r,600));
       const chk=snapData(await ref.get());
@@ -3510,6 +3514,7 @@ async function deleteJob(jid){const j=S.jobs[jid];if(!j)return;closeModal();
     if(j.siteId&&!others.some(o=>o.siteId===j.siteId)){del('sites/'+j.siteId);for(const x of Object.values(S.services||{}).filter(x=>x.siteId===j.siteId))del('services/'+x.id)}
     if(j.customerId&&!others.some(o=>o.customerId===j.customerId))del('customers/'+j.customerId);
     await wMany(L);
+    if(j.jobNo)try{await S.db.doc('jobnos/'+j.jobNo).set({jid:null,freedAt:Date.now(),by:S.me.id||null})}catch(e){} /* ลบงานแล้วคืนเลขใบงาน */
     S.sel=null;document.body.classList.remove('dlock');if(route().startsWith('job-'))location.hash='jobs';else render();toast('ลบงานแล้ว');
   }catch(e){}
 }
@@ -4726,7 +4731,7 @@ async function saveSec(id){
     if(!/^\d{7}$/.test(noNew)){toast('เลขใบงานต้องเป็นตัวเลข 7 หลัก (ปี 2 + เดือน 2 + ลำดับ 3) เช่น '+nextJobNo());return}
     const dupJ=Object.values(S.jobs).find(x=>x.id!==j.id&&String(x.jobNo||'')===noNew);
     if(dupJ){toast('เลข '+noNew+' ซ้ำกับงาน '+(dupJ.title||dupJ.id));return}
-    try{const r=snapData(await S.db.doc('jobnos/'+noNew).get());if(r&&r.jid&&r.jid!==j.id){toast('เลข '+noNew+' ถูกจองให้งานอื่นแล้ว');return}}catch(e){}
+    try{const r=snapData(await S.db.doc('jobnos/'+noNew).get());if(noHeld(r,noNew,j.id)){const o=S.jobs[r.jid];toast('เลข '+noNew+' ถูกจองให้งาน '+(o.title||o.jobNo||r.jid)+' แล้ว');return}}catch(e){}
     data.jobNo=noNew;
     if(!await confirmBox('เปลี่ยนเลขใบงานเป็น '+noNew+'?',(noOld?'จาก '+noOld+' · ':'')+'ชื่อโฟลเดอร์งานใน Google Drive จะเปลี่ยนตาม'+(noOld?' · เลขเดิมจะว่างให้ใช้ใหม่ได้':''),'เปลี่ยนเลข','pri'))return;
   }
