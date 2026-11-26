@@ -388,6 +388,10 @@ tr[data-sel]{cursor:pointer}tr[data-sel].lastop td{background:#eef6e6!important;
 .rbody .sjl .sjn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rtl>div{display:grid;grid-template-columns:82px minmax(0,1fr);gap:12px;padding:11px 0;border-top:1px solid var(--line,#eceef1);font-size:14px;line-height:1.45}.rtl>div:first-child{border-top:0;padding-top:0}.rtl time{color:var(--mute,#6b7078);font-size:13px}.rtl b{font-weight:600}
 .rnote{display:flex;gap:8px;margin-top:14px}.rnote .search{height:40px;box-shadow:none;background:var(--hv);flex:1 1 auto;min-width:0;width:auto!important;max-width:none!important}.rnote .btn{flex:none}
+.trc{padding:6px 24px}.trr{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:14px;min-height:64px;border-top:1px solid var(--line,#eceef1)}.trr:first-child{border-top:0}
+.trn{display:flex;flex-direction:column;min-width:0}.trn b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.trn small{font-size:13px;color:var(--mut,#606f85)}.trc .trx{all:unset;box-sizing:border-box;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:#b42318}.trc .trx:hover{background:#fdecec}.trc .trx:focus-visible{outline:2px solid var(--focus,#2f6b0a);outline-offset:2px}.trc .trx svg{width:20px;height:20px}
+.trem{display:flex;flex-direction:column;align-items:center;gap:6px;padding:48px 16px}.trem svg{width:40px;height:40px;color:#b8bcc4}
+@media (max-width:640px){.trr{grid-template-columns:minmax(0,1fr) auto auto;padding:10px 0}.trr .pill{grid-column:1/-1;justify-self:start}}
 .need-hint{font-size:13px;color:var(--mute,#6b7078);margin:2px 0 4px}
 .jno{font-size:14px;font-weight:700;color:var(--mut)}
 .jst{display:flex;align-items:center;gap:28px;padding:16px 24px;flex-wrap:wrap}
@@ -2681,8 +2685,41 @@ function afterHist(j,e,p){
   setTimeout(()=>{const u=S.undo;if(u&&!u.shown&&u.id===j.id)toast(u.text.length>48?u.text.slice(0,46)+'…':u.text)},80);
   const big=p.status==='done'?'ปิดงานแล้ว':p.stage===ST.INSREQ&&j.stage===ST.OFFER?'ลูกค้าตกลงแล้ว':p.stage===ST.OFFER&&j.stage===ST.SURVEY?'สำรวจเสร็จ ส่งให้เซลส์แล้ว':'';
   if(big)celebrate(big,j.title||'')}
-async function doUndo(){const u=S.undo;S.undo=null;$('#toast').hidden=true;const j=u&&S.jobs[u.id];if(!j)return;
+async function doUndo(){const u=S.undo;S.undo=null;$('#toast').hidden=true;if(u&&u.fn){try{await u.fn();toast(u.done||'เลิกทำแล้ว')}catch(e){if(!e.cl)showErr(e,'เลิกทำไม่ได้')}return}const j=u&&S.jobs[u.id];if(!j)return;
   try{await pushHist(j,ev('back','เลิกทำ: '+u.text),u.prev);toast('เลิกทำแล้ว งานกลับไปขั้นเดิม')}catch(e){if(!e.cl)showErr(e,'เลิกทำไม่ได้')}}
+/* บันทึก/ลบแล้วมีแถบ "เลิกทำ" ทุกครั้ง (แบบ Gmail) */
+function undoable(text,fn,done){S.undo={fn,text,done,at:Date.now(),shown:0};toast(text)}
+/* ถังขยะ (แบบ Drive): ลบ = ย้ายไปถังขยะ 30 วัน กู้คืนได้ · ลบถาวรได้จากหน้าถังขยะ */
+const TRASH_COLS={jobs:'งาน',services:'งานบริการ',articles:'บทความ',forms:'แบบฟอร์ม',products:'รุ่นสินค้า'};
+const TRASH_DAYS=30;
+function canTrash(col){const r=S.me&&S.me.role;return r==='sysadmin'||(r==='admin'&&['jobs','services','articles'].includes(col))}
+function trashTitle(col,x){if(!x)return '';return col==='jobs'?(x.title||cOf(x).name||'งาน'):col==='services'?(((mainJob(x.siteId)||{}).title||'')+(x.type==='PM'?' · ตรวจเช็ก':' · แจ้งซ่อม')+(x.date?' '+fd(x.date):'')).replace(/^ · /,''):col==='articles'?(x.title||'ไม่มีชื่อเรื่อง'):col==='forms'?(x.name||'แบบฟอร์ม'):col==='products'?(x.model||'รุ่นสินค้า'):''}
+async function toTrash(col,id){const x=(S[col]||{})[id];if(!x)return;const name=trashTitle(col,x);const path=col+'/'+id;
+  await w(path,{trashedAt:Date.now(),trashedBy:S.me.id||null});
+  undoable('ย้าย “'+(name.length>36?name.slice(0,34)+'…':name)+'” ไปถังขยะแล้ว',()=>w(path,{trashedAt:null,trashedBy:null}),'กู้คืนแล้ว')}
+async function restoreTrash(col,id){const x=((S.trash||{})[col]||{})[id];if(!x)return;await w(col+'/'+id,{trashedAt:null,trashedBy:null});
+  undoable('กู้คืน “'+trashTitle(col,x)+'” แล้ว',()=>w(col+'/'+id,{trashedAt:Date.now(),trashedBy:S.me.id||null}),'ย้ายกลับไปถังขยะแล้ว')}
+/* ลบถาวร: งาน = ลบงาน + ข้อมูลที่ผูกอยู่ (เหมือนลบงานแบบเดิม) */
+async function purge(col,id){const j=((S.trash||{})[col]||{})[id];if(!j)return;
+  if(col!=='jobs')return w(col+'/'+id,null,'delete');
+  const L=[],seen=new Set(),del=p=>{if(!seen.has(p)){seen.add(p);L.push([p,null,'delete'])}};
+  for(const b of Object.values(S.meters||{}).filter(b=>b.jobId===id))del('meters/'+b.id);
+  for(const x of [...Object.values(S.services||{}),...Object.values((S.trash||{}).services||{})].filter(x=>x.jobId===id))del('services/'+x.id);
+  const others=[...Object.values(S.jobs),...Object.values((S.trash||{}).jobs||{})].filter(o=>o.id!==id);
+  del('jobs/'+id);
+  if(j.siteId&&!others.some(o=>o.siteId===j.siteId)){del('sites/'+j.siteId);for(const x of Object.values(S.services||{}).filter(x=>x.siteId===j.siteId))del('services/'+x.id)}
+  if(j.customerId&&!others.some(o=>o.customerId===j.customerId))del('customers/'+j.customerId);
+  await wMany(L);
+  if(j.jobNo)try{await S.db.doc('jobnos/'+j.jobNo).set({jid:null,freedAt:Date.now(),by:S.me.id||null})}catch(e){}}
+function trashList(){const out=[];for(const col of Object.keys(TRASH_COLS))for(const x of Object.values((S.trash||{})[col]||{}))if(canTrash(col))out.push({col,x,left:Math.max(0,TRASH_DAYS-Math.floor((Date.now()-(+x.trashedAt||0))/864e5))});return out.sort((a,b)=>(+b.x.trashedAt||0)-(+a.x.trashedAt||0))}
+/* ครบ 30 วัน → ลบถาวรเอง (ทำครั้งเดียวต่อการเปิดแอป โดยคนที่มีสิทธิ์ลบ) */
+async function autoPurge(){for(const t of trashList().filter(t=>t.left<=0)){try{await purge(t.col,t.x.id)}catch(e){}}}
+function viewTrash(){const L=trashList();
+  const row=t=>{const by=t.x.trashedBy?nm(t.x.trashedBy):'';const ago=Math.floor((Date.now()-(+t.x.trashedAt||0))/864e5);
+    return `<div class="trr"><span class="pill gy">${TRASH_COLS[t.col]}</span><span class="trn"><b>${esc(trashTitle(t.col,t.x))}</b><small>${by?'ลบโดย '+esc(by)+' · ':''}${ago?ago+' วันก่อน':'วันนี้'} · เหลือ ${t.left} วัน</small></span>
+      <button type="button" class="btn sm" data-trres="${t.col}/${esc(t.x.id)}">กู้คืน</button><button type="button" class="ib trx" data-trdel="${t.col}/${esc(t.x.id)}" aria-label="ลบถาวร" title="ลบถาวร">${svg('trash','currentColor',2)}</button></div>`};
+  return pageHead('ถังขยะ','ของที่ลบจะอยู่ที่นี่ '+TRASH_DAYS+' วัน กู้คืนได้ หลังจากนั้นลบถาวรเอง',L.length?'<button type="button" class="btn" data-trempty="1">ล้างถังขยะ</button>':'')+
+    `<section class="card trc">${L.length?L.map(row).join(''):`<div class="empty trem">${svg('trash','currentColor',1.6)}<b>ถังขยะว่าง</b><span class="sub">ของที่ลบจะมาอยู่ที่นี่ และกู้คืนได้ภายใน ${TRASH_DAYS} วัน</span></div>`}</section>`}
 function celebrate(t,sub){document.getElementById('cele')?.remove();const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const C=['#7cc520','#458c10','#ffd23f','#ff8a3d','#3fa9f5','#ff6b8b'];
   const cf=rm?'':Array.from({length:26},(_,i)=>`<i style="--x:${((Math.random()*2-1)*170).toFixed(0)}px;--y:${(-110-Math.random()*130).toFixed(0)}px;--r:${(Math.random()*540-270).toFixed(0)}deg;background:${C[i%6]};animation-delay:${(Math.random()*90).toFixed(0)}ms"></i>`).join('');
@@ -2816,7 +2853,7 @@ async function pushHist(j,entry,patch={}){
 addEventListener('unhandledrejection',e=>{if(e.reason&&(e.reason.cl||e.reason.message==='no db'||e.reason.code))e.preventDefault()});
 function subscribe(col){
   S.db.collection(col).onSnapshot(snap=>{
-    const o={};snap.docs.forEach(d=>{o[d.id]={id:d.id,...d.data()}});if(col==='jobs'&&S.loaded.jobs&&S.me)liveFeed(S.jobs||{},o);S[col]=o;
+    const o={},tr={};snap.docs.forEach(d=>{const x={id:d.id,...d.data()};(x.trashedAt?tr:o)[d.id]=x});(S.trash=S.trash||{})[col]=tr;if(col==='jobs'&&S.loaded.jobs&&S.me)liveFeed(S.jobs||{},o);S[col]=o;
     if(!snap.metadata.fromCache)S.loaded[col]=true;
     if(col==='jobs')names(Object.values(o).flatMap(j=>(j.history||[]).slice(-5).map(h=>h.by)));
     if(col==='members')names(Object.keys(o));
@@ -3010,6 +3047,7 @@ function render(){
   else if(r==='service')h=viewJobs('service');
   else if(r==='kb')h=viewKb();
   else if(r==='meter')h=viewMeter();
+  else if(r==='trash')h=viewTrash();
   else if(r==='kb-new')h=viewKbEdit('');
   else if(r.startsWith('kb-edit-'))h=viewKbEdit(r.slice(8));
   else if(r.startsWith('kb-'))h=viewKbRead(r.slice(3));
@@ -3018,6 +3056,7 @@ function render(){
   else h=viewToday();
   app.innerHTML=hdr(r)+'<div class="pg">'+h+'</div>';
   if(r==='today'&&S.loaded.jobs&&!S.cuDone){S.cuDone=1;introToday(app)}
+  if(!S.purgeDone&&S.loaded.jobs&&S.me&&Object.keys(TRASH_COLS).some(canTrash)){S.purgeDone=1;setTimeout(autoPurge,4000)}
   phWrap(app);if(r==='today'&&S.loaded.jobs&&!tourSeen())setTimeout(tour,700);
   mountApps();
   setupStick();
@@ -3164,7 +3203,7 @@ function renderSide(r){
     ${SG('งานโซลาร์',SN('queue','#queue','cal','ปฏิทินงาน')+SN('jobs','#jobs','list','รายการงาน','data-mine="0"')+SN('mine','#jobs','inbox','งานที่รอดำเนินการ','data-mine="1"',mine))}
     ${SG('หลังการขาย',SN('service','#service','wrench','งานบริการ'))}
     ${SG('ยืม-คืนอุปกรณ์',SN('meter','#meter','bolt','สมาร์ทมิเตอร์'))}
-    ${SG('คลังข้อมูล',SN('form','#kb','file','เอกสาร','data-kbt="form"')+SN('eq','#kb','layers','แคตตาล็อกสินค้า','data-kbt="eq"'))}
+    ${SG('คลังข้อมูล',SN('form','#kb','file','เอกสาร','data-kbt="form"')+SN('eq','#kb','layers','แคตตาล็อกสินค้า','data-kbt="eq"')+(Object.keys(TRASH_COLS).some(canTrash)?SN('trash','#trash','trash','ถังขยะ','',trashList().length||''):''))}
     <div class="sft"><button type="button" class="sbtog" data-sbtog="1" aria-expanded="${!document.body.classList.contains('sbmin')}" title="${document.body.classList.contains('sbmin')?'ขยายเมนู':'ย่อเมนู'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/><path class="sbar" d="M15 10l-2 2 2 2"/></svg><span>ย่อเมนู</span></button></div>`;
   $('#nav2').innerHTML='';
 }
@@ -3360,7 +3399,7 @@ function viewJobs(mode){
         const tel=c.phone?`<a class="ib" href="tel:${esc(String(c.phone).replace(/[^\d+]/g,''))}" aria-label="โทร ${esc(c.phone)}" title="โทร ${esc(c.phone)}">${svg('phone','currentColor',2)}</a>`:ib('phone','','','ยังไม่มีเบอร์โทร');
         const view=ib('eye','ดูรายละเอียด',`data-sel="${esc(j.id)}"`);
         const acts=svc?[view,ib('wrench','บันทึกแจ้งซ่อม',`data-svnew="CM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('check','บันทึกตรวจเช็ก',`data-svnew="PM" data-sid="${esc(j.siteId||'')}"`,j.siteId?'':'ยังไม่มีข้อมูลไซต์'),ib('copy','คัดลอก S/N',`data-cpy="${esc(sn)}"`,sn?'':'ยังไม่มี S/N')]
-          :[ib('pen','แก้ไขข้อมูล',`data-regedit="${esc(j.id)}"`),ib('file','คัดลอกที่อยู่โฟลเดอร์',`data-cpy="${esc(j.folderPath||'')}"`,j.folderPath?'':'ยังไม่มีที่อยู่โฟลเดอร์'),mnu([mi(`data-jdel="${esc(j.id)}"`,'trash','ลบงาน',1)],'','ib')];
+          :[ib('pen','แก้ไขข้อมูล',`data-regedit="${esc(j.id)}"`),ib('file','คัดลอกที่อยู่โฟลเดอร์',`data-cpy="${esc(j.folderPath||'')}"`,j.folderPath?'':'ยังไม่มีที่อยู่โฟลเดอร์'),mnu([mi(`data-jdel="${esc(j.id)}"`,'trash','ย้ายไปถังขยะ',1)],'','ib')];
         const now=j.status==='active'?`${j.stage===ST.DOCS?'รอเอกสารขนานไฟ':'รอ'+ownerOf(j)} · ${days(j.stageSince)} วัน`:j.status==='lost'?(j.lostReason||''):j.status==='cancelled'?(j.cancelReason||''):'';
         const st=svc||isInstalled(j)&&j.status==='done'?(careTags(j)||jobPill(j)):jobPill(j);
         const T=(v,cls)=>v?`<td class="${cls||''}" title="${esc(v)}">${esc(v)}</td>`:`<td class="${cls||''}"><span class="nil">—</span></td>`;
@@ -3982,7 +4021,7 @@ function viewJob(id){
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>${badTitle(j.title)&&autoTitle(c)&&!isSales()?`<button type="button" class="lnk" data-act="fixtitle" style="display:block;margin:2px 0 6px">ใช้ชื่อลูกค้าเป็นชื่องาน · ${esc(autoTitle(c))}</button>`:''}
       <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p>${j.equipment&&j.equipment.plantName?`<p class="jplant">Plant <b>${esc(j.equipment.plantName)}</b></p>`:''}</div></div>
     <div class="pha">${navCtl(j.id)}${pinBtn(j)}${j.folderUrl&&safeUrl(j.folderUrl)?`<button class="btn" data-files="${esc(j.id)}">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</button>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
-      return mnu([fx?mi(`data-fname="${esc(j.id)}"`,'pen','เปลี่ยนชื่อโฟลเดอร์'):'',fx&&(cx||dx)?'<hr>':'',cx?mi('data-act="cancel"','xc','ยกเลิกคิว',1):'',dx?mi(`data-jdel="${esc(j.id)}"`,'trash','ลบงาน',1):''].filter(x=>x!=='<hr>'||fx&&(cx||dx)),'อื่นๆ')})()}</div></div>
+      return mnu([fx?mi(`data-fname="${esc(j.id)}"`,'pen','เปลี่ยนชื่อโฟลเดอร์'):'',fx&&(cx||dx)?'<hr>':'',cx?mi('data-act="cancel"','xc','ยกเลิกคิว',1):'',dx?mi(`data-jdel="${esc(j.id)}"`,'trash','ย้ายไปถังขยะ',1):''].filter(x=>x!=='<hr>'||fx&&(cx||dx)),'อื่นๆ')})()}</div></div>
   ${j.status==='active'?`<section class="card jst">
     <div class="jsc"><span class="sub">ขั้นปัจจุบัน</span><span class="pill ${PHC2[phaseOf(n)?.k]||'gy'} big${S.stAnim&&S.stAnim.id===j.id?' pp':''}">${esc(st.name)}</span></div>
     <div class="jsc"><span class="sub">ผู้รับผิดชอบ</span><b>${mineNow?'คุณ':esc(ownerOf(j))}</b></div>
@@ -4611,7 +4650,7 @@ async function saveMeterNow(){const v=readF('mtN');const E=$('#mtNE');const dev=
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{
   if(e.target.closest('.ibs a'))return;
-  const t=e.target.closest('[data-mpop],[data-mpy],[data-mpick],[data-mn],[data-bk],[data-jmo],[data-viewas],[data-nd],[data-nt],[data-nm],[data-copy],[data-go],[data-qclose],[data-cmo],[data-cnosv],[data-cst],[data-cnn],[data-cclr],[data-cnp],[data-edit],[data-qm],[data-qd],[data-status],[data-phase],[data-mine],[data-minetoggle],[data-clear],[data-kbt],[data-eqc],[data-eqnew],[data-eqedit],[data-eqdel],[data-jdel],[data-mtnew],[data-mtedit],[data-mtout],[data-mtret],[data-mtcancel],[data-sbtog],[data-eqview],[data-cpy],[data-eqdoc],[data-eqx],[data-eqt],[data-hday],[data-qv],[data-qstep],[data-qtoday],[data-jv],[data-cday],[data-wbt],[data-fmnew],[data-fmedit],[data-fmdel],[data-fmc],[data-eqjobs],[data-qk],[data-qsel],[data-sst],[data-osel],[data-dtab],[data-regedit],[data-impedit],[data-svnew],[data-svedit],[data-svdel],[data-cpy],[data-mclose],[data-kbc],[data-kbs],[data-kbdel],[data-dclose],[data-sel],[data-jback],[data-rtab],[data-more],[data-pg],[data-pgto],[data-act],[data-save],[data-cancel],[data-mdel],[data-pdel],#padd,#ximport,[data-adduser]');
+  const t=e.target.closest('[data-mpop],[data-mpy],[data-mpick],[data-mn],[data-bk],[data-jmo],[data-viewas],[data-nd],[data-nt],[data-nm],[data-copy],[data-go],[data-qclose],[data-cmo],[data-cnosv],[data-cst],[data-cnn],[data-cclr],[data-cnp],[data-edit],[data-qm],[data-qd],[data-status],[data-phase],[data-mine],[data-minetoggle],[data-clear],[data-kbt],[data-eqc],[data-eqnew],[data-eqedit],[data-eqdel],[data-jdel],[data-mtnew],[data-mtedit],[data-mtout],[data-mtret],[data-mtcancel],[data-sbtog],[data-eqview],[data-cpy],[data-eqdoc],[data-eqx],[data-eqt],[data-hday],[data-qv],[data-qstep],[data-qtoday],[data-jv],[data-cday],[data-wbt],[data-fmnew],[data-fmedit],[data-fmdel],[data-fmc],[data-eqjobs],[data-qk],[data-qsel],[data-sst],[data-osel],[data-dtab],[data-regedit],[data-impedit],[data-svnew],[data-svedit],[data-svdel],[data-cpy],[data-mclose],[data-kbc],[data-kbs],[data-kbdel],[data-dclose],[data-sel],[data-jback],[data-rtab],[data-trres],[data-trdel],[data-trempty],[data-more],[data-pg],[data-pgto],[data-act],[data-save],[data-cancel],[data-mdel],[data-pdel],#padd,#ximport,[data-adduser]');
   if(!t)return;
   if(t.dataset.cnp){S.f.cnp=!S.f.cnp;render();return}
   if(t.dataset.mpop){const k=t.dataset.mpop;if(S.mp&&S.mp.key===k){S.mp=null}else{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+(S.f[k]||0));S.mp={key:k,y:d.getFullYear()}}render();return}
@@ -4657,13 +4696,13 @@ document.addEventListener('click',async e=>{
   if(t.dataset.mtedit){openMeter(t.dataset.mtedit);return}
   if(t.dataset.mtout){await w('meters/'+t.dataset.mtout,{status:'out',outAt:today()}).then(()=>toast('บันทึกว่าติดตั้งเครื่องแล้ว'),()=>{});return}
   if(t.dataset.mtret){await w('meters/'+t.dataset.mtret,{status:'returned',returnedAt:today()}).then(()=>toast('รับเครื่องคืนแล้ว'),()=>{});return}
-  if(t.dataset.sbtog){const m=!document.body.classList.contains('sbmin');document.body.classList.toggle('sbmin',m);try{localStorage.setItem('cl.sbmin',m?'1':'0')}catch(x){}t.setAttribute('aria-expanded',String(!m));t.title=m?'ขยายเมนู':'ย่อเมนู';return}if(t.dataset.mtcancel){const id=t.dataset.mtcancel;closeModal();if(!await confirmBox('ยกเลิกการจองนี้?','เครื่องจะว่างในช่วงวันนั้นทันที','ยกเลิกการจอง'))return;await w('meters/'+id,{status:'cancel'}).then(()=>toast('ยกเลิกแล้ว'),()=>{});return}
-  if(t.dataset.jdel){deleteJob(t.dataset.jdel);return}
+  if(t.dataset.sbtog){const m=!document.body.classList.contains('sbmin');document.body.classList.toggle('sbmin',m);try{localStorage.setItem('cl.sbmin',m?'1':'0')}catch(x){}t.setAttribute('aria-expanded',String(!m));t.title=m?'ขยายเมนู':'ย่อเมนู';return}if(t.dataset.mtcancel){const id=t.dataset.mtcancel;closeModal();const ps=(S.meters[id]||{}).status||null;await w('meters/'+id,{status:'cancel'}).then(()=>undoable('ยกเลิกการจองแล้ว เครื่องว่างในช่วงวันนั้น',()=>w('meters/'+id,{status:ps}),'คืนการจองแล้ว'),()=>{});return}
+  if(t.dataset.jdel){const id=t.dataset.jdel;closeModal();try{await toTrash('jobs',id)}catch(e){return}S.sel=null;document.body.classList.remove('dlock');if(route()==='job-'+id)location.hash='jobs';else render();return}
   if(t.dataset.fmnew){openForm();return}
   if(t.dataset.fmedit){openForm(t.dataset.fmedit);return}
   if(t.dataset.fmc!==undefined){S.f.fmc=t.dataset.fmc;render();return}
-  if(t.dataset.fmdel){const id=t.dataset.fmdel;const x=S.forms[id];closeModal();if(!await confirmBox('ลบแบบฟอร์มนี้?',`"${x?.name||''}" จะหายจากรายการ ไฟล์จริงบน NAS หรือลิงก์ไม่ถูกลบ`,'ลบแบบฟอร์ม'))return;await w('forms/'+id,null,'delete').then(()=>toast('ลบแล้ว'),()=>{});return}
-  if(t.dataset.eqdel){const id=t.dataset.eqdel;const p=S.products[id];closeModal();if(!await confirmBox('ลบรุ่นนี้?',`"${p?.model||''}" จะถูกลบออกจากคลังอุปกรณ์ ไซต์ที่ติดตั้งรุ่นนี้ไปแล้วไม่ได้รับผลกระทบ`,'ลบรุ่น'))return;await w('products/'+id,null,'delete').then(()=>toast('ลบแล้ว'),()=>{});return}
+  if(t.dataset.fmdel){const id=t.dataset.fmdel;closeModal();await toTrash('forms',id).catch(()=>{});return}
+  if(t.dataset.eqdel){const id=t.dataset.eqdel;closeModal();await toTrash('products',id).catch(()=>{});return}
   if(t.dataset.eqjobs){S.f.q=t.dataset.eqjobs;S.f.status='all';S.f.mine=false;S.f.phase='';return}
   if(t.dataset.qk){S.f.qk=t.dataset.qk;render();return}
   if(t.dataset.qv){S.f.qv=t.dataset.qv;render();return}
@@ -4677,13 +4716,16 @@ document.addEventListener('click',async e=>{
   if(t.dataset.impedit){openImpForm(t.dataset.impedit);return}
   if(t.dataset.svnew){openSvc(t.dataset.svnew,'',t.dataset.sid);return}
   if(t.dataset.svedit){openSvc('',t.dataset.svedit);return}
-  if(t.dataset.svdel){const id=t.dataset.svdel;closeModal();if(!await confirmBox('ลบรายการนี้?','รายการนี้จะหายจากประวัติไซต์ และกู้คืนไม่ได้','ลบรายการ'))return;await w('services/'+id,null,'delete').then(()=>toast('ลบแล้ว'),()=>{});return}
+  if(t.dataset.svdel){const id=t.dataset.svdel;closeModal();await toTrash('services',id).catch(()=>{});return}
   if(t.dataset.mclose){closeModal();return}
   if(t.dataset.kqc!==undefined){S.f.kqc=t.dataset.kqc;render();return}
   if(t.dataset.kbs){S.f.kbs=t.dataset.kbs;render();return}
-  if(t.dataset.kbdel){const a=S.articles[t.dataset.kbdel];if(!a)return;if(!await confirmBox('ลบบทความนี้?',`"${a.title||'ไม่มีชื่อเรื่อง'}" จะถูกลบออกจากคลังความรู้ และกู้คืนไม่ได้`,'ลบบทความ'))return;const id=t.dataset.kbdel;S.kbDirty=false;await w('articles/'+id,null,'delete').then(()=>{toast('ลบบทความแล้ว');location.hash='kb'},()=>{});return}
+  if(t.dataset.kbdel){const a=S.articles[t.dataset.kbdel];if(!a)return;const id=t.dataset.kbdel;S.kbDirty=false;try{await toTrash('articles',id)}catch(e){return}location.hash='kb';return}
   if(t.dataset.dclose){closeDrawer();return}
   if(t.dataset.jback!==undefined){jobBack();return}
+  if(t.dataset.trres){const [c,i]=t.dataset.trres.split('/');await restoreTrash(c,i).catch(()=>{});return}
+  if(t.dataset.trdel){const [c,i]=t.dataset.trdel.split('/');const x=((S.trash||{})[c]||{})[i];if(!x)return;if(!await confirmBox('ลบ “'+trashTitle(c,x)+'” ถาวร?','ลบแล้วกู้คืนไม่ได้อีก'+(c==='jobs'?' · ข้อมูลลูกค้า ไซต์ และงานบริการที่ไม่มีงานอื่นใช้ จะถูกลบด้วย · ไฟล์ใน Google Drive ยังอยู่':''),'ลบถาวร'))return;await purge(c,i).then(()=>toast('ลบถาวรแล้ว'),()=>{});return}
+  if(t.dataset.trempty){const L=trashList();if(!L.length)return;if(!await confirmBox('ล้างถังขยะ?','ทั้งหมด '+L.length+' รายการจะถูกลบถาวร กู้คืนไม่ได้อีก','ล้างถังขยะ'))return;for(const x of L){try{await purge(x.col,x.x.id)}catch(e){}}toast('ล้างถังขยะแล้ว');return}
   if(t.dataset.rtab){S.rtab=t.dataset.rtab;render();document.querySelector(`[data-rtab="${t.dataset.rtab}"]`)?.focus();return}
   if(t.dataset.sel){location.hash='job-'+t.dataset.sel;return}
   if(t.dataset.clear){Object.assign(S.f,{eng:'',phase:'',team:'',q:'',mine:false,status:'all',phAll:false,pg:0});render();return}
@@ -4761,7 +4803,7 @@ async function saveSec(id){
     data.jobNo=noNew;
     if(!await confirmBox('เปลี่ยนเลขใบงานเป็น '+noNew+'?',(noOld?'จาก '+noOld+' · ':'')+'ชื่อโฟลเดอร์งานใน Google Drive จะเปลี่ยนตาม'+(noOld?' · เลขเดิมจะว่างให้ใช้ใหม่ได้':''),'เปลี่ยนเลข','pri'))return;
   }
-  if(noNew===noOld&&!await confirmBox('บันทึกการแก้ไข "'+String(sec.title).replace(/\s*\(.*?\)/g,'')+'"?','จะเปลี่ยน: '+ch.join(', ')+' · ข้อมูลเดิมจะถูกแทนที่','บันทึก','pri'))return;
+  const undoL=[],w=async(p,patch,...r)=>{const [c,i]=String(p).split('/');const o=(S[c]||{})[i]||{};undoL.push([p,Object.fromEntries(Object.keys(patch).filter(k=>k!=='updatedAt').map(k=>[k,o[k]===undefined?null:o[k]]))]);return window.w(p,patch,...r)};
   try{
     if(sec.tgt==='customer'){if(!j.customerId)return;const oc=cOf(j);await w('customers/'+j.customerId,{...data,updatedAt:now});
       // ชื่องานที่ระบบตั้งจากชื่อลูกค้าเดิม (หรือชื่อหลอก) → เปลี่ยนตามชื่อใหม่ ทั้งงานนี้และงานอื่นของลูกค้าคนนี้ · ชื่อที่ตั้งเองไม่แตะ
@@ -4774,7 +4816,8 @@ async function saveSec(id){
     else if(sec.tgt==='job'){await w('jobs/'+j.id,{...data,updatedAt:now})}
     else{const k=sec.tgt.split('.')[1];const nd={...(j[k]||{}),...data};await w('jobs/'+j.id,{[k]:k==='equipment'?eqSync(nd):nd,updatedAt:now})}
     if(noNew!==noOld){try{await S.db.doc('jobnos/'+noNew).set({jid:j.id,at:Date.now(),by:S.me.id||null});if(noOld)await S.db.doc('jobnos/'+noOld).set({jid:null,freedAt:Date.now(),by:S.me.id||null,was:j.id})}catch(e){console.warn('jobnos',e)}}
-    S.dirty.delete(id);if(S.edit===id)S.edit=null;S.saved={sec:id,keys:chK,at:Date.now()};toast('บันทึกแล้ว');render();
+    S.dirty.delete(id);if(S.edit===id)S.edit=null;S.saved={sec:id,keys:chK,at:Date.now()};render();
+    const sname=String(sec.title).replace(/\s*\(.*?\)/g,'');if(noNew===noOld)undoable('บันทึก'+sname+'แล้ว',async()=>{for(const [p,o] of undoL.reverse())await window.w(p,{...o,updatedAt:Date.now()})},'คืนค่าเดิมแล้ว');else toast('บันทึกแล้ว');
   }catch(e){}
 }
 function nextJobNo(){

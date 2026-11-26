@@ -1034,7 +1034,7 @@ class ClaudeDbAdapter extends BaseAdapter{
     await new Promise(res=>{
       const t=setTimeout(res,10000);
       COLS.forEach(col=>this.db.collection(col).onSnapshot(snap=>{
-        const o={};snap.docs.forEach(d=>{o[d.id]={id:d.id,...d.data()}});this.c[col]=o;
+        const o={};snap.docs.forEach(d=>{const x={id:d.id,...d.data()};if(!x.trashedAt)o[d.id]=x});this.c[col]=o;   /* ของในถังขยะ (Management ลบแล้ว) ไม่แสดงใน Man */
         this.loaded.add(col);if(COLS_WAIT.every(c=>this.loaded.has(c))){clearTimeout(t);res()}
         this._emit();
       },e=>{console.warn(col,e);this.loaded.add(col);if(COLS_WAIT.every(c=>this.loaded.has(c))){clearTimeout(t);res()}}));
