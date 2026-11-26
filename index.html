@@ -377,6 +377,10 @@ main{padding:0;gap:0;max-width:none}
 .tqb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:16px 20px}
 /* job page */
 .jmeta{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+/* เปิดงานคลิกเดียว + ย้อนกลับ (แบบ Gmail) */
+.jhd{display:flex;align-items:flex-start;gap:10px}.jback{all:unset;box-sizing:border-box;flex:none;width:40px;height:40px;margin:-6px 0 0 -8px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--ink,#16171a)}.jback:hover{background:rgba(22,23,26,.06)}.jback:focus-visible{outline:2px solid var(--focus,#2f6b0a);outline-offset:2px}.jback svg{width:22px;height:22px}
+tr[data-sel]{cursor:pointer}tr[data-sel].lastop td{background:#eef6e6!important;transition:background .8s}
+.need-hint{font-size:13px;color:var(--mute,#6b7078);margin:2px 0 4px}
 .jno{font-size:14px;font-weight:700;color:var(--mut)}
 .jst{display:flex;align-items:center;gap:28px;padding:16px 24px;flex-wrap:wrap}
 .jsc{display:flex;flex-direction:column;gap:4px}
@@ -2629,6 +2633,7 @@ const IC={
  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
  cad:'<path d="M4 20 12 4l8 16"/><path d="M8 14h8"/>',
  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+ back:'<path d="M19 12H5M11 6l-6 6 6 6"/>',
  pin:'<path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
  bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
  cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
@@ -2964,6 +2969,13 @@ function tour(){if(tourSeen()||document.getElementById('tour')||route()!=='today
   cd.addEventListener('click',e=>{if(e.target.closest('[data-tskip]'))end();else if(e.target.closest('[data-tnext]')){i++;i<ST5.length?show():end()}});
   addEventListener('resize',show);addEventListener('hashchange',end);document.addEventListener('keydown',key,true);show()}
 let drwFrom=null;
+/* ย้อนกลับแบบ Gmail: ← / Back ของเบราว์เซอร์ / Esc กลับไปหน้าเดิม ตัวกรองและตำแหน่งเลื่อนยังอยู่ */
+const NAV={prev:'',inApp:false,scr:{},fromJob:''};
+const ROUTE_NAME={today:'ภาพรวม',jobs:'รายการงาน',service:'งานบริการ',queue:'ปฏิทินงาน',customers:'ลูกค้า',meter:'สมาร์ทมิเตอร์'};
+function backTo(){return NAV.inApp&&NAV.prev&&!NAV.prev.startsWith('job-')?NAV.prev:(S.f&&S.f.mine?'jobs':'jobs')}
+function backLabel(){const r=backTo();return 'กลับไป'+(ROUTE_NAME[r]||'รายการงาน')}
+async function jobBack(){if(S.dirty&&S.dirty.size&&!await confirmBox('ทิ้งการแก้ไข?','ข้อมูลที่แก้ในหน้านี้ยังไม่ได้บันทึก','ทิ้ง','pri'))return;S.dirty.clear();S.edit=null;
+  if(NAV.inApp&&NAV.prev&&!NAV.prev.startsWith('job-'))history.back();else location.hash=backTo()}
 function openDrawer(id){drwFrom=id;S.sel=id;S.dtab=null;document.body.classList.add('dlock');render();setTimeout(()=>document.querySelector('.drx')?.focus(),0)}
 function closeDrawer(){const id=S.sel;S.sel=null;document.body.classList.remove('dlock');render();if(id)setTimeout(()=>document.querySelector(`tr[data-sel="${CSS.escape(id)}"]`)?.focus(),0)}
 let rq=0;function schedule(){cancelAnimationFrame(rq);rq=requestAnimationFrame(render)}
@@ -3039,7 +3051,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.pf){S.pf=false;re
   if(e.key==='Escape'&&S.sel){closeDrawer();return}
   if(e.key==='Escape'&&document.querySelector('.fmod')){closeModal();return}
   if(e.target.matches?.('.kd[data-qsel]')&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){e.preventDefault();const st={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key]||0;const d=new Date(e.target.dataset.qsel+'T00:00:00');d.setDate(d.getDate()+st);const k=isoOf(d);const el=document.querySelector(`.kd[data-qsel="${k}"]`);if(el&&!el.classList.contains('ko')){S.f.qsel=k;render();setTimeout(()=>document.querySelector('.kd.kon')?.focus(),0)}return}
-  if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('tr[data-sel]')){e.preventDefault();openDrawer(e.target.dataset.sel);return}
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('tr[data-sel]')){e.preventDefault();location.hash='job-'+e.target.dataset.sel;return}
+  if(e.key==='Escape'&&route().startsWith('job-')&&!document.querySelector('.fmod,#modal .modal,.mnu[open]')&&!S.mp&&!S.eqv&&!S.apps&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName||'')){e.preventDefault();jobBack();return}
   if(e.key==='Escape'&&S.mp){S.mp=null;render();return}if(e.key==='Escape'&&S.eqv){S.eqv=null;closeModal();return}if(e.key==='Escape'&&S.apps){S.apps=false;render();$('#appbtn')?.focus()}});
 function hdr(r){
   if(isSales())return hdrSales(r);
@@ -3343,7 +3356,7 @@ function viewJobs(mode){
         const now=j.status==='active'?`${j.stage===ST.DOCS?'รอเอกสารขนานไฟ':'รอ'+ownerOf(j)} · ${days(j.stageSince)} วัน`:j.status==='lost'?(j.lostReason||''):j.status==='cancelled'?(j.cancelReason||''):'';
         const st=svc||isInstalled(j)&&j.status==='done'?(careTags(j)||jobPill(j)):jobPill(j);
         const T=(v,cls)=>v?`<td class="${cls||''}" title="${esc(v)}">${esc(v)}</td>`:`<td class="${cls||''}"><span class="nil">—</span></td>`;
-        return `<tr data-sel="${esc(j.id)}" tabindex="0" class="${S.sel===j.id?'on':''} ${agCls(j)}" aria-label="ดูรายละเอียด ${esc(nm)}">
+        return `<tr data-sel="${esc(j.id)}" tabindex="0" class="${S.sel===j.id?'on':''}${S.lastOpen===j.id?' lastop':''} ${agCls(j)}" aria-label="เปิดงาน ${esc(nm)}">
         ${svc?'':T(j.jobNo?'#'+j.jobNo:'','c-no m')}
         <td class="c-site"><b title="${esc(nm)}">${esc(nm)}</b></td>
         ${svc?T(e.model||j.proposedModel,'m')+T(sn,'c-sn snm m')+T(kw?kw+' kW':'','c-kw m')+T(dd(j.installDate),'c-dt m')
@@ -3928,7 +3941,7 @@ function viewJob(id){
     else if(n===ST.COMM&&j.status==='active'){right=insFormCard(j,'');if(isImp(j)&&['admin','dispatch'].includes(myGroup()))right+=`<section class="act" aria-label="ติดตั้งเสร็จแล้ว"><div><h2>ติดตั้งเสร็จไปแล้ว</h2><span class="sub">สำหรับงานที่นำเข้าจาก Excel และติดตั้งเสร็จนอกระบบ · ไม่ต้องมีใบงานติดตั้ง · งานจะไปขั้น "${esc(STAGES[ST.DOCS].name)}" แล้วทีมใน Man อัปโหลด Single Line</span></div><div class="btns"><button class="btn" data-act="impins">ย้ายไป${esc(STAGES[ST.DOCS].name)}</button></div></section>`;}
     else    right=`<section class="act" aria-label="ขั้นปัจจุบัน">
       <div><h2>${n===LAST?'ปิดงาน':'ส่งต่อให้'+esc(nextRole)}</h2><span class="sub">ครบ ${done} จาก ${nd.length}</span></div>
-      ${nd.length?`<div class="pbar"><i style="width:${Math.round(done/nd.length*100)}%"></i></div><ul class="need">${nd.map(x=>`<li class="${x.ok?'ok':''}"><span class="k">${x.ok?'✓':''}</span>${esc(x.l)}</li>`).join('')}</ul>`:''}
+      ${nd.length?`<div class="pbar"><i style="width:${Math.round(done/nd.length*100)}%"></i></div>${curSecs.size?(done<nd.length?`<p class="need-hint">${curSecs.size===1?`กรอกในการ์ด “${esc(SECTIONS.find(x=>x.id===[...curSecs][0])?.title||'')}” ด้านซ้าย`:'กรอกในการ์ดด้านซ้าย'} · ยังขาด ${nd.length-done} ข้อ</p>`:''):`<ul class="need">${nd.map(x=>`<li class="${x.ok?'ok':''}"><span class="k">${x.ok?'✓':''}</span>${esc(x.l)}</li>`).join('')}</ul>`}`:''}
       <div class="btns">${btns}</div>
       ${act?'':`<span class="sub">รอ${esc(ownerOf(j))}ดำเนินการ</span>`}
     </section>`;
@@ -3950,10 +3963,10 @@ function viewJob(id){
   const hist=[...(j.history||[])].reverse();
   const PHC2={pre:'b',offer:'g',ins:'o',post:'v'};
   return `${datalists()}
-  <div class="ph"><div>
+  <div class="ph"><div class="jhd"><button type="button" class="jback" data-jback aria-label="${esc(backLabel())}" title="${esc(backLabel())} (Esc)">${svg('back','currentColor',2)}</button><div>
       <div class="jmeta"><span class="jno">#${esc(j.jobNo||'ยังไม่มีเลข')}</span>${j.salesTeam?teamTag(j.salesTeam):''}${j.request?.systemType?`<span class="pill gy">${esc(j.request.systemType)}</span>`:''}</div>
       <h1>${esc(j.title||c.name||'งานใหม่')}</h1>${badTitle(j.title)&&autoTitle(c)&&!isSales()?`<button type="button" class="lnk" data-act="fixtitle" style="display:block;margin:2px 0 6px">ใช้ชื่อลูกค้าเป็นชื่องาน · ${esc(autoTitle(c))}</button>`:''}
-      <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p>${j.equipment&&j.equipment.plantName?`<p class="jplant">Plant <b>${esc(j.equipment.plantName)}</b></p>`:''}</div>
+      <p>${esc([realName(c),s.area,j.proposedKw?j.proposedKw+' kW':'',s.phase?s.phase+' เฟส':'',s.utility].filter(Boolean).join(' · ')||'ยังไม่มีข้อมูลไซต์')}</p>${j.equipment&&j.equipment.plantName?`<p class="jplant">Plant <b>${esc(j.equipment.plantName)}</b></p>`:''}</div></div>
     <div class="pha">${navCtl(j.id)}${pinBtn(j)}${j.folderUrl&&safeUrl(j.folderUrl)?`<button class="btn" data-files="${esc(j.id)}">${svg('file','#16171a')}เปิดโฟลเดอร์งาน</button>`:(S.db&&S.db.folder?`<button class="btn" data-mkfolder="${esc(j.id)}">${svg('file','#16171a')}สร้างโฟลเดอร์งาน</button>`:'')}${j.installForm&&j.installForm.pdf&&safeUrl(j.installForm.pdf.url)?`<a class="btn" href="${esc(safeUrl(j.installForm.pdf.url))}" target="_blank" rel="noopener">${svg('file','#16171a')}ใบงานติดตั้ง (PDF)</a>`:''}${isImp(j)&&!isSales()?`<button class="btn" data-impedit="${esc(j.id)}">${svg('pen','currentColor',2)}แก้ไขข้อมูลงานนำเข้า</button>`:''}${canDraw()?`<a class="btn" href="${CADABRA}" target="_blank" rel="noopener">${svg('cad','#16171a')}เปิดแบบใน CADabra</a>`:''}${(()=>{const fx=j.folderUrl&&safeUrl(j.folderUrl)&&myRole()==='admin'&&j.folderId,cx=j.status==='active'&&j.stage<=ST.SURVEY&&canCancel(),dx=myRole()==='admin'&&S.db;
       return mnu([fx?mi(`data-fname="${esc(j.id)}"`,'pen','เปลี่ยนชื่อโฟลเดอร์'):'',fx&&(cx||dx)?'<hr>':'',cx?mi('data-act="cancel"','xc','ยกเลิกคิว',1):'',dx?mi(`data-jdel="${esc(j.id)}"`,'trash','ลบงาน',1):''].filter(x=>x!=='<hr>'||fx&&(cx||dx)),'อื่นๆ')})()}</div></div>
   ${j.status==='active'?`<section class="card jst">
@@ -4588,7 +4601,7 @@ async function saveMeterNow(){const v=readF('mtN');const E=$('#mtNE');const dev=
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{
   if(e.target.closest('.ibs a'))return;
-  const t=e.target.closest('[data-mpop],[data-mpy],[data-mpick],[data-mn],[data-bk],[data-jmo],[data-viewas],[data-nd],[data-nt],[data-nm],[data-copy],[data-go],[data-qclose],[data-cmo],[data-cnosv],[data-cst],[data-cnn],[data-cclr],[data-cnp],[data-edit],[data-qm],[data-qd],[data-status],[data-phase],[data-mine],[data-minetoggle],[data-clear],[data-kbt],[data-eqc],[data-eqnew],[data-eqedit],[data-eqdel],[data-jdel],[data-mtnew],[data-mtedit],[data-mtout],[data-mtret],[data-mtcancel],[data-sbtog],[data-eqview],[data-cpy],[data-eqdoc],[data-eqx],[data-eqt],[data-hday],[data-qv],[data-qstep],[data-qtoday],[data-jv],[data-cday],[data-wbt],[data-fmnew],[data-fmedit],[data-fmdel],[data-fmc],[data-eqjobs],[data-qk],[data-qsel],[data-sst],[data-osel],[data-dtab],[data-regedit],[data-impedit],[data-svnew],[data-svedit],[data-svdel],[data-cpy],[data-mclose],[data-kbc],[data-kbs],[data-kbdel],[data-dclose],[data-sel],[data-more],[data-pg],[data-pgto],[data-act],[data-save],[data-cancel],[data-mdel],[data-pdel],#padd,#ximport,[data-adduser]');
+  const t=e.target.closest('[data-mpop],[data-mpy],[data-mpick],[data-mn],[data-bk],[data-jmo],[data-viewas],[data-nd],[data-nt],[data-nm],[data-copy],[data-go],[data-qclose],[data-cmo],[data-cnosv],[data-cst],[data-cnn],[data-cclr],[data-cnp],[data-edit],[data-qm],[data-qd],[data-status],[data-phase],[data-mine],[data-minetoggle],[data-clear],[data-kbt],[data-eqc],[data-eqnew],[data-eqedit],[data-eqdel],[data-jdel],[data-mtnew],[data-mtedit],[data-mtout],[data-mtret],[data-mtcancel],[data-sbtog],[data-eqview],[data-cpy],[data-eqdoc],[data-eqx],[data-eqt],[data-hday],[data-qv],[data-qstep],[data-qtoday],[data-jv],[data-cday],[data-wbt],[data-fmnew],[data-fmedit],[data-fmdel],[data-fmc],[data-eqjobs],[data-qk],[data-qsel],[data-sst],[data-osel],[data-dtab],[data-regedit],[data-impedit],[data-svnew],[data-svedit],[data-svdel],[data-cpy],[data-mclose],[data-kbc],[data-kbs],[data-kbdel],[data-dclose],[data-sel],[data-jback],[data-more],[data-pg],[data-pgto],[data-act],[data-save],[data-cancel],[data-mdel],[data-pdel],#padd,#ximport,[data-adduser]');
   if(!t)return;
   if(t.dataset.cnp){S.f.cnp=!S.f.cnp;render();return}
   if(t.dataset.mpop){const k=t.dataset.mpop;if(S.mp&&S.mp.key===k){S.mp=null}else{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+(S.f[k]||0));S.mp={key:k,y:d.getFullYear()}}render();return}
@@ -4660,7 +4673,8 @@ document.addEventListener('click',async e=>{
   if(t.dataset.kbs){S.f.kbs=t.dataset.kbs;render();return}
   if(t.dataset.kbdel){const a=S.articles[t.dataset.kbdel];if(!a)return;if(!await confirmBox('ลบบทความนี้?',`"${a.title||'ไม่มีชื่อเรื่อง'}" จะถูกลบออกจากคลังความรู้ และกู้คืนไม่ได้`,'ลบบทความ'))return;const id=t.dataset.kbdel;S.kbDirty=false;await w('articles/'+id,null,'delete').then(()=>{toast('ลบบทความแล้ว');location.hash='kb'},()=>{});return}
   if(t.dataset.dclose){closeDrawer();return}
-  if(t.dataset.sel){openDrawer(t.dataset.sel);return}
+  if(t.dataset.jback!==undefined){jobBack();return}
+  if(t.dataset.sel){location.hash='job-'+t.dataset.sel;return}
   if(t.dataset.clear){Object.assign(S.f,{eng:'',phase:'',team:'',q:'',mine:false,status:'all',phAll:false,pg:0});render();return}
   if(t.dataset.more){S.f.limit+=40;render();return}
   if(t.dataset.pg||t.dataset.pgto!==undefined){S.f.pg=t.dataset.pgto!==undefined?+t.dataset.pgto:S.f.pg+ +t.dataset.pg;render();document.querySelector('.tq')?.scrollIntoView({block:'start',behavior:'smooth'});return}
@@ -4710,7 +4724,8 @@ function onFormSubmit(f,sub){const id=f.id;if(id==='mtF')return saveMeter();if(i
 document.addEventListener('submit',e=>{e.preventDefault();if(typeof e.target.onsubmit==='function')return;onFormSubmit(e.target,e.submitter)});
 /* ปุ่มบันทึกในฟอร์ม: เรียกเองแทนการ submit จริง (หน้าตัวอย่างในแชตบล็อกการ submit ฟอร์ม) · ตรวจช่องบังคับเหมือนเดิม */
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.form||b.type!=='submit')return;e.preventDefault();if(b.disabled)return;const f=b.form;if(!f.noValidate&&!f.checkValidity()){f.reportValidity();return}onFormSubmit(f,b)});
-window.addEventListener('hashchange',()=>{if(document.querySelector('.fmod'))closeModal();S.kbDirty=false;S.mp=null;if(route()!=='jobs'&&route()!=='service'&&!route().startsWith('site')){S.sel=null;document.body.classList.remove('dlock')}S.dirty.clear();S.edit=null;if(route()!=='new'){S.f.qd='';S.nf={}}else if(S.f.qd){S.nf={date:S.f.qd}}window.scrollTo(0,0);vt(render)});
+window.addEventListener('hashchange',()=>{const r2=route(),from=NAV.cur||'';NAV.scr[from]=scrollY;NAV.prev=from;NAV.cur=r2;NAV.inApp=true;NAV.fromJob=from.startsWith('job-')&&!r2.startsWith('job-')?from.slice(4):'';S.lastOpen=NAV.fromJob||null;if(document.querySelector('.fmod'))closeModal();S.kbDirty=false;S.mp=null;if(route()!=='jobs'&&route()!=='service'&&!route().startsWith('site')){S.sel=null;document.body.classList.remove('dlock')}S.dirty.clear();S.edit=null;if(route()!=='new'){S.f.qd='';S.nf={}}else if(S.f.qd){S.nf={date:S.f.qd}}const y=NAV.fromJob&&NAV.scr[r2]!=null?NAV.scr[r2]:0;window.scrollTo(0,0);vt(()=>{render();window.scrollTo(0,y);if(S.lastOpen){const tr=document.querySelector(`tr[data-sel="${CSS.escape(S.lastOpen)}"]`);if(tr)tr.focus({preventScroll:true});const id=S.lastOpen;setTimeout(()=>{if(S.lastOpen===id){S.lastOpen=null;document.querySelectorAll('tr.lastop').forEach(x=>x.classList.remove('lastop'))}},1600)}})});
+NAV.cur=route();
 
 async function saveSec(id){
   const j=S.jobs[route().slice(4)];if(!j)return;
