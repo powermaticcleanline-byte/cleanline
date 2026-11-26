@@ -832,6 +832,20 @@ html.desk .sheet{border-radius:24px;max-width:520px;max-height:calc(100vh - 64px
 html.desk #toast{left:calc(50% + var(--side)/2);bottom:32px}
 html.desk #errc{left:calc(var(--side) + 24px);right:24px;bottom:24px}
 html.desk .mev{padding-top:24px!important}
+/* วิเคราะห์โหลด: ฟอร์มซ้าย · ผลลัพธ์ขวา (ติดจอ) · รายงานอยู่กลาง */
+html.desk .ldesk{display:grid;grid-template-columns:minmax(360px,440px) minmax(0,1fr);gap:24px;align-items:start}
+html.desk .ldf>.card:last-child{margin-bottom:0}
+html.desk #lres{position:sticky;top:calc(var(--topb) + 72px)}
+html.desk #lres .card{margin-bottom:0}
+html.desk #lres .chero b{font-size:44px}
+html.desk #lres .cstat{max-width:640px;margin-left:auto;margin-right:auto}
+html.desk #lres .slb{display:grid;grid-template-columns:1fr 1fr;column-gap:32px}
+html.desk #lres .btn[data-lview]{max-width:360px;display:flex;margin-left:auto!important;margin-right:auto}
+html.desk .lrbar,html.desk #lrwrap{max-width:820px;margin-left:auto;margin-right:auto}
+html.desk .ldf .chips2{flex-wrap:wrap;overflow:visible}
+html.desk .lrbar{top:calc(var(--topb) + 64px)!important}
+html.desk #lrwrap{box-shadow:0 0 0 1px var(--dln),0 12px 32px -20px rgba(20,24,40,.35)}
+@media (max-width:1279px){html.desk .ldesk{grid-template-columns:minmax(0,1fr)}html.desk #lres{position:static}}
 html.desk .mehero{margin:0;border-radius:16px;background:#f5f7f2;color:var(--ink);padding:24px 24px 56px}
 html.desk .mehero::after{display:none}
 html.desk .mehero h1{color:var(--ink)}
@@ -2315,13 +2329,13 @@ function toolLoad(){
   const X=ld?lRun():null;
   const res=!ld?`<div class="card cnote">${ic('bolt')}<span>เลือกไฟล์ CSV จากมิเตอร์ แล้วเลือกระบบ จะเห็นค่าไฟที่ประหยัดได้ คืนทุน และดูรายงานก่อนบันทึกได้</span></div>`
     :(!X||X.need)?`<div class="card cnote">${ic('bolt')}<span>${esc(X&&X.need||'เลือก Package')}</span></div>`:lResult(X.R);
-  return `${up}${sys}<div id="lres">${res}</div>`;
+  return `<div class="ldesk"><div class="ldf">${up}${sys}</div><div id="lres">${res}</div></div>`;
 }
 function lResult(R){
   S.t._lres=R;const E=R.energy,m=R.money,b=R.bill;
   return `<section class="card cres">
     <div class="chero"><small>ประหยัดค่าไฟได้ประมาณ</small><b>${fmt(m.month)}<em> บาท/เดือน</em></b><span>ค่าไฟตอนนี้ ~${fmt(b.now)} เหลือประมาณ <strong>${fmt(Math.max(0,b.after))}</strong> บาท/เดือน (ลด ${fmt(b.cut*100)}%)</span></div>
-    ${lChart(R.series,{w:340,h:190,small:1})}${lLegend(R.series,1)}<div style="height:10px"></div>
+    ${DESK()?lChart(R.series,{w:698,h:285}):lChart(R.series,{w:340,h:190,small:1})}${lLegend(R.series,1)}<div style="height:10px"></div>
     <div class="cstat"><div><b>${fmt(R.payback,1)}</b><small>ปี คืนทุน</small></div><div><b>${fmt(m.year)}</b><small>บาท/ปี</small></div><div><b>${fmt(R.roi.pct*100)}%</b><small>ROI ${R.roi.years} ปี</small></div></div>
     <div class="slb">
      <div class="sr"><span>ใช้ไฟเฉลี่ย</span><b>${fmt(E.load,2)}<small>kWh/วัน</small></b></div>
@@ -2341,7 +2355,7 @@ function lResult(R){
 function lReportView(){
   const sv=S.ld.saved;
   setTimeout(lFit,0);
-  return `<div class="card" style="position:sticky;top:8px;z-index:5;display:grid;gap:8px">
+  return `<div class="card lrbar" style="position:sticky;top:8px;z-index:5;display:grid;gap:8px">
       <div style="display:flex;gap:8px"><button class="btn" data-lview="form">แก้ไข</button><span style="flex:1"></span>
       ${sv?`<button class="btn" data-open="${esc(sv.url)}">เปิดโฟลเดอร์</button>`:''}
       <button class="btn ${sv?'':'pri'}" data-lsave="1" ${S.ld.busy?'disabled':''}>${ic('check')}${S.ld.busy?esc(S.ld.busy):sv?'บันทึกอีก':'บันทึก'}</button></div>
@@ -2444,11 +2458,13 @@ function lChart(S2,o){
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="พฤติกรรมการใช้ไฟฟ้ารายนาที เทียบกับกำลังผลิต Solar" style="display:block">${g}${body}
     <text x="${L-6}" y="${T-6}" text-anchor="end" font-size="${small?9:12}" fill="#5C5D62">kW</text><text x="${W-R}" y="${H-2}" text-anchor="end" font-size="${small?9:12}" fill="#5C5D62">เวลา (น.)</text></svg>`;
 }
-function lLegend(S2,small){return `<div style="display:grid;grid-template-columns:repeat(${small?1:2},minmax(0,1fr));gap:${small?'2px':'4px 18px'};font-size:${small?12:13}px;color:#3d3e42;margin-top:6px">${lSerOn(S2).map(s=>`<span style="display:flex;align-items:center;gap:6px"><svg width="22" height="8" aria-hidden="true"><line x1="0" x2="22" y1="4" y2="4" stroke="${s.c}" stroke-width="${s.fill?6:2}" ${s.fill?'stroke-opacity=".45"':''} ${s.dash?`stroke-dasharray="${s.dash}"`:''}/></svg><span>${s.th}${small?'':` <small style="color:#6B6C71">· ${s.en}</small>`}</span></span>`).join('')}</div>`}
+function lLegend(S2,small){return `<div style="display:grid;grid-template-columns:repeat(${small?1:2},minmax(0,1fr));gap:${small?'2px':'4px 18px'};font-size:${small?12:13}px;color:#3d3e42;margin-top:6px">${lSerOn(S2).map(s=>`<span style="display:flex;align-items:center;gap:6px"><svg width="22" height="8" aria-hidden="true"><line x1="0" x2="22" y1="4" y2="4" stroke="${s.c}" stroke-width="${s.fill?6:2}" ${s.fill?'stroke-opacity=".45"':''} ${s.dash?`stroke-dasharray="${s.dash}"`:''}/></svg><span style="min-width:0">${s.th}${small?'':`<small style="display:block;color:#8a8b90;font-size:11px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.en}</small>`}</span></span>`).join('')}</div>`}
 /* ---------- รายงาน A4 2 หน้า (ดูในแอป + สร้าง PDF) · j = งานของไซต์ที่เลือกตอนบันทึก (ยังไม่เลือก = ไม่มีชื่อลูกค้า) ---------- */
 /* ฟอนต์รายงาน: Sarabun (Cadson Demak · SIL Open Font License · ไฟล์อยู่ในโฟลเดอร์ fonts/) */
 function lFontCss(){const u=f=>new URL('fonts/'+f,location.href).href,TH='U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC',LA='U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
   return [400,600,700].map(w=>`@font-face{font-family:'Sarabun';font-weight:${w};font-style:normal;font-display:block;src:url(${u('sarabun-thai-'+w+'-normal.woff2')}) format('woff2');unicode-range:${TH}}@font-face{font-family:'Sarabun';font-weight:${w};font-style:normal;font-display:block;src:url(${u('sarabun-latin-'+w+'-normal.woff2')}) format('woff2');unicode-range:${LA}}`).join('')}
+/* ช่วงวันที่สั้น: เดือนเดียวกัน → 18–22 พ.ย. 69 */
+function lRange(a,b){return a&&b&&a.slice(0,7)===b.slice(0,7)?`${+a.slice(8,10)}–${fd(b)}`:`${fd(a)} – ${fd(b)}`}
 function lReportHtml(R,j){
   const c=j?cOf(j):{},s=j?sOf(j):{},E=R.energy,m=R.money,b=R.bill,f0=v=>fmt(v),f2=v=>fmt(v,2);
   const logo=new URL('logo.webp',location.href).href,ff=lFontCss(),today=fd(isoOf(new Date()));
@@ -2462,13 +2478,13 @@ function lReportHtml(R,j){
 .pg{width:210mm;height:297mm;margin:12px auto;background:#fff;padding:11mm 13mm 9mm;display:flex;flex-direction:column;gap:14px;overflow:hidden}
 @media print{body{background:#fff}.pg{margin:0;page-break-after:always}.bar{display:none}}
 .hd{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:3px solid #92D400}.hd img{height:26px}.hd div{font-size:13px;color:#6B6C71;text-align:right;line-height:1.5}
-h1{margin:0;font-size:26px;line-height:1.3}h2{margin:0;font-size:18px;font-weight:600}.sub{font-size:13px;color:#6B6C71;margin-top:2px}
-.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.meta span{display:block;font-size:13px;color:#6B6C71}.meta b{font-size:14px}
+h1{margin:0;font-size:21px;font-weight:700;line-height:1.35;white-space:nowrap}h2{margin:0;font-size:18px;font-weight:600}.sub{font-size:13px;color:#6B6C71;margin-top:2px}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.meta .nw b{white-space:nowrap}.meta span{display:block;font-size:13px;color:#6B6C71}.meta b{font-size:14px}
 .hero{background:#F2F9E3;border-radius:12px;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .hero small{font-size:14px;color:#5C5D62}.hero .big{white-space:nowrap;font-size:47px;font-weight:700;color:#3F6B00;line-height:1.05}.hero .big i{font-size:20px;font-style:normal;font-weight:600}
 .kp{display:flex;gap:16px}.kp div{white-space:nowrap;padding-left:16px;border-left:1px solid #CFE3A8}.kp b{display:block;font-size:25px;line-height:1.2}.kp b i{font-size:14px;font-style:normal;font-weight:500}.kp span{font-size:13px;color:#5C5D62}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.st{border:1px solid #D9DADD;border-radius:8px;padding:8px 12px}.st span{display:block;font-size:13px;color:#5C5D62}.st b{font-size:22px}.st b i{font-size:13px;font-style:normal;font-weight:500;color:#5C5D62}.st.g b{color:#3F6B00}
+.st{border:1px solid #D9DADD;border-radius:8px;padding:8px 12px}.st span{display:block;font-size:13px;color:#5C5D62;line-height:1.35}.st span small{display:block;font-size:11px;color:#8a8b90;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.st b{font-size:22px}.st b i{font-size:13px;font-style:normal;font-weight:500;color:#5C5D62}.st.g b{color:#3F6B00}
 .lg{display:flex;gap:18px;font-size:13px;color:#5C5D62}table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;font-weight:500;color:#5C5D62;padding:7px 0;border-bottom:1px solid #D9DADD;width:34%}td{padding:7px 0;border-bottom:1px solid #D9DADD;font-weight:600}td.r{text-align:right}
 .roi{display:flex;align-items:center;justify-content:space-between;background:#F2F9E3;border-radius:8px;padding:12px 16px}.roi div{font-size:13px;color:#5C5D62;line-height:1.7}.roi b{font-size:34px;color:#3F6B00}
 .note{font-size:13px;color:#6B6C71;line-height:1.6;margin:0}.ft{margin-top:auto;padding-top:10px;border-top:1px solid #D9DADD;display:flex;justify-content:space-between;font-size:13px;color:#6B6C71}
@@ -2480,15 +2496,15 @@ h1{margin:0;font-size:26px;line-height:1.3}h2{margin:0;font-size:18px;font-weigh
 <style>${ff}${css}</style></head><body>
 <section class="pg">${hd(1)}
 <h1>รายงานพฤติกรรมการใช้ไฟฟ้า และประมาณการผลิตไฟฟ้าจาก Solar Rooftop</h1>
-<div class="meta"><div><span>ลูกค้า</span><b>${esc(c.name||'-')}</b></div><div><span>สถานที่ติดตั้ง</span><b>${esc([s.label,s.area].filter(Boolean).join(' · ')||'-')}</b></div><div><span>ช่วงตรวจวัด</span><b>${fd(R.from)} – ${fd(R.to)} (${R.days.length} วัน)</b></div><div><span>ระบบที่นำเสนอ</span><b>${sysName}</b></div></div>
+<div class="meta"><div><span>ลูกค้า</span><b>${esc(c.name||'-')}</b></div><div><span>สถานที่ติดตั้ง</span><b>${esc([s.label,s.area].filter(Boolean).join(' · ')||'-')}</b></div><div class="nw"><span>ช่วงตรวจวัด</span><b>${lRange(R.from,R.to)} · ${R.days.length} วัน</b></div><div><span>ระบบที่นำเสนอ</span><b>${sysName}</b></div></div>
 <div class="hero"><div><small>ประหยัดค่าไฟฟ้าได้ประมาณ</small><div class="big">${f0(m.month)} <i>บาท/เดือน</i></div></div>
 <div class="kp"><div><b>${f0(m.year)} <i>บาท</i></b><span>ประหยัดต่อปี</span></div><div><b>${fmt(R.payback,1)} <i>ปี</i></b><span>ระยะเวลาคืนทุน</span></div><div><b>${fmt(b.cut*100)}%</b><span>ค่าไฟลดลงต่อเดือน</span></div></div></div>
-<div><h2>กราฟที่ 1 พฤติกรรมการใช้ไฟฟ้า และ Simulate กำลังการผลิตไฟฟ้าของ Solar Rooftop</h2><div class="sub">ค่าเฉลี่ยรายนาทีจากการตรวจวัดจริง ${R.days.length} วัน (${fd(R.from)} – ${fd(R.to)}) ช่วงเวลา 00:00 – 23:59 น.</div></div>
+<div><h2>กราฟที่ 1 พฤติกรรมการใช้ไฟฟ้า และ Simulate กำลังการผลิตไฟฟ้าของ Solar Rooftop</h2><div class="sub">ค่าเฉลี่ยรายนาทีจากการตรวจวัดจริง ${R.days.length} วัน (${lRange(R.from,R.to)}) ช่วงเวลา 00:00 – 23:59 น.</div></div>
 <div>${lChart(R.series,{w:698,h:285})}${lLegend(R.series,0)}</div>
 <div><h2>สรุปปริมาณหน่วยไฟฟ้าต่อวัน (kWh)</h2><div class="sub">ตามพฤติกรรมการใช้ไฟฟ้า และปริมาณหน่วยที่ Solar Rooftop ผลิตได้</div></div>
 <div class="g3">${[['ปริมาณโหลดใช้งานเฉลี่ย','Total load',E.load],R.series.minPhase?['เฟสที่ใช้ไฟต่ำสุด × 3','Minimum phase energy',E.minPhase]:null,['กำลังการผลิต Solar สูงสุด','Character inverter',E.solarMax],
   ['กำลังการผลิต Solar ตามโหลด','Inverter output limit',E.solarUsed,1],['Solar ส่วนเกิน (ชาร์จแบตได้)','Charger',E.excess],bat?['แบตเตอรี่จ่ายไฟ (ประสิทธิภาพ 90%)','Discharged',E.battery,1]:null]
-  .filter(Boolean).map(x=>`<div class="st${x[3]?' g':''}"><span>${x[0]} <small style="color:#8a8b90">· ${x[1]}</small></span><b>${f2(x[2])} <i>kWh</i></b></div>`).join('')}</div>
+  .filter(Boolean).map(x=>`<div class="st${x[3]?' g':''}"><span>${x[0]}<small>${x[1]}</small></span><b>${f2(x[2])} <i>kWh</i></b></div>`).join('')}</div>
 ${ft}</section>
 <section class="pg">${hd(2)}
 <div><h2>ระบบ Solar Rooftop ที่นำเสนอ</h2><div class="sub">${sysName} · ${esc(pk.type)}</div></div>
