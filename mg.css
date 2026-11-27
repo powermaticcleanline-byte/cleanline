@@ -2665,3 +2665,32 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 .wk-e.o{background:color-mix(in srgb,var(--c) 16%,#fff);color:#16171d}
 .daytl-ev.o{border-left-color:var(--c)}
 .hs-ty.o{background:color-mix(in srgb,var(--c) 16%,#fff);color:#16171d}
+/* 28 พ.ย. แผงขวา: ปุ่มแบบโปร่ง (เดิมเป็นปุ่มเบราว์เซอร์มีกรอบ) · แถบพับ · คิวรายคนแบบตารางตัวเลข */
+@media (min-width:1101px){
+ .cvpn .ib{width:36px;height:36px;flex:none;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:#525c6e;cursor:pointer;padding:0}
+ .cvpn .ib:hover{background:#eef2ea;color:#16171d}
+ .cvpn .ib:focus-visible{outline:2px solid #2f6b0a;outline-offset:1px}
+ .cvpn.min{gap:4px;padding:10px 0 !important}
+ .cvpn.min .ib{width:40px;height:40px}
+ .cvpn.min .ib svg{width:20px;height:20px}
+ .cvpnsep{width:24px;height:1px;background:#e4e7e0;margin:4px 0;display:block}
+ .cvpph{padding:2px 0 10px}.cvpph b{display:block;font-size:16px;font-weight:600;color:#16171d}.cvpph span{display:block;font-size:14px;color:#667085;line-height:1.45}
+ .cvppr.hm .cvprd,.cvppr.hm .cvpr{grid-template-columns:28px minmax(0,1fr) auto;column-gap:10px}
+ .cvppr.hm .cvprd{grid-template-columns:minmax(0,1fr) auto;padding:0 6px 4px}
+ .cvppr.hm .cvpd{gap:4px}
+ .cvppr.hm .cvpd i,.cvppr.hm .cvpd em{width:24px;height:24px}
+ .cvppr.hm .cvpd em{font-size:14px;color:#98a2b3;letter-spacing:0}
+ .cvppr.hm .cvpd em.t{color:#2f6b0a;font-weight:700}
+ .cvppr.hm .cvpd i{border-radius:7px;background:#f2f4ef;font:600 14px/1 var(--f);font-style:normal;color:#2f6b0a}
+ .cvppr.hm .cvpd i::after{display:none}
+ .cvppr.hm .cvpd i.n1{background:#e1efd2}
+ .cvppr.hm .cvpd i.n2{background:#9cc86a;color:#fff}
+ .cvppr.hm .cvpd i.n3{background:#2f6b0a;color:#fff}
+ .cvppr.hm .cvpd i.t{box-shadow:inset 0 0 0 2px #2f6b0a}
+ .cvppr.hm .cvav{width:28px;height:28px}
+ .cvppr.hm .cvprg{padding:14px 6px 4px;font-weight:600;color:#3a3d47}.cvppr.hm .cvprg small{font-size:14px;font-weight:400;color:#98a2b3;margin-left:2px}
+ .cvppr.hm .cvpr{padding:5px 6px;min-height:40px;border-radius:10px}
+ .cvppr.hm .cvpr:hover{background:#f6f8f4}
+ .cvppr.hm .cvpr.on{background:#eef6e6;color:#16171d;box-shadow:inset 3px 0 0 #2f6b0a}
+ .cvppr.hm .cvpr.on .cvpd i.t{box-shadow:inset 0 0 0 2px #2f6b0a}
+}
