@@ -388,10 +388,10 @@ tr[data-sel],tr[data-fmrow],tr[data-mtedit]{cursor:pointer}tr[data-sel].lastop t
 .rbody .sjl .sjn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rtl>div{display:grid;grid-template-columns:82px minmax(0,1fr);gap:12px;padding:11px 0;border-top:1px solid var(--line,#eceef1);font-size:14px;line-height:1.45}.rtl>div:first-child{border-top:0;padding-top:0}.rtl time{color:var(--mute,#6b7078);font-size:13px}.rtl b{font-weight:600}
 .rnote{display:flex;gap:8px;margin-top:14px}.rnote .search{height:40px;box-shadow:none;background:var(--hv);flex:1 1 auto;min-width:0;width:auto!important;max-width:none!important}.rnote .btn{flex:none}
-.trc{padding:6px 24px}.trr{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:14px;min-height:64px;border-top:1px solid var(--line,#eceef1)}.trr:first-child{border-top:0}
+.trc{padding:6px 24px}.trr{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;align-items:center;gap:14px;min-height:64px;border-top:1px solid var(--line,#eceef1)}.trr:first-child{border-top:0}
 .trn{display:flex;flex-direction:column;min-width:0}.trn b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.trn small{font-size:13px;color:var(--mut,#606f85)}.trc .trx{all:unset;box-sizing:border-box;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:#b42318}.trc .trx:hover{background:#fdecec}.trc .trx:focus-visible{outline:2px solid var(--focus,#2f6b0a);outline-offset:2px}.trc .trx svg{width:20px;height:20px}
 .trem{padding:40px 16px}
-@media (max-width:640px){.trr{grid-template-columns:minmax(0,1fr) auto auto;padding:10px 0}.trr .pill{grid-column:1/-1;justify-self:start}}
+@media (max-width:640px){.trr{grid-template-columns:minmax(0,1fr) auto auto auto;padding:10px 0}.trr .pill{grid-column:1/-1;justify-self:start}}
 .stc{display:flex;flex-direction:column;gap:12px}.sth{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px}.sth h2{margin:0;font-size:16px}
 .stv{display:flex;gap:16px;align-items:center}.stv>div{display:flex;flex-direction:column;gap:2px;min-width:0}.stv b{font-weight:600}
 .stg{display:flex;gap:32px;flex-wrap:wrap}.stg span{display:flex;flex-direction:column;gap:2px}.stg b{font-size:18px;font-weight:600}
@@ -2622,6 +2622,39 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 .hs-w svg{width:16px;height:16px;color:#8a8f99;flex:none}
 .hs-ok{display:flex;align-items:center;gap:8px;color:#2f6b0a;font-weight:600}.hs-ok svg{width:18px;height:18px}
 .htls.hs-tl{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+/* งานบริการ: กล่องตัวเลข + ถังขยะ: แถบวันเหลือ (ดีไซน์ใหม่ 27 พ.ย.) */
+.salg{display:grid;grid-template-columns:300px minmax(0,1fr);gap:0 0;align-items:start}
+.salq{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px 16px}.salq .hs-qc{cursor:default}
+.salg .sall{margin-left:12px}
+@media (max-width:900px){.salg{grid-template-columns:1fr}.salq{margin:0 16px 12px}.salg .sall{margin-left:16px}}
+.trd{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#4a5160;white-space:nowrap}.trd i{display:block;width:80px;height:6px;border-radius:3px;background:#e3e6ea;overflow:hidden}.trd u{display:block;height:100%;background:#4f8a1a}
+.trd.a{color:#a34b08}.trd.a u{background:#e8a33b}.trd.r{color:#b42318}.trd.r u{background:#d93036}
+@media (max-width:640px){.trd i{display:none}}
+/* ลูกค้า: รายชื่อ + รายละเอียด (ดีไซน์ใหม่ 27 พ.ย.) */
+.cdet{display:none}
+@media (min-width:1101px){.cmd{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
+ .cdet{display:flex;flex-direction:column;gap:16px;position:sticky;top:88px}
+ .crow.on{box-shadow:inset 0 0 0 2px #111214;border-radius:16px;background:#fff}
+ .csites{max-height:calc(100vh - 430px);overflow:auto}}
+.cdh{display:flex;align-items:center;gap:14px}.cdh h2{margin:0;font-size:22px;line-height:1.3}
+.cini{width:52px;height:52px;border-radius:999px;background:#e6efe0;color:#2f6b0a;display:grid;place-items:center;font-weight:700;font-size:20px;flex:none}
+.cdb{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0}
+.cdm{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin:16px 0 0;padding-top:14px;border-top:1px solid rgba(16,24,40,.08)}.cdm dt{font-size:13px;color:#5f6672}.cdm dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.cdt{margin:0 0 10px;font-size:18px;display:flex;gap:8px;align-items:baseline}
+.csites{display:flex;flex-direction:column;background:#fff;border-radius:16px;box-shadow:0 0 0 1px rgba(16,24,40,.06)}
+.csite{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;text-decoration:none;color:inherit}.csite+.csite{border-top:1px solid rgba(16,24,40,.08)}.csite:hover{background:#fafbf9}
+.csite>span:first-child{display:flex;flex-direction:column;min-width:0}.csite b{font-weight:600}
+.cst{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}
+.ctrk{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;width:96px}.ctrk i{height:6px;border-radius:2px;background:#dfe2e6}.ctrk i.d{background:#4f8a1a}.ctrk i.c{background:#111214}.ctn{font-size:13px;font-weight:600}
+/* จองคิวสำรวจ: ปฏิทินก่อน + แถบสรุป (ดีไซน์ใหม่ 27 พ.ย.) */
+.nstep{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;background:#111214;color:#fff;font:700 14px var(--f);font-style:normal;margin-right:10px;vertical-align:2px;flex:none}
+.nch h2{display:flex;align-items:center}.nst2{display:flex;align-items:center;margin:0 0 14px;font-size:20px}
+@media (min-width:901px){.nsplit>.ncal{order:-1;position:sticky;top:88px}
+ .ncal .nsub{background:#111214;color:#fff;border-top:0!important;border-radius:18px;padding:12px 12px 12px 20px;margin-top:16px;flex-direction:row!important;align-items:center!important}
+ .ncal .nsub .sub{color:#b9bcc4}.ncal .nsub .nmiss{color:#f5a35c!important}.ncal .nsub .nsum b{color:#fff}.ncal .nsub .btn{width:auto!important;background:#dcfce7!important;color:#16171d!important;box-shadow:none!important}
+ .ncal .nsub .btn[aria-disabled="true"]{background:#3a3c44!important;color:#8a8f99!important;opacity:1}}
+.nsum{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}.nsum .nmiss{font-size:13px;line-height:1.4}
+
 @media (max-width:900px){.hs{grid-template-columns:1fr 1fr}.hs-d{grid-column:1/-1;flex-direction:row!important;align-items:baseline;flex-wrap:wrap;gap:4px 12px!important;border-bottom:1px solid rgba(16,24,40,.08)}.hs-d b{font-size:56px;margin:0}.hs-qa{margin:0 0 0 auto;padding:0}.hs-qa .btn{width:auto}.hs>div+div{border-left:0}.hs-r{border-left:1px solid rgba(16,24,40,.08)!important}}
 @media (max-width:640px){.hs{grid-template-columns:1fr}.hs>div{padding:18px 20px}.hs-r{border-left:0!important;border-top:1px solid rgba(16,24,40,.08)}.hs-qa{display:none}.htls.hs-tl{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 .hs-w b.z{background:#e3e6ea;color:#5f6672}
@@ -2910,7 +2943,7 @@ function trashList(){const out=[];for(const col of Object.keys(TRASH_COLS))for(c
 async function autoPurge(){for(const t of trashList().filter(t=>t.left<=0)){try{await purge(t.col,t.x.id)}catch(e){}}}
 function viewTrash(){const L=trashList();
   const row=t=>{const by=t.x.trashedBy?nm(t.x.trashedBy):'';const ago=Math.floor((Date.now()-(+t.x.trashedAt||0))/864e5);
-    return `<div class="trr"><span class="pill gy">${TRASH_COLS[t.col]}</span><span class="trn"><b>${esc(trashTitle(t.col,t.x))}</b><small>${by?'ลบโดย '+esc(by)+' · ':''}${ago?ago+' วันก่อน':'วันนี้'} · เหลือ ${t.left} วัน</small></span>
+    return `<div class="trr"><span class="pill gy">${TRASH_COLS[t.col]}</span><span class="trn"><b>${esc(trashTitle(t.col,t.x))}</b><small>${by?'ลบโดย '+esc(by)+' · ':''}${ago?ago+' วันก่อน':'วันนี้'}</small></span><span class="trd ${t.left<=5?'r':t.left<=14?'a':''}"><i><u style="width:${Math.round(t.left/TRASH_DAYS*100)}%"></u></i>เหลือ ${t.left} วัน</span>
       <button type="button" class="btn sm" data-trres="${t.col}/${esc(t.x.id)}">กู้คืน</button><button type="button" class="ib trx" data-trdel="${t.col}/${esc(t.x.id)}" aria-label="ลบถาวร" title="ลบถาวร">${svg('trash','currentColor',2)}</button></div>`};
   return pageHead('ถังขยะ','ของที่ลบจะอยู่ที่นี่ '+TRASH_DAYS+' วัน กู้คืนได้ หลังจากนั้นลบถาวรเอง',L.length?'<button type="button" class="btn" data-trempty="1">ล้างถังขยะ</button>':'')+
     `<section class="card trc">${L.length?L.map(row).join(''):`<div class="empty trem">${emp('trash','ถังขยะว่าง','ของที่ลบจะมาอยู่ที่นี่ และกู้คืนได้ภายใน '+TRASH_DAYS+' วัน')}</div>`}</section>`}
@@ -3472,7 +3505,8 @@ function svcAlert(){
       <span class="saa">${j.siteId?`<button class="btn sm" data-svnew="PM" data-sid="${esc(j.siteId)}">บันทึกตรวจเช็ก</button>`:''}</span></div>`)];
   return `<section class="card sal" aria-label="งานบริการที่กำลังจะมาถึง">
     <div class="phd"><div class="ptl">${svg('bell','currentColor',2)}งานบริการที่กำลังจะมาถึง<span class="tdn">${rows.length}</span></div><span class="sub">แจ้งซ่อมที่ยังไม่ปิด และตรวจเช็กที่ครบภายใน 60 วัน</span></div>
-    <div class="sall">${rows.join('')||`<div class="tde">${svg('check','currentColor',2)}<b>ไม่มีงานบริการที่ต้องทำเร็ว ๆ นี้</b><span>ระบบจะเตือนเมื่อมีไซต์ครบตรวจเช็กภายใน 60 วัน หรือมีแจ้งซ่อมเข้ามา</span></div>`}</div>
+    <div class="salg"><div class="salq"><div class="hs-qc"><b class="${cm.length?'':'z'}">${cm.length}</b><span>แจ้งซ่อมยังไม่ปิด</span></div><div class="hs-qc"><b class="${pm.length?'':'z'}">${pm.length}</b><span>ครบตรวจเช็กใน 60 วัน</span></div></div>
+    <div class="sall">${rows.join('')||`<div class="tde">${svg('check','currentColor',2)}<b>ไม่มีงานบริการที่ต้องทำเร็ว ๆ นี้</b><span>ระบบจะเตือนเมื่อมีไซต์ครบตรวจเช็กภายใน 60 วัน หรือมีแจ้งซ่อมเข้ามา</span></div>`}</div></div>
   </section>`;
 }
 function dayPanel(evOn,t){
@@ -4460,6 +4494,7 @@ function viewNew(){
   ${S.nfDone?`<section class="card nfdone" role="status"><span class="nfd-i">${svg('check','currentColor',2.4)}</span><div><b>จองคิว ${esc(S.nfDone.name)} แล้ว</b><span class="sub">${TD[new Date(S.nfDone.date+'T00:00:00').getDay()]} ${fd(S.nfDone.date)} · ${esc(S.nfDone.time)}${S.nfDone.sent?' · '+esc(S.nfDone.sent):' · รอหัวหน้าจัดงานเลือกคนสำรวจ'}</span></div><a class="btn" href="#job-${esc(S.nfDone.jid)}">เปิดงาน</a><button type="button" class="btn pri" data-nfnext>จองต่อ</button></section>`:''}
   <form id="newForm" class="nsplit" autocomplete="off">
     <section class="card pad nform" aria-label="ข้อมูลแจ้งงาน">
+      <h2 class="nst2"><i class="nstep">2</i>ข้อมูลลูกค้า</h2>
       <div class="ngrp"><h2>ผู้แจ้งงาน</h2><div class="fgrid">
         <label class="fld" for="n-team">ทีมขาย<select id="n-team" ${myRole()==='sales_pm'?'disabled':''}><option value="">—</option>${TEAMS.map(t=>`<option ${(f.team||team)===t?'selected':''}>${t}</option>`).join('')}</select></label>
         <label class="fld" for="n-person">ชื่อเซลส์<input type="text" id="n-person" value="${esc(f.person||'')}"></label></div></div>
@@ -4496,7 +4531,7 @@ function calHtml(){
       <b>${d.getDate()}</b><span>${!inM||past?'':off?esc(di.closed):full?(di.used?'เต็ม':'ไม่มีคน'):'ว่าง '+di.left}</span></button>`}
   const sel=f.date?dayInfo(f.date):null;
   const ok=nfReady();
-  return `<div class="nch"><h2>เลือกวันสำรวจ</h2>
+  return `<div class="nch"><h2><i class="nstep">1</i>วันและเวลาสำรวจ</h2>
     <div class="mnav"><button type="button" data-nm="-1" aria-label="เดือนก่อนหน้า" ${(f.mo||0)<=0?'disabled':''}>${svg('chev','#16171a',2.2)}</button><span class="mlab">${TMF[m]} ${y+543}</span><button type="button" data-nm="1" aria-label="เดือนถัดไป">${svg('chev','#16171a',2.2)}</button></div></div>
   <div class="cgrid">${['จ','อ','พ','พฤ','ศ','ส','อา'].map(x=>`<span class="cw">${x}</span>`).join('')}${cells}</div>
   <div class="clg"><span><i class="free"></i>ว่าง</span><span><i class="one"></i>เหลือ 1 คิว</span><span><i class="full"></i>เต็ม</span><span><i class="off"></i>ปิดรับคิว</span></div>
@@ -4505,10 +4540,10 @@ function calHtml(){
     :'<span class="sub">เลือกวันที่ว่างในปฏิทินก่อน แล้วเลือกเวลา</span>'}</div>
   ${nfCanAssign()&&f.date&&f.time?`<label class="fld neng" for="n-eng">คนสำรวจ<select id="n-eng"><option value="">ให้หัวหน้าจัดงานเลือกทีหลัง</option>${SV_TEAMS.map(t=>{const b=teamBlock(t,f.date,null,f.time,null);return `<option value="${esc(t)}" ${f.eng===t&&!b?'selected':''} ${b?'disabled':''}>${esc(t)}${b?' · '+esc(b):''}</option>`}).join('')}</select><span class="sub">เลือกเลยแล้วระบบส่งใบงานให้ทันที ไม่ต้องรอขั้นจัดคน</span></label>`:''}
   <div class="nsub">
-    <div class="nsum">${f.date&&f.time?`<span class="sub">คิวที่ขอ</span><b>${TD[new Date(f.date+'T00:00:00').getDay()]} ${fd(f.date)} · ${f.time}</b>`:'<span class="sub">ยังไม่ได้เลือกคิว</span>'}</div>
+    <div class="nsum">${f.date&&f.time?`<b>${TD[new Date(f.date+'T00:00:00').getDay()]} ${fd(f.date)} · ${f.time}</b>`:'<b>ยังไม่ได้เลือกคิว</b>'}${ok.ok?'<span class="sub">ข้อมูลครบ พร้อมจอง</span>':`<span class="sub nmiss">ยังขาด: ${ok.miss.join(' · ')}</span>`}</div>
     <button class="btn pri" type="submit" data-mode="send" ${ok.ok?'':'aria-disabled="true"'}>${nfCanAssign()?(f.eng&&f.date&&f.time&&!teamBlock(f.eng,f.date,null,f.time,null)?'จองคิว + ส่งใบงาน':'จองคิว'):'บันทึกคำขอคิว'}</button>
   </div>
-  ${ok.ok?'':`<span class="sub nmiss">ยังขาด: ${ok.miss.join(' · ')}</span>`}`;
+`;
 }
 const telD=x=>String(x||'').replace(/\D/g,'').replace(/^66/,'0');
 function nfKnown(f){if(f.parent||f.cid)return f.cid?`<span class="nfk on">${svg('check','currentColor',2.4)}ใช้ข้อมูลลูกค้าเดิม <button type="button" class="lnk" data-nfk="">ไม่ใช้</button></span>`:'';const d=telD(f.phone);if(d.length<9)return '';
@@ -4631,9 +4666,10 @@ function viewCustomers(){
   const anyF=cf.cst||cf.cph||cf.cteam;
   const groups=[];rows.forEach(r=>{const k=r.d.slice(0,7);let g=groups[groups.length-1];if(!g||g.k!==k)groups.push(g={k,rows:[]});g.rows.push(r)});
   const PHC2={pre:'b',offer:'g',ins:'o',post:'v'};
+  const csel=rows.find(r=>r.c.id===cf.csel)||rows[0];
   const stTag=j=>stOf(j)==='cancelled'?'<span class="pill gy">ยกเลิก</span>':j.status==='lost'?'<span class="pill gy">ยังไม่ตกลง</span>':j.status==='done'?'<span class="pill ok">ปิดงานแล้ว</span>':`<span class="pill ${PHC2[phaseOf(j.stage)?.k]||'gy'}">${esc(STAGES[j.stage].name)}</span>`;
   return pageHead('ลูกค้า',searching?`ผลค้นหาจากทุกเดือน · พบ ${rows.length} ราย`:`แสดง ${rows.length} ราย จากทั้งหมด ${total} ราย · ตามเดือนที่สำรวจ`,searching?'':monthNav('cmo'))+`
-  <section class="card tq">
+  <div class="cmd"><section class="card tq">
   <div class="tqb" role="group" aria-label="ตัวกรองลูกค้า">
     <label class="isearch" for="cq">${svg('search','#7d8088',2)}<input id="cq" placeholder="ค้นหาชื่อไซต์ ชื่อลูกค้า เบอร์ เลขงาน เขต" value="${esc(S.f.cq||'')}"></label>
     <div class="seg">${[['','ทั้งหมด'],['active','กำลังดำเนินการ'],['lost','ยังไม่ตกลง'],['done','ปิดงานแล้ว']].map(([k,t])=>`<button class="${(cf.cst||'')===k?'on':''}" data-cst="${k}" aria-pressed="${(cf.cst||'')===k}">${t}</button>`).join('')}</div>
@@ -4644,14 +4680,23 @@ function viewCustomers(){
     ${searching?`<div class="mh"><h2>${g.k?mLabel(g.k):'ไม่มีวันสำรวจ'}</h2><span class="sub">${g.rows.length} ราย</span></div>`:''}
     <div class="clist">${g.rows.map(({c,j,d,n})=>{const s=sOf(j);const rn=realName(c);const site=s.label||j.title||c.name;
       const second=rn||(c.name&&c.name!==site?c.name:'');
-      return `<a class="crow" href="#job-${esc(j.id)}">
+      return `<a class="crow${csel&&csel.c.id===c.id?' on':''}" href="#job-${esc(j.id)}" data-csel="${esc(c.id)}">
       <span class="dt" title="วันสำรวจ"><b>${+d.slice(8,10)||'—'}</b><span>${TM[+d.slice(5,7)-1]||'ไม่มีวัน'}</span></span>
       <span class="cn"><b>${esc(site)}</b>${second?`<span class="nm">${esc(second)}</span>`:'<span class="nm miss">ยังไม่มีชื่อ-นามสกุลจริง</span>'}<span class="sub">${esc([s.area,c.referredBy?'ลูกค้าของ'+c.referredBy:'',j.salesTeam].filter(Boolean).join(' · '))}</span></span>
       <span class="cp">${c.phone?`${svg('phone','#16171a').replace('<svg','<svg width="14" height="14"')}${esc(c.phone)}`:'<span class="sub">ยังไม่มีเบอร์</span>'}</span>
       <span class="cj">${stTag(j)}<span class="sub">${esc(j.jobNo||'ยังไม่มีเลข')}${n>1?` · อีก ${n-1} งาน`:''}</span></span>
     </a>`}).join('')}</div></section>`).join('')||`<div class="empty">${searching||anyF?emp('search','ไม่พบลูกค้าที่ตรงกับตัวกรอง','ลองล้างตัวกรองหรือค้นด้วยเบอร์โทร'):emp('cal','ไม่มีการสำรวจในเดือน'+mLabel(curK),'กดลูกศรเพื่อดูเดือนอื่น')}</div>`}
-  </section>`;
+  </section>${csel?custDetail(csel.c,jobsBy[csel.c.id],stTag):''}</div>`;
 }
+function custDetail(c,J,stTag){const nm0=realName(c)||c.name||'ไม่มีชื่อ';const ini=String(nm0).replace(/^(คุณ|บจก\.?|บริษัท|หจก\.?|พญ\.?|นพ\.?)\s*/,'').trim().slice(0,1)||'?';
+  const first=Math.min(...J.map(j=>j.createdAt||Date.now()));const fm=new Date(first);
+  const L=J.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const trk=j=>j.status==='active'?`<span class="ctrk" aria-label="ขั้น ${j.stage} จาก ${LAST}">${STAGES.slice(1).map((x,i)=>`<i class="${i+1<j.stage?'d':i+1===j.stage?'c':''}"></i>`).join('')}</span><b class="ctn">${esc(STAGES[j.stage].name)}</b>`:stTag(j);
+  return `<aside class="cdet" aria-label="รายละเอียดลูกค้า"><section class="card pad">
+    <div class="cdh"><span class="cini">${esc(ini)}</span><div><h2>${esc(nm0)}</h2><span class="sub">ลูกค้าตั้งแต่ ${TMF[fm.getMonth()]} ${fm.getFullYear()+543}</span></div></div>
+    <div class="cdb">${c.phone?`<a class="btn sm" href="tel:${esc(telD(c.phone))}">${svg('phone','#16171a').replace('<svg','<svg width="14" height="14"')}${esc(c.phone)}</a>`:''}<a class="btn sm" href="#job-${esc(L[0].id)}">เปิดงานล่าสุด</a></div>
+    <dl class="cdm"><div><dt>เบอร์ติดต่อ</dt><dd>${esc(c.phone||'—')}</dd></div><div><dt>อีเมล</dt><dd>${esc(c.email||'—')}</dd></div>${c.referredBy?`<div><dt>ลูกค้าของ</dt><dd>${esc(c.referredBy)}</dd></div>`:''}<div><dt>งานทั้งหมด</dt><dd>${J.length} งาน</dd></div></dl></section>
+   <section class="card pad"><h2 class="cdt">งานและไซต์ <span class="sub">${J.length}</span></h2><div class="csites">${L.map(j=>{const s0=sOf(j);return `<a class="csite" href="#job-${esc(j.id)}"><span><b>${esc(s0.label||j.title||'ไม่มีชื่อไซต์')}</b><span class="sub">${esc([s0.area,j.jobNo?'#'+j.jobNo:'',j.proposedKw?j.proposedKw+' kW':''].filter(Boolean).join(' · '))}</span></span><span class="cst">${trk(j)}</span></a>`}).join('')}</div></section></aside>`}
 
 /* ---------- settings ---------- */
 function profCard(){
@@ -5442,6 +5487,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-gosec]');i
 /* ข้อ 7: กดป้ายสถานะในแถว = กรองเฉพาะสถานะนั้น (แบบป้ายใน Gmail) */
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pillf]');if(!b)return;e.preventDefault();e.stopPropagation();S.f.phase=[b.dataset.pillf];S.f.pg=0;if(route()!=='jobs'){S.f.mine=false;S.f.status='all';S.f.jmo=0;location.hash='jobs';return}render();toast('แสดงเฉพาะสถานะนี้ · กด "ล้างตัวกรอง" เพื่อดูทั้งหมด')},true);
 
+document.addEventListener('click',e=>{const a=e.target.closest('a[data-csel]');if(!a||e.ctrlKey||e.metaKey||window.innerWidth<=1100)return;e.preventDefault();S.f.csel=a.dataset.csel;render()});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-bkgo]');if(!b)return;e.preventDefault();S.f.bk=b.dataset.bkgo;render();requestAnimationFrame(()=>document.querySelector('.bkc')?.scrollIntoView({behavior:'smooth',block:'start'}))});
 document.addEventListener('click',e=>{const a=e.target.closest('[data-wkd]');if(a)S.f.qsel=a.dataset.wkd},true);
 </script>
