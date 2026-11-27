@@ -2797,7 +2797,9 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 .cvev b{flex:none;font-weight:500;color:#667085}
 .cvev span{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .cvev.gx b,.cvev.gx span{color:#667085}
-.cvev.pe i{background:#fff !important;box-shadow:inset 0 0 0 2px #33b679}
+.cvbar.lk::after{content:"";display:inline-block;width:6px;height:6px;margin-left:6px;border-radius:50%;background:currentColor;opacity:.6;vertical-align:middle}
+.cvlj{max-height:340px;overflow:auto;margin-top:4px}.cvljt{display:flex;flex-direction:column;min-width:0}.cvljt small{font-size:14px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cvljt b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cvev.pe i{background:#fff !important;box-shadow:inset 0 0 0 2px #8e24aa}
 .cvev.ag1,.cvbar.ag1{box-shadow:inset 0 0 0 1.5px #f59e0b}
 .cvev.ag2,.cvbar.ag2{box-shadow:inset 0 0 0 1.5px #dc2626}
 .cvmore{border:0;background:none;text-align:left;padding:0 5px;font:inherit;font-size:14px;font-weight:600;color:#3d4452;height:21px;border-radius:6px;cursor:pointer;white-space:nowrap}
@@ -4907,12 +4909,23 @@ function cvJobEvents(j){const out=[];if(['lost','cancelled'].includes(j.status))
   return out}
 function cvApEvent(a){const TY=cvTY(),t=TY[a.ty]||TY.oth||{c:'8',n:'อื่น ๆ'};const e={id:'ap:'+a.id,src:'ap',a,k:'o',ty:TY[a.ty]?a.ty:(TY.oth?'oth':a.ty),c:a.c||t.c,d:a.d,end:a.end&&a.end>a.d?a.end:'',tm:a.tm||'',n:a.title||'(ไม่มีชื่อ)',who:(a.who||[]).join('+'),place:a.place||''};
   if(e.tm)e.dur=Math.max(.5,(cvH(a.tm2)||cvH(e.tm)+1)-cvH(e.tm));return e}
-function cvGEvents(){const out=[];Object.values(CV.g).forEach(m=>{(m.ev||[]).forEach(g=>out.push({id:'g:'+g.id,src:'g',g,k:'g',d:g.d,end:g.end||'',tm:g.tm||'',dur:g.tm&&g.tm2?Math.max(.5,cvH(g.tm2)-cvH(g.tm)):1,n:g.n,by:g.by}));
+/* ลิงก์นัดที่พิมพ์ใน Google กับงานในรายการงาน (ผู้ใช้ 27 พ.ย. 19:20) · เก็บในกล่อง appts แบบ {link:true,gid,jobId} ไม่แตะตัวงาน */
+const cvHash=t=>{let h=5381;for(const ch of String(t))h=((h<<5)+h+ch.charCodeAt(0))>>>0;return h.toString(36)};
+function cvLinks(){const m={};Object.values(S.appts||{}).forEach(a=>{if(a&&a.link&&a.gid&&a.jobId)m[a.gid]={id:a.id,jobId:a.jobId,d:a.gd||'',end:a.gend||a.gd||''}});return m}
+/* ยึดตาม Team EN (ผู้ใช้ 27 พ.ย. 19:31): นัดของงานที่ทับกับนัด Google ที่ลิงก์ไว้ → ซ่อน (และไม่ส่งขึ้น Google ซ้ำ) แสดงนัดของ Team EN แทน */
+function cvCovers(){if(cvCovers.v===S.appts)return cvCovers.m;const m={};Object.values(cvLinks()).forEach(L=>{if(L.d)(m[L.jobId]=m[L.jobId]||[]).push(L)});cvCovers.v=S.appts;return cvCovers.m=m}
+const cvCovered=(j,x)=>(cvCovers()[j.id]||[]).some(L=>x.d<=L.end&&cvEnd(x)>=L.d);
+const cvJobShown=j=>cvJobEvents(j).filter(x=>!cvCovered(j,x));
+function cvGEvents(){const out=[],LK=cvLinks();Object.values(CV.g).forEach(m=>{(m.ev||[]).forEach(g=>{const e={id:'g:'+g.id,src:'g',g,k:'g',d:g.d,end:g.end||'',tm:g.tm||'',dur:g.tm&&g.tm2?Math.max(.5,cvH(g.tm2)-cvH(g.tm)):1,n:g.n,by:g.by};
+    const L=LK[g.id],j=L&&S.jobs[L.jobId];if(j){e.lj=j.id;e.lk=L.id;e.j=j;const ov=cvJobEvents(j).find(x=>x.d<=cvEnd(e)&&cvEnd(x)>=e.d);e.lkind=ov&&ov.k==='i'?'i':'s'}out.push(e)});
   (m.hol||[]).forEach(g=>out.push({id:'h:'+g.d+g.n,src:'g',g,k:'h',d:g.d,end:g.end||'',n:g.n}))});const seen=new Set();return out.filter(e=>!seen.has(e.id)&&seen.add(e.id))}
-function cvAll(){const out=[];visibleJobs().forEach(j=>out.push(...cvJobEvents(j)));Object.values(S.appts||{}).forEach(a=>{if(a&&a.d)out.push(cvApEvent(a))});out.push(...cvGEvents());return out}
-const cvLay=e=>e.k==='o'?e.ty:e.k==='p'?'s':e.k;
-const cvCol=e=>e.k==='s'||e.k==='p'?CV_GCC['2']:e.k==='i'?CV_GCC['10']:e.k==='o'?(CV_GCC[e.c]||CV_GCC['8']):e.k==='h'?'#7a6a4f':'#98a2b3';
-const cvLab=e=>e.k==='s'?'สำรวจโซลาร์':e.k==='p'?'สำรวจ · รอตอบรับคิว':e.k==='i'?'ติดตั้งโซลาร์':e.k==='g'?'พิมพ์เองใน Google':e.k==='h'?'วันหยุด':((cvTY()[e.ty]||{}).n||'คิวอื่น');
+function cvAll(){const out=[];visibleJobs().forEach(j=>out.push(...cvJobShown(j)));Object.values(S.appts||{}).forEach(a=>{if(a&&a.d)out.push(cvApEvent(a))});out.push(...cvGEvents());return out}
+const cvLay=e=>e.lj?e.lkind:e.k==='o'?e.ty:e.k==='p'?'s':e.k;
+const cvGray=e=>false; /* เดิมนัดจาก Google เป็นกรอบเทา · ตอนนี้ใช้สีจริงของ Google */
+/* สีตาม Google (ผู้ใช้ 27 พ.ย. 19:42): นัดจาก Google ใช้สีที่ตั้งใน Google (ไม่ตั้ง = สีปฏิทิน Tasks EN Team) · สำรวจ = องุ่น (ม่วง) ติดตั้ง = ใบโหระพา (เขียว) แบบที่ Team EN ใช้ */
+const CV_SV='3',CV_IN='10',CV_GDEF='#d50000';
+const cvCol=e=>e.k==='g'?(CV_GCC[e.g&&e.g.c]||CV_GDEF):e.k==='s'||e.k==='p'?CV_GCC[CV_SV]:e.k==='i'?CV_GCC[CV_IN]:e.k==='o'?(CV_GCC[e.c]||CV_GCC['8']):e.k==='h'?'#7a6a4f':'#98a2b3';
+const cvLab=e=>e.lj?(e.lkind==='i'?'ติดตั้งโซลาร์':'สำรวจโซลาร์')+' · จาก Team EN':e.k==='g'?'จาก Google (Team EN)':e.k==='s'?'สำรวจโซลาร์':e.k==='p'?'สำรวจ · รอตอบรับคิว':e.k==='i'?'ติดตั้งโซลาร์':e.k==='g'?'พิมพ์เองใน Google':e.k==='h'?'วันหยุด':((cvTY()[e.ty]||{}).n||'คิวอื่น');
 const cvEnd=e=>e.end||e.d;
 const cvOn=(e,k)=>e.d<=k&&cvEnd(e)>=k;
 function cvShown(e){if(cvOff().has(cvLay(e)))return false;const q=CV.q.trim().toLowerCase();if(!q)return true;return (e.n+' '+(e.who||'')+' '+(e.place||'')).toLowerCase().includes(q)}
@@ -4929,12 +4942,12 @@ function cvDesc(lines,link){return lines.filter(Boolean).join('\n')+'\n\n— ส
 const cvLink=h=>location.origin+location.pathname+'#'+h;
 function cvItems(col,id){const cfg=cvCfg(),from=cfg.from||'9999';const out=[];
   if(col==='jobs'){const j=S.jobs[id];if(!j)return out;const c=cOf(j),s=sOf(j);const sale=j.salesPerson||j.salesTeam||'';
-    cvJobEvents(j).forEach(e=>{if(cvEnd(e)<from)return;const it={key:e.id,d:e.d,c:e.k==='i'?'10':'2'};
+    cvJobShown(j).forEach(e=>{if(cvEnd(e)<from)return;const it={key:e.id,d:e.d,c:e.k==='i'?CV_IN:CV_SV};
       if(e.k==='i'){it.n='ติดตั้ง · '+e.n+(j.installTeam?' · '+j.installTeam:'');if(e.end)it.end=e.end;it.desc=cvDesc([j.installTeam&&'ทีมติดตั้ง: '+j.installTeam,j.supervisor&&'ผู้คุมงาน: '+j.supervisor,c.phone&&'โทร: '+c.phone,placeOf(j,s,c)&&'สถานที่: '+placeOf(j,s,c),s.map&&'แผนที่: '+s.map],cvLink('job-'+j.id))}
       else{it.n='สำรวจ · '+e.n+(sale?' *'+sale+'*':'')+(e.k==='p'?' (รอตอบรับคิว)':'');if(e.tm&&cvH(e.tm)!=null){it.tm=cvHm(cvH(e.tm));it.tm2=cvHm(Math.min(23.5,cvH(e.tm)+1.5))}
         it.desc=cvDesc([j.surveyor&&'คนสำรวจ: '+j.surveyor,c.phone&&'โทร: '+c.phone,placeOf(j,s,c)&&'สถานที่: '+placeOf(j,s,c),s.map&&'แผนที่: '+s.map],cvLink('job-'+j.id))}
       out.push(it)})}
-  else{const a=(S.appts||{})[id];if(!a||a.gs===false)return out;const e=cvApEvent(a);if(cvEnd(e)<from)return out;const t=cvTY()[e.ty]||{n:'อื่น ๆ'};
+  else{const a=(S.appts||{})[id];if(!a||a.link||a.nolink||!a.d||a.gs===false)return out;const e=cvApEvent(a);if(cvEnd(e)<from)return out;const t=cvTY()[e.ty]||{n:'อื่น ๆ'};
     const it={key:e.id,d:e.d,c:e.c,n:`[${t.n}] ${e.n}${e.place?' · '+e.place:''}`,desc:cvDesc([e.who&&'คนไป: '+e.who,a.tel&&'โทร: '+a.tel,a.map&&'แผนที่: '+a.map,a.note&&'หมายเหตุ: '+a.note])};
     if(e.tm){it.tm=cvHm(cvH(e.tm));it.tm2=a.tm2||cvHm(cvH(e.tm)+1)}else if(e.end)it.end=e.end;out.push(it)}
   return out}
@@ -4973,21 +4986,21 @@ function cvMini(){const cur=cvD(S.f.cvm),y=cur.getFullYear(),m=cur.getMonth(),fi
   const has=new Set();cvAll().forEach(e=>{if(cvShown(e)&&e.k!=='h')for(let k=e.d;k<=cvEnd(e)&&k<=isoAdd(st,nW*7);k=isoAdd(k,1))has.add(k)});const t=today();
   return `<div class="cvmini"><div class="cvmh"><b>${TMF[m]} ${y+543}</b><span><button data-cvmn="-1" aria-label="เดือนก่อน">‹</button><button data-cvmn="1" aria-label="เดือนถัดไป">›</button></span></div>
   <div class="cvmg">${['อา','จ','อ','พ','พฤ','ศ','ส'].map(x=>`<span>${x}</span>`).join('')}${[...Array(nW*7)].map((_,i)=>{const k=isoAdd(st,i);return `<button class="${cvD(k).getMonth()!==m?'o':''} ${k===t?'t':''} ${k===S.f.qsel?'s':''} ${has.has(k)?'dt':''}" data-cvjump="${k}" aria-label="${fd(k)}">${cvD(k).getDate()}</button>`}).join('')}</div></div>`}
-function cvTree(){const T=cvT();return [{id:'sol',n:'โซลาร์',items:[['s','สำรวจโซลาร์',CV_GCC['2']],['i','ติดตั้งโซลาร์',CV_GCC['10']]]},
+function cvTree(){const T=cvT();return [{id:'sol',n:'โซลาร์',items:[['s','สำรวจโซลาร์',CV_GCC[CV_SV]],['i','ติดตั้งโซลาร์',CV_GCC[CV_IN]]]},
   ...T.groups.map(g=>({id:g.id,n:g.n,items:T.types.filter(t=>t.g===g.id).map(t=>[t.id,t.n,CV_GCC[t.c]||CV_GCC['8']])})),
   ...(T.types.some(t=>!T.groups.some(g=>g.id===t.g))?[{id:'_x',n:'ไม่มีหมวด',items:T.types.filter(t=>!T.groups.some(g=>g.id===t.g)).map(t=>[t.id,t.n,CV_GCC[t.c]||CV_GCC['8']])}]:[]),
-  {id:'goo',n:'จาก Google',items:[['g','พิมพ์เองใน Google','#98a2b3'],['h','วันหยุดในไทย','#7a6a4f']]}]}
+  {id:'goo',n:'จาก Google',items:[['g','พิมพ์เองใน Google',CV_GDEF],['h','วันหยุดในไทย','#7a6a4f']]}]}
 function cvLayers(){const off=cvOff(),cm=cvD(S.f.cvm).getMonth(),ev=cvAll();const cnt=k=>ev.filter(e=>cvLay(e)===k&&cvD(e.d).getMonth()===cm).length;
   const row=([k,n,c])=>`<label class="cvly"><input type="checkbox" data-cvlay="${esc(k)}" ${off.has(k)?'':'checked'} style="--c:${c}"><span>${esc(n)}</span><small>${cnt(k)}</small></label>`;
   return `<div class="cvlays"><div class="cvlh"><b>หมวดงาน</b>${cvCanTy()?'<button class="cvmt" data-cvmt>จัดการประเภท</button>':''}</div>${cvTree().map(g=>{const on=g.items.filter(i=>!off.has(i[0])).length,all=g.items.length,c=g.items.reduce((a,i)=>a+cnt(i[0]),0),cl=cvColSet().has(g.id);
     return `<div class="cvbr"><div class="cvbrh"><button class="cvcar ${cl?'cl':''}" data-cvcol="${esc(g.id)}" aria-expanded="${!cl}" aria-label="${cl?'กาง':'พับ'}หมวด ${esc(g.n)}">▾</button><label class="cvly g"><input type="checkbox" data-cvgrp="${esc(g.id)}" ${on===all&&all?'checked':''} data-ind="${on>0&&on<all?1:''}" style="--c:#16171d"><span>${esc(g.n)}</span><small>${c}</small></label></div>
-    ${cl?'':`<div class="cvbrc">${g.items.map(row).join('')||'<p class="cvnote">ยังไม่มีประเภท</p>'}</div>`}</div>`}).join('')}<p class="cvnote">สีเทา = มีคนพิมพ์เองใน Google · ดูได้อย่างเดียว ไม่เป็นงานในระบบ</p></div>`}
+    ${cl?'':`<div class="cvbrc">${g.items.map(row).join('')||'<p class="cvnote">ยังไม่มีประเภท</p>'}</div>`}</div>`}).join('')}<p class="cvnote">สีของนัดตรงกับใน Google · นัดที่มีคนพิมพ์เองใน Google กดดูหรือลิงก์กับงานได้</p></div>`}
 function cvLanes(w0,w6,ev){const bars=ev.filter(e=>!e.tm&&e.d<=w6&&cvEnd(e)>=w0).sort((a,b)=>a.d.localeCompare(b.d)||cvDiff(b.d,cvEnd(b))-cvDiff(a.d,cvEnd(a)));
   const lanes=[];bars.forEach(e=>{const s=e.d<w0?w0:e.d,en=cvEnd(e)>w6?w6:cvEnd(e);let li=lanes.findIndex(L=>L.every(o=>o.en<s||o.s>en));if(li<0){lanes.push([]);li=lanes.length-1}lanes[li].push({e,s,en})});return lanes}
-const cvAg=e=>e.src==='job'?agCls(e.j):'';
+const cvAg=e=>e.src==='job'||e.lj?agCls(e.j):'';
 const cvDrag=e=>e.src==='ap'&&cvCanAp();
-function cvRow(e){const c=cvCol(e);return `<button class="cvev ${e.k==='g'?'gx':''} ${e.k==='p'?'pe':''} ${cvAg(e)}" data-cvev="${esc(e.id)}" ${cvDrag(e)?'draggable="true"':''} title="${esc(cvLab(e)+' · '+(e.tm||'')+' '+e.n)}"><i class="${e.k==='g'?'g':''}" style="background:${c}"></i>${e.tm?`<b>${esc(e.tm)}</b>`:''}<span>${esc(e.n)}</span></button>`}
-function cvBar(e,w0,w6,col,row,span){const c=cvCol(e),n=cvDiff(e.d,cvEnd(e))+1;return `<button class="cvbar ${e.d<w0?'cl':''} ${cvEnd(e)>w6?'cr':''} ${e.k==='g'?'gx':''} ${cvAg(e)}" style="grid-column:${col}/span ${span};grid-row:${row};background:${e.k==='g'?'#fff':c};color:${e.k==='g'?'#475467':cvInk(c)}" data-cvev="${esc(e.id)}" ${cvDrag(e)?'draggable="true"':''} title="${esc(cvLab(e)+' · '+e.n)}">${esc(e.n)}${n>1&&e.k==='i'?` <em>(${n} วัน)</em>`:''}</button>`}
+function cvRow(e){const c=cvCol(e);return `<button class="cvev ${cvGray(e)?'gx':''} ${e.lj?'lk':''} ${e.k==='p'?'pe':''} ${cvAg(e)}" data-cvev="${esc(e.id)}" ${cvDrag(e)?'draggable="true"':''} title="${esc(cvLab(e)+' · '+(e.tm||'')+' '+e.n)}"><i class="${cvGray(e)?'g':''}" style="background:${c}"></i>${e.tm?`<b>${esc(e.tm)}</b>`:''}<span>${esc(e.n)}</span></button>`}
+function cvBar(e,w0,w6,col,row,span){const c=cvCol(e),n=cvDiff(e.d,cvEnd(e))+1;return `<button class="cvbar ${e.d<w0?'cl':''} ${cvEnd(e)>w6?'cr':''} ${cvGray(e)?'gx':''} ${e.lj?'lk':''} ${cvAg(e)}" style="grid-column:${col}/span ${span};grid-row:${row};background:${cvGray(e)?'#fff':c};color:${cvGray(e)?'#475467':cvInk(c)}" data-cvev="${esc(e.id)}" ${cvDrag(e)?'draggable="true"':''} title="${esc(cvLab(e)+' · '+e.n)}">${esc(e.n)}${n>1&&e.k==='i'?` <em>(${n} วัน)</em>`:''}</button>`}
 function cvMonth(){
   const cur=cvD(S.f.cvm),y=cur.getFullYear(),m=cur.getMonth(),first=isoOf(new Date(y,m,1)),st=cvMon(first),nW=Math.ceil((cvDiff(st,first)+new Date(y,m+1,0).getDate())/7);
   const ev=cvAll().filter(cvShown),t=today(),MAXL=CV.maxl||4;let html='';
@@ -5004,23 +5017,23 @@ function cvWeek(){const w0=cvMon(S.f.qsel),w6=isoAdd(w0,6),days=[...Array(7)].ma
   let all='<div class="cvalb">ทั้งวัน</div>';lanes.forEach((L,li)=>L.forEach(({e,s,en})=>{all+=cvBar(e,w0,w6,cvDiff(w0,s)+2,li+1,cvDiff(s,en)+1)}));if(!lanes.length)all+='<div style="grid-column:2/-1;height:22px"></div>';
   const nowH=new Date().getHours()+new Date().getMinutes()/60;
   const cols=days.map(k=>{const L=cvSortT(ev.filter(e=>e.tm&&e.d===k&&cvH(e.tm)!=null));const ends=[];const pos=L.map(e=>{const s=Math.max(H0,cvH(e.tm)),en=Math.min(H1,s+(e.dur||1));let c=ends.findIndex(x=>x<=s);if(c<0){ends.push(en);c=ends.length-1}else ends[c]=en;return {e,s,en,c}});const nc=Math.max(1,ends.length);
-    return `<div class="cvcol ${cvD(k).getDay()===0?'sun':''} ${k<t?'past':''}" data-cvwcol="${k}" style="height:${(H1-H0)*PX}px">${pos.map(({e,s,en,c})=>{const cc=cvCol(e);return `<button class="cvtev ${e.k==='g'?'gx':''} ${cvAg(e)}" data-cvev="${esc(e.id)}" style="top:${(s-H0)*PX+1}px;height:${Math.max(18,(en-s)*PX-3)}px;left:calc(${c/nc*100}% + 2px);width:calc(${100/nc}% - 5px);background:${e.k==='g'?'#fff':cc};color:${e.k==='g'?'#475467':cvInk(cc)}"><b>${esc(e.n)}</b><span>${cvHm(s)}–${cvHm(en)}${e.who?' · '+esc(e.who):''}</span></button>`}).join('')}${k===t&&nowH>=H0&&nowH<H1?`<i class="cvnow" style="top:${(nowH-H0)*PX}px"></i>`:''}</div>`}).join('');
+    return `<div class="cvcol ${cvD(k).getDay()===0?'sun':''} ${k<t?'past':''}" data-cvwcol="${k}" style="height:${(H1-H0)*PX}px">${pos.map(({e,s,en,c})=>{const cc=cvCol(e);return `<button class="cvtev ${cvGray(e)?'gx':''} ${cvAg(e)}" data-cvev="${esc(e.id)}" style="top:${(s-H0)*PX+1}px;height:${Math.max(18,(en-s)*PX-3)}px;left:calc(${c/nc*100}% + 2px);width:calc(${100/nc}% - 5px);background:${cvGray(e)?'#fff':cc};color:${cvGray(e)?'#475467':cvInk(cc)}"><b>${esc(e.n)}</b><span>${cvHm(s)}–${cvHm(en)}${e.who?' · '+esc(e.who):''}</span></button>`}).join('')}${k===t&&nowH>=H0&&nowH<H1?`<i class="cvnow" style="top:${(nowH-H0)*PX}px"></i>`:''}</div>`}).join('');
   return `<div class="cvwv" style="--px:${PX}px"><div class="cvwh" style="grid-template-columns:${gc}"><div></div>${days.map(k=>{const c=cvCap(k);return `<button class="${k===t?'t':''}" data-cvday="${k}"><small>${TDS[cvD(k).getDay()]}</small><b>${cvD(k).getDate()}</b><em class="${c?c.c:''}">${c?c.t:'&nbsp;'}</em></button>`}).join('')}</div>
    <div class="cvwa" style="grid-template-columns:${gc}">${all}</div>
    <div class="cvwb" style="grid-template-columns:${gc}"><div class="cvhrs" style="height:${(H1-H0)*PX}px">${[...Array(H1-H0)].map((_,i)=>i?`<span style="top:${i*PX}px">${String(H0+i).padStart(2,'0')}:00</span>`:'').join('')}</div>${cols}</div></div>`}
-function cvMobile(){const sel=S.f.qsel,t=today(),mv=S.f.cvmv||'list',ev=cvAll().filter(cvShown);const dots=k=>ev.filter(e=>cvOn(e,k)).slice(0,4).map(e=>`<i style="background:${e.k==='g'?'#c4c9d2':cvCol(e)}"></i>`).join('');
+function cvMobile(){const sel=S.f.qsel,t=today(),mv=S.f.cvmv||'list',ev=cvAll().filter(cvShown);const dots=k=>ev.filter(e=>cvOn(e,k)).slice(0,4).map(e=>`<i style="background:${cvGray(e)?'#c4c9d2':cvCol(e)}"></i>`).join('');
   let top;if(mv==='list'){const w0=cvMon(sel);top=`<div class="cvstrip">${[...Array(7)].map((_,i)=>{const k=isoAdd(w0,i);return `<button class="${k===t?'t':''} ${k===sel?'s':''}" data-cvjump="${k}"><small>${TDS[cvD(k).getDay()]}</small><b>${cvD(k).getDate()}</b><span>${dots(k)}</span></button>`}).join('')}</div>`}
   else{const cur=cvD(S.f.cvm),y=cur.getFullYear(),m=cur.getMonth(),first=isoOf(new Date(y,m,1)),st=cvMon(first),nW=Math.ceil((cvDiff(st,first)+new Date(y,m+1,0).getDate())/7);
     top=`<div class="cvmm">${['อา','จ','อ','พ','พฤ','ศ','ส'].map(x=>`<span>${x}</span>`).join('')}${[...Array(nW*7)].map((_,i)=>{const k=isoAdd(st,i);return `<button class="${cvD(k).getMonth()!==m?'o':''} ${k===t?'t':''} ${k===sel?'s':''}" data-cvjump="${k}"><b>${cvD(k).getDate()}</b><span>${dots(k)}</span></button>`}).join('')}</div>`}
   const n=mv==='list'?14:1;let ag='';
   for(let i=0;i<n;i++){const k=isoAdd(sel,i);const L=cvSortT(ev.filter(e=>cvOn(e,k)));if(!L.length&&k!==t&&k!==sel)continue;const c=cvCap(k);
     ag+=`<div class="cvag ${k===t?'t':''}"><div class="cvagd"><small>${TDS[cvD(k).getDay()]}</small><b>${cvD(k).getDate()}</b></div><div class="cvagl">${c?`<span class="cvcap ${c.c}">คิวสำรวจ ${c.t}</span>`:''}
-      ${L.length?L.map(e=>{const c2=cvCol(e);return `<button class="cvagi ${e.k==='g'?'gx':''} ${cvAg(e)}" data-cvev="${esc(e.id)}" style="background:${e.k==='g'?'#fff':c2};color:${e.k==='g'?'#475467':cvInk(c2)}"><b>${esc(e.n)}</b>${e.tm?esc(e.tm)+'–'+cvHm(Math.min(23.9,cvH(e.tm)+(e.dur||1))):e.end?'ทั้งวัน · วันที่ '+(cvDiff(e.d,k)+1)+'/'+(cvDiff(e.d,e.end)+1):'ทั้งวัน'}${e.who?' · '+esc(e.who):''} · ${esc(cvLab(e))}</button>`}).join(''):`<span class="cvnote">ไม่มีนัด${cvCanAp()&&k>=t?' · แตะ “+ สร้าง” เพื่อเพิ่ม':''}</span>`}</div></div>`}
+      ${L.length?L.map(e=>{const c2=cvCol(e);return `<button class="cvagi ${cvGray(e)?'gx':''} ${cvAg(e)}" data-cvev="${esc(e.id)}" style="background:${cvGray(e)?'#fff':c2};color:${cvGray(e)?'#475467':cvInk(c2)}"><b>${esc(e.n)}</b>${e.tm?esc(e.tm)+'–'+cvHm(Math.min(23.9,cvH(e.tm)+(e.dur||1))):e.end?'ทั้งวัน · วันที่ '+(cvDiff(e.d,k)+1)+'/'+(cvDiff(e.d,e.end)+1):'ทั้งวัน'}${e.who?' · '+esc(e.who):''} · ${esc(cvLab(e))}</button>`}).join(''):`<span class="cvnote">ไม่มีนัด${cvCanAp()&&k>=t?' · แตะ “+ สร้าง” เพื่อเพิ่ม':''}</span>`}</div></div>`}
   return `<div class="cvmob">${top}<div class="cvags">${ag}</div></div>`}
 /* ---- กล่องลอย (popover) ---- */
 function cvPopEl(){let p=document.getElementById('cvpop');if(!p){p=document.createElement('div');p.id='cvpop';p.className='cvpop';p.setAttribute('role','dialog');document.body.appendChild(p)}return p}
 function cvOpen(html,anchor,cls){const p=cvPopEl(),was=p.classList.contains('show');p.innerHTML=html;p.className='cvpop show'+(cls?' '+cls:'');
-  if(!anchor&&was){cvClamp(p);const f=p.querySelector('#cvtps')||p.querySelector('[autofocus]');if(f){f.focus();try{const n=f.value.length;f.setSelectionRange(n,n)}catch(e){}}return}
+  if(!anchor&&was){cvClamp(p);const f=p.querySelector('#cvtps')||p.querySelector('#cvls')||p.querySelector('[autofocus]');if(f){f.focus();try{const n=f.value.length;f.setSelectionRange(n,n)}catch(e){}}return}
   if(cvMob()){p.style.left='';p.style.top='';}else{const r=anchor?anchor.getBoundingClientRect():{left:innerWidth/2-200,right:innerWidth/2+200,top:160,bottom:200};const pw=p.offsetWidth,ph=p.offsetHeight;
     let x=r.right+8;if(x+pw>innerWidth-10)x=r.left-pw-8;if(x<10)x=Math.max(10,(innerWidth-pw)/2);let y=r.top-20;y=Math.max(10,Math.min(y,innerHeight-ph-10));p.style.left=x+'px';p.style.top=y+'px';cvClamp(p)}
   const f=p.querySelector('[autofocus]');if(f)f.focus()}
@@ -5028,11 +5041,12 @@ function cvClamp(p){if(cvMob())return;const ph=p.offsetHeight,top=parseFloat(p.s
 function cvClose(){const p=document.getElementById('cvpop');if(p)p.className='cvpop';CV.qc=null;CV.tpo=null}
 function cvFind(id){return cvAll().find(e=>e.id===id)}
 function cvEvPop(id,anchor){const e=cvFind(id);if(!e)return;const c=cvCol(e);
-  let h=`<div class="cvph"><span class="cvpill" style="--c:${e.k==='g'?'#475467':c}">● ${esc(cvLab(e))}</span><button class="cvx" data-cvclose aria-label="ปิด">✕</button></div><h3>${esc(e.n)}</h3>
+  let h=`<div class="cvph"><span class="cvpill" style="--c:${cvGray(e)?'#475467':c}">● ${esc(cvLab(e))}</span><button class="cvx" data-cvclose aria-label="ปิด">✕</button></div><h3>${esc(e.n)}</h3>
   <dl class="cvkv"><dt>วันเวลา</dt><dd>${e.end?fd(e.d)+' – '+fd(e.end)+' · ทั้งวัน':fd(e.d)+' · '+(e.tm?esc(e.tm)+(e.dur?'–'+cvHm(Math.min(23.9,cvH(e.tm)+e.dur)):''):'ทั้งวัน')}</dd>${e.who?`<dt>${e.k==='s'||e.k==='p'?'คนสำรวจ':'คนไป'}</dt><dd>${esc(e.who)}</dd>`:''}${e.place?`<dt>สถานที่</dt><dd>${esc(e.place)}</dd>`:''}${e.a&&e.a.tel?`<dt>โทร</dt><dd>${esc(e.a.tel)}</dd>`:''}${e.a&&safeUrl(e.a.map)?`<dt>แผนที่</dt><dd><a href="${esc(safeUrl(e.a.map))}" target="_blank" rel="noopener">เปิด Google Maps</a></dd>`:''}${e.a&&e.a.note?`<dt>หมายเหตุ</dt><dd>${esc(e.a.note)}</dd>`:''}${e.by?`<dt>คนพิมพ์</dt><dd>${esc(e.by)}</dd>`:''}${e.g&&e.g.desc?`<dt>รายละเอียด</dt><dd class="cvdesc">${esc(e.g.desc)}</dd>`:''}</dl>`;
   const on=cvCfg().on;
   if(e.k==='h')h+=`<div class="cvbox g">วันหยุดจากปฏิทิน Google${cvCap(e.d)&&!closedDays()[e.d]&&cvCanTy()?' · ถ้าไม่รับคิวสำรวจวันนี้ กด “ปิดรับคิว” ในหน้าวัน':''}</div>`;
-  else if(e.k==='g')h+=`<div class="cvbox g">มีคนพิมพ์ลง Google เอง ระบบแสดงให้ดูอย่างเดียว · จะแก้ต้องแก้ใน Google</div>${cvCanAp()?`<div class="cvmf"><button class="btn sm" data-cvconv="${esc(e.id)}">ทำเป็นคิวในระบบ</button></div>`:''}`;
+  else if(e.k==='g'&&e.lj){const j=e.j;h+=`<div class="cvbox ok">ลิงก์กับงาน <b>${esc(j.title||cOf(j).name||'')}</b> · ${esc((STAGES[j.stage]||{}).name||'')}${j.jobNo?' · '+esc(j.jobNo):''}</div><div class="cvmf">${cvCanAp()?`<button class="btn sm" data-cvunl="${esc(e.lk)}">ยกเลิกลิงก์</button>`:''}<button class="btn sm pri" data-osel="${esc(j.id)}" data-cvgo>เปิดหน้างาน</button></div>`}
+  else if(e.k==='g')h+=`<div class="cvbox g">มีคนพิมพ์ลง Google เอง ระบบแสดงให้ดูอย่างเดียว · จะแก้ต้องแก้ใน Google</div>${cvCanAp()?`<div class="cvmf"><button class="btn sm" data-cvconv="${esc(e.id)}">ทำเป็นคิวอื่น</button><button class="btn sm pri" data-cvlink="${esc(e.id)}">ลิงก์กับงานในระบบ</button></div>`:''}`;
   else if(e.src==='job')h+=`<div class="cvbox ${on?'ok':'g'}">${on?'อยู่ใน Google ของทีมด้วย · ':''}เปลี่ยนวันได้ที่หน้างาน</div><div class="cvmf"><button class="btn sm pri" data-osel="${esc(e.j.id)}" data-cvgo>เปิดหน้างาน</button></div>`;
   else h+=`<div class="cvbox ${on&&e.a.gs!==false?'ok':'g'}">${on&&e.a.gs!==false?'อยู่ใน Google ของทีมด้วย · ':''}${cvCanAp()?'ลากไปวางวันอื่นได้':''}</div>${cvCanAp()?`<div class="cvmf"><button class="btn sm" data-cvdel="${esc(e.a.id)}">ยกเลิกคิว</button><button class="btn sm pri" data-cvedit="${esc(e.a.id)}">แก้ไข</button></div>`:''}`;
   cvOpen(h,anchor)}
@@ -5042,6 +5056,20 @@ function cvDayPop(k,anchor){const L=cvSortT(cvAll().filter(e=>cvShown(e)&&cvOn(e
    ${di?`<div class="cvteam">${SV_TEAMS.map(tm=>{const n=teamSlots(tm,k),cc=teamCount(tm,k);return `<span class="${n?'ok':cc?'busy':'off'}"><b>${esc(tm)}</b> ${cc?'นัดแล้ว '+cc:''}${cc&&n?' · ':''}${n?'ว่าง '+n:cc?'':esc(teamWhy(tm,k))}</span>`}).join('')}</div>`:''}
    <div class="cvdl pop">${L.map(e=>e.tm?cvRow(e):cvBar(e,k,k,1,'auto',1)).join('')||'<p class="cvnote">ไม่มีนัด</p>'}</div>
    ${k>=t?`<div class="cvmf">${adm&&cvD(k).getDay()!==0?`<button class="btn sm" data-qclose="${k}" data-cvclose>${cl?'เปิดรับคิว':'ปิดรับคิวสำรวจ'}</button>`:''}${cvCanAp()&&c&&c.c===''?`<a class="btn sm" href="#new" data-qd="${k}" data-cvclose>จองคิวสำรวจ</a>`:''}${cvCanAp()?`<button class="btn sm pri" data-cvnew="${k}">+ สร้างนัด</button>`:''}</div>`:''}`,anchor)}
+/* เลือกงานที่จะลิงก์ */
+const CV_STOP=new Set(['survey','solar','installation','install','ติดตั้ง','สำรวจ','เซอร์เวย์','คุณ','บ้าน','ทีม','ที่อยู่','เลขที่','หมู่บ้าน','แผน','ลูกค้า','งาน','และ','ระบบ','kw','kwp']);
+function cvToks(t){return String(t||'').toLowerCase().replace(/[*()\[\]:;,.+\/|"'“”]/g,' ').split(/\s+/).map(x=>x.replace(/^คุณ/,'')).filter(x=>x.length>=2&&!CV_STOP.has(x))}
+function cvJobHay(j){const c=cOf(j),s=sOf(j);return [j.title,c.name,c.firstName,c.lastName,s.label,s.area,s.address,j.jobNo].filter(Boolean).join(' ').toLowerCase()}
+function cvMatches(e,q){const T=cvToks(e.n),qq=String(q||'').trim().toLowerCase();
+  return visibleJobs().filter(j=>!['lost','cancelled'].includes(j.status)).map(j=>{const hay=cvJobHay(j),evs=cvJobEvents(j);let sc=0;
+    if(qq){if(!hay.includes(qq))return null;sc+=5}else T.forEach(t=>{if(hay.includes(t))sc+=t.length>=4?2:1});
+    const near=evs.length?Math.min(...evs.map(x=>Math.abs(cvDiff(x.d,e.d)))):99;if(near===0)sc+=3;else if(near<=7)sc+=1;
+    return sc>0||qq?{j,sc,near,evs}:null}).filter(Boolean).sort((a,b)=>b.sc-a.sc||a.near-b.near).slice(0,8)}
+function cvLinkPop(id,anchor){const e=cvFind(id);if(!e)return;CV.lnk=id;const L=cvMatches(e,CV.lq);
+  cvOpen(`<div class="cvph"><b class="cvpt">ลิงก์กับงานในระบบ</b><button class="cvx" data-cvclose aria-label="ปิด">✕</button></div>
+   <p class="cvnote" style="padding:0 0 6px">นัดใน Google: <b>${esc(e.n)}</b> · ${fd(e.d)}</p>
+   <input class="cvtps cvls" id="cvls" placeholder="ค้นหางาน: ชื่อไซต์ ลูกค้า เลขใบงาน" value="${esc(CV.lq||'')}" autocomplete="off" autofocus>
+   <div class="cvlj">${L.length?`${CV.lq?'':'<div class="cvtpg">งานที่น่าจะใช่</div>'}`+L.map(({j,evs})=>`<button class="cvtpi" data-cvlk="${esc(j.id)}"><span class="cvljt"><b>${esc(j.title||cOf(j).name||'ไม่มีชื่อ')}</b><small>${esc((STAGES[j.stage]||{}).name||'')}${j.jobNo?' · '+esc(j.jobNo):''}${evs.length?' · '+evs.map(x=>(x.k==='i'?'ติดตั้ง ':'สำรวจ ')+fd(x.d)).join(', '):''}</small></span></button>`).join(''):'<p class="cvnote">ไม่พบงาน ลองพิมพ์ชื่อลูกค้าหรือเลขใบงาน</p>'}</div>`,anchor,'scroll')}
 /* สร้าง / แก้คิวอื่น */
 function cvStart(d,tm,anchor,pre){if(!cvCanAp())return;if(d<today())return toast('วันที่ผ่านไปแล้ว สร้างนัดไม่ได้');const h=cvH(tm)??10;
   CV.tpo=null;CV.tpq='';CV.qc={id:'',d,end:'',title:'',ty:'',c:'',allday:false,t1:cvHm(h),t2:cvHm(Math.min(19.5,h+1)),gs:true,more:false,place:'',tel:'',map:'',who:[],note:'',...(pre||{})};cvQcPop(anchor)}
@@ -5108,7 +5136,7 @@ function cvFit(){const el=document.getElementById('cvw');if(!el)return;if(cvMob(
 /* ---- เหตุการณ์ ---- */
 document.addEventListener('click',async e=>{
   const p=document.getElementById('cvpop');
-  const t=e.target.closest('[data-cvnew],[data-cvev],[data-cvday],[data-cvcell],[data-cvwcol],[data-cvtoday],[data-cvstep],[data-cvv],[data-cvmv],[data-cvmn],[data-cvjump],[data-cvcol],[data-cvmt],[data-cvclose],[data-cvconv],[data-cvdel],[data-cvedit],[data-cvtpo],[data-cvtpk],[data-cvtpn],[data-cvsw],[data-cvmore],[data-cvsave],[data-cvpp],[data-cvaddp],[data-cvgadd],[data-cvtadd],[data-cvsyncall],[data-cvgo],[data-cvrail]');
+  const t=e.target.closest('[data-cvnew],[data-cvev],[data-cvday],[data-cvcell],[data-cvwcol],[data-cvtoday],[data-cvstep],[data-cvv],[data-cvmv],[data-cvmn],[data-cvjump],[data-cvcol],[data-cvmt],[data-cvclose],[data-cvconv],[data-cvdel],[data-cvedit],[data-cvtpo],[data-cvtpk],[data-cvtpn],[data-cvsw],[data-cvmore],[data-cvsave],[data-cvpp],[data-cvaddp],[data-cvgadd],[data-cvtadd],[data-cvsyncall],[data-cvgo],[data-cvrail],[data-cvlink],[data-cvlk],[data-cvunl]');
   if(!t){if(p&&p.classList.contains('show')&&!p.contains(e.target)&&!e.target.closest('#toast'))cvClose();return}
   const d=t.dataset;
   if('cvclose' in d||'cvgo' in d){setTimeout(cvClose,0);return}
@@ -5126,6 +5154,10 @@ document.addEventListener('click',async e=>{
   if(d.cvjump){S.f.qsel=d.cvjump;S.f.cvm=d.cvjump.slice(0,8)+'01';render();return}
   if(d.cvcol){const C=cvColSet();C.has(d.cvcol)?C.delete(d.cvcol):C.add(d.cvcol);cvSaveCol();render();return}
   if('cvmt' in d){cvMtPop(t);return}
+  if(d.cvlink){CV.lq='';cvLinkPop(d.cvlink,t);return}
+  if(d.cvlk){const ev=cvFind(CV.lnk);if(!ev||!ev.g)return;const j=S.jobs[d.cvlk];const id='gl'+cvHash(ev.g.id);
+    try{await w('appts/'+id,{link:true,gid:ev.g.id,jobId:d.cvlk,gn:ev.n.slice(0,200),gd:ev.d,gend:cvEnd(ev),createdAt:Date.now(),createdBy:S.me.id||null},'set');cvClose();cvMark('jobs/'+d.cvlk);toast('ลิงก์กับงาน “'+((j&&j.title)||'')+'” แล้ว')}catch(x){}return}
+  if(d.cvunl){const L0=(S.appts||{})[d.cvunl];cvClose();try{await w('appts/'+d.cvunl,null,'delete');if(L0&&L0.jobId)cvMark('jobs/'+L0.jobId);toast('ยกเลิกลิงก์แล้ว')}catch(x){}return}
   if(d.cvconv){const ev=cvFind(d.cvconv);if(!ev)return;cvClose();cvStart(ev.d<today()?today():ev.d,ev.tm||'10:00',null,{title:ev.n,allday:!ev.tm,end:ev.end||'',t2:ev.g&&ev.g.tm2||cvHm(Math.min(19.5,(cvH(ev.tm)||10)+1)),note:ev.g&&ev.g.desc||'',more:true});return}
   if(d.cvdel){const a=(S.appts||{})[d.cvdel];if(!a)return;cvClose();if(!(await confirmBox('ยกเลิกคิวนี้?',`“${a.title||''}” ${fd(a.d)}${cvCfg().on&&a.gs!==false?' · นัดใน Google จะถูกลบด้วย':''}`,'ยกเลิกคิว')))return;
     try{await w('appts/'+d.cvdel,{trashedAt:Date.now(),trashedBy:S.me.id||null});undoable('ยกเลิกคิวแล้ว',()=>w('appts/'+d.cvdel,{trashedAt:null,trashedBy:null}),'กู้คืนแล้ว')}catch(x){}return}
@@ -5144,7 +5176,7 @@ document.addEventListener('click',async e=>{
   if('cvtadd' in d){const T=cvT();await cvSaveTypes({groups:T.groups,types:[...T.types,{id:'u'+Date.now().toString(36),n:'ประเภทใหม่',c:cvNextColor(),g:(T.groups[T.groups.length-1]||{}).id||'off'}]});cvMtPop(null);return}
   if('cvsyncall' in d){t.disabled=true;await cvSyncAll();t.disabled=false;return}
 });
-document.addEventListener('input',e=>{const t=e.target;if(t.id==='cvq'){CV.q=t.value;schedule();return}if(t.id==='cvtps'){CV.tpq=t.value;cvReadQc();cvQcPop(null)}});
+document.addEventListener('input',e=>{const t=e.target;if(t.id==='cvls'){CV.lq=t.value;cvLinkPop(CV.lnk,null);return}if(t.id==='cvq'){CV.q=t.value;schedule();return}if(t.id==='cvtps'){CV.tpq=t.value;cvReadQc();cvQcPop(null)}});
 document.addEventListener('change',async e=>{const t=e.target,d=t.dataset||{};
   if(d.cvlay){const o=cvOff();t.checked?o.delete(d.cvlay):o.add(d.cvlay);cvSaveOff();render();return}
   if(d.cvgrp){const g=cvTree().find(x=>x.id===d.cvgrp);if(!g)return;const o=cvOff(),ids=g.items.map(i=>i[0]),allOn=ids.every(i=>!o.has(i));ids.forEach(i=>allOn?o.add(i):o.delete(i));cvSaveOff();render();return}
