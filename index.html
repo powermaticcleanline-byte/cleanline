@@ -2508,6 +2508,30 @@ html.vtg .pg{view-transition-name:pgv}
 #app .mnav{border-radius:999px!important;height:44px;box-sizing:border-box;padding:4px!important}
 #app .mnav button{border-radius:999px!important;height:36px;min-height:36px!important}
 #app .mnav button[data-mn]{width:36px;min-width:36px}
+
+/* ตัวกรองแบบ Excel ที่หัวคอลัมน์ */
+.thf{all:unset;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-radius:8px;padding:4px 6px;margin:-4px -6px;color:inherit;font:inherit}
+.thf svg{width:14px;height:14px;opacity:.55;transform:rotate(90deg)}
+.thf.on{color:#2f6b0a;font-weight:700}.thf.on svg{opacity:1;transform:none;fill:currentColor}
+.thf:hover{background:rgba(0,0,0,.05)}.thf:focus-visible{outline:2px solid var(--acc)}
+.thpop{position:fixed;z-index:95;width:280px;max-height:min(460px,calc(100vh - 16px));display:flex;flex-direction:column;background:#fff;border-radius:16px;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 16px 40px -12px rgba(16,24,40,.3)}
+.thp-b{overflow:auto;padding:12px 12px 4px;display:flex;flex-direction:column;gap:12px}
+.thp-s{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;min-width:0}
+.thp-s legend{font-size:14px;font-weight:700;color:var(--ink);padding:0 8px 6px}
+.thp-q{margin:0 0 6px;height:36px!important;min-height:36px!important}
+.thp-r{display:flex;align-items:center;gap:10px;min-height:36px;padding:0 8px;border-radius:10px;cursor:pointer;font-size:15px;color:var(--ink)}
+.thp-r:hover{background:#f3f4f6}.thp-r[hidden]{display:none}
+.thp-r input{width:18px;height:18px;accent-color:#111214;flex:none;margin:0}
+.thp-r span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thp-r small{font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums}
+.thp-all{border-bottom:1px solid #eceef1;border-radius:10px 10px 0 0;margin-bottom:2px}
+.thp-f{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #eceef1}
+.thpop.sheet{box-shadow:0 0 0 100vmax rgba(16,20,12,.4);left:0!important;right:0!important;bottom:0!important;top:auto!important;width:auto;max-height:80vh;border-radius:24px 24px 0 0;padding-bottom:env(safe-area-inset-bottom,0px)}
+.tqf .n{margin-left:6px;min-width:20px;height:20px;padding:0 6px;display:inline-grid;place-items:center;border-radius:999px;background:#111214;color:#fff;font-size:13px}
+.tqf.on{color:#2f6b0a}
+@media (min-width:641px){.tqf{display:none!important}}
+@media (min-width:641px){.jt2n th.c-no{width:122px!important}.jt2n th.c-tm{width:108px!important}.jt2n th.c-eng{width:108px!important}.jt2n th.c-dt{width:100px!important}.jt2n th.c-kw{width:98px!important}.jt2n th.c-act{width:64px!important}table.jt2.jt2n th.c-st,table.jt2.jt2n td.c-st{width:184px!important;min-width:0!important}}.engn{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:640px){table.jt2 td.c-eng{display:none!important}}
 </style></head>
 <body>
 <div class="shell">
@@ -2690,7 +2714,8 @@ const IC={
  pen:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
  wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8V21h3.2l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
- phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'
+ phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
+ funnel:'<path d="M4 5h16l-6 7.5V19l-4-2v-4.5z"/>'
 };
 IC.flag='<path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/>';IC.xc='<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>';
 const svg=(k,c='currentColor',w=1.9)=>`<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
@@ -3380,8 +3405,9 @@ const placeOf=(j,s,c)=>s.area||s.place||c.address||'';
 function needsCare(j){if(!isInstalled(j))return false;const d=pmDue(j);return (d&&dLeft(d)<=30)||(j.siteId&&cmOpen(j.siteId).length>0)}
 function isPm(j){if(!isInstalled(j))return false;const d=pmDue(j);return !!d&&dLeft(d)<=30}
 function isCm(j){return isInstalled(j)&&!!j.siteId&&cmOpen(j.siteId).length>0}
-function jobsList(st,svcMode){
-  const f=S.f;const status=st||f.status;const mine=svcMode?false:f.mine;const phase=svcMode?'':f.phase;
+const jTok=j=>{const st=stOf(j);return st==='active'?(phaseOf(j.stage)?.k||'pre'):st};const fhas=v=>Array.isArray(v)?v.length>0:!!v;const fin=(v,x)=>!fhas(v)||(Array.isArray(v)?v.includes(x):v===x);
+function jobsList(st,svcMode,skip){
+  const f=S.f;const status=st||f.status;const mine=svcMode?false:f.mine;const phase=svcMode||skip==='phase'||!fhas(f.phase)?'':f.phase;
   const bm=new Date();bm.setDate(1);bm.setMonth(bm.getMonth()+(f.jmo||0));
   const curK=`${bm.getFullYear()}-${String(bm.getMonth()+1).padStart(2,'0')}`;
   const q=f.q.trim().toLowerCase();const svc=['installed','care','pm','cm'].includes(status);
@@ -3394,9 +3420,9 @@ function jobsList(st,svcMode){
   const cnt={all:src.length,active:0,lost:0,done:0,installed:all.filter(isInstalled).length,care:all.filter(needsCare).length,pm:all.filter(isPm).length,cm:all.filter(isCm).length};src.forEach(j=>cnt[stOf(j)]=(cnt[stOf(j)]||0)+1);
   let list=status==='all'?inScope:status==='installed'?all.filter(isInstalled):status==='care'?all.filter(needsCare):status==='pm'?all.filter(isPm):status==='cm'?all.filter(isCm):inScope.filter(j=>stOf(j)===status);
   if(mine){const g=myGroup();list=list.filter(j=>j.status==='active'&&STAGES[j.stage].role===g&&!(g==='admin'&&j.stage===ST.DOCS))}
-  if(phase)list=list.filter(j=>j.status==='active'&&phaseOf(j.stage)?.k===phase);
-  if(f.team)list=list.filter(j=>j.salesTeam===f.team);
-  if(f.eng)list=list.filter(j=>(j.surveyor||'')===f.eng);
+  if(phase)list=list.filter(j=>fin(phase,jTok(j)));
+  if(skip!=='team'&&fhas(f.team))list=list.filter(j=>fin(f.team,j.salesTeam||''));
+  if(skip!=='eng'&&fhas(f.eng))list=list.filter(j=>fin(f.eng,j.surveyor||''));
   if(q)list=list.filter(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};return [j.jobNo,j.title,c.name,realName(c),c.phone,placeOf(j,s,c),j.surveyor,e.sn,e.wifiSn,unitSns(e),e.plantName,e.model,j.proposedModel,j.installTeam].join(' ').toLowerCase().includes(q)});
   if(status==='care'||status==='pm')list.sort((a,b)=>String(pmDue(a)||'9').localeCompare(String(pmDue(b)||'9')));
   else if(status==='installed'||status==='cm')list.sort((a,b)=>String(b.installDate||'').localeCompare(String(a.installDate||'')));
@@ -3413,7 +3439,9 @@ function careTags(j){
 }
 function viewJobs(mode){
   if(!S.loaded.jobs)return '<div class="card skr" aria-busy="true" aria-label="กำลังโหลดงาน">'+'<i class="sk"></i>'.repeat(6)+'</div>';
-  const f=S.f;const SV=mode==='service';const status=SV?'installed':f.status;const {all,cnt,list,curK,allMonths,svc}=jobsList(status,SV);
+  const f=S.f;const SV=mode==='service';
+  if(!SV&&!f.mine&&f.status&&f.status!=='all'&&!['installed','care','pm','cm'].includes(f.status)){f.phase=f.status==='active'?PHASES.map(x=>x.k):[f.status];f.status='all'}
+  const status=SV?'installed':f.status;const {all,cnt,list,curK,allMonths,svc}=jobsList(status,SV);
   const mLabel=k=>{const [y,m]=k.split('-').map(Number);return `${TMF[m-1]} ${y+543}`};
   const per=f.per||20;const pages=Math.max(1,Math.ceil(list.length/per));if(f.pg>=pages)f.pg=pages-1;if(f.pg<0)f.pg=0;const p0=f.pg*per;const shown=list.slice(p0,p0+per);
   const noDate=all.filter(j=>!svDate(j)).length;
@@ -3423,22 +3451,23 @@ function viewJobs(mode){
   const dd=d=>d?`${+d.slice(8,10)} ${TM[+d.slice(5,7)-1]} ${String(+d.slice(0,4)+543).slice(2)}`:'';
   const two=(a,b)=>a||b?`<b class="${a?'':'nil'}">${a||'—'}</b><span title="${esc(b||'')}">${b?esc(b):'—'}</span>`:'<span class="nil">—</span>';
   const BOARD=false;
-  const filtered=SV?(f.team||f.eng||f.q):(f.mine||f.phase||f.team||f.eng||f.q||f.status!=='all');
+  const nF=['phase','team','eng'].filter(k=>!(SV&&k==='phase')&&fhas(f[k])).length;const filtered=SV?(nF||f.q):(nF||f.q);
+  const thf=(k,l)=>`<button type="button" class="thf ${fhas(f[k])?'on':''}" data-thf="${k}" aria-haspopup="true" aria-label="กรอง${l}${fhas(f[k])?' (กรองอยู่)':''}">${l}${svg(fhas(f[k])?'funnel':'chev','currentColor',2.2)}</button>`;
   return pageHead(SV?'งานบริการหลังการขาย':f.mine?'งานที่รอดำเนินการ':'รายการงาน',BOARD?'งานที่กำลังดำเนินการ แยกตามขั้นตอน':sub,SV?'':`${allMonths||BOARD?'':monthNav('jmo')}${newBtn()}`)+``+`
   ${true?'':`<div class="scards s5 c3" role="tablist" aria-label="สถานะ">${cards.map(([k,t,ic,c,note])=>`<button role="tab" aria-selected="${status===k}" class="scd ${status===k?'on':''}" ${SV?'data-sst':'data-status'}="${k}"><span class="sci ${c}">${svg(ic,'currentColor',2)}</span><span><small>${t}</small><b>${cnt[k]||0}</b>${note?`<em>${note}</em>`:''}</span></button>`).join('')}</div>`}
   ${SV?svcAlert():''}
   <section class="card tq">
     <div class="tqb">
       <label class="jsrch">${svg('search','currentColor',2)}<input id="jq" type="search" placeholder="ชื่อไซต์, สถานที่, เลขที่ใบงาน, S/N…" value="${esc(f.q)}" aria-label="ค้นหางาน" autocomplete="off"></label>
-      ${svc||BOARD?'':`<select class="sel" id="jph" aria-label="ช่วงงาน"><option value="">ทุกช่วงงาน</option>${PHASES.map(p=>`<option value="${p.k}" ${f.phase===p.k?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`}
-      <select class="sel" id="team" aria-label="ทีมขาย"><option value="">ทุกทีมขาย</option>${TEAMS.map(t=>`<option ${f.team===t?'selected':''}>${t}</option>`).join('')}</select>
-      <select class="sel" id="jeng" aria-label="คนสำรวจ"><option value="">ทุกคนสำรวจ</option>${engs.map(t=>`<option ${f.eng===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
-      ${filtered?`<button class="btn sm ghost" data-clear="1">ล้างตัวกรอง</button>`:''}
-      ${SV?'':`<div class="seg jst" role="tablist" aria-label="สถานะ">${cards.map(([k,t])=>`<button role="tab" class="${status===k?'on':''}" aria-selected="${status===k}" data-status="${k}">${t}<span class="n">${cnt[k]||0}</span></button>`).join('')}</div>`}
+      ${SV?'':`<button type="button" class="btn sm tqf ${nF?'on':''}" data-thf="all">${svg('funnel','currentColor',2)}ตัวกรอง${nF?` <span class="n">${nF}</span>`:''}</button>`}
+      ${!SV?'':`<select class="sel" id="jph" aria-label="ช่วงงาน"><option value="">ทุกช่วงงาน</option>${PHASES.map(p=>`<option value="${p.k}" ${f.phase===p.k?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`}
+      ${!SV?'':`<select class="sel" id="team" aria-label="ทีมขาย"><option value="">ทุกทีมขาย</option>${TEAMS.map(t=>`<option ${f.team===t?'selected':''}>${t}</option>`).join('')}</select>
+      <select class="sel" id="jeng" aria-label="คนสำรวจ"><option value="">ทุกคนสำรวจ</option>${engs.map(t=>`<option ${f.eng===t?'selected':''}>${esc(t)}</option>`).join('')}</select>`}
+      ${filtered&&(SV||nF||f.q)?`<button class="btn sm ghost" data-clear="1">ล้างตัวกรอง</button>`:''}
       ${BOARD?'':`<span class="sub jcount">${list.length} งาน</span>`}${!svc&&shown.some(j=>agCls(j))?agLegend():''}
     </div>
     ${shown.length?`<div class="jtw"><table class="jt jt2 ${svc?'jt2s':'jt2n'}">
-      <thead><tr>${svc?'<th class="c-site">ไซต์</th><th>อินเวอร์เตอร์</th><th class="c-sn">S/N</th><th class="c-kw">ขนาด</th><th class="c-dt">วันติดตั้ง</th><th class="c-st">สถานะ</th>':'<th class="c-no">เลขงาน</th><th class="c-site">ไซต์</th><th class="c-tm">ทีมขาย</th><th class="c-dt">วันสำรวจ</th><th class="c-kw">ขนาด</th><th class="c-st">สถานะ</th>'}<th class="c-act">จัดการ</th></tr></thead>
+      <thead><tr>${svc?'<th class="c-site">ไซต์</th><th>อินเวอร์เตอร์</th><th class="c-sn">S/N</th><th class="c-kw">ขนาด</th><th class="c-dt">วันติดตั้ง</th><th class="c-st">สถานะ</th>':`<th class="c-no">เลขงาน</th><th class="c-site">ไซต์</th><th class="c-tm">${thf('team','ทีมขาย')}</th><th class="c-eng">${thf('eng','คนสำรวจ')}</th><th class="c-dt">วันสำรวจ</th><th class="c-kw">ขนาด</th><th class="c-st">${thf('phase','สถานะ')}</th>`}<th class="c-act">จัดการ</th></tr></thead>
       <tbody>${ibDrop(shown.map(j=>{const c=cOf(j),s=sOf(j),e=j.equipment||{};const nm=j.title||c.name||'ไม่มีชื่อไซต์';
         const kw=e.kw||j.proposedKw;const sn=e.sn||'';
         const ib=(ic,lab,attr,off)=>off?`<span class="ib ibx" data-ibk="${ic}" aria-hidden="true"></span>`:`<button type="button" class="ib" data-ibk="${ic}" ${attr} aria-label="${lab}" title="${lab}">${svg(ic,'currentColor',2)}</button>`;
@@ -3452,7 +3481,7 @@ function viewJobs(mode){
         ${svc?'':T(j.jobNo?'#'+j.jobNo:'','c-no m')}
         <td class="c-site"><b title="${esc(nm)}">${esc(nm)}</b></td>
         ${svc?T(e.model||j.proposedModel,'m')+T(sn,'c-sn snm m')+T(kw?kw+' kW':'','c-kw m')+T(dd(j.installDate),'c-dt m')
-          :`<td class="c-tm">${teamTag(j.salesTeam)||'<span class="nil">—</span>'}</td>`+T(dd(svDate(j)),'c-dt m')+T(kw?kw+' kW':'','c-kw m')}
+          :`<td class="c-tm">${teamTag(j.salesTeam)||'<span class="nil">—</span>'}</td><td class="c-eng">${j.surveyor?`<span class="engn" title="${esc(j.surveyor)}">${esc(j.surveyor)}</span>`:'<span class="nil">—</span>'}</td>`+T(dd(svDate(j)),'c-dt m')+T(kw?kw+' kW':'','c-kw m')}
         <td class="c-st">${st}</td>
         <td class="c-act"><div class="ibs">${acts.join('')}</div></td></tr>`}).join(''))}</tbody></table></div>`
     :`<div class="empty">${emp(svc?'wrench':'cal',status==='cm'?'ไม่มีแจ้งซ่อมค้าง':status==='pm'?'ไม่มีไซต์ที่ครบตรวจเช็กใน 30 วัน':status==='care'?'ไม่มีไซต์ที่ต้องดูแลตอนนี้':status==='installed'?'ยังไม่มีไซต์ที่ติดตั้ง':allMonths||filtered?emptyFilt(allMonths,f,mLabel(curK)):'ไม่มีไซต์ที่สำรวจในเดือน'+mLabel(curK))}</div>`}
@@ -5174,6 +5203,39 @@ build();
   ['input','change'].forEach(ev=>document.addEventListener(ev,e=>{const i=e.target;if(i&&i.type==='date'&&i.parentElement&&i.parentElement.classList.contains('thd'))txt(i)},true));
   document.addEventListener('click',e=>{const i=e.target;if(i&&i.type==='date'&&i.parentElement&&i.parentElement.classList.contains('thd')&&!i.disabled){try{i.showPicker()}catch(x){}}},true);
   window.thDateSync=wrap;wrap()})();
+
+/* ตัวกรองแบบ Excel: กดหัวคอลัมน์ (ทีมขาย / คนสำรวจ / สถานะ) → ติ๊กค่าที่ต้องการ → ตกลง · มือถือกดปุ่ม "ตัวกรอง" ได้ครบทั้ง 3 หัวข้อ */
+(function(){const NAME={team:'ทีมขาย',eng:'คนสำรวจ',phase:'สถานะ'};
+  const opts=k=>{const base=jobsList(S.f.status,false,k).list;const c={};
+    if(k==='phase'){base.forEach(j=>{const t=jTok(j);c[t]=(c[t]||0)+1});return [...PHASES.map(p=>[p.k,p.name]),['done','ปิดงานแล้ว'],['cancelled','ยกเลิก']].map(([v,l])=>[v,l,c[v]||0])}
+    const key=k==='team'?'salesTeam':'surveyor';base.forEach(j=>{const v=j[key]||'';c[v]=(c[v]||0)+1});
+    const vals=[...new Set([...(k==='team'?TEAMS:[]),...Object.keys(c)])].sort((a,b)=>a===''?1:b===''?-1:a.localeCompare(b,'th',{numeric:true}));
+    return vals.map(v=>[v,v||'(ว่าง)',c[v]||0])};
+  const cur=k=>{const v=S.f[k];return fhas(v)?(Array.isArray(v)?v:[v]):null};
+  const sec=k=>{const O=opts(k),sel=cur(k);const on=v=>!sel||sel.includes(v);
+    return `<fieldset class="thp-s" data-k="${k}"><legend>${NAME[k]}</legend>${O.length>8?`<label class="jsrch thp-q">${svg('search','currentColor',2)}<input type="search" placeholder="ค้นใน${NAME[k]}" aria-label="ค้นใน${NAME[k]}"></label>`:''}
+      <label class="thp-r thp-all"><input type="checkbox" data-all ${O.every(o=>on(o[0]))?'checked':''}><span>เลือกทั้งหมด</span></label>
+      <div class="thp-l">${O.map(([v,l,n])=>`<label class="thp-r" data-t="${esc(String(l).toLowerCase())}"><input type="checkbox" value="${esc(v)}" ${on(v)?'checked':''}><span>${esc(l)}</span><small>${n}</small></label>`).join('')}</div></fieldset>`};
+  let pop=null,anchor=null;const close=()=>{if(pop){pop.remove();pop=null}if(anchor){anchor.setAttribute('aria-expanded','false');anchor=null}};
+  const place=()=>{if(!pop||!anchor)return;if(matchMedia('(max-width:640px)').matches){pop.classList.add('sheet');return}const r=anchor.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;
+    let top=r.bottom+6;if(top+h>innerHeight-8)top=Math.max(8,r.top-6-h);pop.style.top=top+'px';pop.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left))+'px'};
+  const sync=fs=>{const all=fs.querySelector('[data-all]'),bx=[...fs.querySelectorAll('.thp-l input')];const n=bx.filter(b=>b.checked).length;all.checked=n===bx.length;all.indeterminate=n>0&&n<bx.length};
+  function open(btn){close();const k=btn.dataset.thf;const keys=k==='all'?['phase','team','eng']:[k];anchor=btn;btn.setAttribute('aria-expanded','true');
+    pop=document.createElement('div');pop.className='thpop';pop.setAttribute('role','dialog');pop.setAttribute('aria-label','กรอง'+(k==='all'?'':NAME[k]));
+    pop.innerHTML=`<div class="thp-b">${keys.map(sec).join('')}</div><div class="thp-f"><button type="button" class="btn sm ghost" data-thclr>ล้าง</button><span style="flex:1"></span><button type="button" class="btn sm" data-thx>ยกเลิก</button><button type="button" class="btn pri sm" data-thok>ตกลง</button></div>`;
+    document.body.appendChild(pop);pop.querySelectorAll('.thp-s').forEach(sync);place();(pop.querySelector('.thp-q input')||pop.querySelector('input'))?.focus()}
+  function apply(){pop.querySelectorAll('.thp-s').forEach(fs=>{const k=fs.dataset.k,bx=[...fs.querySelectorAll('.thp-l input')],on=bx.filter(b=>b.checked).map(b=>b.value);S.f[k]=on.length===bx.length?'':on});
+    S.f.pg=0;S.f.limit=40;const f=anchor;close();render();f&&document.querySelector(`[data-thf="${f.dataset.thf}"]`)?.focus()}
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-thf]');if(b){e.preventDefault();e.stopPropagation();if(anchor===b)close();else open(b);return}
+    if(!pop)return;if(!e.target.closest('.thpop')){close();return}
+    if(e.target.closest('[data-thx]')){const a=anchor;close();a?.focus();return}
+    if(e.target.closest('[data-thok]')){apply();return}
+    if(e.target.closest('[data-thclr]')){pop.querySelectorAll('.thp-s input[type=checkbox]').forEach(c=>{c.checked=true;c.indeterminate=false});return}},true);
+  document.addEventListener('change',e=>{if(!pop||!e.target.closest('.thpop'))return;const fs=e.target.closest('.thp-s');if(!fs)return;
+    if(e.target.matches('[data-all]'))fs.querySelectorAll('.thp-l input').forEach(c=>{if(!c.closest('.thp-r').hidden)c.checked=e.target.checked});sync(fs)});
+  document.addEventListener('input',e=>{if(!pop||!e.target.closest('.thp-q'))return;const q=e.target.value.trim().toLowerCase();e.target.closest('.thp-s').querySelectorAll('.thp-l .thp-r').forEach(r=>r.hidden=!!q&&!r.dataset.t.includes(q))});
+  document.addEventListener('keydown',e=>{if(!pop)return;if(e.key==='Escape'){e.preventDefault();e.stopPropagation();const a=anchor;close();a?.focus()}else if(e.key==='Enter'&&!e.target.matches('button')){e.preventDefault();apply()}},true);
+  addEventListener('resize',place);addEventListener('hashchange',close);addEventListener('scroll',e=>{if(pop&&!e.target.closest?.('.thpop'))place()},true)})();
 </script>
 </body>
 </html>
