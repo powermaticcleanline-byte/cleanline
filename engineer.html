@@ -1753,7 +1753,7 @@ function statusOf(j){
   if(xCan(j))return {t:'ยกเลิก',c:'f-red'};
   if(j.status==='lost')return {t:'ลูกค้ายังไม่ตกลง',c:'f-red'};
   if(j.stage===ST.SURVEY)return needDraw(j)?{t:'รออัปโหลดแบบ',c:'f-vio'}:{t:'กำลังสำรวจ',c:'f-blu'};
-  return {t:'ขั้น '+j.stage+' · '+(STAGES[j.stage]?.name||''),c:j.stage===ST.OFFER?'f-org':'f-mut'};
+  return {t:'ขั้น '+j.stage+' · '+(STAGES[j.stage]?.name||''),c:'f-mut'};
 }
 const propsView=j=>propsOf(j).map((p,k)=>({...p,kw:kwOf(p)||j.proposals?.[k]?.proposedKw||(k===0?j.proposedKw:'')})).filter(p=>p.proposedModel||p.kw);
 const cableFields=d=>`${fld('design.cableAcM','สายไฟ AC จากตู้ไฟถึงจุดติดตั้ง (เมตร)','number',null,0,'เช่น 90',d.design.cableAcM)}
