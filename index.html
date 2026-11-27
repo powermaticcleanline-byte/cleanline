@@ -2625,6 +2625,24 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 @media (max-width:900px){.hs{grid-template-columns:1fr 1fr}.hs-d{grid-column:1/-1;flex-direction:row!important;align-items:baseline;flex-wrap:wrap;gap:4px 12px!important;border-bottom:1px solid rgba(16,24,40,.08)}.hs-d b{font-size:56px;margin:0}.hs-qa{margin:0 0 0 auto;padding:0}.hs-qa .btn{width:auto}.hs>div+div{border-left:0}.hs-r{border-left:1px solid rgba(16,24,40,.08)!important}}
 @media (max-width:640px){.hs{grid-template-columns:1fr}.hs>div{padding:18px 20px}.hs-r{border-left:0!important;border-top:1px solid rgba(16,24,40,.08)}.hs-qa{display:none}.htls.hs-tl{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 .hs-w b.z{background:#e3e6ea;color:#5f6672}
+.hs{grid-template-columns:200px minmax(0,1fr) 300px!important}
+.daytl{position:relative;margin-top:22px}
+.daytl-ax{position:absolute;left:0;right:0;bottom:0;height:24px;border-top:1px solid rgba(16,24,40,.1);font-size:12px;color:#5f6672}
+.daytl-ax i{position:absolute;top:5px;transform:translateX(-50%);font-style:normal;font-variant-numeric:tabular-nums}.daytl-ax i:first-child{transform:none}.daytl-ax i:last-child{transform:translateX(-100%)}
+.daytl-g{position:absolute;top:0;bottom:24px;width:1px;background:rgba(16,24,40,.07)}
+.daytl-now{position:absolute;top:-6px;bottom:20px;width:2px;background:#d93036;border-radius:2px;z-index:0;pointer-events:none}.daytl-now::after{content:"ตอนนี้";font-style:normal;position:absolute;top:-18px;left:4px;font-size:12px;font-weight:700;color:#d93036;white-space:nowrap}
+.daytl-ev{position:absolute;height:48px;border-radius:12px;background:#fff;box-shadow:0 0 0 1px rgba(16,24,40,.08);padding:4px 10px;overflow:hidden;font-size:13px;line-height:1.35;display:flex;flex-direction:column;justify-content:center;text-decoration:none;color:var(--ink);border-left:4px solid #4f8a1a;z-index:1}
+.daytl-ev:hover{box-shadow:0 0 0 1px rgba(16,24,40,.16),0 6px 16px -10px rgba(16,24,40,.4)}
+.daytl-ev b{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.daytl-ev span{color:#5f6672;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daytl-ev.i{border-left-color:#111214;background:#f7f7f8}
+.hs-q{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.hs-qc{background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 0 0 1px rgba(16,24,40,.06);display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink)}
+.hs-qc:hover{box-shadow:0 0 0 1px rgba(16,24,40,.14),0 6px 16px -10px rgba(16,24,40,.4)}
+.hs-qc span{white-space:normal}.hs-qc b{font-size:36px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums}.hs-qc b.z{color:#b6bbc3}.hs-qc span{font-size:14px;font-weight:600;line-height:1.3}
+@media (min-width:901px) and (max-width:1440px){.hs{grid-template-columns:180px minmax(0,1fr)!important}.hs>.hs-d{grid-row:1/3}.hs>.hs-r{grid-column:2;border-top:1px solid rgba(16,24,40,.08)}.hs-r .hs-q{max-width:520px}}
+.daytl-ev{min-width:150px}
+@media (max-width:900px){.hs{grid-template-columns:1fr 1fr!important}.hs>.hs-a{grid-column:1/-1}.hs>.hs-r{grid-column:1/-1;border-left:0!important;border-top:1px solid rgba(16,24,40,.08)}.hs-r .hs-q{max-width:520px}}
+@media (max-width:640px){.hs{grid-template-columns:1fr!important}.daytl{height:auto!important;margin-top:0;display:flex;flex-direction:column;gap:6px}.daytl-ax,.daytl-g,.daytl-now{display:none}.daytl-ev{position:static;width:auto!important;height:auto;padding:8px 12px}}
 
 /* หน้าภาพรวมใหม่: 7 วันข้างหน้า (ใบปฏิทินต่อจากแผ่นวันนี้) · เดือนนี้ */
 .wks{padding:20px 24px!important}
@@ -3409,7 +3427,14 @@ function heroStrip(t,d,evOn,active,all){
   const tm=x=>x.k==='i'?'ทั้งวัน':x.j.queueTime||'';const typ=x=>x.k==='s'?'สำรวจ':`ติดตั้ง${x.of>1?` วันที่ ${x.day}/${x.of}`:''}`;const who=x=>x.k==='s'?(x.j.surveyor||'ยังไม่มีคนสำรวจ'):(x.j.installTeam||'');
   const row=(x,day)=>`<a class="hs-ap" href="#job-${esc(x.j.id)}"><span class="hs-tm">${day?`<small>${day}</small>`:''}${esc(tm(x)||'—')}</span><span class="hs-ty ${x.k}">${typ(x)}</span><span class="hs-nm"><b>${esc(x.j.title||'ไม่มีชื่อไซต์')}</b><span>${esc(who(x))}</span></span></a>`;
   const L=evOn(t);let ap;
-  if(L.length)ap=`<h2>นัดวันนี้ <span>${L.length} นัด</span></h2>${L.slice(0,3).map(x=>row(x)).join('')}${L.length>3?`<a class="hs-more" href="#queue">ดูอีก ${L.length-3} นัดในปฏิทิน</a>`:''}`;
+  if(L.length){const A=8,B=18,pc=x=>Math.max(0,Math.min(100,(x-A)/(B-A)*100)),hr=x=>{const m=/^(\d{1,2})[:.](\d{2})/.exec(x.j.queueTime||'');return x.k==='s'&&m?+m[1]+(+m[2])/60:null};
+    const tmd=L.filter(x=>hr(x)!=null).sort((a,b)=>hr(a)-hr(b)),day=L.filter(x=>hr(x)==null);const lanes=[];
+    const top0=day.length*54+8;
+    const ev=tmd.map(x=>{const s0=hr(x),e=s0+2.5;let ln=lanes.findIndex(end=>end<=s0);if(ln<0){ln=lanes.length;lanes.push(e)}else lanes[ln]=e;const l=Math.min(pc(s0),75);
+      return `<a class="daytl-ev" href="#job-${esc(x.j.id)}" style="left:min(${l}%,calc(100% - 150px));width:${Math.max(Math.min(pc(e),100)-l,25)}%;top:${top0+ln*54}px"><b>${esc(x.j.queueTime)} ${esc(x.j.title||'ไม่มีชื่อไซต์')}</b><span>${esc(who(x))}</span></a>`}).join('');
+    const dv=day.map((x,i)=>`<a class="daytl-ev i" href="#job-${esc(x.j.id)}" style="left:0;width:100%;top:${i*54}px"><b>${x.k==='i'?typ(x)+' ทั้งวัน':'สำรวจ (ยังไม่ระบุเวลา)'} · ${esc(x.j.title||'ไม่มีชื่อไซต์')}</b><span>${esc(who(x))}</span></a>`).join('');
+    const H=top0+Math.max(lanes.length,tmd.length?1:0)*54+30;const T=[8,10,12,14,16,18];const nw=new Date(),nh=nw.getHours()+nw.getMinutes()/60;
+    ap=`<h2>นัดวันนี้ <span>${L.length} นัด</span></h2><div class="daytl" style="height:${H}px">${T.map(x=>`<i class="daytl-g" style="left:${pc(x)}%"></i>`).join('')}<div class="daytl-ax">${T.map(x=>`<i style="left:${pc(x)}%">${String(x).padStart(2,'0')}:00</i>`).join('')}</div>${nh>=A&&nh<=B?`<i class="daytl-now" style="left:${pc(nh)}%"></i>`:''}${dv}${ev}</div>`}
   else{let nx=null,nk='';for(let i=1;i<=30&&!nx;i++){const k=isoAdd(t,i);const E=evOn(k);if(E.length){nx=E[0];nk=k}}
     const dl=k=>{const n=Math.round((new Date(k+'T00:00:00')-new Date(t+'T00:00:00'))/864e5);return n===1?'พรุ่งนี้':n===2?'มะรืนนี้':`${TD[new Date(k+'T00:00:00').getDay()]} ${fd(k)}`};
     ap=`<h2>วันนี้ไม่มีนัด</h2>${nx?`<p class="hs-sub">นัดถัดไป</p>${row(nx,dl(nk))}`:'<p class="hs-sub">30 วันข้างหน้ายังไม่มีนัดสำรวจหรือติดตั้ง</p>'}`}
@@ -3417,7 +3442,8 @@ function heroStrip(t,d,evOn,active,all){
   const own=()=>{const c={};active.filter(j=>j.stage!==ST.OFFER).forEach(j=>{c[j.stage]=(c[j.stage]||0)+1});const K=Object.keys(c).sort((a,b)=>a-b);return K.length?`<h2>งานแต่ละขั้น <span>${Object.values(c).reduce((a,b)=>a+b,0)} งาน</span></h2><div class="hs-wl">${K.map(k=>`<a class="hs-w" href="#jobs" data-pillf="${esc(phaseOf(+k)?.k||'pre')}"><span>${esc(STAGES[k].name)}</span><b>${c[k]}</b>${svg('chev','currentColor',2.2)}</a>`).join('')}</div>`:''};
   const bk=()=>{const sv=active.filter(j=>j.stage===ST.ACCEPT).length,ins=active.filter(j=>j.stage===ST.INSREQ).length,b1=active.filter(j=>j.stage===ST.BOOK).length;
     const r=(n,l,attr)=>`<a class="hs-w" href="#today" ${attr}><span>${l}</span><b class="${n?'':'z'}">${n}</b>${svg('chev','currentColor',2.2)}</a>`;
-    return `<h2>จองคิว <span>${sv+ins+b1} งาน</span></h2><div class="hs-wl">${r(sv,'คิวสำรวจรอตอบรับ','data-bkgo="sv"')}${r(ins,'คิวติดตั้งรอจอง','data-bkgo="ins"')}${b1?`<a class="hs-w" href="#mine"><span>จองคิวสำรวจ (ยังไม่มีวัน)</span><b>${b1}</b>${svg('chev','currentColor',2.2)}</a>`:''}</div>`};
+    const q=(n,l,k)=>`<a class="hs-qc" href="#today" data-bkgo="${k}"><b class="${n?'':'z'}">${n}</b><span>${l}</span></a>`;
+    return `<h2>จองคิว <span>${sv+ins+b1} งาน</span></h2><div class="hs-q">${q(sv,'คิวสำรวจรอตอบรับ','sv')}${q(ins,'คิวติดตั้งรอจอง','ins')}</div><div class="hs-wl">${b1?`<a class="hs-w" href="#mine"><span>จองคิวสำรวจ (ยังไม่มีวัน)</span><b>${b1}</b>${svg('chev','currentColor',2.2)}</a>`:''}</div>`};
   const wait=myGroup()==='admin'?bk():!myGroup()?own():M.length?`<h2>รอคุณ <span>${M.length} งาน</span></h2><div class="hs-wl">${Object.keys(by).sort((a,b)=>a-b).map(k=>{const A=by[k];return `<a class="hs-w" href="${A.length===1?'#job-'+A[0].id:'#mine'}"><span>${esc(STAGES[k].name)}</span><b>${A.length}</b>${svg('chev','currentColor',2.2)}</a>`}).join('')}</div>`:`<h2>รอคุณ</h2><p class="hs-sub hs-ok">${svg('check','currentColor',2.4)}ไม่มีงานรอคุณ เคลียร์หมดแล้ว</p>`;
   return `<section class="card hs" aria-label="วันนี้">
     <div class="hs-d"><b>${d.getDate()}</b><span>วัน${TD[d.getDay()]}</span><span>${TMF[d.getMonth()]} ${d.getFullYear()+543}</span><div class="hs-qa">${newBtn()}</div></div>
