@@ -1693,7 +1693,7 @@ function nfFields(f,team){return `      <h2 class="nst2"><i class="nstep">2</i>�
 `}
 function nfWhen(noHead){const f=S.nf||{};const t=today();const sel=f.date?dayInfo(f.date):null;
   return `  <div class="cslot">${f.date?`${noHead?'':`<b>${TD[new Date(f.date+'T00:00:00').getDay()]} ${fd(f.date)} · เลือกเวลา</b>`}
-    <div class="slots">${SLOTS.map(s=>{const gone=f.date===t&&s<=new Date().toTimeString().slice(0,5);const tk=!gone&&sel.taken.includes(s);return `<button type="button" class="slot ${f.time===s&&!gone?'on':''}" ${tk||gone?'disabled':`data-nt="${s}"`}>${s}${tk?'<small>จองแล้ว</small>':gone?'<small>เลยเวลาแล้ว</small>':''}</button>`}).join('')}</div>`
+    <div class="slots">${SLOTS.map(s=>{const gone=slotGone(f.date,s);const tk=!gone&&sel.taken.includes(s);return `<button type="button" class="slot ${f.time===s&&!gone?'on':''}" ${tk||gone?'disabled':`data-nt="${s}"`}>${s}${tk?'<small>จองแล้ว</small>':gone?'<small>เลยเวลาแล้ว</small>':''}</button>`}).join('')}</div>`
     :'<span class="sub">เลือกวันที่ว่างในปฏิทินก่อน แล้วเลือกเวลา</span>'}</div>
   ${nfCanAssign()&&f.date&&f.time?`<label class="fld neng" for="n-eng">คนสำรวจ<select id="n-eng"><option value="">ให้หัวหน้าจัดงานเลือกทีหลัง</option>${SV_TEAMS.map(t=>{const b=teamBlock(t,f.date,null,f.time,null);return `<option value="${esc(t)}" ${f.eng===t&&!b?'selected':''} ${b?'disabled':''}>${esc(t)}${b?' · '+esc(b):''}</option>`}).join('')}</select><span class="sub">เลือกเลยแล้วระบบส่งใบงานให้ทันที ไม่ต้องรอขั้นจัดคน</span></label>
    <div class="fld neng nhelp"><span>คนไปด้วย <span class="opt">ไม่บังคับ · เช่น ทีม EV</span></span>${cvPick(f.help||[],f.date,f.time,cvHm(cvH(f.time)+1.5),'','data-nhp',f.eng)}</div>`:''}
@@ -1837,7 +1837,12 @@ function cvShown(e){if(cvOff().has(cvLay(e)))return false;if(CV.who&&!cvWho(e).i
 const cvSortT=L=>L.sort((a,b)=>(cvH(a.tm)??-1)-(cvH(b.tm)??-1));
 function cvHol(k){return cvGEvents().find(e=>e.k==='h'&&cvOn(e,k))}
 function cvCap(k){if(k<today())return null;const d=cvD(k);if(d.getDay()===0)return null;const cl=closedDays()[k];if(cl)return {t:'ปิดรับคิว',c:'off',why:cl};
-  if(cvHol(k))return {t:'วันหยุด',c:'off'};const di=dayInfo(k);return di.left<=0?{t:di.used?'เต็ม':'ไม่มีคน',c:di.used?'full':'off'}:{t:'ว่าง '+di.left,c:''}}
+  if(cvHol(k))return {t:'วันหยุด',c:'off'};const di=dayInfo(k);let left=di.left;
+  if(halfGone(k,'pm'))return {t:'ปิดแล้ว',c:'off'};if(halfGone(k,'am'))left=Math.min(left,svHalfFree(k,'pm',di.L));
+  return left<=0?{t:di.used?'เต็ม':'ไม่มีคน',c:di.used?'full':'off'}:{t:'ว่าง '+left,c:''}}
+/* คิวว่างของช่วงเช้า/บ่าย (สูตรเดียวกับ taken ใน dayInfo): ทีมประจำที่ว่างในเวลานั้น − งานที่ยังไม่มีคนในช่วงนั้น */
+function svHalfFree(k,h,L){const reg=SV_TEAMS.filter(t=>!SV_APPROVAL.includes(t));const un=L.filter(j=>!j.surveyTeam&&halfOf(j.queueTime)===h).length;
+  return Math.max(0,...SLOTS.filter(t=>halfOf(t)===h&&!slotGone(k,t)).map(tm=>reg.filter(t=>!teamBlock(t,k,null,tm)).length-un))}
 /* ---- ดึงนัดจาก Google (ทีละเดือนที่แสดง) ---- */
 function cvGridRange(){const c=cvD(S.f.cvm||today().slice(0,8)+'01'),f=isoOf(new Date(c.getFullYear(),c.getMonth(),1));const s=cvMon(f);return [s,isoAdd(s,41)]}
 function cvLoadG(force){if(!S.db||!S.db.call)return;const [a,b]=cvGridRange(),key=a;const cur=CV.gl[key];if(cur&&(cur.busy||(!force&&Date.now()-cur.at<120e3)))return;
@@ -2256,15 +2261,15 @@ function slHome(){
 /* ฟอร์มแจ้งขอคิว: ค่าเก็บใน S.sf (หน้าจอวาดใหม่ทุกครั้งที่ข้อมูลอัปเดต) */
 function slLoadSlots(){if(S.slq&&Date.now()-S.slq.at<60e3||S.slqBusy)return;if(!S.db||!S.db.call){S.slq={at:Date.now(),days:{}};return}
   S.slqBusy=1;S.db.call('slots',{days:14}).then(r=>{S.slq={at:Date.now(),days:r.days||{},order:r.order||[]}}).catch(()=>{S.slq={at:Date.now(),days:{},err:1}}).finally(()=>{S.slqBusy=0;schedule()})}
-const slHalfFree=(d,h)=>d?Math.max(0,(d.cap||0)-(d[h]||0)):0;
+const slHalfFree=(d,h,k)=>!d||k&&halfGone(k,h)?0:Math.max(0,(d.cap||0)-(d[h]||0));
 function slNewView(){
   const f=S.sf||(S.sf={kwp:'',sys:'On Grid'});slLoadSlots();
   const q=S.slq;const order=q&&q.order&&q.order.length?q.order:[...Array(14)].map((_,i)=>{const x=new Date(Date.now()+i*864e5);return isoOf(x)});
-  const dayBtn=k=>{const d=q&&q.days[k];const dt=new Date(k+'T00:00:00');const free=d?slHalfFree(d,'am')+slHalfFree(d,'pm'):null;
-    const st=d&&d.closed?['no',d.closed]:free===null?['','—']:free===0?['no','เต็ม']:free<=2?['few',`ว่าง ${free}`]:['ok',`ว่าง ${free}`];
+  const dayBtn=k=>{const d=q&&q.days[k];const dt=new Date(k+'T00:00:00');const free=d?slHalfFree(d,'am',k)+slHalfFree(d,'pm',k):null;
+    const st=d&&d.closed?['no',d.closed]:free===null?['','—']:free===0?['no',halfGone(k,'pm')?'ปิดแล้ว':'เต็ม']:free<=2?['few',`ว่าง ${free}`]:['ok',`ว่าง ${free}`];
     return `<button type="button" class="sld ${st[0]} ${f.date===k?'on':''}" data-sld="${k}" ${st[0]==='no'?'disabled':''} aria-pressed="${f.date===k}"><small>${['อา','จ','อ','พ','พฤ','ศ','ส'][dt.getDay()]}</small><b>${dt.getDate()}</b><i>${esc(st[1])}</i></button>`};
   const d=f.date&&q&&q.days[f.date];
-  const tBtn=t=>{const h=t<'12:00'?'am':'pm';const full=d&&slHalfFree(d,h)===0;return `<button type="button" class="sls ${f.time===t?'on':''}" data-sls="${t}" ${full?'disabled':''} aria-pressed="${f.time===t}">${t}</button>`};
+  const tBtn=t=>{const h=t<'12:00'?'am':'pm';const gone=slGone(f,t),full=gone||d&&slHalfFree(d,h,f.date)===0,on=f.time===t&&!gone;return `<button type="button" class="sls ${on?'on':''}" data-sls="${t}" ${full?'disabled':''} aria-pressed="${on}"${gone?' title="เลยเวลาแล้ว"':''}>${t}</button>`};
   const I=(id,l,v,x='')=>`<label class="fld" for="sf-${id}">${l}<input id="sf-${id}" value="${esc(v||'')}" ${x}></label>`;
   const miss=slMiss(f);
   return `<div class="top"><nav class="crumb"><a href="#today">งานของฉัน</a><span>/</span><b>แจ้งขอคิวสำรวจ</b></nav></div>${pageHead('แจ้งขอคิวสำรวจ','ออฟฟิศจะยืนยันคิวและจัดคนสำรวจให้')}
@@ -2276,11 +2281,15 @@ function slNewView(){
   </section>
   <section class="card pad slq"><h2>วันที่อยากให้สำรวจ</h2><p class="sub" style="margin:0 0 8px">${q?(q.err?'ดูคิวว่างไม่ได้ตอนนี้ เลือกวันได้ ออฟฟิศจะยืนยันให้':'จำนวนคิวว่างโดยประมาณ ออฟฟิศยืนยันอีกครั้ง'):'กำลังดูคิวว่าง…'}</p>
     <div class="slds">${order.map(dayBtn).join('')}</div>
-    ${f.date?`<h3>เวลา · ${fd(f.date)}</h3><div class="slss"><small>เช้า${d?` · ว่าง ${slHalfFree(d,'am')}`:''}</small>${SLOTS.filter(t=>t<'12:00').map(tBtn).join('')}<small>บ่าย${d?` · ว่าง ${slHalfFree(d,'pm')}`:''}</small>${SLOTS.filter(t=>t>='12:00').map(tBtn).join('')}</div>`:''}
+    ${f.date?`<h3>เวลา · ${fd(f.date)}</h3><div class="slss"><small>เช้า${d?` · ว่าง ${slHalfFree(d,'am',f.date)}`:''}</small>${SLOTS.filter(t=>t<'12:00').map(tBtn).join('')}<small>บ่าย${d?` · ว่าง ${slHalfFree(d,'pm',f.date)}`:''}</small>${SLOTS.filter(t=>t>='12:00').map(tBtn).join('')}</div>`:''}
     <div class="slgo">${miss.length?`<small>ยังขาด: ${miss.join(', ')}</small>`:'<small>พร้อมส่ง</small>'}<button type="button" class="btn pri" data-slsend="1" ${miss.length||S.slBusy?'disabled':''}>${S.slBusy?'กำลังส่ง…':'ส่งคำขอคิว'}</button></div>
   </section></div>`;
 }
-function slMiss(f){const m=[];if(!String(f.first||'').trim())m.push('ชื่อ');if(String(f.phone||'').replace(/\D/g,'').length<9)m.push('เบอร์');if(!String(f.area||'').trim())m.push('พื้นที่');if(!f.date)m.push('วันที่');if(!f.time)m.push('เวลา');return m}
+/* 4.44 เวลาที่เลยไปแล้วของวันนี้: จองไม่ได้ และไม่นับเป็นคิวว่าง · ช่วงเช้า/บ่ายที่เลยทุกเวลาแล้วนับว่าง 0 · ใช้ทั้งฟอร์มเซลส์และฝั่งออฟฟิศ (cvCap) */
+const slotGone=(k,t)=>k===today()&&t<=new Date().toTimeString().slice(0,5);
+const halfGone=(k,h)=>SLOTS.filter(t=>halfOf(t)===h).every(t=>slotGone(k,t));
+const slGone=(f,t)=>slotGone(f.date,t);
+function slMiss(f){const m=[];if(!String(f.first||'').trim())m.push('ชื่อ');if(String(f.phone||'').replace(/\D/g,'').length<9)m.push('เบอร์');if(!String(f.area||'').trim())m.push('พื้นที่');if(!f.date)m.push('วันที่');if(!f.time||slGone(f,f.time))m.push('เวลา');return m}
 async function slSend(){
   const f=S.sf||{};if(slMiss(f).length||S.slBusy)return;S.slBusy=1;render();
   const now=Date.now(),me=S.me.id,first=f.first.trim(),last=String(f.last||'').trim(),name=(first+' '+last).trim();
