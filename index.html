@@ -2705,23 +2705,26 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 @media (max-width:640px){.wks{padding:16px!important}.wks-g{grid-template-columns:repeat(7,132px)}.hmo-h{font-size:18px}}
 .hmo .dsn{color:#5f6672!important;font-weight:500}
 /* ===== ปฏิทินงานใหม่ (27 พ.ย.) แบบ Google Calendar · คลาสขึ้นต้น cv ===== */
-.pg:has(.cvw){padding-bottom:0 !important}
-.cvw{display:flex;flex-direction:column;min-height:0;gap:10px}
+#app>.pg:has(.cvw){max-width:none !important;padding-left:16px !important;padding-right:16px !important;padding-bottom:0 !important}
+.cvw{display:flex;flex-direction:column;min-height:0;gap:8px}
+.cvw.norail .cvb{grid-template-columns:minmax(0,1fr)}.cvw.norail .cvrail{display:none}
+.cvtb .cvnew2{display:none}.cvw.norail .cvtb .cvnew2{display:inline-flex}
+.cvrt svg{width:20px;height:20px}
 .cvw .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .cvtb{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
-.cvtb .ib{width:40px;height:40px;border-radius:50%;border:0;background:none}
+.cvtb .ib{width:36px;height:36px;border-radius:50%;border:0;background:none;display:inline-grid;place-items:center;color:inherit;cursor:pointer}
 .cvtb .ib:hover{background:rgba(0,0,0,.05)}
 .cvtb .ib svg{width:20px;height:20px;transform:rotate(180deg)}
 .cvtb .ib.nx svg{transform:none}
-.cvtt{font-size:26px;line-height:1.2;margin:0 6px 0 4px;font-weight:700;color:var(--ink,#16171d)}
+.cvtt{font-size:22px;line-height:1.2;margin:0 6px 0 2px;font-weight:700;color:var(--ink,#16171d)}
 .cvsp{flex:1}
 .cvgs{font-size:14px;font-weight:600;color:#667085;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 .cvgs.ok{color:#2f6b0a}.cvgs.err{color:#b42318}.cvgs svg{width:16px;height:16px}
-.cvsr{display:flex;align-items:center;gap:6px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1px #d0d5dd;padding:0 12px;height:40px;width:220px;color:#667085}
+.cvsr{display:flex;align-items:center;gap:6px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1px #d0d5dd;padding:0 12px;height:38px;width:220px;color:#667085}
 .cvsr svg{width:16px;height:16px;flex:none}
 .cvsr input{border:0 !important;outline:0;background:none !important;width:100%;font-size:15px !important;padding:0 !important;box-shadow:none !important;height:auto !important}
 .cvseg{flex:none}
-.cvb{display:grid;grid-template-columns:236px minmax(0,1fr);gap:14px;flex:1;min-height:0}
+.cvb{display:grid;grid-template-columns:224px minmax(0,1fr);gap:12px;flex:1;min-height:0}
 .cvrail{min-height:0;overflow:auto;padding:2px 2px 10px}
 .cvmain{min-height:0;overflow:hidden;padding:0 !important;display:flex;flex-direction:column}
 .cvcreate{border:0;background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.15),0 4px 10px rgba(0,0,0,.06);padding:12px 22px;font:inherit;font-weight:700;font-size:15px;display:flex;gap:10px;align-items:center;min-height:52px;margin:0 0 14px;cursor:pointer;color:inherit}
@@ -2758,7 +2761,7 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 /* เดือน */
 .cvmo{display:flex;flex-direction:column;height:100%;min-height:0}
 .cvwd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid #e6e8e4}
-.cvwd div{font-size:14px;color:#525c6e;text-align:center;padding:8px 0 4px;font-weight:600}
+.cvwd div{font-size:14px;color:#525c6e;text-align:center;padding:6px 0 4px;font-weight:600}
 .cvwks{flex:1;min-height:0;display:flex;flex-direction:column}
 .cvwk{position:relative;flex:1 1 0;min-height:52px;overflow:hidden;border-bottom:1px solid #e6e8e4}
 .cvwk:last-child{border-bottom:0}
@@ -2769,16 +2772,16 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 .cvbg div.sel{box-shadow:inset 0 0 0 2px #16a34a}
 .cvbg div.cvover{background:#eef7e2;box-shadow:inset 0 0 0 2px #458c10}
 .cvbg div.full.cvover{background:#fff1f0;box-shadow:inset 0 0 0 2px #d92d20}
-.cvfg{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:min-content;row-gap:2px;padding-bottom:6px;pointer-events:none}
+.cvfg{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:min-content;row-gap:1px;padding-bottom:4px;pointer-events:none}
 .cvfg>*{pointer-events:auto}
-.cvdh{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 6px 2px;position:relative;pointer-events:none !important;min-width:0}
-.cvdn{pointer-events:auto;border:0;background:none;min-width:30px;padding:0 6px;white-space:nowrap;height:30px;border-radius:15px;font:inherit;font-weight:600;font-size:15px;cursor:pointer;color:inherit}
+.cvdh{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:3px 6px 1px;position:relative;pointer-events:none !important;min-width:0}
+.cvdn{pointer-events:auto;border:0;background:none;min-width:26px;padding:0 6px;white-space:nowrap;height:26px;border-radius:13px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;color:inherit}
 .cvdn:hover{background:rgba(0,0,0,.06)}
 .cvdh.o .cvdn{color:#a5abb6}
 .cvdh.t .cvdn{background:#16171d;color:#fff}
-.cvcap{font-size:14px;font-weight:600;color:#2f6b0a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;padding-right:2px}
+.cvcap{font-size:14px;font-weight:500;color:#2f6b0a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;padding-right:2px}
 .cvcap.full{color:#b42318}.cvcap.off{color:#667085}
-.cvbar{display:block;margin:0 4px;height:24px;line-height:24px;border:0;border-radius:6px;padding:0 8px;font:inherit;font-size:14px;font-weight:600;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.cvbar{display:block;margin:0 4px;height:22px;line-height:22px;border:0;border-radius:5px;padding:0 8px;font:inherit;font-size:14px;font-weight:600;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .cvbar em{font-style:normal;font-weight:500;opacity:.85}
 .cvbar.cl{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
 .cvbar.cr{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
@@ -2787,19 +2790,19 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 .cvdl>*{pointer-events:auto}
 .cvdl.pop{padding:0;margin:8px 0;gap:3px}
 .cvdl.pop .cvbar{margin:0}
-.cvev{display:flex;align-items:center;gap:6px;height:24px;padding:0 6px;border:0;background:none;border-radius:6px;font:inherit;font-size:14px;text-align:left;white-space:nowrap;overflow:hidden;width:100%;cursor:pointer;color:inherit}
+.cvev{display:flex;align-items:center;gap:5px;height:22px;padding:0 5px;font-weight:500;border:0;background:none;border-radius:6px;font:inherit;font-size:14px;text-align:left;white-space:nowrap;overflow:hidden;width:100%;cursor:pointer;color:inherit}
 .cvev:hover{background:#f0f2ee}
 .cvev i{flex:none;width:8px;height:8px;border-radius:50%}
 .cvev i.g{background:none !important;border:1.5px solid #98a2b3}
-.cvev b{flex:none;font-weight:600;color:#3d4452}
+.cvev b{flex:none;font-weight:500;color:#667085}
 .cvev span{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .cvev.gx b,.cvev.gx span{color:#667085}
 .cvev.pe i{background:#fff !important;box-shadow:inset 0 0 0 2px #33b679}
 .cvev.ag1,.cvbar.ag1{box-shadow:inset 0 0 0 1.5px #f59e0b}
 .cvev.ag2,.cvbar.ag2{box-shadow:inset 0 0 0 1.5px #dc2626}
-.cvmore{border:0;background:none;text-align:left;padding:0 6px;font:inherit;font-size:14px;font-weight:700;color:#3d4452;height:22px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.cvmore{border:0;background:none;text-align:left;padding:0 5px;font:inherit;font-size:14px;font-weight:600;color:#3d4452;height:21px;border-radius:6px;cursor:pointer;white-space:nowrap}
 .cvmore:hover{background:#f0f2ee}
-.cvmo.cmp .cvdh{padding:2px 6px 0}.cvmo.cmp .cvdn{height:26px;font-size:14px}
+.cvmo.cmp .cvdh{padding:1px 6px 0}.cvmo.cmp .cvdn{height:24px}
 .cvmo.cmp .cvfg{row-gap:0;padding-bottom:2px}.cvmo.cmp .cvdl{gap:0}
 .cvmo.cmp .cvev,.cvmo.cmp .cvmore{height:21px}.cvmo.cmp .cvbar{height:20px;line-height:20px;margin-bottom:1px}
 .cvnew{animation:cvpop .9s ease}
@@ -4876,7 +4879,7 @@ const CV_GCC=Object.fromEntries(CV_GC.map(g=>[g[0],g[2]]));
 const CV_DEF={groups:[{id:'ev',n:'EV'},{id:'svc',n:'บริการ'},{id:'off',n:'ออฟฟิศ / อื่น ๆ'}],
   types:[{id:'evi',n:'ติดตั้ง/สำรวจ EV',c:'7',g:'ev'},{id:'evs',n:'เซอร์วิส EV',c:'9',g:'ev'},{id:'air',n:'ล้างแอร์/แผง',c:'6',g:'svc'},{id:'svc',n:'งานเซอร์วิส',c:'5',g:'svc'},{id:'fix',n:'ซ่อม',c:'4',g:'svc'},
    {id:'mtg',n:'ประชุม/อบรม',c:'8',g:'off'},{id:'shp',n:'ส่งของ/รับของ',c:'1',g:'off'},{id:'chk',n:'ตรวจงาน',c:'3',g:'off'},{id:'oth',n:'อื่น ๆ',c:'8',g:'off'}]};
-const CV={off:null,col:new Set(),q:'',qc:null,tpo:null,tpq:'',maxl:4,px:40,cmp:false,g:{},gl:{},drag:null,pend:new Map(),fitting:0};
+const CV={off:null,col:null,q:'',qc:null,tpo:null,tpq:'',maxl:4,px:40,cmp:false,g:{},gl:{},drag:null,pend:new Map(),fitting:0};
 const cvT=()=>{const c=S.config&&S.config.apptTypes;return c&&Array.isArray(c.types)&&c.types.length?{groups:Array.isArray(c.groups)?c.groups:CV_DEF.groups,types:c.types}:CV_DEF};
 const cvTY=()=>Object.fromEntries(cvT().types.map(t=>[t.id,t]));
 const cvCfg=()=>(S.config&&S.config.gcal)||{};
@@ -4884,13 +4887,18 @@ const cvCanAp=()=>['admin','dispatch','sysadmin'].includes(S.me.role)||(!S.me.ro
 const cvCanTy=()=>['admin','sysadmin'].includes(S.me.role)||(!S.me.role&&!!S.me.owner);
 const cvMob=()=>innerWidth<=640;
 const cvD=k=>new Date(k+'T00:00:00');
-const cvMon=k=>isoAdd(k,-((cvD(k).getDay()+6)%7));
+/* สัปดาห์เริ่มวันอาทิตย์แบบ Google Calendar → เดือนส่วนใหญ่เหลือ 5 แถว ตารางไม่ยืด (ผู้ใช้ 27 พ.ย. 17:18) */
+const cvMon=k=>isoAdd(k,-cvD(k).getDay());
 const cvDiff=(a,b)=>Math.round((cvD(b)-cvD(a))/864e5);
 const cvH=tm=>{const m=String(tm||'').match(/(\d{1,2})[:.](\d{2})/);return m?+m[1]+m[2]/60:null};
 const cvHm=h=>`${String(Math.floor(h)).padStart(2,'0')}:${String(Math.round(h%1*60)).padStart(2,'0')}`;
 const cvInk=h=>{const n=parseInt(String(h).slice(1),16);return (0.299*(n>>16)+0.587*(n>>8&255)+0.114*(n&255))/255>0.66?'#16171d':'#fff'};
 const TDS=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
 function cvOff(){if(!CV.off){let a=[];try{a=JSON.parse(localStorage.getItem('cl.cv.off')||'[]')}catch(e){}CV.off=new Set(Array.isArray(a)?a:[])}return CV.off}
+/* หมวดในแถบซ้าย: ค่าเริ่มต้น = พับทุกหมวด (ผู้ใช้ 27 พ.ย. 17:14) · จำที่กางเองไว้ในเครื่อง */
+function cvColSet(){if(!CV.col){let a=null;try{a=JSON.parse(localStorage.getItem('cl.cv.open')||'null')}catch(e){}const open=new Set(Array.isArray(a)?a:[]);CV.col=new Set(cvTree().map(g=>g.id).filter(id=>!open.has(id)))}return CV.col}
+function cvSaveCol(){try{localStorage.setItem('cl.cv.open',JSON.stringify(cvTree().map(g=>g.id).filter(id=>!CV.col.has(id))))}catch(e){}}
+function cvRailOff(){try{return localStorage.getItem('cl.cv.rail')==='0'}catch(e){return false}}
 function cvSaveOff(){try{localStorage.setItem('cl.cv.off',JSON.stringify([...cvOff()]))}catch(e){}}
 /* ---- รวมนัดทุกแหล่ง ---- */
 function cvJobEvents(j){const out=[];if(['lost','cancelled'].includes(j.status))return out;const nm2=j.title||cOf(j).name||'ไม่มีชื่อไซต์';
@@ -4948,8 +4956,9 @@ function viewCal(){
   const title=mob&&mv==='list'?`${TMF[cvD(sel).getMonth()]} ${cvD(sel).getFullYear()+543}`:(!mob&&v==='week')?`${cvD(w0).getDate()} ${TM[cvD(w0).getMonth()]} – ${cvD(w6).getDate()} ${TM[cvD(w6).getMonth()]} ${cvD(w6).getFullYear()+543}`:`${TMF[cur.getMonth()]} ${cur.getFullYear()+543}`;
   const seg=mob?[['list','รายการ'],['month','เดือน']].map(([k,x])=>`<button class="${mv===k?'on':''}" data-cvmv="${k}" aria-pressed="${mv===k}">${x}</button>`).join(''):[['month','เดือน'],['week','สัปดาห์']].map(([k,x])=>`<button class="${v===k?'on':''}" data-cvv="${k}" aria-pressed="${v===k}">${x}</button>`).join('');
   const body=mob?cvMobile():v==='week'?cvWeek():cvMonth();
-  return `<div class="cvw" id="cvw"><h1 class="sr">ปฏิทินงาน</h1>
-   <div class="cvtb"><button class="btn sm" data-cvtoday>วันนี้</button><button class="ib" data-cvstep="-1" aria-label="ก่อนหน้า">${svg('chev','currentColor',2)}</button><button class="ib nx" data-cvstep="1" aria-label="ถัดไป">${svg('chev','currentColor',2)}</button>
+  const nr=cvRailOff();
+  return `<div class="cvw ${nr?'norail':''}" id="cvw"><h1 class="sr">ปฏิทินงาน</h1>
+   <div class="cvtb">${mob?'':`<button class="ib cvrt" data-cvrail aria-pressed="${!nr}" aria-label="${nr?'แสดง':'ซ่อน'}แถบซ้าย" title="${nr?'แสดง':'ซ่อน'}แถบซ้าย">${svg('list','currentColor',2)}</button>`}${!mob&&cvCanAp()?`<button class="btn sm pri cvnew2" data-cvnew="${sel<t?t:sel}">+ สร้างนัด</button>`:''}<button class="btn sm" data-cvtoday>วันนี้</button><button class="ib" data-cvstep="-1" aria-label="ก่อนหน้า">${svg('chev','currentColor',2)}</button><button class="ib nx" data-cvstep="1" aria-label="ถัดไป">${svg('chev','currentColor',2)}</button>
      <h2 class="cvtt">${title}</h2><span class="cvsp"></span>${cvGStat()}
      <label class="cvsr">${svg('search','currentColor',2)}<input id="cvq" placeholder="ค้นหานัด ชื่อลูกค้า" value="${esc(CV.q)}" aria-label="ค้นหานัด"></label>
      <div class="seg cvseg" role="group" aria-label="มุมมอง">${seg}</div>${mob&&cvCanAp()?`<button class="btn sm pri" data-cvnew="${sel<t?t:sel}">+ สร้าง</button>`:''}</div>
@@ -4963,14 +4972,14 @@ function cvGStat(){const [a]=cvGridRange(),st=CV.gl[a]||{};const cfg=cvCfg();
 function cvMini(){const cur=cvD(S.f.cvm),y=cur.getFullYear(),m=cur.getMonth(),first=isoOf(new Date(y,m,1)),st=cvMon(first),nW=Math.ceil((cvDiff(st,first)+new Date(y,m+1,0).getDate())/7);
   const has=new Set();cvAll().forEach(e=>{if(cvShown(e)&&e.k!=='h')for(let k=e.d;k<=cvEnd(e)&&k<=isoAdd(st,nW*7);k=isoAdd(k,1))has.add(k)});const t=today();
   return `<div class="cvmini"><div class="cvmh"><b>${TMF[m]} ${y+543}</b><span><button data-cvmn="-1" aria-label="เดือนก่อน">‹</button><button data-cvmn="1" aria-label="เดือนถัดไป">›</button></span></div>
-  <div class="cvmg">${['จ','อ','พ','พฤ','ศ','ส','อา'].map(x=>`<span>${x}</span>`).join('')}${[...Array(nW*7)].map((_,i)=>{const k=isoAdd(st,i);return `<button class="${cvD(k).getMonth()!==m?'o':''} ${k===t?'t':''} ${k===S.f.qsel?'s':''} ${has.has(k)?'dt':''}" data-cvjump="${k}" aria-label="${fd(k)}">${cvD(k).getDate()}</button>`}).join('')}</div></div>`}
+  <div class="cvmg">${['อา','จ','อ','พ','พฤ','ศ','ส'].map(x=>`<span>${x}</span>`).join('')}${[...Array(nW*7)].map((_,i)=>{const k=isoAdd(st,i);return `<button class="${cvD(k).getMonth()!==m?'o':''} ${k===t?'t':''} ${k===S.f.qsel?'s':''} ${has.has(k)?'dt':''}" data-cvjump="${k}" aria-label="${fd(k)}">${cvD(k).getDate()}</button>`}).join('')}</div></div>`}
 function cvTree(){const T=cvT();return [{id:'sol',n:'โซลาร์',items:[['s','สำรวจโซลาร์',CV_GCC['2']],['i','ติดตั้งโซลาร์',CV_GCC['10']]]},
   ...T.groups.map(g=>({id:g.id,n:g.n,items:T.types.filter(t=>t.g===g.id).map(t=>[t.id,t.n,CV_GCC[t.c]||CV_GCC['8']])})),
   ...(T.types.some(t=>!T.groups.some(g=>g.id===t.g))?[{id:'_x',n:'ไม่มีหมวด',items:T.types.filter(t=>!T.groups.some(g=>g.id===t.g)).map(t=>[t.id,t.n,CV_GCC[t.c]||CV_GCC['8']])}]:[]),
   {id:'goo',n:'จาก Google',items:[['g','พิมพ์เองใน Google','#98a2b3'],['h','วันหยุดในไทย','#7a6a4f']]}]}
 function cvLayers(){const off=cvOff(),cm=cvD(S.f.cvm).getMonth(),ev=cvAll();const cnt=k=>ev.filter(e=>cvLay(e)===k&&cvD(e.d).getMonth()===cm).length;
   const row=([k,n,c])=>`<label class="cvly"><input type="checkbox" data-cvlay="${esc(k)}" ${off.has(k)?'':'checked'} style="--c:${c}"><span>${esc(n)}</span><small>${cnt(k)}</small></label>`;
-  return `<div class="cvlays"><div class="cvlh"><b>หมวดงาน</b>${cvCanTy()?'<button class="cvmt" data-cvmt>จัดการประเภท</button>':''}</div>${cvTree().map(g=>{const on=g.items.filter(i=>!off.has(i[0])).length,all=g.items.length,c=g.items.reduce((a,i)=>a+cnt(i[0]),0),cl=CV.col.has(g.id);
+  return `<div class="cvlays"><div class="cvlh"><b>หมวดงาน</b>${cvCanTy()?'<button class="cvmt" data-cvmt>จัดการประเภท</button>':''}</div>${cvTree().map(g=>{const on=g.items.filter(i=>!off.has(i[0])).length,all=g.items.length,c=g.items.reduce((a,i)=>a+cnt(i[0]),0),cl=cvColSet().has(g.id);
     return `<div class="cvbr"><div class="cvbrh"><button class="cvcar ${cl?'cl':''}" data-cvcol="${esc(g.id)}" aria-expanded="${!cl}" aria-label="${cl?'กาง':'พับ'}หมวด ${esc(g.n)}">▾</button><label class="cvly g"><input type="checkbox" data-cvgrp="${esc(g.id)}" ${on===all&&all?'checked':''} data-ind="${on>0&&on<all?1:''}" style="--c:#16171d"><span>${esc(g.n)}</span><small>${c}</small></label></div>
     ${cl?'':`<div class="cvbrc">${g.items.map(row).join('')||'<p class="cvnote">ยังไม่มีประเภท</p>'}</div>`}</div>`}).join('')}<p class="cvnote">สีเทา = มีคนพิมพ์เองใน Google · ดูได้อย่างเดียว ไม่เป็นงานในระบบ</p></div>`}
 function cvLanes(w0,w6,ev){const bars=ev.filter(e=>!e.tm&&e.d<=w6&&cvEnd(e)>=w0).sort((a,b)=>a.d.localeCompare(b.d)||cvDiff(b.d,cvEnd(b))-cvDiff(a.d,cvEnd(a)));
@@ -4989,7 +4998,7 @@ function cvMonth(){
     fg+=days.map((k,i)=>{const L=cvSortT(ev.filter(e=>e.tm&&e.d===k));const hb=lanes.slice(nl).flat().filter(o=>o.s<=k&&o.en>=k).length;const room=Math.max(1,MAXL-nl);const sh=L.length+hb>room?L.slice(0,room-1):L;const more=L.length-sh.length+hb;
       return `<div class="cvdl" style="grid-column:${i+1};grid-row:${nl+2}">${sh.map(cvRow).join('')}${more?`<button class="cvmore" data-cvday="${k}">${sh.length||nl?'อีก ':''}${more} รายการ</button>`:''}</div>`}).join('');
     html+=`<div class="cvwk"><div class="cvbg">${bg}</div><div class="cvfg">${fg}</div></div>`}
-  return `<div class="cvmo ${CV.cmp?'cmp':''}"><div class="cvwd">${['จันทร์','อังคาร','พุธ','พฤหัสฯ','ศุกร์','เสาร์','อาทิตย์'].map(x=>`<div>${x}</div>`).join('')}</div><div class="cvwks">${html}</div></div>`}
+  return `<div class="cvmo ${CV.cmp?'cmp':''}"><div class="cvwd">${['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสฯ','ศุกร์','เสาร์'].map(x=>`<div>${x}</div>`).join('')}</div><div class="cvwks">${html}</div></div>`}
 function cvWeek(){const w0=cvMon(S.f.qsel),w6=isoAdd(w0,6),days=[...Array(7)].map((_,i)=>isoAdd(w0,i)),H0=7,H1=20,PX=CV.px||40,t=today();const ev=cvAll().filter(cvShown);
   const gc='56px repeat(7,minmax(0,1fr))';const lanes=cvLanes(w0,w6,ev);
   let all='<div class="cvalb">ทั้งวัน</div>';lanes.forEach((L,li)=>L.forEach(({e,s,en})=>{all+=cvBar(e,w0,w6,cvDiff(w0,s)+2,li+1,cvDiff(s,en)+1)}));if(!lanes.length)all+='<div style="grid-column:2/-1;height:22px"></div>';
@@ -5002,7 +5011,7 @@ function cvWeek(){const w0=cvMon(S.f.qsel),w6=isoAdd(w0,6),days=[...Array(7)].ma
 function cvMobile(){const sel=S.f.qsel,t=today(),mv=S.f.cvmv||'list',ev=cvAll().filter(cvShown);const dots=k=>ev.filter(e=>cvOn(e,k)).slice(0,4).map(e=>`<i style="background:${e.k==='g'?'#c4c9d2':cvCol(e)}"></i>`).join('');
   let top;if(mv==='list'){const w0=cvMon(sel);top=`<div class="cvstrip">${[...Array(7)].map((_,i)=>{const k=isoAdd(w0,i);return `<button class="${k===t?'t':''} ${k===sel?'s':''}" data-cvjump="${k}"><small>${TDS[cvD(k).getDay()]}</small><b>${cvD(k).getDate()}</b><span>${dots(k)}</span></button>`}).join('')}</div>`}
   else{const cur=cvD(S.f.cvm),y=cur.getFullYear(),m=cur.getMonth(),first=isoOf(new Date(y,m,1)),st=cvMon(first),nW=Math.ceil((cvDiff(st,first)+new Date(y,m+1,0).getDate())/7);
-    top=`<div class="cvmm">${['จ','อ','พ','พฤ','ศ','ส','อา'].map(x=>`<span>${x}</span>`).join('')}${[...Array(nW*7)].map((_,i)=>{const k=isoAdd(st,i);return `<button class="${cvD(k).getMonth()!==m?'o':''} ${k===t?'t':''} ${k===sel?'s':''}" data-cvjump="${k}"><b>${cvD(k).getDate()}</b><span>${dots(k)}</span></button>`}).join('')}</div>`}
+    top=`<div class="cvmm">${['อา','จ','อ','พ','พฤ','ศ','ส'].map(x=>`<span>${x}</span>`).join('')}${[...Array(nW*7)].map((_,i)=>{const k=isoAdd(st,i);return `<button class="${cvD(k).getMonth()!==m?'o':''} ${k===t?'t':''} ${k===sel?'s':''}" data-cvjump="${k}"><b>${cvD(k).getDate()}</b><span>${dots(k)}</span></button>`}).join('')}</div>`}
   const n=mv==='list'?14:1;let ag='';
   for(let i=0;i<n;i++){const k=isoAdd(sel,i);const L=cvSortT(ev.filter(e=>cvOn(e,k)));if(!L.length&&k!==t&&k!==sel)continue;const c=cvCap(k);
     ag+=`<div class="cvag ${k===t?'t':''}"><div class="cvagd"><small>${TDS[cvD(k).getDay()]}</small><b>${cvD(k).getDate()}</b></div><div class="cvagl">${c?`<span class="cvcap ${c.c}">คิวสำรวจ ${c.t}</span>`:''}
@@ -5091,7 +5100,7 @@ const cvNextColor=()=>{const used=new Set(cvT().types.map(t=>t.c));return (CV_GC
 /* ---- พอดีหน้าจอ (จอคอม) ---- */
 function cvFit(){const el=document.getElementById('cvw');if(!el)return;if(cvMob()){el.style.height='';return}
   const top=el.getBoundingClientRect().top+scrollY;el.style.height=Math.max(420,innerHeight-top-14)+'px';
-  let ch=false;const wk=el.querySelector('.cvwk');if(wk){const hh=wk.clientHeight,cmp=hh<112;const m=Math.max(1,cmp?Math.floor((hh-30)/21):Math.floor((hh-38)/25));if(m!==CV.maxl||cmp!==CV.cmp){CV.maxl=m;CV.cmp=cmp;ch=true}}
+  let ch=false;const wk=el.querySelector('.cvwk');if(wk){const hh=wk.clientHeight,cmp=hh<96;const m=Math.max(1,cmp?Math.floor((hh-27)/21):Math.floor((hh-31)/23));if(m!==CV.maxl||cmp!==CV.cmp){CV.maxl=m;CV.cmp=cmp;ch=true}}
   const wb=el.querySelector('.cvwb');if(wb){const px=Math.max(26,Math.floor(wb.clientHeight/13));if(px!==CV.px){CV.px=px;ch=true}}
   el.querySelectorAll('[data-ind="1"]').forEach(x=>x.indeterminate=true);
   if(CV.newId){const n=el.querySelector(`[data-cvev="${CSS.escape(CV.newId)}"]`);if(n){n.classList.add('cvnew');CV.newId=''}}
@@ -5099,7 +5108,7 @@ function cvFit(){const el=document.getElementById('cvw');if(!el)return;if(cvMob(
 /* ---- เหตุการณ์ ---- */
 document.addEventListener('click',async e=>{
   const p=document.getElementById('cvpop');
-  const t=e.target.closest('[data-cvnew],[data-cvev],[data-cvday],[data-cvcell],[data-cvwcol],[data-cvtoday],[data-cvstep],[data-cvv],[data-cvmv],[data-cvmn],[data-cvjump],[data-cvcol],[data-cvmt],[data-cvclose],[data-cvconv],[data-cvdel],[data-cvedit],[data-cvtpo],[data-cvtpk],[data-cvtpn],[data-cvsw],[data-cvmore],[data-cvsave],[data-cvpp],[data-cvaddp],[data-cvgadd],[data-cvtadd],[data-cvsyncall],[data-cvgo]');
+  const t=e.target.closest('[data-cvnew],[data-cvev],[data-cvday],[data-cvcell],[data-cvwcol],[data-cvtoday],[data-cvstep],[data-cvv],[data-cvmv],[data-cvmn],[data-cvjump],[data-cvcol],[data-cvmt],[data-cvclose],[data-cvconv],[data-cvdel],[data-cvedit],[data-cvtpo],[data-cvtpk],[data-cvtpn],[data-cvsw],[data-cvmore],[data-cvsave],[data-cvpp],[data-cvaddp],[data-cvgadd],[data-cvtadd],[data-cvsyncall],[data-cvgo],[data-cvrail]');
   if(!t){if(p&&p.classList.contains('show')&&!p.contains(e.target)&&!e.target.closest('#toast'))cvClose();return}
   const d=t.dataset;
   if('cvclose' in d||'cvgo' in d){setTimeout(cvClose,0);return}
@@ -5108,13 +5117,14 @@ document.addEventListener('click',async e=>{
   if(d.cvday){cvDayPop(d.cvday,t);return}
   if(d.cvcell){if(cvCanAp())cvStart(d.cvcell,'10:00',t);else cvDayPop(d.cvcell,t);return}
   if(d.cvwcol){if(e.target.closest('.cvtev'))return;const r=t.getBoundingClientRect();const h=7+Math.floor((e.clientY-r.top)/(CV.px||40)*2)/2;if(cvCanAp())cvStart(d.cvwcol,cvHm(Math.min(19.5,h)),t);return}
+  if('cvrail' in d){try{localStorage.setItem('cl.cv.rail',cvRailOff()?'1':'0')}catch(x){}CV.maxl=0;render();return}
   if('cvtoday' in d){S.f.qsel=today();S.f.cvm=today().slice(0,8)+'01';render();return}
   if(d.cvstep){const n=+d.cvstep,mob=cvMob();if((mob&&(S.f.cvmv||'list')==='list')||(!mob&&S.f.cv==='week')){S.f.qsel=isoAdd(S.f.qsel||today(),7*n);S.f.cvm=S.f.qsel.slice(0,8)+'01'}else{const c=cvD(S.f.cvm||today().slice(0,8)+'01');c.setMonth(c.getMonth()+n);S.f.cvm=isoOf(c);if(mob)S.f.qsel=S.f.cvm}render();return}
   if(d.cvv){S.f.cv=d.cvv;render();return}
   if(d.cvmv){S.f.cvmv=d.cvmv;render();return}
   if(d.cvmn){const c=cvD(S.f.cvm);c.setMonth(c.getMonth()+ +d.cvmn);S.f.cvm=isoOf(c);render();return}
   if(d.cvjump){S.f.qsel=d.cvjump;S.f.cvm=d.cvjump.slice(0,8)+'01';render();return}
-  if(d.cvcol){CV.col.has(d.cvcol)?CV.col.delete(d.cvcol):CV.col.add(d.cvcol);render();return}
+  if(d.cvcol){const C=cvColSet();C.has(d.cvcol)?C.delete(d.cvcol):C.add(d.cvcol);cvSaveCol();render();return}
   if('cvmt' in d){cvMtPop(t);return}
   if(d.cvconv){const ev=cvFind(d.cvconv);if(!ev)return;cvClose();cvStart(ev.d<today()?today():ev.d,ev.tm||'10:00',null,{title:ev.n,allday:!ev.tm,end:ev.end||'',t2:ev.g&&ev.g.tm2||cvHm(Math.min(19.5,(cvH(ev.tm)||10)+1)),note:ev.g&&ev.g.desc||'',more:true});return}
   if(d.cvdel){const a=(S.appts||{})[d.cvdel];if(!a)return;cvClose();if(!(await confirmBox('ยกเลิกคิวนี้?',`“${a.title||''}” ${fd(a.d)}${cvCfg().on&&a.gs!==false?' · นัดใน Google จะถูกลบด้วย':''}`,'ยกเลิกคิว')))return;
