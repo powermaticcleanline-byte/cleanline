@@ -2595,7 +2595,6 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 .cvpd i.t{border-radius:5px;background:#e7f2dc}
 .cvprg{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#525c6e;padding:10px 8px 2px}.cvprg i{width:8px;height:8px;border-radius:2px}
 .cvprw{margin-left:auto;font-size:14px;color:#667085}
-.cvpre{margin:8px 4px 0}
 .cvpr{width:100%;border:0;background:none;padding:4px 8px;border-radius:10px;font:inherit;font-size:15px;cursor:pointer;color:inherit;text-align:left;min-height:38px}
 .cvpr:hover{background:rgba(0,0,0,.04)}.cvpr:focus-visible{outline:2px solid #16171d}
 .cvpr.on{background:#16171d;color:#fff}.cvpr.on .cvpd i::after{background:#475467}.cvpr.on .cvpd i.n1::after{width:9px;height:9px;background:#98a2b3}.cvpr.on .cvpd i.n2::after{background:#fff}.cvpr.on .cvpd i.t{background:#2b3a1f}
@@ -2616,4 +2615,49 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
  .cvmain{overflow:visible}
  .cvpop{left:0 !important;right:0;top:auto !important;bottom:0;width:auto;max-width:none;border-radius:22px 22px 0 0;max-height:82vh;overflow:auto;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
  .cvpop .cvtpl{position:static;box-shadow:inset 0 0 0 1px #eef0ec;margin-top:4px}
+}
+
+/* 4.45 แผงขวาหน้าปฏิทิน (จอ >1100): ปฏิทินซ้ายดู/เลือกวัน · แผงขวาเป็นที่ทำงาน · พับเหลือแถบบาง
+   จุดเด่นจุดเดียว = หัวแผงแบบ "ใบวัน" (ตัวเลขวันใหญ่ แบบแผ่นวันนี้ในหน้าภาพรวม) · ดูนัด = แถบสีประเภทที่ขอบซ้าย · ส่วนอื่นเรียบ */
+@media (min-width:1101px){
+ .cvw.pn .cvb{grid-template-columns:200px minmax(0,1fr) 360px !important} /* จอ 1101–1499: แถบซ้าย + แผงพร้อมกัน ปฏิทินยังกว้างพอ (ช่องวัน ~95px) */
+ .cvw.pn.norail .cvb{grid-template-columns:minmax(0,1fr) 360px !important}
+ .cvw.pn.pnmin .cvb{grid-template-columns:200px minmax(0,1fr) 52px !important}
+ .cvw.pn.pnmin.norail .cvb{grid-template-columns:minmax(0,1fr) 52px !important}
+ .cvpn{min-height:0;display:flex;flex-direction:column;padding:0 !important;overflow:hidden}
+ .cvpnt{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #eef0ec;flex:none}
+ .cvpn .ib svg{width:18px;height:18px}
+ .cvpnc svg{transform:none}
+ .cvpnseg{display:flex;flex:1;min-width:0;background:#f2f4ef;border-radius:12px;padding:3px;gap:2px}
+ .cvpnseg button{flex:1;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;border:0;border-radius:9px;background:transparent;color:#3a3d47;font:500 14px var(--f);cursor:pointer;white-space:nowrap}
+ .cvpnseg button svg{width:16px;height:16px;flex:none}
+ .cvpnseg button:hover{background:#e8ebe4}
+ .cvpnseg button.on{background:#fff;color:#16171d;font-weight:600;box-shadow:0 1px 2px rgba(16,24,40,.12)}
+ .cvpnseg button:focus-visible{outline:2px solid #2f6b0a;outline-offset:1px}
+ .cvpn .cvbk{flex:1;min-height:0;border:0 !important;box-shadow:none !important;background:transparent !important;border-radius:0 !important}
+ .cvpn .cvpop.dock{position:static !important;display:block;left:auto !important;top:auto !important;width:auto;max-width:none;max-height:none;box-shadow:none;border-radius:0;flex:1;min-height:0;overflow:auto;padding:16px 18px;z-index:auto}
+ .cvpn .cvpop.dock .cvtpl{position:static;box-shadow:inset 0 0 0 1px #eef0ec;margin-top:4px}
+ .cvpn .cvpop.dock>.cvmf:last-child,.cvpn .cvevw>.cvmf:last-child{position:sticky;bottom:-16px;margin:12px -18px -16px;padding:12px 18px;background:#fff;border-top:1px solid #eef0ec}
+ .cvpnd{display:flex;align-items:center;gap:14px;padding:2px 0 12px;margin-bottom:10px;border-bottom:1px solid #eef0ec}
+ .cvpndn{font-size:44px;line-height:1;font-weight:700;letter-spacing:-.04em;color:#16171d;font-variant-numeric:tabular-nums}
+ .cvpndt{display:flex;flex-direction:column;min-width:0;flex:1}
+ .cvpndt b{font-size:16px;font-weight:600;color:#16171d}
+ .cvpndt span{font-size:14px;color:#6b6f7b}
+ .cvpndc{flex:none;font-size:14px;font-weight:600;padding:4px 10px;border-radius:999px;background:#eef7e2;color:#2f6b0a}
+ .cvpndc.full,.cvpndc.off{background:#f2f4f7;color:#667085}
+ .cvpn .cvevw{box-shadow:inset 4px 0 0 var(--c);margin:-16px -18px;padding:16px 18px 16px 22px;min-height:calc(100% + 32px)}
+ .cvpn.min{align-items:center;gap:6px;padding:8px 0 !important}
+ .cvpn.min .ib{width:38px;height:38px;display:grid;place-items:center}
+ .cvpn.min [data-cvpnx] svg{transform:rotate(180deg)}
+ .cvpnsv i{width:14px;height:14px;border-radius:4px;display:block}
+ .cvbkty{flex:1;min-width:0}
+}
+@media (min-width:1500px){
+ .cvw.pn .cvb{grid-template-columns:224px minmax(0,1fr) 400px !important}
+ .cvw.pn.norail .cvb{grid-template-columns:minmax(0,1fr) 400px !important}
+ .cvw.pn.pnmin .cvb{grid-template-columns:224px minmax(0,1fr) 52px !important}
+}
+@media (min-width:1700px){
+ .cvw.pn .cvb{grid-template-columns:224px minmax(0,1fr) 440px !important}
+ .cvw.pn.norail .cvb{grid-template-columns:minmax(0,1fr) 440px !important}
 }
