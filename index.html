@@ -2543,6 +2543,22 @@ html:not([data-r="today"]) .kcap2,html:not([data-r="today"]) .opt,html:not([data
 /* ข้อ 3 คอนทราสต์: ตัวเลขแจ้งเตือนใหม่ 3.9:1 → 4.7:1 · ตัวหนังสือรอง (--mut2) 4.3:1 → 5.3:1 */
 .nb,.nb.new{background:#d93036!important}
 html:not([data-r="today"]){--mut2:#62607a}
+
+/* ข้อ 4 จองคิว */
+.neng{margin-top:12px}
+.nfdone{display:flex;align-items:center;gap:16px;padding:16px 20px!important;margin-bottom:16px;border-radius:24px!important}
+.nfdone>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.nfdone b{font-size:16px}
+.nfd-i{width:40px;height:40px;border-radius:50%;background:#e7f3d6;color:#2f6b0a;display:grid;place-items:center;flex:none}.nfd-i svg{width:20px;height:20px}
+.nfk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-radius:14px;background:#eef6e6;color:#26301c;font-size:14px}
+.nfk>svg{width:16px;height:16px;flex:none;color:#2f6b0a}.nfk>span{flex:1;min-width:0}.nfk .btn{margin-left:auto}
+.nfk.on{background:#e7f3d6;font-weight:600}
+@media (max-width:640px){
+  .nsplit{display:flex!important;flex-direction:column}.nsplit>.ncal{order:-1}
+  .nsplit .nsub{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:55;background:#fff;border-radius:20px;padding:10px 12px;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 12px 28px -12px rgba(16,24,40,.35);flex-direction:row!important;align-items:center!important}
+  .nsplit .nsub .btn{width:auto!important;flex:none}
+  .nsplit{padding-bottom:88px}
+  .nfdone{flex-wrap:wrap}.nfdone>div{flex-basis:calc(100% - 56px)}.nfdone .btn{flex:1;justify-content:center}
+}
 </style></head>
 <body>
 <div class="shell">
@@ -4293,6 +4309,7 @@ function viewNew(){
   if(S.f.qd&&!f.date){f.date=S.f.qd}
   return `<div class="top"><nav class="crumb"><a href="#today">วันนี้</a><span>/</span><b>แจ้งงานสำรวจ</b></nav></div>
   ${f.parent&&S.jobs[f.parent]?pageHead('จองคิวสำรวจ · ติดตั้งเพิ่ม','ไซต์เดิม '+(S.jobs[f.parent].jobNo?'#'+S.jobs[f.parent].jobNo+' ':'')+(S.jobs[f.parent].title||'')):pageHead('จองคิวสำรวจ','ข้อมูลลูกค้าตามแบบฟอร์ม FM-EN-028-A')}
+  ${S.nfDone?`<section class="card nfdone" role="status"><span class="nfd-i">${svg('check','currentColor',2.4)}</span><div><b>จองคิว ${esc(S.nfDone.name)} แล้ว</b><span class="sub">${TD[new Date(S.nfDone.date+'T00:00:00').getDay()]} ${fd(S.nfDone.date)} · ${esc(S.nfDone.time)}${S.nfDone.sent?' · '+esc(S.nfDone.sent):' · รอหัวหน้าจัดงานเลือกคนสำรวจ'}</span></div><a class="btn" href="#job-${esc(S.nfDone.jid)}">เปิดงาน</a><button type="button" class="btn pri" data-nfnext>จองต่อ</button></section>`:''}
   <form id="newForm" class="nsplit" autocomplete="off">
     <section class="card pad nform" aria-label="ข้อมูลแจ้งงาน">
       <div class="ngrp"><h2>ผู้แจ้งงาน</h2><div class="fgrid">
@@ -4303,6 +4320,7 @@ function viewNew(){
         <label class="fld" for="n-last">นามสกุล<input id="n-last" ${f.parent&&f._ro&&f._ro.last?'readonly':''} value="${esc(f.last||'')}"></label>
         <label class="fld" for="n-phone">เบอร์ติดต่อ<input id="n-phone" ${f.parent&&f._ro&&f._ro.phone?'readonly':''} type="tel" inputmode="tel" value="${esc(f.phone||'')}" placeholder="08x-xxx-xxxx"></label>
         <label class="fld" for="n-email">อีเมล (ไม่บังคับ)<input id="n-email" ${f.parent&&f._ro&&f._ro.email?'readonly':''} type="email" value="${esc(f.email||'')}"></label>
+        <div class="full" id="n-known">${nfKnown(f)}</div>
         <label class="fld full" for="n-addr">ที่อยู่ลูกค้า (ไม่บังคับ)<textarea id="n-addr" ${f.parent&&f._ro&&f._ro.addr?'readonly':''} rows="2">${esc(f.addr||'')}</textarea></label></div></div>
       <div class="ngrp"><h2>ตำแหน่ง</h2>
         <label class="fld" for="n-map">ลิงก์ Google Maps ตำแหน่งลูกค้า<input id="n-map" ${f.parent&&f._ro&&f._ro.map?'readonly':''} type="url" value="${esc(f.map||'')}" placeholder="https://maps.app.goo.gl/..."></label>
@@ -4337,12 +4355,18 @@ function calHtml(){
   <div class="cslot">${f.date?`<b>${TD[new Date(f.date+'T00:00:00').getDay()]} ${fd(f.date)} · เลือกเวลา</b>
     <div class="slots">${SLOTS.map(s=>{const tk=sel.taken.includes(s);return `<button type="button" class="slot ${f.time===s?'on':''}" ${tk?'disabled':`data-nt="${s}"`}>${s}${tk?'<small>จองแล้ว</small>':''}</button>`}).join('')}</div>`
     :'<span class="sub">เลือกวันที่ว่างในปฏิทินก่อน แล้วเลือกเวลา</span>'}</div>
+  ${nfCanAssign()&&f.date&&f.time?`<label class="fld neng" for="n-eng">คนสำรวจ<select id="n-eng"><option value="">ให้หัวหน้าจัดงานเลือกทีหลัง</option>${SV_TEAMS.map(t=>{const b=teamBlock(t,f.date,null,f.time,null);return `<option value="${esc(t)}" ${f.eng===t&&!b?'selected':''} ${b?'disabled':''}>${esc(t)}${b?' · '+esc(b):''}</option>`}).join('')}</select><span class="sub">เลือกเลยแล้วระบบส่งใบงานให้ทันที ไม่ต้องรอขั้นจัดคน</span></label>`:''}
   <div class="nsub">
     <div class="nsum">${f.date&&f.time?`<span class="sub">คิวที่ขอ</span><b>${TD[new Date(f.date+'T00:00:00').getDay()]} ${fd(f.date)} · ${f.time}</b>`:'<span class="sub">ยังไม่ได้เลือกคิว</span>'}</div>
-    <button class="btn pri" type="submit" data-mode="send" ${ok.ok?'':'aria-disabled="true"'}>บันทึกคำขอคิว</button>
+    <button class="btn pri" type="submit" data-mode="send" ${ok.ok?'':'aria-disabled="true"'}>${nfCanAssign()?(f.eng&&f.date&&f.time&&!teamBlock(f.eng,f.date,null,f.time,null)?'จองคิว + ส่งใบงาน':'จองคิว'):'บันทึกคำขอคิว'}</button>
   </div>
   ${ok.ok?'':`<span class="sub nmiss">ยังขาด: ${ok.miss.join(' · ')}</span>`}`;
 }
+const telD=x=>String(x||'').replace(/\D/g,'').replace(/^66/,'0');
+function nfKnown(f){if(f.parent||f.cid)return f.cid?`<span class="nfk on">${svg('check','currentColor',2.4)}ใช้ข้อมูลลูกค้าเดิม <button type="button" class="lnk" data-nfk="">ไม่ใช้</button></span>`:'';const d=telD(f.phone);if(d.length<9)return '';
+  const c=Object.entries(S.customers||{}).find(([,x])=>telD(x.phone)===d);if(!c)return '';const [cid,x]=c;const jb=Object.values(S.jobs).filter(j=>j.customerId===cid).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))[0];
+  return `<span class="nfk">${svg('users','currentColor',2)}<span>เบอร์นี้เป็นลูกค้าเดิม: <b>${esc(realName(x)||x.name||'')}</b>${jb?` · ${esc(jb.title||'')}${jb.jobNo?' #'+esc(jb.jobNo):''}`:''}</span><button type="button" class="btn sm" data-nfk="${esc(cid)}">ใช้ข้อมูลนี้</button></span>`}
+function nfCanAssign(){return !!(S.me.owner||['admin','dispatch'].includes(myGroup())||myRole()==='sysadmin')}
 function nfRead(){const f=S.nf||(S.nf={});const v=id=>(document.getElementById(id)?.value||'').trim();
   if(!$('#newForm'))return f;
   Object.assign(f,{team:myRole()==='sales_pm'?myTeam():v('n-team'),person:v('n-person'),first:v('n-first'),last:v('n-last'),phone:v('n-phone'),email:v('n-email'),addr:v('n-addr'),map:v('n-map'),note:v('n-note'),meter:!!document.getElementById('n-meter')?.checked,mdays:+v('n-mdays')||f.mdays||7});return f}
@@ -5012,8 +5036,9 @@ async function createJob0(mode){
   const now=Date.now();const name=autoTitle({firstName:f.first,lastName:f.last})||`คุณ${f.first} ${f.last}`;
   try{
     const ad=f.parent?S.jobs[f.parent]:null;
-    const cid=ad?ad.customerId:S.db.collection('customers').doc().id;
-    const W3=ad?[]:[['customers/'+cid,{firstName:f.first,lastName:f.last,name:f.first+' '+f.last,type:'บุคคล',phone:f.phone,email:f.email,address:f.addr,createdAt:now},'set']];
+    const old=!ad&&f.cid&&S.customers[f.cid]?f.cid:'';
+    const cid=ad?ad.customerId:old||S.db.collection('customers').doc().id;
+    const W3=ad?[]:old?[['customers/'+cid,{phone:f.phone,...(f.email?{email:f.email}:{}),...(f.addr?{address:f.addr}:{})},'update']]:[['customers/'+cid,{firstName:f.first,lastName:f.last,name:f.first+' '+f.last,type:'บุคคล',phone:f.phone,email:f.email,address:f.addr,createdAt:now},'set']];
     const sid=ad?ad.siteId:S.db.collection('sites').doc().id;
     if(ad){const oc=cOf(ad),os=sOf(ad);if(f.phone&&f.phone!==(oc.phone||''))W3.push(['customers/'+cid,{phone:f.phone},'update']);if(normUrl(f.map)&&normUrl(f.map)!==(os.mapLink||''))W3.push(['sites/'+sid,{mapLink:normUrl(f.map)},'update'])}
     if(!ad)W3.push(['sites/'+sid,{customerId:cid,label:name,mapLink:normUrl(f.map),address:f.addr,createdAt:now},'set']);
@@ -5025,7 +5050,10 @@ async function createJob0(mode){
     if(f.meter){const to=isoAdd(f.date,(f.mdays||7)-1);const dev=freeMeters(f.date,to)[0];
       await w('meters/'+S.db.collection('meters').doc().id,{device:dev||'',from:f.date,to,jobId:jid,title:name,phone:f.phone,team:f.team,person:f.person,source:'job',status:'booked',createdAt:now},'set');
       if(!dev)toast('ช่วงวันนั้นสมาร์ทมิเตอร์ไม่ว่าง บันทึกเป็นคำขอรอจัดเครื่อง')}
-    S.nf={};toast('จองคิวแล้ว · สร้างโฟลเดอร์งานแล้ว · เลือกทีมสำรวจต่อได้เลย');location.hash='job-'+jid;
+    let sent='';const eng=nfCanAssign()&&f.eng&&!teamBlock(f.eng,f.date,null,f.time,null)?f.eng:'';
+    if(eng){try{const no=await claimJobNo(jid);const who=Object.entries(S.members||{}).find(([,m])=>m.name===eng);const jj=W3.find(x=>x[0]==='jobs/'+jid)[1];
+      await pushHist({id:jid,...jj},ev('handoff',`ส่งใบงาน ${no} · สำรวจ ${fd(f.date)} ${f.time} · ${eng}`,{from:ST.ACCEPT,to:ST.SURVEY}),{jobNo:no,surveyor:eng,surveyTeam:eng,surveyorId:who?who[0]:'',surveyDate:f.date,stage:ST.SURVEY,stageSince:Date.now()});sent=`ส่งใบงาน ${no} ให้${eng}แล้ว`}catch(x){sent='ยังไม่ได้ส่งใบงาน · เปิดงานแล้วส่งต่อได้'}}
+    S.nfDone={jid,name,date:f.date,time:f.time,sent};S.nf={team:f.team,person:f.person,mo:f.mo};toast('จองคิว '+name+' แล้ว');render();scrollTo(0,0);
   }catch(e){}
 }
 let us=0;async function userSearch(q){
@@ -5247,6 +5275,16 @@ build();
   document.addEventListener('input',e=>{if(!pop||!e.target.closest('.thp-q'))return;const q=e.target.value.trim().toLowerCase();e.target.closest('.thp-s').querySelectorAll('.thp-l .thp-r').forEach(r=>r.hidden=!!q&&!r.dataset.t.includes(q))});
   document.addEventListener('keydown',e=>{if(!pop)return;if(e.key==='Escape'){e.preventDefault();e.stopPropagation();const a=anchor;close();a?.focus()}else if(e.key==='Enter'&&!e.target.matches('button')){e.preventDefault();apply()}},true);
   addEventListener('resize',place);addEventListener('hashchange',close);addEventListener('scroll',e=>{if(pop&&!e.target.closest?.('.thpop'))place()},true)})();
+
+/* ข้อ 4 จองคิวขั้นเดียว: เลือกคนสำรวจ · ลูกค้าเดิมจากเบอร์ · จองต่อ */
+document.addEventListener('change',e=>{if(e.target.id==='n-eng'){nfRead();S.nf.eng=e.target.value;nfRefresh();$('#n-eng')?.focus()}});
+document.addEventListener('input',e=>{if(e.target.id!=='n-phone')return;const f=S.nf||(S.nf={});f.phone=e.target.value;if(f.cid)return;const k=$('#n-known');if(k)k.innerHTML=nfKnown(f)});
+document.addEventListener('click',e=>{const k=e.target.closest('[data-nfk]');if(k){e.preventDefault();nfRead();const f=S.nf;const cid=k.dataset.nfk;
+    if(!cid){f.cid='';render();return}
+    const c=S.customers[cid]||{};const nm=String(c.name||'').trim().split(/\s+/);const jb=Object.values(S.jobs).filter(j=>j.customerId===cid).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))[0];const st=jb&&S.sites?S.sites[jb.siteId]||{}:{};
+    Object.assign(f,{cid,first:c.firstName||nm[0]||f.first,last:c.lastName||nm.slice(1).join(' ')||f.last,email:f.email||c.email||'',addr:f.addr||c.address||st.address||'',map:f.map||st.mapLink||''});render();toast('ใส่ข้อมูลลูกค้าเดิมแล้ว ตรวจอีกครั้งก่อนจอง');return}
+  if(e.target.closest('[data-nfnext]')){S.nfDone=null;render();scrollTo(0,0);$('#n-first')?.focus()}});
+addEventListener('hashchange',()=>{if(location.hash!=='#new')S.nfDone=null});
 </script>
 </body>
 </html>
