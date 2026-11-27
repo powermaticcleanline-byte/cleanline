@@ -2686,7 +2686,7 @@ function svSteps(j,s){
    {k:'form',t:'กรอกข้อมูลตามใบงาน',ok:formOk,auto:true},
    {k:'photos',t:'ถ่ายรูป ส่งเข้าโฟลเดอร์',ok:!!v.photos,at:v.photosAt},
    {k:'sign',t:'ลูกค้าเซ็นปิดงานสำรวจ',ok:!!v.sign,at:v.sign?.at},
-   {k:'draw',t:'อัปโหลดแบบติดตั้ง (ในแอป Man)',ok:!!(v.cad&&v.cadFiled),at:v.cadFiled}];
+   {k:'draw',t:'อัปโหลดแบบติดตั้ง (ทีมช่างทำในแอปช่าง)',ok:!!(v.cad&&v.cadFiled),at:v.cadFiled}];
 }
 function needs(n,j,c,s){
   const e=j.equipment||{},d=j.docs||{};
@@ -2971,7 +2971,7 @@ function feedCard(j,e){let box=$('#feed');if(!box){document.body.insertAdjacentH
   box.appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),260)},6000)}
 document.addEventListener('click',e=>{const f=e.target.closest('[data-fdj]');if(f){location.hash='job-'+f.dataset.fdj;f.remove()}});
 /* Ctrl+K: ค้นงาน + ไปหน้าต่าง ๆ + จองคิว ในช่องเดียว */
-const CK_CMD=[['ภาพรวม','#today','home'],['ปฏิทินงาน','#queue','cal'],['รายการงาน','#jobs','list','data-mine="0"'],['งานที่รอดำเนินการ','#jobs','inbox','data-mine="1"'],['จองคิวสำรวจใหม่','#new','plus'],['งานบริการ','#service','wrench'],['สมาร์ทมิเตอร์','#meter','bolt'],['เอกสาร','#kb','file','data-kbt="form"'],['แคตตาล็อกสินค้า','#kb','layers','data-kbt="eq"']];
+const CK_CMD=[['ภาพรวม','#today','home'],['ปฏิทินงาน','#queue','cal'],['รายการงาน','#jobs','list','data-mine="0"'],['งานที่รอดำเนินการ','#mine','inbox','data-mine="1"'],['จองคิวสำรวจใหม่','#new','plus'],['งานบริการหลังการขาย','#service','wrench'],['สมาร์ทมิเตอร์','#meter','bolt'],['ลูกค้า','#customers','users'],['แบบฟอร์มเอกสาร','#kb','file','data-kbt="form"'],['แคตตาล็อกสินค้า','#products','layers','data-kbt="eq"']];
 function cmdk(){if($('#cmdk'))return;document.body.insertAdjacentHTML('beforeend',`<div id="cmdk" role="dialog" aria-modal="true" aria-label="ค้นหาและสั่งงาน"><div class="ck"><label class="cki">${svg('search','currentColor',2)}<input id="cki" placeholder="พิมพ์ชื่อลูกค้า เลขงาน เบอร์ หรือคำสั่ง" autocomplete="off" role="combobox" aria-controls="ckl" aria-expanded="true"></label><div class="ckl" id="ckl" role="listbox"></div><div class="ckf"><span><kbd>↑↓</kbd>เลือก</span><span><kbd>Enter</kbd>เปิด</span><span><kbd>Esc</kbd>ปิด</span></div></div></div>`);
   const back=document.activeElement;const ov=$('#cmdk'),inp=$('#cki'),L=$('#ckl');let items=[],on=0;
   const draw=()=>{const q=inp.value.trim().toLowerCase();
@@ -3010,7 +3010,7 @@ function introToday(app){if(matchMedia('(prefers-reduced-motion: reduce)').match
 function manFiles(j){const df=j.sv&&j.sv.drawFile,sl=j.singleLine,needSl=j.stage>=ST.DOCS;
   const ln=(t,f,miss)=>`<li class="${f?'ok':''}"><span class="k">${f?'✓':'·'}</span><span>${esc(t)}${f?` · <a class="lk" href="${esc(safeUrl(f.url)||'#')}" target="_blank" rel="noopener">เปิดไฟล์</a>`:` <span class="sub">${esc(miss)}</span>`}</span></li>`;
   if(!df&&!needSl&&!sl)return '';
-  return `<section class="act" aria-label="ไฟล์จากแอป Man"><div><h2>ไฟล์จากแอป Man</h2></div>
+  return `<section class="act" aria-label="ไฟล์จากทีมช่าง"><div><h2>ไฟล์จากทีมช่าง</h2></div>
    <ul class="need">${df?ln('แบบติดตั้ง',df,''):''}${needSl||sl?ln('Single Line สำหรับยื่นขนานไฟ',sl,j.docs?.sentTon?'ยื่นการไฟฟ้าแล้ว ไม่ต้องอัปโหลด':'รอทีมใน Man อัปโหลด'):''}</ul></section>`}
 /* 19 ปักหมุดงาน (เก็บในเครื่อง แยกต่อคน) */
 const pinKey=()=>'cl.pins.'+(S.me.id||'');
@@ -3150,7 +3150,9 @@ function render(){
   let h;
   if(isSales())h=viewSales(r);
   else if(r==='new')h=viewNew();
-  else if(r==='jobs')h=viewJobs();
+  else if(r==='jobs'){if(S.f.mineR){S.f.mine=false;S.f.mineR=false;S.f.status='all'}h=viewJobs()}
+  else if(r==='mine'){if(!S.f.mine){S.f.mine=true;S.f.phase='';S.f.status='active'}S.f.mineR=true;h=viewJobs()}
+  else if(r==='products'){S.f.kqt='eq';h=viewEquip()}
   else if(r==='customers')h=viewCustomers();
   else if(r==='queue')h=viewQueue();
   else if(r==='service')h=viewJobs('service');
@@ -3162,7 +3164,8 @@ function render(){
   else if(r.startsWith('kb-'))h=viewKbRead(r.slice(3));
   else if(r==='settings')h=['sales','eng','lead'].includes(myGroup())&&!S.me.owner?'<div class="card empty">หน้านี้สำหรับแอดมินและผู้บริหาร</div>':viewSettings();
   else if(r.startsWith('job-'))h=viewJob(r.slice(4));
-  else h=viewToday();
+  else if(r==='today'||r==='')h=viewToday();
+  else h=`<div class="card pad nf404">${emp('search','ไม่พบหน้านี้','ลิงก์อาจพิมพ์ผิดหรือหน้านี้ถูกย้ายแล้ว')}<div style="text-align:center;margin-top:12px"><a class="btn" href="#today">กลับหน้าภาพรวม</a></div></div>`;
   app.innerHTML=hdr(r)+'<div class="pg">'+h+'</div>';
   if(r==='today'&&S.loaded.jobs&&!S.cuDone){S.cuDone=1;introToday(app)}
   if(!S.purgeDone&&S.loaded.jobs&&S.me&&Object.keys(TRASH_COLS).some(canTrash)){S.purgeDone=1;setTimeout(autoPurge,4000)}
@@ -3297,12 +3300,12 @@ document.addEventListener('keydown',e=>{const t=e.target;
   if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(t.tagName)&&!t.isContentEditable){const g=$('#gq');if(g){e.preventDefault();g.focus()}}
 });
 document.addEventListener('click',e=>{if(e.target.closest('[data-gall]')){gAll();return}if(!e.target.closest('.gsw')){const b=$('#gqr');if(b&&!b.hidden)b.hidden=true}else if(e.target.closest('[data-osel]')){const b=$('#gqr');if(b)b.hidden=true;const g=$('#gq');if(g)g.value=''}},true);
-function navIs(r,k){const kbt=S.f.kqt||'form';return k==='today'?r==='today':k==='jobs'?((r==='jobs'||r.startsWith('job-'))&&!S.f.mine):k==='mine'?(r==='jobs'&&S.f.mine):k==='queue'?(r==='queue'||r==='new'):k==='form'?(r.startsWith('kb')&&kbt==='form'):k==='eq'?(r==='kb'&&kbt==='eq'):r===k}
+function navIs(r,k){const kbt=S.f.kqt||'form';return k==='today'?r==='today':k==='jobs'?((r==='jobs'||r.startsWith('job-'))&&!S.f.mine):k==='mine'?(r==='mine'||(r==='jobs'&&S.f.mine)):k==='queue'?(r==='queue'||r==='new'):k==='form'?(r.startsWith('kb')&&kbt==='form'):k==='eq'?(r==='products'||(r==='kb'&&kbt==='eq')):r===k}
 try{if(localStorage.getItem('cl.sbmin')==='1')document.body.classList.add('sbmin')}catch(x){}
 function renderSide(r){
   if(isSales())return sideSales(r);
   const mine=mineJobs().length;const kqt=S.f.kqt||'form';
-  const is=k=>k==='today'?r==='today':k==='jobs'?((r==='jobs'||r.startsWith('job-'))&&!S.f.mine):k==='mine'?(r==='jobs'&&S.f.mine):k==='queue'?(r==='queue'||r==='new'):k==='form'?(r.startsWith('kb')&&kqt==='form'):k==='eq'?(r==='kb'&&kqt==='eq'):r===k;
+  const is=k=>k==='today'?r==='today':k==='jobs'?((r==='jobs'||r.startsWith('job-'))&&!S.f.mine):k==='mine'?(r==='mine'||(r==='jobs'&&S.f.mine)):k==='queue'?(r==='queue'||r==='new'):k==='form'?(r.startsWith('kb')&&kqt==='form'):k==='eq'?(r==='kb'&&kqt==='eq'):r===k;
   const L=(k,href,t,x='',n='')=>`<a href="${href}" class="pnl ${is(k)?'on':''}" ${is(k)?'aria-current="page"':''} ${x}><span>${t}</span>${n?`<i>${n}</i>`:''}</a>`;
   const G=(ic,t,items)=>`<div class="png"><div class="pngh">${svg(ic,'currentColor',2)}<span>${t}</span></div><div class="pngi">${items}</div></div>`;
   const N=(k,href,ic,t,x='',n='')=>`<a href="${href}" class="nvi ${is(k)?'on':''}" ${is(k)?'aria-current="page"':''} ${x}>${svg(ic,'currentColor',2)}<span>${t}</span>${n?`<i>${n}</i>`:''}</a>`;
@@ -3312,10 +3315,10 @@ function renderSide(r){
   const SG=(t,items)=>`<div class="sgp"><div class="sgt">${t}</div>${items}</div>`;
   $('#nav1').innerHTML=`<a class="sbr" href="#today" aria-label="CLEANLINE หน้าภาพรวม">${lg?`<img src="${lg.src}" alt="CLEANLINE">`:'<b>CLEANLINE</b>'}<small>Management</small><em class="sbm" aria-hidden="true">CL</em></a>
     ${SN('today','#today','home','ภาพรวม')}
-    ${SG('งานโซลาร์',SN('queue','#queue','cal','ปฏิทินงาน')+SN('jobs','#jobs','list','รายการงาน','data-mine="0"')+SN('mine','#jobs','inbox','งานที่รอดำเนินการ','data-mine="1"',mine))}
-    ${SG('หลังการขาย',SN('service','#service','wrench','งานบริการ'))}
+    ${SG('งานโซลาร์',SN('queue','#queue','cal','ปฏิทินงาน')+SN('jobs','#jobs','list','รายการงาน','data-mine="0"')+SN('mine','#mine','inbox','งานที่รอดำเนินการ','data-mine="1"',mine))}
+    ${SG('หลังการขาย',SN('service','#service','wrench','งานบริการหลังการขาย'))}
     ${SG('ยืม-คืนอุปกรณ์',SN('meter','#meter','bolt','สมาร์ทมิเตอร์'))}
-    ${SG('คลังข้อมูล',SN('form','#kb','file','เอกสาร','data-kbt="form"')+SN('eq','#kb','layers','แคตตาล็อกสินค้า','data-kbt="eq"')+(Object.keys(TRASH_COLS).some(canTrash)?SN('trash','#trash','trash','ถังขยะ','',trashList().length||''):''))}
+    ${SG('คลังข้อมูล',SN('customers','#customers','users','ลูกค้า')+SN('form','#kb','file','แบบฟอร์มเอกสาร','data-kbt="form"')+SN('eq','#products','layers','แคตตาล็อกสินค้า','data-kbt="eq"')+(Object.keys(TRASH_COLS).some(canTrash)?SN('trash','#trash','trash','ถังขยะ','',trashList().length||''):''))}
     <div class="sft"><button type="button" class="sbtog" data-sbtog="1" aria-expanded="${!document.body.classList.contains('sbmin')}" title="${document.body.classList.contains('sbmin')?'ขยายเมนู':'ย่อเมนู'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/><path class="sbar" d="M15 10l-2 2 2 2"/></svg><span>ย่อเมนู</span></button></div>`;
   $('#nav2').innerHTML='';
 }
@@ -3405,7 +3408,7 @@ function todaySum(L,noMe){const sv=L.filter(x=>x.k==='s').length,ins=L.filter(x=
 function viewToday0(){
   if(!S.loaded.jobs)return topbar()+'<div class="skw" aria-busy="true" aria-label="กำลังโหลดงาน"><div class="sk skh"></div><div class="skt"><i class="sk"></i><i class="sk"></i><i class="sk"></i><i class="sk"></i></div><div class="card skr"><i class="sk"></i><i class="sk"></i><i class="sk"></i></div></div>';
   if(!Object.keys(S.jobs).length)return topbar()+emptyStart();
-  const g=myGroup();const name=S.names[S.me.id]||'';
+  const g=myGroup();const nm0=S.names[S.me.id]||'';const ROLEW=[...Object.values(GROUP),...Object.values(ROLES).map(x=>x[0]),'แอดมิน','admin','เจ้าของ','ผู้ดูแลระบบ'];const name=(!nm0||ROLEW.includes(nm0.trim()))&&S.me.name&&!ROLEW.includes(S.me.name)?S.me.name:nm0;
   const all=visibleJobs();const active=all.filter(j=>j.status==='active');
   const t=today();const d=new Date();
   const isoD=x=>isoOf(x);
@@ -4244,7 +4247,7 @@ function svCard(j,c,s,act){
     if(x.k==='form')return `<button class="btn sm" data-go="sec-site" type="button">ไปที่ฟอร์มสำรวจ</button><span class="sub">ครบเมื่อกรอกข้อมูลไซต์ครบ</span>`;
     if(x.k==='photos')return `<div class="svin"><input id="sv-photos" type="number" min="1" placeholder="จำนวนรูป" aria-label="จำนวนรูป" style="max-width:120px"><button class="btn dk sm" data-act="sv:photos">ส่งรูปเข้าโฟลเดอร์แล้ว</button></div>`;
     if(x.k==='sign')return `<button class="btn dk sm" data-act="sv:sign">ให้ลูกค้าเซ็น</button>`;
-    if(x.k==='draw')return `<span class="sub">คนสำรวจอัปโหลดไฟล์แบบจากแอป Man แล้วจะติ๊กให้เอง</span>`;
+    if(x.k==='draw')return `<span class="sub">คนสำรวจอัปโหลดไฟล์แบบจากแอปช่างแล้วจะติ๊กให้เอง</span>`;
     return ''};
   const allOk=st.every(x=>x.ok);const designOk=!!(j.proposedKw&&j.proposedModel);
   const done=st.filter(x=>x.ok).length;
