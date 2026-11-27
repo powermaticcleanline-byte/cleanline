@@ -2573,6 +2573,12 @@ html:not([data-r="today"]){--mut2:#62607a}
   .bt.bl>span.bkb{display:none!important}
   .blr{max-height:none}
 }
+
+/* ข้อ 7 */
+.pillf{all:unset;cursor:pointer;border-radius:999px;display:inline-flex}.pillf:hover .pill{filter:brightness(.96);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}.pillf:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.ksa .qclose{margin-left:auto;color:var(--mut)!important;box-shadow:none!important;background:transparent!important}.ksa .qclose:hover{color:#c81e1e!important;background:#fff1f1!important}
+
+@media (max-width:640px){.tqb>.isearch{grid-column:1/-1;width:100%!important;min-width:0}.tqb>.isearch input{width:100%;min-width:0}.tqb>select.sel:nth-of-type(2):last-of-type,.tqb>#cteam{grid-column:auto}.tqb>#cph{grid-column:auto!important}}
 </style></head>
 <body>
 <div class="shell">
@@ -3526,7 +3532,7 @@ function viewJobs(mode){
         <td class="c-site"><b title="${esc(nm)}">${esc(nm)}</b></td>
         ${svc?T(e.model||j.proposedModel,'m')+T(sn,'c-sn snm m')+T(kw?kw+' kW':'','c-kw m')+T(dd(j.installDate),'c-dt m')
           :`<td class="c-tm">${teamTag(j.salesTeam)||'<span class="nil">—</span>'}</td><td class="c-eng">${j.surveyor?`<span class="engn" title="${esc(j.surveyor)}">${esc(j.surveyor)}</span>`:'<span class="nil">—</span>'}</td>`+T(dd(svDate(j)),'c-dt m')+T(kw?kw+' kW':'','c-kw m')}
-        <td class="c-st">${st}</td>
+        <td class="c-st">${svc?st:`<button type="button" class="pillf" data-pillf="${esc(jTok(j))}" title="กดเพื่อดูเฉพาะสถานะนี้">${st}</button>`}</td>
         <td class="c-act"><div class="ibs">${acts.join('')}</div></td></tr>`}).join(''))}</tbody></table></div>`
     :`<div class="empty">${emp(svc?'wrench':'cal',status==='cm'?'ไม่มีแจ้งซ่อมค้าง':status==='pm'?'ไม่มีไซต์ที่ครบตรวจเช็กใน 30 วัน':status==='care'?'ไม่มีไซต์ที่ต้องดูแลตอนนี้':status==='installed'?'ยังไม่มีไซต์ที่ติดตั้ง':allMonths||filtered?emptyFilt(allMonths,f,mLabel(curK)):'ไม่มีไซต์ที่สำรวจในเดือน'+mLabel(curK))}</div>`}
     ${!BOARD&&list.length>10?`<div class="pgf"><label class="pgper">แถวต่อหน้า <select id="jper" aria-label="แถวต่อหน้า">${[10,20,50].map(n=>`<option ${per===n?'selected':''}>${n}</option>`).join('')}</select></label><span class="pgc">${p0+1}–${p0+shown.length} จาก ${list.length}</span><span class="pgn"><button class="ib" data-pg="-1" ${f.pg===0?'disabled':''} aria-label="หน้าก่อน">${svg('chev','currentColor',2)}</button>${Array.from({length:pages},(_,i)=>i).filter(i=>pages<=7||i===0||i===pages-1||Math.abs(i-f.pg)<=1).map((i,k,a)=>`${k&&i-a[k-1]>1?'<em>…</em>':''}<button class="pgb ${i===f.pg?'on':''}" data-pgto="${i}" ${i===f.pg?'aria-current="page"':''}>${i+1}</button>`).join('')}<button class="ib nx" data-pg="1" ${f.pg>=pages-1?'disabled':''} aria-label="หน้าถัดไป">${svg('chev','currentColor',2)}</button></span></div>`:''}
@@ -4472,7 +4478,7 @@ function viewQueue(){
   <aside class="card kside">
     <div class="ksh"><small>${sel===t?'วันนี้':TD[sd.getDay()]}</small><h2>${sd.getDate()} ${TMF[sd.getMonth()]} ${sd.getFullYear()+543}</h2>
       ${sSun?'<p class="sub">วันอาทิตย์ ไม่รับคิว</p>':sPast?`<p class="sub">${SL.length?SL.length+' นัด':'ไม่มีนัด'}</p>`:scl?`<p class="ksx">ปิดรับคิว · ${esc(scl)}</p>`:`<div class="kmeter"><span>คิวสำรวจ</span><b>${dayInfo(sel).used}/${dayInfo(sel).cap}</b><div><i style="width:${Math.min(100,dayInfo(sel).used/Math.max(1,dayInfo(sel).cap)*100)}%"></i></div></div>`}
-      ${!sPast&&!sSun?`<div class="ksa">${!scl&&dayInfo(sel).left>0?`<a class="btn sm pri" href="#new" data-qd="${sel}">${svg('plus','#fff',2.4)}จองคิวสำรวจ</a>`:''}${adm?`<button class="btn sm" data-qclose="${sel}">${scl?'เปิดรับคิว':'ปิดรับคิววันนี้'}</button>`:''}</div>`:''}</div>
+      ${!sPast&&!sSun?`<div class="ksa">${!scl&&dayInfo(sel).left>0?`<a class="btn sm pri" href="#new" data-qd="${sel}">${svg('plus','#fff',2.4)}จองคิวสำรวจ</a>`:''}${adm?`<button class="btn sm ghost qclose" data-qclose="${sel}">${scl?'เปิดรับคิว':'ปิดรับคิววันนี้'}</button>`:''}</div>`:''}</div>
     ${!sPast&&!sSun&&!scl?`<div class="kteam">${SV_TEAMS.map(tm=>{const n=teamSlots(tm,sel),c=teamCount(tm,sel);return `<div class="ktm ${n?'ok':c?'busy':'off'}"><b>${tm}</b><span>${c?'นัดแล้ว '+c+' ที่':''}${c&&n?' · ':''}${n?'ว่าง '+n:c?'':teamWhy(tm,sel)}</span></div>`}).join('')}</div>`:''}
     <div class="ksb">${SL.length?SL.map(row).join(''):`<p class="kse">ไม่มีนัดในวันนี้</p>`}</div>
     <div class="ksu"><h3>7 วันถัดไป</h3>${up.length?up.slice(0,8).map(x=>{const dd=new Date(x.d+'T00:00:00');return `<button class="kup" data-osel="${esc(x.j.id)}"><span class="kupd"><b>${dd.getDate()}</b><small>${TM[dd.getMonth()]}</small></span><span class="kagb"><b>${esc(nm2(x.j))}</b><span>${x.k==='i'?'ติดตั้ง':x.k==='p'?'รอตอบรับคิว':'สำรวจ'}${x.tm?' · '+esc(x.tm):''}</span></span><i class="kdot ${x.k}"></i></button>`}).join(''):'<p class="kse">ไม่มีนัด</p>'}</div>
@@ -5304,6 +5310,9 @@ document.addEventListener('click',e=>{const k=e.target.closest('[data-nfk]');if(
 addEventListener('hashchange',()=>{if(location.hash!=='#new')S.nfDone=null});
 
 document.addEventListener('click',e=>{const b=e.target.closest('[data-gosec]');if(!b)return;const id=b.dataset.gosec;const el=(id&&document.querySelector(`[data-edit="${CSS.escape(id)}"]`)?.closest('section,.sec,.ngrp,div'))||document.querySelector('.colL');if(el){el.scrollIntoView({behavior:'smooth',block:'start'});const f=el.querySelector('input,select,textarea,[data-edit]');setTimeout(()=>f?.focus({preventScroll:true}),400)}});
+
+/* ข้อ 7: กดป้ายสถานะในแถว = กรองเฉพาะสถานะนั้น (แบบป้ายใน Gmail) */
+document.addEventListener('click',e=>{const b=e.target.closest('[data-pillf]');if(!b)return;e.preventDefault();e.stopPropagation();S.f.phase=[b.dataset.pillf];S.f.pg=0;render();toast('แสดงเฉพาะสถานะนี้ · กด "ล้างตัวกรอง" เพื่อดูทั้งหมด')},true);
 </script>
 </body>
 </html>
