@@ -2532,6 +2532,17 @@ html.vtg .pg{view-transition-name:pgv}
 @media (min-width:641px){.tqf{display:none!important}}
 @media (min-width:641px){.jt2n th.c-no{width:122px!important}.jt2n th.c-tm{width:108px!important}.jt2n th.c-eng{width:108px!important}.jt2n th.c-dt{width:100px!important}.jt2n th.c-kw{width:98px!important}.jt2n th.c-act{width:64px!important}table.jt2.jt2n th.c-st,table.jt2.jt2n td.c-st{width:184px!important;min-width:0!important}}.engn{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media (max-width:640px){table.jt2 td.c-eng{display:none!important}}
+
+/* ข้อ 3 typeset: 5 ขนาด — รอง 13–14 · เนื้อ 16 · หัวการ์ด 18 · หัวส่วน/หัวกล่อง 22 · หัวหน้า 32 · ตัวไทยไม่ต่ำกว่า 13 (ไม่แตะหน้าภาพรวม) */
+@media (min-width:641px){html:not([data-r="today"]) #app .ph h1,html:not([data-r="today"]) #app .pg>.top h1{font-size:32px!important;line-height:1.25!important}}
+html:not([data-r="today"]) #app .card h2,html:not([data-r="today"]) #app .rbody h2,html:not([data-r="today"]) #app .stc h2{font-size:18px!important;line-height:1.35}
+html:not([data-r="today"]) #app .mth b{font-size:18px!important}
+#modal .modal h2{font-size:22px!important;line-height:1.3}
+.jtabs button,.rtabs button{font-size:16px!important}
+html:not([data-r="today"]) .kcap2,html:not([data-r="today"]) .opt,html:not([data-r="today"]) .cd span,html:not([data-r="today"]) .mtlh small,html:not([data-r="today"]) .team{font-size:13px!important}
+/* ข้อ 3 คอนทราสต์: ตัวเลขแจ้งเตือนใหม่ 3.9:1 → 4.7:1 · ตัวหนังสือรอง (--mut2) 4.3:1 → 5.3:1 */
+.nb,.nb.new{background:#d93036!important}
+html:not([data-r="today"]){--mut2:#62607a}
 </style></head>
 <body>
 <div class="shell">
@@ -3097,7 +3108,7 @@ let rq=0;function schedule(){cancelAnimationFrame(rq);rq=requestAnimationFrame(r
 function route(){return (location.hash||'#today').slice(1)}
 function render(){
   svPeopleSync();
-  const r=route();
+  const r=route();document.documentElement.dataset.r=r.startsWith('job-')?'job':r;
   if(r==='sites'||r.startsWith('site-')){const jj=r.startsWith('site-')?mainJob(r.slice(5)):null;if(jj){S.sel=jj.id;S.dtab='hist';document.body.classList.add('dlock')}else S.f.sst='installed';location.replace('#service');return}
   if((r==='kb-new'||r.startsWith('kb-edit-'))&&S.kbDirty&&document.getElementById('kbForm'))return;
   if(r.startsWith('job-')&&S.dirty.size){S.held=true;const b=$('#heldNote');if(b)b.hidden=false;return}
