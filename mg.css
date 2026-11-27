@@ -2661,3 +2661,7 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
  .cvw.pn .cvb{grid-template-columns:224px minmax(0,1fr) 440px !important}
  .cvw.pn.norail .cvb{grid-template-columns:minmax(0,1fr) 440px !important}
 }
+/* 28 พ.ย. ภาพรวมเชื่อมปฏิทิน: คิวอื่น/นัด Google ใช้สีตามปฏิทิน */
+.wk-e.o{background:color-mix(in srgb,var(--c) 16%,#fff);color:#16171d}
+.daytl-ev.o{border-left-color:var(--c)}
+.hs-ty.o{background:color-mix(in srgb,var(--c) 16%,#fff);color:#16171d}

@@ -712,27 +712,34 @@ function renderSide(r){
   $('#nav2').innerHTML='';
 }
 function topbar(){return ''}
+/* ภาพรวมใช้นัดชุดเดียวกับหน้าปฏิทิน (ผู้ใช้ 28 พ.ย. 06:06): งาน + คิวอื่น + นัดใน Google (ลิงก์แล้ว = งาน) · ไม่รวมวันหยุด */
+function ovEv(k,AE){const TY=cvTY();return cvSortT(AE.filter(e=>cvOn(e,k))).map(e=>{const c=e.lj?e.lkind:e.k==='p'?'s':e.k==='s'||e.k==='i'?e.k:'o';const jid=e.src==='job'?e.j.id:e.lj||'';
+  const of=cvDiff(e.d,cvEnd(e))+1,day=cvDiff(e.d,k)+1;
+  const ty=c==='s'?'สำรวจ':c==='i'?'ติดตั้ง':e.k==='g'?'Google':(TY[e.ty]&&TY[e.ty].n)||'นัด';
+  const who=c==='s'&&e.src==='job'?(e.j.surveyor||'ยังไม่มีคนสำรวจ'):cvWho(e).join(' + ')||e.place||'';
+  return {e,k:c,tm:e.tm||'',n:e.n||'ไม่มีชื่อ',ty,who,of,day,col:c==='o'?cvCol(e):'',href:jid?'#job-'+jid:'#queue',wkd:jid?'':k}})}
+const ovA=x=>`href="${x.href}"${x.wkd?` data-wkd="${x.wkd}"`:''}${x.col?` style="--c:${x.col}"`:''}`;
 function weekStrip(evOn,t){
   const D=[...Array(7)].map((_,i)=>isoAdd(t,i+1));const tot=D.reduce((a,k)=>a+evOn(k).length,0);
   const leaf=k=>{const dt=new Date(k+'T00:00:00'),L=evOn(k),sun=dt.getDay()===0,cl=closedDays()[k];
     return `<a class="wk ${sun||cl?'off':''} ${L.length?'':'emp'}" href="#queue" data-wkd="${k}"><span class="wk-d"><b>${dt.getDate()}</b><span>${TD[dt.getDay()]}</span></span>
-      ${L.length?`<span class="wk-l">${L.slice(0,3).map(x=>`<span class="wk-e ${x.k}"><i>${x.k==='i'?'ติดตั้ง':esc(x.j.queueTime||'สำรวจ')}</i>${esc(x.j.title||'')}</span>`).join('')}${L.length>3?`<span class="wk-m">อีก ${L.length-3} นัด</span>`:''}</span>`:`<span class="wk-n">${sun?'วันหยุด':cl?esc(cl):'ว่าง'}</span>`}</a>`};
+      ${L.length?`<span class="wk-l">${L.slice(0,3).map(x=>`<span class="wk-e ${x.k}"${x.col?` style="--c:${x.col}"`:''}><i>${esc(x.tm||x.ty)}</i>${esc(x.n)}</span>`).join('')}${L.length>3?`<span class="wk-m">อีก ${L.length-3} นัด</span>`:''}</span>`:`<span class="wk-n">${sun?'วันหยุด':cl?esc(cl):cvHol(k)?esc(cvHol(k).n):'ว่าง'}</span>`}</a>`};
   return `<section class="card wks" aria-label="7 วันข้างหน้า"><div class="wks-h"><h2>7 วันข้างหน้า <span>${tot} นัด</span></h2><a class="lnk" href="#queue">เปิดปฏิทิน</a></div><div class="wks-g">${D.map(leaf).join('')}</div></section>`}
 function heroStrip(t,d,evOn,active,all){
-  const tm=x=>x.k==='i'?'ทั้งวัน':x.j.queueTime||'';const typ=x=>x.k==='s'?'สำรวจ':`ติดตั้ง${x.of>1?` วันที่ ${x.day}/${x.of}`:''}`;const who=x=>x.k==='s'?(x.j.surveyor||'ยังไม่มีคนสำรวจ'):(x.j.installTeam||'');
-  const row=(x,day)=>`<a class="hs-ap" href="#job-${esc(x.j.id)}"><span class="hs-tm">${day?`<small>${day}</small>`:''}${esc(tm(x)||'—')}</span><span class="hs-ty ${x.k}">${typ(x)}</span><span class="hs-nm"><b>${esc(x.j.title||'ไม่มีชื่อไซต์')}</b><span>${esc(who(x))}</span></span></a>`;
+  const tm=x=>x.tm||'ทั้งวัน';const typ=x=>`${x.ty}${x.of>1?` วันที่ ${x.day}/${x.of}`:''}`;const who=x=>x.who;
+  const row=(x,day)=>`<a class="hs-ap" ${ovA(x)}><span class="hs-tm">${day?`<small>${day}</small>`:''}${esc(tm(x)||'—')}</span><span class="hs-ty ${x.k}">${esc(typ(x))}</span><span class="hs-nm"><b>${esc(x.n)}</b><span>${esc(who(x))}</span></span></a>`;
   const L=evOn(t);let ap;
-  if(L.length){const A=8,B=18,pc=x=>Math.max(0,Math.min(100,(x-A)/(B-A)*100)),hr=x=>{const m=/^(\d{1,2})[:.](\d{2})/.exec(x.j.queueTime||'');return x.k==='s'&&m?+m[1]+(+m[2])/60:null};
+  if(L.length){const A=8,B=18,pc=x=>Math.max(0,Math.min(100,(x-A)/(B-A)*100)),hr=x=>cvH(x.tm);
     const tmd=L.filter(x=>hr(x)!=null).sort((a,b)=>hr(a)-hr(b)),day=L.filter(x=>hr(x)==null);const lanes=[];
     const top0=day.length*54+8;
-    const ev=tmd.map(x=>{const s0=hr(x),e=s0+2.5;let ln=lanes.findIndex(end=>end<=s0);if(ln<0){ln=lanes.length;lanes.push(e)}else lanes[ln]=e;const l=Math.min(pc(s0),75);
-      return `<a class="daytl-ev" href="#job-${esc(x.j.id)}" style="left:min(${l}%,calc(100% - 150px));width:${Math.max(Math.min(pc(e),100)-l,25)}%;top:${top0+ln*54}px"><b>${esc(x.j.queueTime)} ${esc(x.j.title||'ไม่มีชื่อไซต์')}</b><span>${esc(who(x))}</span></a>`}).join('');
-    const dv=day.map((x,i)=>`<a class="daytl-ev i" href="#job-${esc(x.j.id)}" style="left:0;width:100%;top:${i*54}px"><b>${x.k==='i'?typ(x)+' ทั้งวัน':'สำรวจ (ยังไม่ระบุเวลา)'} · ${esc(x.j.title||'ไม่มีชื่อไซต์')}</b><span>${esc(who(x))}</span></a>`).join('');
+    const ev=tmd.map(x=>{const s0=hr(x),e=s0+Math.max(x.e.dur||2.5,1.5);let ln=lanes.findIndex(end=>end<=s0);if(ln<0){ln=lanes.length;lanes.push(e)}else lanes[ln]=e;const l=Math.min(pc(s0),75);
+      return `<a class="daytl-ev ${x.k}" href="${x.href}"${x.wkd?` data-wkd="${x.wkd}"`:''} style="left:min(${l}%,calc(100% - 150px));width:${Math.max(Math.min(pc(e),100)-l,25)}%;top:${top0+ln*54}px;${x.col?`--c:${x.col}`:''}"><b>${esc(x.tm)} ${esc(x.n)}</b><span>${esc(who(x))}</span></a>`}).join('');
+    const dv=day.map((x,i)=>`<a class="daytl-ev ${x.k==='s'?'s':x.k}" href="${x.href}"${x.wkd?` data-wkd="${x.wkd}"`:''} style="left:0;width:100%;top:${i*54}px;${x.col?`--c:${x.col}`:''}"><b>${x.k==='s'&&x.e.src==='job'?'สำรวจ (ยังไม่ระบุเวลา)':esc(typ(x))+' ทั้งวัน'} · ${esc(x.n)}</b><span>${esc(who(x))}</span></a>`).join('');
     const H=top0+Math.max(lanes.length,tmd.length?1:0)*54+30;const T=[8,10,12,14,16,18];const nw=new Date(),nh=nw.getHours()+nw.getMinutes()/60;
     ap=`<h2>นัดวันนี้ <span>${L.length} นัด</span></h2><div class="daytl" style="height:${H}px">${T.map(x=>`<i class="daytl-g" style="left:${pc(x)}%"></i>`).join('')}<div class="daytl-ax">${T.map(x=>`<i style="left:${pc(x)}%">${String(x).padStart(2,'0')}:00</i>`).join('')}</div>${nh>=A&&nh<=B?`<i class="daytl-now" style="left:${pc(nh)}%"></i>`:''}${dv}${ev}</div>`}
   else{let nx=null,nk='';for(let i=1;i<=30&&!nx;i++){const k=isoAdd(t,i);const E=evOn(k);if(E.length){nx=E[0];nk=k}}
     const dl=k=>{const n=Math.round((new Date(k+'T00:00:00')-new Date(t+'T00:00:00'))/864e5);return n===1?'พรุ่งนี้':n===2?'มะรืนนี้':`${TD[new Date(k+'T00:00:00').getDay()]} ${fd(k)}`};
-    ap=`<h2>วันนี้ไม่มีนัด</h2>${nx?`<p class="hs-sub">นัดถัดไป</p>${row(nx,dl(nk))}`:'<p class="hs-sub">30 วันข้างหน้ายังไม่มีนัดสำรวจหรือติดตั้ง</p>'}`}
+    ap=`<h2>วันนี้ไม่มีนัด</h2>${nx?`<p class="hs-sub">นัดถัดไป</p>${row(nx,dl(nk))}`:'<p class="hs-sub">30 วันข้างหน้ายังไม่มีนัด</p>'}`}
   const M=mineJobs();const by={};M.forEach(j=>(by[j.stage]=by[j.stage]||[]).push(j));
   const own=()=>{const c={};active.filter(j=>j.stage!==ST.OFFER).forEach(j=>{c[j.stage]=(c[j.stage]||0)+1});const K=Object.keys(c).sort((a,b)=>a-b);return K.length?`<h2>งานแต่ละขั้น <span>${Object.values(c).reduce((a,b)=>a+b,0)} งาน</span></h2><div class="hs-wl">${K.map(k=>`<a class="hs-w" href="#jobs" data-pillf="${esc(phaseOf(+k)?.k||'pre')}"><span>${esc(STAGES[k].name)}</span><b>${c[k]}</b>${svg('chev','currentColor',2.2)}</a>`).join('')}</div>`:''};
   const bk=()=>{const sv=active.filter(j=>j.stage===ST.ACCEPT).length,ins=active.filter(j=>j.stage===ST.INSREQ).length,b1=active.filter(j=>j.stage===ST.BOOK).length;
@@ -804,7 +811,7 @@ function viewToday0(){
   const g=myGroup();
   const all=visibleJobs();const active=all.filter(j=>j.status==='active');
   const t=today();const d=new Date();
-  const evOn=k=>{const L=[];active.forEach(j=>{if(j.stage<=ST.SURVEY&&(j.surveyDate||j.queueDate)===k)L.push({j,k:'s',conf:j.stage>=ST.SURVEY});if(j.stage>=ST.INSREQ&&j.stage<=ST.INSTALL&&onIns(j,k)){const D=insDays(j);L.push({j,k:'i',day:D.indexOf(k)+1,of:D.length})}});return L.sort((a,b)=>String(a.j.queueTime||'99').localeCompare(String(b.j.queueTime||'99')))};
+  cvLoadG(0,[t,isoAdd(t,31)]);const AE=cvAll().filter(e=>e.k!=='h'),evOn=k=>ovEv(k,AE);
   let DP;
   DP=dashPro(all);
   return `${heroStrip(t,d,evOn,active,all)}
@@ -1847,7 +1854,7 @@ function svHalfFree(k,h,L){const reg=SV_TEAMS.filter(t=>!SV_APPROVAL.includes(t)
   return Math.max(0,...SLOTS.filter(t=>halfOf(t)===h&&!slotGone(k,t)).map(tm=>reg.filter(t=>!teamBlock(t,k,null,tm)).length-un))}
 /* ---- ดึงนัดจาก Google (ทีละเดือนที่แสดง) ---- */
 function cvGridRange(){const c=cvD(S.f.cvm||today().slice(0,8)+'01'),f=isoOf(new Date(c.getFullYear(),c.getMonth(),1));const s=cvMon(f);return [s,isoAdd(s,41)]}
-function cvLoadG(force){if(!S.db||!S.db.call)return;const [a,b]=cvGridRange(),key=a;const cur=CV.gl[key];if(cur&&(cur.busy||(!force&&Date.now()-cur.at<120e3)))return;
+function cvLoadG(force,R){if(!S.db||!S.db.call)return;const [a,b]=R||cvGridRange(),key=R?a+'~'+b:a;const cur=CV.gl[key];if(cur&&(cur.busy||(!force&&Date.now()-cur.at<120e3)))return;
   CV.gl[key]={busy:1,at:Date.now()};S.db.call('gcalList',{from:a,to:b}).then(r=>{CV.g[key]=r;CV.gl[key]={at:Date.now()};schedule()}).catch(e=>{CV.gl[key]={at:Date.now(),err:e&&e.code==='bad'&&/ไม่รู้จักคำสั่ง/.test(e.message||'')?'ตัวกลางยังเป็นรุ่นเก่า (ต้องอัปเดต Code.gs 1.2.17)':e&&e.message||'อ่านปฏิทิน Google ไม่ได้'};schedule()})}
 /* ---- ส่งขึ้น Google ---- */
 function cvDesc(lines,link){return lines.filter(Boolean).join('\n')+'\n\n— สร้างจากระบบ CLEANLINE · แก้ในระบบเท่านั้น'+(link?'\nเปิดในระบบ: '+link:'')}
