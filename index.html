@@ -4364,7 +4364,7 @@ function calHtml(){
   const iso=d=>isoOf(d);
   let cells='';
   for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=iso(d);const inM=d.getMonth()===m;if(i===35&&!inM)break;
-    const di=dayInfo(k);const past=k<=t;const off=!!di.closed;const full=di.left===0;
+    const di=dayInfo(k);const past=k<t;const off=!!di.closed;const full=di.left===0;
     const st=!inM?'out':past?'past':off?'off':full?'full':di.left===1?'one':'free';
     const can=inM&&!past&&!off&&!full;
     cells+=`<button type="button" class="cd ${st} ${f.date===k?'sel':''}" ${can?`data-nd="${k}"`:'disabled'} aria-label="${d.getDate()} ${TMF[m]} ${off?di.closed:full?'เต็ม':past?'':'ว่าง '+di.left+' คิว'}">
@@ -4376,7 +4376,7 @@ function calHtml(){
   <div class="cgrid">${['จ','อ','พ','พฤ','ศ','ส','อา'].map(x=>`<span class="cw">${x}</span>`).join('')}${cells}</div>
   <div class="clg"><span><i class="free"></i>ว่าง</span><span><i class="one"></i>เหลือ 1 คิว</span><span><i class="full"></i>เต็ม</span><span><i class="off"></i>ปิดรับคิว</span></div>
   <div class="cslot">${f.date?`<b>${TD[new Date(f.date+'T00:00:00').getDay()]} ${fd(f.date)} · เลือกเวลา</b>
-    <div class="slots">${SLOTS.map(s=>{const tk=sel.taken.includes(s);return `<button type="button" class="slot ${f.time===s?'on':''}" ${tk?'disabled':`data-nt="${s}"`}>${s}${tk?'<small>จองแล้ว</small>':''}</button>`}).join('')}</div>`
+    <div class="slots">${SLOTS.map(s=>{const gone=f.date===t&&s<=new Date().toTimeString().slice(0,5);const tk=!gone&&sel.taken.includes(s);return `<button type="button" class="slot ${f.time===s&&!gone?'on':''}" ${tk||gone?'disabled':`data-nt="${s}"`}>${s}${tk?'<small>จองแล้ว</small>':gone?'<small>เลยเวลาแล้ว</small>':''}</button>`}).join('')}</div>`
     :'<span class="sub">เลือกวันที่ว่างในปฏิทินก่อน แล้วเลือกเวลา</span>'}</div>
   ${nfCanAssign()&&f.date&&f.time?`<label class="fld neng" for="n-eng">คนสำรวจ<select id="n-eng"><option value="">ให้หัวหน้าจัดงานเลือกทีหลัง</option>${SV_TEAMS.map(t=>{const b=teamBlock(t,f.date,null,f.time,null);return `<option value="${esc(t)}" ${f.eng===t&&!b?'selected':''} ${b?'disabled':''}>${esc(t)}${b?' · '+esc(b):''}</option>`}).join('')}</select><span class="sub">เลือกเลยแล้วระบบส่งใบงานให้ทันที ไม่ต้องรอขั้นจัดคน</span></label>`:''}
   <div class="nsub">
@@ -4927,6 +4927,7 @@ async function saveSec(id){
   if(id==='eq'){const sl=[...root.querySelectorAll('.eqsl')].map(r=>{const o={role:'Slave'};r.querySelectorAll('[data-uk]').forEach(x=>o[x.dataset.uk]=x.value.trim());return o}).filter(u=>u.model||u.sn||u.wifiSn);
     if(sl.some(u=>!u.sn)){toast('ใส่ S/N ของเครื่อง Slave ให้ครบ');return}
     const nu=sl.length?[{role:'Master'},...sl]:[];if(JSON.stringify(nu.slice(1))!==JSON.stringify(invUnits(old).slice(1).map(u=>({role:'Slave',model:u.model||'',sn:u.sn||'',wifiSn:u.wifiSn||''}))))ch.push('เครื่อง Slave');data.units=nu;if(ch.includes('เครื่อง Slave'))chK.push('units')}
+  if(id==='order'&&data.queueDate&&j.surveyDate&&j.surveyDate!==data.queueDate){data.surveyDate=data.queueDate;if(!chK.includes('queueDate')){ch.push('วันนัดสำรวจ');chK.push('surveyDate')}}
   if(!ch.length){toast('ยังไม่มีการเปลี่ยนแปลง');return}
   // แก้เลขใบงาน: ตรวจรูปแบบ/ซ้ำ · ยืนยัน · จองเลขใหม่ ปล่อยเลขเก่า
   const noOld=String(j.jobNo||''),noNew=id==='wo'&&'jobNo' in data?String(data.jobNo||'').trim():noOld;
