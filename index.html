@@ -2555,9 +2555,12 @@ html:not([data-r="today"]){--mut2:#62607a}
 .nfk.on{background:#e7f3d6;font-weight:600}
 @media (max-width:640px){
   .nsplit{display:flex!important;flex-direction:column}.nsplit>.ncal{order:-1}
-  .nsplit .nsub{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:55;background:#fff;border-radius:20px;padding:10px 12px;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 12px 28px -12px rgba(16,24,40,.35);flex-direction:row!important;align-items:center!important}
+  .nsplit .nsub{position:fixed;left:12px;right:12px;bottom:calc(104px + env(safe-area-inset-bottom,0px));z-index:55;background:#fff;border-radius:20px;padding:10px 12px;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 12px 28px -12px rgba(16,24,40,.35);flex-direction:row!important;align-items:center!important}
   .nsplit .nsub .btn{width:auto!important;flex:none}
-  .nsplit{padding-bottom:88px}
+  .nsplit{padding-bottom:120px}
+  .nsplit .nsub .nmiss{display:none}.nsplit .nsub .nmissc{display:block;color:#a34b08;font-weight:600}
+  .nsplit .nsub .nsum b{font-size:15px;line-height:1.35}
+  .nsplit>.ncal,.nsplit{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transform:none!important;filter:none!important;contain:none!important;will-change:auto!important}
   .nfdone{flex-wrap:wrap}.nfdone>div{flex-basis:calc(100% - 56px)}.nfdone .btn{flex:1;justify-content:center}
 }
 
@@ -2654,7 +2657,7 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
  .ncal .nsub{background:#111214;color:#fff;border-top:0!important;border-radius:18px;padding:12px 12px 12px 20px;margin-top:16px;flex-direction:row!important;align-items:center!important}
  .ncal .nsub .sub{color:#b9bcc4}.ncal .nsub .nmiss{color:#f5a35c!important}.ncal .nsub .nsum b{color:#fff}.ncal .nsub .btn{width:auto!important;background:#dcfce7!important;color:#16171d!important;box-shadow:none!important}
  .ncal .nsub .btn[aria-disabled="true"]{background:#3a3c44!important;color:#8a8f99!important;opacity:1}}
-.nsum{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}.nsum .nmiss{font-size:15px;line-height:1.45}
+.nsum{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}.nmissc{display:none}.nsum .nmiss{font-size:15px;line-height:1.45}
 
 @media (max-width:900px){.hs{grid-template-columns:1fr 1fr}.hs-d{grid-column:1/-1;flex-direction:row!important;align-items:baseline;flex-wrap:wrap;gap:4px 12px!important;border-bottom:1px solid rgba(16,24,40,.08)}.hs-d b{font-size:56px;margin:0}.hs-qa{margin:0 0 0 auto;padding:0}.hs-qa .btn{width:auto}.hs>div+div{border-left:0}.hs-r{border-left:1px solid rgba(16,24,40,.08)!important}}
 @media (max-width:640px){.hs{grid-template-columns:1fr}.hs>div{padding:18px 20px}.hs-r{border-left:0!important;border-top:1px solid rgba(16,24,40,.08)}.hs-qa{display:none}.htls.hs-tl{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
@@ -4541,7 +4544,7 @@ function calHtml(){
     :'<span class="sub">เลือกวันที่ว่างในปฏิทินก่อน แล้วเลือกเวลา</span>'}</div>
   ${nfCanAssign()&&f.date&&f.time?`<label class="fld neng" for="n-eng">คนสำรวจ<select id="n-eng"><option value="">ให้หัวหน้าจัดงานเลือกทีหลัง</option>${SV_TEAMS.map(t=>{const b=teamBlock(t,f.date,null,f.time,null);return `<option value="${esc(t)}" ${f.eng===t&&!b?'selected':''} ${b?'disabled':''}>${esc(t)}${b?' · '+esc(b):''}</option>`}).join('')}</select><span class="sub">เลือกเลยแล้วระบบส่งใบงานให้ทันที ไม่ต้องรอขั้นจัดคน</span></label>`:''}
   <div class="nsub">
-    <div class="nsum">${f.date&&f.time?`<b>${TD[new Date(f.date+'T00:00:00').getDay()]} ${fd(f.date)} · ${f.time}</b>`:'<b>ยังไม่ได้เลือกคิว</b>'}${ok.ok?'<span class="sub">ข้อมูลครบ พร้อมจอง</span>':`<span class="sub nmiss">ยังขาด: ${ok.miss.join(' · ')}</span>`}</div>
+    <div class="nsum">${f.date&&f.time?`<b>${TD[new Date(f.date+'T00:00:00').getDay()]} ${fd(f.date)} · ${f.time}</b>`:'<b>ยังไม่ได้เลือกคิว</b>'}${ok.ok?'<span class="sub">ข้อมูลครบ พร้อมจอง</span>':`<span class="sub nmiss">ยังขาด: ${ok.miss.join(' · ')}</span><span class="sub nmissc">ยังขาด ${ok.miss.length} ช่อง</span>`}</div>
     <button class="btn pri" type="submit" data-mode="send" ${ok.ok?'':'aria-disabled="true"'}>${nfCanAssign()?(f.eng&&f.date&&f.time&&!teamBlock(f.eng,f.date,null,f.time,null)?'จองคิว + ส่งใบงาน':'จองคิว'):'บันทึกคำขอคิว'}</button>
   </div>
 `;
@@ -5059,7 +5062,7 @@ document.addEventListener('input',e=>{
   if(t.id==='jq'){S.f.q=t.value;S.f.limit=40;S.f.pg=0;render();return}
   if(t.id==='usearch')return userSearch(t.value);
   if(t.id==='n-meter'||t.id==='n-mdays'){nfRead();const mb=$('#n-mtbox');if(t.id==='n-meter'&&mb)mb.innerHTML=mtBox(S.nf);else{const pk=document.querySelector('.mpkf');if(pk)pk.innerHTML='<span>เครื่องที่ว่าง</span>'+meterPick(S.nf.date,S.nf.mdays)}}
-  if(t.closest('#newForm')){nfRead();if(t.id==='n-addr'){const b=$('#n-mapbtn');if(b)b.href=mapsDir(t.value)}const mi=document.querySelector('.nmiss'),r=nfReady();if(mi)mi.textContent=r.ok?'':'ยังขาด: '+r.miss.join(' · ');const sb=document.querySelector('.nsub .btn');if(sb)sb.toggleAttribute('aria-disabled',!r.ok);return}
+  if(t.closest('#newForm')){nfRead();if(t.id==='n-addr'){const b=$('#n-mapbtn');if(b)b.href=mapsDir(t.value)}const mi=document.querySelector('.nmiss'),r=nfReady();if(mi)mi.textContent=r.ok?'':'ยังขาด: '+r.miss.join(' · ');const mc=document.querySelector('.nmissc');if(mc)mc.textContent=r.ok?'ข้อมูลครบ พร้อมจอง':'ยังขาด '+r.miss.length+' ช่อง';const sb=document.querySelector('.nsub .btn');if(sb)sb.toggleAttribute('aria-disabled',!r.ok);return}
   const sec=t.closest('[data-sec]');if(sec){S.dirty.add(sec.dataset.sec);sec.classList.add('dirty')}
 });
 document.addEventListener('change',async e=>{
