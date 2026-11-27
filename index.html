@@ -2704,6 +2704,220 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 @media (max-width:900px){.hmo-g{grid-template-columns:1fr}}
 @media (max-width:640px){.wks{padding:16px!important}.wks-g{grid-template-columns:repeat(7,132px)}.hmo-h{font-size:18px}}
 .hmo .dsn{color:#5f6672!important;font-weight:500}
+/* ===== ปฏิทินงานใหม่ (27 พ.ย.) แบบ Google Calendar · คลาสขึ้นต้น cv ===== */
+.pg:has(.cvw){padding-bottom:0 !important}
+.cvw{display:flex;flex-direction:column;min-height:0;gap:10px}
+.cvw .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cvtb{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.cvtb .ib{width:40px;height:40px;border-radius:50%;border:0;background:none}
+.cvtb .ib:hover{background:rgba(0,0,0,.05)}
+.cvtb .ib svg{width:20px;height:20px;transform:rotate(180deg)}
+.cvtb .ib.nx svg{transform:none}
+.cvtt{font-size:26px;line-height:1.2;margin:0 6px 0 4px;font-weight:700;color:var(--ink,#16171d)}
+.cvsp{flex:1}
+.cvgs{font-size:14px;font-weight:600;color:#667085;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.cvgs.ok{color:#2f6b0a}.cvgs.err{color:#b42318}.cvgs svg{width:16px;height:16px}
+.cvsr{display:flex;align-items:center;gap:6px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1px #d0d5dd;padding:0 12px;height:40px;width:220px;color:#667085}
+.cvsr svg{width:16px;height:16px;flex:none}
+.cvsr input{border:0 !important;outline:0;background:none !important;width:100%;font-size:15px !important;padding:0 !important;box-shadow:none !important;height:auto !important}
+.cvseg{flex:none}
+.cvb{display:grid;grid-template-columns:236px minmax(0,1fr);gap:14px;flex:1;min-height:0}
+.cvrail{min-height:0;overflow:auto;padding:2px 2px 10px}
+.cvmain{min-height:0;overflow:hidden;padding:0 !important;display:flex;flex-direction:column}
+.cvcreate{border:0;background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.15),0 4px 10px rgba(0,0,0,.06);padding:12px 22px;font:inherit;font-weight:700;font-size:15px;display:flex;gap:10px;align-items:center;min-height:52px;margin:0 0 14px;cursor:pointer;color:inherit}
+.cvcreate b{font-size:24px;line-height:1;font-weight:400}
+.cvcreate:hover{box-shadow:0 2px 6px rgba(0,0,0,.18),0 6px 14px rgba(0,0,0,.08)}
+.cvmh{display:flex;align-items:center;justify-content:space-between;font-size:15px;padding:0 4px 4px}
+.cvmh button{border:0;background:none;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;color:inherit}
+.cvmh button:hover{background:rgba(0,0,0,.05)}
+.cvmg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center}
+.cvmg span{font-size:14px;color:#667085;padding:2px 0}
+.cvmg button{border:0;background:none;height:32px;border-radius:50%;font:inherit;font-size:14px;position:relative;cursor:pointer;color:inherit}
+.cvmg button:hover{background:rgba(0,0,0,.05)}
+.cvmg button.o{color:#a5abb6}
+.cvmg button.t{background:#c9e8a4;font-weight:700}
+.cvmg button.s{box-shadow:inset 0 0 0 2px #16171d}
+.cvmg button.dt::after{content:"";position:absolute;bottom:3px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:#458c10}
+.cvlh{display:flex;align-items:center;margin:16px 4px 4px;font-size:14px;color:#525c6e}
+.cvmt{margin-left:auto;border:0;background:none;color:#2f6b0a;font:inherit;font-weight:700;font-size:14px;padding:4px 6px;border-radius:8px;cursor:pointer}
+.cvmt:hover{background:#e7f3d6}
+.cvbrh{display:flex;align-items:center}
+.cvcar{border:0;background:none;width:26px;height:30px;border-radius:6px;font-size:14px;color:#667085;flex:none;transition:transform .15s;display:inline-grid;place-items:center;cursor:pointer}
+.cvcar.cl{transform:rotate(-90deg)}
+.cvbrc{margin-left:13px;padding-left:13px;border-left:1.5px solid #dfe3dc}
+.cvly{display:flex;gap:10px;align-items:center;padding:4px 6px;border-radius:8px;font-size:15px;cursor:pointer;flex:1;min-width:0}
+.cvly:hover{background:rgba(0,0,0,.04)}
+.cvly.g{font-weight:700}
+.cvly span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cvly small{margin-left:auto;color:#667085;font-size:14px;font-weight:500}
+.cvly input{appearance:none;-webkit-appearance:none;width:18px !important;height:18px !important;min-height:0 !important;border-radius:4px;border:2px solid var(--c) !important;margin:0;padding:0 !important;flex:none;display:grid;place-items:center;background:#fff !important;box-shadow:none !important;cursor:pointer}
+.cvly input:checked,.cvly input:indeterminate{background:var(--c) !important}
+.cvly input:checked::after{content:"";width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.cvly input:indeterminate::after{content:"";width:8px;height:2px;background:#fff}
+.cvnote{font-size:14px;color:#667085;padding:8px 6px;margin:0;line-height:1.5}
+/* เดือน */
+.cvmo{display:flex;flex-direction:column;height:100%;min-height:0}
+.cvwd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid #e6e8e4}
+.cvwd div{font-size:14px;color:#525c6e;text-align:center;padding:8px 0 4px;font-weight:600}
+.cvwks{flex:1;min-height:0;display:flex;flex-direction:column}
+.cvwk{position:relative;flex:1 1 0;min-height:52px;overflow:hidden;border-bottom:1px solid #e6e8e4}
+.cvwk:last-child{border-bottom:0}
+.cvbg{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.cvbg div{border-right:1px solid #e6e8e4;cursor:cell}
+.cvbg div:last-child{border-right:0}
+.cvbg div.o,.cvbg div.past{background:#fafbf9}
+.cvbg div.sel{box-shadow:inset 0 0 0 2px #16a34a}
+.cvbg div.cvover{background:#eef7e2;box-shadow:inset 0 0 0 2px #458c10}
+.cvbg div.full.cvover{background:#fff1f0;box-shadow:inset 0 0 0 2px #d92d20}
+.cvfg{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:min-content;row-gap:2px;padding-bottom:6px;pointer-events:none}
+.cvfg>*{pointer-events:auto}
+.cvdh{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 6px 2px;position:relative;pointer-events:none !important;min-width:0}
+.cvdn{pointer-events:auto;border:0;background:none;min-width:30px;padding:0 6px;white-space:nowrap;height:30px;border-radius:15px;font:inherit;font-weight:600;font-size:15px;cursor:pointer;color:inherit}
+.cvdn:hover{background:rgba(0,0,0,.06)}
+.cvdh.o .cvdn{color:#a5abb6}
+.cvdh.t .cvdn{background:#16171d;color:#fff}
+.cvcap{font-size:14px;font-weight:600;color:#2f6b0a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;padding-right:2px}
+.cvcap.full{color:#b42318}.cvcap.off{color:#667085}
+.cvbar{display:block;margin:0 4px;height:24px;line-height:24px;border:0;border-radius:6px;padding:0 8px;font:inherit;font-size:14px;font-weight:600;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.cvbar em{font-style:normal;font-weight:500;opacity:.85}
+.cvbar.cl{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
+.cvbar.cr{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
+.cvbar.gx,.cvtev.gx,.cvagi.gx{box-shadow:inset 0 0 0 1.5px #98a2b3}
+.cvdl{display:flex;flex-direction:column;gap:1px;padding:0 4px;pointer-events:none !important;min-width:0}
+.cvdl>*{pointer-events:auto}
+.cvdl.pop{padding:0;margin:8px 0;gap:3px}
+.cvdl.pop .cvbar{margin:0}
+.cvev{display:flex;align-items:center;gap:6px;height:24px;padding:0 6px;border:0;background:none;border-radius:6px;font:inherit;font-size:14px;text-align:left;white-space:nowrap;overflow:hidden;width:100%;cursor:pointer;color:inherit}
+.cvev:hover{background:#f0f2ee}
+.cvev i{flex:none;width:8px;height:8px;border-radius:50%}
+.cvev i.g{background:none !important;border:1.5px solid #98a2b3}
+.cvev b{flex:none;font-weight:600;color:#3d4452}
+.cvev span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cvev.gx b,.cvev.gx span{color:#667085}
+.cvev.pe i{background:#fff !important;box-shadow:inset 0 0 0 2px #33b679}
+.cvev.ag1,.cvbar.ag1{box-shadow:inset 0 0 0 1.5px #f59e0b}
+.cvev.ag2,.cvbar.ag2{box-shadow:inset 0 0 0 1.5px #dc2626}
+.cvmore{border:0;background:none;text-align:left;padding:0 6px;font:inherit;font-size:14px;font-weight:700;color:#3d4452;height:22px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.cvmore:hover{background:#f0f2ee}
+.cvmo.cmp .cvdh{padding:2px 6px 0}.cvmo.cmp .cvdn{height:26px;font-size:14px}
+.cvmo.cmp .cvfg{row-gap:0;padding-bottom:2px}.cvmo.cmp .cvdl{gap:0}
+.cvmo.cmp .cvev,.cvmo.cmp .cvmore{height:21px}.cvmo.cmp .cvbar{height:20px;line-height:20px;margin-bottom:1px}
+.cvnew{animation:cvpop .9s ease}
+@keyframes cvpop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:none}}
+[data-cvev][draggable="true"]{cursor:grab}
+.cvdragging{opacity:.4}
+@media(prefers-reduced-motion:reduce){.cvnew{animation:none}.cvcar{transition:none}}
+/* สัปดาห์ */
+.cvwv{display:flex;flex-direction:column;height:100%;min-height:0}
+.cvwh{display:grid;border-bottom:1px solid #e6e8e4}
+.cvwh button{border:0;background:none;text-align:center;padding:6px 0;font:inherit;cursor:pointer;color:inherit}
+.cvwh small{display:block;font-size:14px;color:#525c6e;font-weight:600}
+.cvwh b{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;font-size:20px;font-weight:600}
+.cvwh .t b{background:#16171d;color:#fff}
+.cvwh em{display:block;font-style:normal;font-size:14px;color:#2f6b0a;font-weight:600}
+.cvwh em.full{color:#b42318}.cvwh em.off{color:#667085}
+.cvwa{display:grid;border-bottom:1px solid #e6e8e4;padding:4px 0;row-gap:2px;grid-auto-rows:min-content;max-height:120px;overflow:auto}
+.cvalb{font-size:14px;color:#525c6e;text-align:right;padding-right:8px;grid-row:1/span 20;align-self:start;padding-top:2px}
+.cvwb{display:grid;position:relative;flex:1;min-height:0;overflow:auto}
+.cvhrs{position:relative}
+.cvhrs span{position:absolute;right:8px;font-size:14px;color:#525c6e;transform:translateY(-50%)}
+.cvcol{position:relative;border-left:1px solid #e6e8e4;cursor:cell;background:repeating-linear-gradient(#fff 0 calc(var(--px) - 1px),#eef0ec calc(var(--px) - 1px) var(--px))}
+.cvcol.sun,.cvcol.past{background:repeating-linear-gradient(#fafbf9 0 calc(var(--px) - 1px),#eef0ec calc(var(--px) - 1px) var(--px))}
+.cvtev{position:absolute;border:0;border-radius:8px;padding:2px 7px;text-align:left;font:inherit;font-size:14px;line-height:1.35;overflow:hidden;cursor:pointer;outline:1px solid #fff}
+.cvtev b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cvtev span{display:block;opacity:.92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cvnow{position:absolute;left:0;right:0;height:2px;background:#d92d20;z-index:2;pointer-events:none}
+.cvnow::before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#d92d20}
+/* มือถือ */
+.cvstrip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;padding:8px}
+.cvstrip button{border:0;background:none;border-radius:14px;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:1px;font:inherit;cursor:pointer;color:inherit}
+.cvstrip small{font-size:14px;color:#525c6e}
+.cvstrip b{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:16px}
+.cvstrip .t b{background:#16171d;color:#fff}
+.cvstrip .s b{box-shadow:inset 0 0 0 2px #16171d}
+.cvstrip span,.cvmm span>span{display:flex;gap:2px;height:6px;justify-content:center}
+.cvstrip span i,.cvmm span i{width:5px;height:5px;border-radius:50%}
+.cvmm{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));padding:6px}
+.cvmm>span{font-size:14px;color:#525c6e;text-align:center}
+.cvmm button{border:0;background:none;height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:12px;font:inherit;cursor:pointer;color:inherit}
+.cvmm button b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:15px}
+.cvmm button.o{color:#a5abb6}.cvmm button.t b{background:#16171d;color:#fff}.cvmm button.s{background:#eef7e2}
+.cvags{padding:4px 10px 10px}
+.cvag{display:grid;grid-template-columns:48px minmax(0,1fr);gap:8px;padding:8px 0;border-top:1px solid #e6e8e4}
+.cvag:first-child{border-top:0}
+.cvagd{text-align:center}
+.cvagd small{display:block;font-size:14px;color:#525c6e}
+.cvagd b{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;font-size:18px}
+.cvag.t .cvagd b{background:#16171d;color:#fff}
+.cvagl{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cvagl .cvcap{position:static}
+.cvagi{border:0;border-radius:10px;padding:6px 10px;text-align:left;font:inherit;font-size:14px;line-height:1.45;cursor:pointer}
+.cvagi b{display:block;font-size:15px;font-weight:700}
+/* กล่องลอย */
+.cvpop{position:fixed;z-index:900;width:420px;max-width:calc(100vw - 20px);background:#fff;border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.22),0 0 0 1px #eef0ec;padding:16px;display:none;color:#16171d;font-size:15px;line-height:1.5}
+.cvpop.show{display:block}
+.cvpop.scroll{max-height:calc(100vh - 20px);overflow:auto}
+.cvph{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.cvpt{font-size:18px}
+.cvx{margin-left:auto;border:0;background:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;color:inherit;flex:none}
+.cvx:hover{background:rgba(0,0,0,.06)}
+.cvpop h3{margin:2px 0 4px;font-size:19px;line-height:1.35}
+.cvpill{display:inline-flex;gap:6px;align-items:center;font-size:14px;font-weight:700;padding:2px 10px;border-radius:999px;color:var(--c);background:color-mix(in srgb,var(--c) 12%,#fff)}
+.cvkv{display:grid;grid-template-columns:90px minmax(0,1fr);gap:4px 10px;margin:10px 0}
+.cvkv dt{color:#525c6e;font-size:14px;padding-top:1px}
+.cvkv dd{margin:0;overflow-wrap:anywhere}
+.cvdesc{white-space:pre-line;max-height:120px;overflow:auto}
+.cvbox{border-radius:12px;padding:10px 12px;font-size:14px;margin:8px 0}
+.cvbox:empty{display:none}
+.cvbox.g{background:#f5f6f8;color:#344054}
+.cvbox.ok{background:#ecfdf3;color:#05603a}
+.cvmf{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px}
+.cvcapl{font-size:14px;color:#525c6e;margin:4px 0}
+.cvcapl b{color:#2f6b0a}.cvcapl b.full{color:#b42318}.cvcapl b.off{color:#667085}
+.cvteam{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:14px;color:#525c6e;margin:4px 0}
+.cvteam .ok b{color:#2f6b0a}.cvteam .busy b{color:#b54708}
+.cvqin{width:100%;border:0 !important;border-bottom:2px solid #d0d5dd !important;border-radius:0 !important;padding:8px 2px !important;font-size:18px !important;outline:0;box-shadow:none !important;background:none !important}
+.cvqin:focus{border-color:#16171d !important}
+.cvtp{position:relative;margin:10px 0 6px}
+.cvtpb{width:100%;display:flex;gap:10px;align-items:center;border:1px solid #d0d5dd;border-radius:12px;background:#fff;padding:9px 12px;font:inherit;font-size:16px;text-align:left;min-height:46px;cursor:pointer;color:inherit}
+.cvtpb span{flex:1}.cvtpb em{font-style:normal;color:#667085}
+.cvtpb i,.cvtpi i,.cvmtr i{width:12px;height:12px;border-radius:50%;flex:none}
+.cvtpl{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18),0 0 0 1px #eef0ec;padding:6px;z-index:6;max-height:300px;overflow:auto}
+.cvtps{width:100%;border:0 !important;border-bottom:1px solid #e6e8e4 !important;border-radius:0 !important;padding:8px 10px !important;font-size:16px !important;outline:0;margin-bottom:4px;box-shadow:none !important}
+.cvtpg{font-size:14px;font-weight:700;color:#525c6e;padding:8px 10px 2px}
+.cvtpi{width:100%;display:flex;gap:10px;align-items:center;border:0;background:none;padding:8px 10px;border-radius:10px;text-align:left;font:inherit;font-size:15px;min-height:40px;cursor:pointer;color:inherit}
+.cvtpi:hover,.cvtpi.on{background:#f2f4f0}.cvtpi.add{color:#2f6b0a;font-weight:700}
+.cvsws{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 2px;font-size:14px;color:#525c6e}
+.cvsws span{margin-right:4px}
+.cvsw{width:24px;height:24px;border-radius:50%;border:0;padding:0;cursor:pointer}
+.cvsw.on{box-shadow:0 0 0 2px #fff,0 0 0 4px #16171d}
+.cvqrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.cvqrow label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.cvqrow select,.cvqrow input[type=date]{border:1px solid #d0d5dd;border-radius:10px;padding:6px 8px;font:inherit;font-size:16px;background:#fff;min-height:40px}
+.cvqrow input[type=checkbox]{width:18px;height:18px;accent-color:#16171d}
+.cvmore2{display:grid;gap:8px;margin:8px 0}
+.cvmore2 label{display:grid;gap:4px;font-size:14px;color:#525c6e}
+.cvmore2 input,.cvmore2 textarea{border:1px solid #80858f;border-radius:10px;padding:8px 10px;font:inherit;font-size:16px;color:#16171d;background:#fff}
+.cvlbl{font-size:14px;color:#525c6e}
+.cvppl{display:flex;flex-wrap:wrap;gap:6px}
+.cvpp{border:0;border-radius:999px;padding:5px 12px;font:inherit;font-size:14px;font-weight:600;background:#f2f4f7;box-shadow:inset 0 0 0 1px #e4e7ec;min-height:36px;cursor:pointer;color:inherit}
+.cvpp.on{background:#16171d;color:#fff;box-shadow:none}
+.cvpp.x{background:#e0ecff;color:#1e3a8a;box-shadow:none}
+.cvaddp{display:flex;gap:6px}
+.cvaddp input{flex:1;border:1px solid #80858f;border-radius:10px;padding:6px 10px;font:inherit;font-size:16px}
+.cvqerr{color:#b42318;font-size:14px;margin:4px 0 0;min-height:0}
+.cvqerr:empty{display:none}
+.cvmth{margin:14px 0 4px;font-size:14px;color:#525c6e}
+.cvmtr{display:flex;gap:8px;align-items:center;margin:6px 0}
+.cvmtr input{flex:1;border:1px solid #80858f;border-radius:10px;padding:6px 10px;font:inherit;font-size:16px;min-width:0}
+.cvmtr select{border:1px solid #80858f;border-radius:10px;padding:6px;font:inherit;font-size:15px;background:#fff;max-width:130px}
+@media (max-width:1100px){.cvb{grid-template-columns:minmax(0,1fr)}.cvrail{display:none}.cvsr{width:180px}}
+@media (max-width:640px){
+ .cvw{gap:8px}.cvtt{font-size:20px;margin:0}.cvsr,.cvgs{display:none}.cvtb .ib{width:36px;height:36px}
+ .cvmain{overflow:visible}
+ .cvpop{left:0 !important;right:0;top:auto !important;bottom:0;width:auto;max-width:none;border-radius:22px 22px 0 0;max-height:82vh;overflow:auto;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+ .cvpop .cvtpl{position:static;box-shadow:inset 0 0 0 1px #eef0ec;margin-top:4px}
+}
 </style></head>
 <body>
 <div class="shell">
@@ -2894,7 +3108,7 @@ const svg=(k,c='currentColor',w=1.9)=>`<svg viewBox="0 0 24 24" fill="none" stro
 const SWOOSH='<svg class="sw" width="520" height="230" viewBox="0 0 560 260" aria-hidden="true"><path d="M20 230 V150 Q20 100 70 100 H180 Q230 100 230 150 V170 Q230 220 280 220 H540" fill="none" stroke="#458c10" stroke-opacity=".18" stroke-width="22" stroke-linecap="round"/><path d="M20 230 V150 Q20 100 70 100 H180 Q230 100 230 150 V170 Q230 220 280 220 H540" fill="none" stroke="#dcfce7" stroke-opacity=".5" stroke-width="2"/></svg>';
 
 /* ---------- state ---------- */
-const S={db:null,user:null,jobs:{},customers:{},sites:{},products:{},forms:{},meters:{},members:{},
+const S={db:null,user:null,jobs:{},customers:{},sites:{},products:{},forms:{},meters:{},members:{},appts:{},
  me:{id:null,owner:false,edit:false},loaded:{},
  f:{eng:'',q:'',team:'',status:'all',phase:'',sort:'age',limit:40,pg:0,per:20,cq:'',jmo:0},dirty:new Set(),held:false,names:{}};
 
@@ -3028,14 +3242,14 @@ function greet(){const h=new Date().getHours();return h<12?'สวัสดี�
 async function w(path,data,mode='update',note){
   if(!S.db){toast('ยังเชื่อมต่อฐานข้อมูลไม่ได้');throw new Error('no db')}
   const meta=logMeta(path,mode);
-  try{const r=await S.db.doc(path)[mode](data);logPut(meta,data,note);return r}
+  try{const r=await S.db.doc(path)[mode](data);logPut(meta,data,note);cvMark(path);return r}
   catch(e){toast(e?.code==='invalid_argument'?'บันทึกไม่ได้: บัญชีนี้ยังไม่มีสิทธิ์แก้ไขข้อมูล':['denied','not-found','busy','network','maintenance','pending'].includes(e?.code)?'บันทึกไม่ได้: '+e.message:'บันทึกไม่สำเร็จ ('+(e?.code||'error')+') ลองอีกครั้ง');throw e}
 }
 /* ---------- audit log: ใครทำอะไร เมื่อไหร่ (collection logs) ---------- */
-const COLN={jobs:'งาน',customers:'ลูกค้า',sites:'ไซต์',products:'รุ่นสินค้า',members:'ผู้ใช้',config:'ตั้งค่า',articles:'บทความ',services:'งานบริการ',forms:'แบบฟอร์ม',meters:'การจองสมาร์ทมิเตอร์'};
+const COLN={appts:'คิวอื่น',jobs:'งาน',customers:'ลูกค้า',sites:'ไซต์',products:'รุ่นสินค้า',members:'ผู้ใช้',config:'ตั้งค่า',articles:'บทความ',services:'งานบริการ',forms:'แบบฟอร์ม',meters:'การจองสมาร์ทมิเตอร์'};
 function logMeta(path,mode){
   const [col,id]=String(path).split('/');if(!COLN[col])return null;const o=(S[col]||{})[id];
-  const ttl=!o?'':col==='jobs'?(o.title||cOf(o).name||''):col==='customers'?(o.name||realName(o)):col==='sites'?o.label:col==='products'?o.model:col==='forms'?o.name:col==='meters'?o.title:col==='articles'?o.title:col==='members'?nm(id):col==='services'?((mainJob(o.siteId)||{}).title||''):'';
+  const ttl=!o?'':col==='jobs'?(o.title||cOf(o).name||''):col==='customers'?(o.name||realName(o)):col==='sites'?o.label:col==='products'?o.model:col==='forms'?o.name:col==='meters'?o.title:col==='articles'?o.title:col==='appts'?o.title:col==='members'?nm(id):col==='services'?((mainJob(o.siteId)||{}).title||''):'';
   return {col,id,ttl:ttl||'',act:mode==='delete'?'del':(mode==='set'&&!o)?'new':'edit'};
 }
 function logPut(meta,data,note){
@@ -3086,6 +3300,7 @@ function subscribe(col){
   S.db.collection(col).onSnapshot(snap=>{
     const o={},tr={};snap.docs.forEach(d=>{const x={id:d.id,...d.data()};(x.trashedAt?tr:o)[d.id]=x});(S.trash=S.trash||{})[col]=tr;if(col==='jobs'&&S.loaded.jobs&&S.me)liveFeed(S.jobs||{},o);S[col]=o;
     if(!snap.metadata.fromCache)S.loaded[col]=true;
+    if((col==='jobs'||col==='appts')&&CV.pend.size){clearTimeout(CV.pt);CV.pt=setTimeout(cvFlush,300)}
     if(col==='jobs')names(Object.values(o).flatMap(j=>(j.history||[]).slice(-5).map(h=>h.by)));
     if(col==='members')names(Object.keys(o));
     schedule();
@@ -3276,7 +3491,11 @@ function render(){
   if(r.startsWith('job-')&&S.dirty.size){S.held=true;const b=$('#heldNote');if(b)b.hidden=false;return}
   const act=document.activeElement,aid=act?.id,sel=act?.selectionStart;
   renderSide(r);try{const mb=document.querySelector('#mnav [data-mmore]'),n=document.querySelector('#nav1 a[href="#mine"] i')?.textContent||'';if(mb){let e=mb.querySelector('.mmb');if(n){if(!e){e=document.createElement('i');e.className='mmb';mb.appendChild(e)}e.textContent=n;mb.setAttribute('aria-label','อื่นๆ · งานรอดำเนินการ '+n)}else if(e){e.remove();mb.removeAttribute('aria-label')}}}catch(x){}
-  if(r==='queue')requestAnimationFrame(fitCal);
+  /* 27 พ.ย.: หน้าปฏิทินพับเมนูซ้ายเป็นค่าเริ่มต้น (ออกจากหน้าแล้วคืนแบบเดิม · ถ้ากดขยายเองในหน้านี้ ใช้ตามที่กด) */
+  if(r!=='queue'&&document.getElementById('cvpop')?.classList.contains('show'))cvClose();
+  if(r==='queue'){if(!S.cvMinR){S.cvMinR=1;if(!document.body.classList.contains('sbmin')){document.body.classList.add('sbmin');S.cvAutoMin=1}}}
+  else if(S.cvMinR){S.cvMinR=0;if(S.cvAutoMin&&document.body.classList.contains('sbmin'))document.body.classList.remove('sbmin');S.cvAutoMin=0}
+  if(r==='queue')requestAnimationFrame(cvFit);
   const app=$('#app');
   if(!S.db){app.innerHTML=`<div class="card empty">${S.noDb?`<b style="display:block;font-size:20px;margin-bottom:8px">เชื่อมต่อไม่ได้</b>ตรวจอินเทอร์เน็ต แล้วกดลองอีกครั้ง<div style="margin-top:16px"><button type="button" class="btn pri" data-retry="1">ลองอีกครั้ง</button></div>`:'กำลังเชื่อมต่อฐานข้อมูล…'}</div>`;return}
   let h;
@@ -3285,7 +3504,7 @@ function render(){
   else if(r==='jobs'){if(S.f.mineR){S.f.mine=false;S.f.mineR=false;S.f.status='all'}h=viewJobs()}
   else if(r==='mine'){if(!S.f.mine){S.f.mine=true;S.f.phase='';S.f.status='active'}S.f.mineR=true;h=viewJobs()}
   else if(r==='products'){S.f.kqt='eq';h=viewEquip()}
-  else if(r==='queue')h=viewQueue();
+  else if(r==='queue')h=viewCal(); /* 27 พ.ย. ปฏิทินใหม่แบบ Google (หน้าเดิม viewQueue ไม่ใช้แล้ว) */
   else if(r==='service')h=viewJobs('service');
   else if(r==='kb')h=viewKb();
   else if(r==='meter')h=viewMeter();
@@ -4649,6 +4868,303 @@ function viewQueue(){
   </aside></div>`;
 }
 
+/* ---------- ปฏิทินงานใหม่ (27 พ.ย.) · แบบ Google Calendar + คิวอื่น + ซิงก์ปฏิทิน Google ของทีม ----------
+   งานโซลาร์ (สำรวจ/ติดตั้ง) มาจากงานในระบบ · คิวอื่น = กล่อง appts · ประเภท/หมวด = config/apptTypes (แอดมิน)
+   นัดที่คนพิมพ์เองใน Google = ดูอย่างเดียว (สีเทา) · ส่งขึ้น Google ตาม config/gcal {on, from} */
+const CV_GC=[['1','ลาเวนเดอร์','#7986cb'],['2','เซจ','#33b679'],['3','องุ่น','#8e24aa'],['4','ฟลามิงโก','#e67c73'],['5','กล้วย','#f6bf26'],['6','ส้ม','#f4511e'],['7','นกยูง','#039be5'],['8','กราไฟต์','#616161'],['9','บลูเบอร์รี่','#3f51b5'],['10','ใบโหระพา','#0b8043'],['11','มะเขือเทศ','#d50000']];
+const CV_GCC=Object.fromEntries(CV_GC.map(g=>[g[0],g[2]]));
+const CV_DEF={groups:[{id:'ev',n:'EV'},{id:'svc',n:'บริการ'},{id:'off',n:'ออฟฟิศ / อื่น ๆ'}],
+  types:[{id:'evi',n:'ติดตั้ง/สำรวจ EV',c:'7',g:'ev'},{id:'evs',n:'เซอร์วิส EV',c:'9',g:'ev'},{id:'air',n:'ล้างแอร์/แผง',c:'6',g:'svc'},{id:'svc',n:'งานเซอร์วิส',c:'5',g:'svc'},{id:'fix',n:'ซ่อม',c:'4',g:'svc'},
+   {id:'mtg',n:'ประชุม/อบรม',c:'8',g:'off'},{id:'shp',n:'ส่งของ/รับของ',c:'1',g:'off'},{id:'chk',n:'ตรวจงาน',c:'3',g:'off'},{id:'oth',n:'อื่น ๆ',c:'8',g:'off'}]};
+const CV={off:null,col:new Set(),q:'',qc:null,tpo:null,tpq:'',maxl:4,px:40,cmp:false,g:{},gl:{},drag:null,pend:new Map(),fitting:0};
+const cvT=()=>{const c=S.config&&S.config.apptTypes;return c&&Array.isArray(c.types)&&c.types.length?{groups:Array.isArray(c.groups)?c.groups:CV_DEF.groups,types:c.types}:CV_DEF};
+const cvTY=()=>Object.fromEntries(cvT().types.map(t=>[t.id,t]));
+const cvCfg=()=>(S.config&&S.config.gcal)||{};
+const cvCanAp=()=>['admin','dispatch','sysadmin'].includes(S.me.role)||(!S.me.role&&!!S.me.owner);
+const cvCanTy=()=>['admin','sysadmin'].includes(S.me.role)||(!S.me.role&&!!S.me.owner);
+const cvMob=()=>innerWidth<=640;
+const cvD=k=>new Date(k+'T00:00:00');
+const cvMon=k=>isoAdd(k,-((cvD(k).getDay()+6)%7));
+const cvDiff=(a,b)=>Math.round((cvD(b)-cvD(a))/864e5);
+const cvH=tm=>{const m=String(tm||'').match(/(\d{1,2})[:.](\d{2})/);return m?+m[1]+m[2]/60:null};
+const cvHm=h=>`${String(Math.floor(h)).padStart(2,'0')}:${String(Math.round(h%1*60)).padStart(2,'0')}`;
+const cvInk=h=>{const n=parseInt(String(h).slice(1),16);return (0.299*(n>>16)+0.587*(n>>8&255)+0.114*(n&255))/255>0.66?'#16171d':'#fff'};
+const TDS=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+function cvOff(){if(!CV.off){let a=[];try{a=JSON.parse(localStorage.getItem('cl.cv.off')||'[]')}catch(e){}CV.off=new Set(Array.isArray(a)?a:[])}return CV.off}
+function cvSaveOff(){try{localStorage.setItem('cl.cv.off',JSON.stringify([...cvOff()]))}catch(e){}}
+/* ---- รวมนัดทุกแหล่ง ---- */
+function cvJobEvents(j){const out=[];if(['lost','cancelled'].includes(j.status))return out;const nm2=j.title||cOf(j).name||'ไม่มีชื่อไซต์';
+  const sd=svDate(j);if(sd)out.push({id:'job:'+j.id+':s',src:'job',j,k:j.stage===ST.ACCEPT?'p':'s',d:sd,tm:j.queueTime||'',dur:1.5,n:nm2,who:j.surveyor||''});
+  if(j.installDate&&(j.stage>=ST.INSREQ||j.status==='done')){const D=insDays(j);if(D.length)out.push({id:'job:'+j.id+':i',src:'job',j,k:'i',d:D[0],end:D.length>1?D[D.length-1]:'',n:nm2,who:j.installTeam||''})}
+  return out}
+function cvApEvent(a){const TY=cvTY(),t=TY[a.ty]||TY.oth||{c:'8',n:'อื่น ๆ'};const e={id:'ap:'+a.id,src:'ap',a,k:'o',ty:TY[a.ty]?a.ty:(TY.oth?'oth':a.ty),c:a.c||t.c,d:a.d,end:a.end&&a.end>a.d?a.end:'',tm:a.tm||'',n:a.title||'(ไม่มีชื่อ)',who:(a.who||[]).join('+'),place:a.place||''};
+  if(e.tm)e.dur=Math.max(.5,(cvH(a.tm2)||cvH(e.tm)+1)-cvH(e.tm));return e}
+function cvGEvents(){const out=[];Object.values(CV.g).forEach(m=>{(m.ev||[]).forEach(g=>out.push({id:'g:'+g.id,src:'g',g,k:'g',d:g.d,end:g.end||'',tm:g.tm||'',dur:g.tm&&g.tm2?Math.max(.5,cvH(g.tm2)-cvH(g.tm)):1,n:g.n,by:g.by}));
+  (m.hol||[]).forEach(g=>out.push({id:'h:'+g.d+g.n,src:'g',g,k:'h',d:g.d,end:g.end||'',n:g.n}))});const seen=new Set();return out.filter(e=>!seen.has(e.id)&&seen.add(e.id))}
+function cvAll(){const out=[];visibleJobs().forEach(j=>out.push(...cvJobEvents(j)));Object.values(S.appts||{}).forEach(a=>{if(a&&a.d)out.push(cvApEvent(a))});out.push(...cvGEvents());return out}
+const cvLay=e=>e.k==='o'?e.ty:e.k==='p'?'s':e.k;
+const cvCol=e=>e.k==='s'||e.k==='p'?CV_GCC['2']:e.k==='i'?CV_GCC['10']:e.k==='o'?(CV_GCC[e.c]||CV_GCC['8']):e.k==='h'?'#7a6a4f':'#98a2b3';
+const cvLab=e=>e.k==='s'?'สำรวจโซลาร์':e.k==='p'?'สำรวจ · รอตอบรับคิว':e.k==='i'?'ติดตั้งโซลาร์':e.k==='g'?'พิมพ์เองใน Google':e.k==='h'?'วันหยุด':((cvTY()[e.ty]||{}).n||'คิวอื่น');
+const cvEnd=e=>e.end||e.d;
+const cvOn=(e,k)=>e.d<=k&&cvEnd(e)>=k;
+function cvShown(e){if(cvOff().has(cvLay(e)))return false;const q=CV.q.trim().toLowerCase();if(!q)return true;return (e.n+' '+(e.who||'')+' '+(e.place||'')).toLowerCase().includes(q)}
+const cvSortT=L=>L.sort((a,b)=>(cvH(a.tm)??-1)-(cvH(b.tm)??-1));
+function cvHol(k){return cvGEvents().find(e=>e.k==='h'&&cvOn(e,k))}
+function cvCap(k){if(k<today())return null;const d=cvD(k);if(d.getDay()===0)return null;const cl=closedDays()[k];if(cl)return {t:'ปิดรับคิว',c:'off',why:cl};
+  if(cvHol(k))return {t:'วันหยุด',c:'off'};const di=dayInfo(k);return di.left<=0?{t:di.used?'เต็ม':'ไม่มีคน',c:di.used?'full':'off'}:{t:'ว่าง '+di.left,c:''}}
+/* ---- ดึงนัดจาก Google (ทีละเดือนที่แสดง) ---- */
+function cvGridRange(){const c=cvD(S.f.cvm||today().slice(0,8)+'01'),f=isoOf(new Date(c.getFullYear(),c.getMonth(),1));const s=cvMon(f);return [s,isoAdd(s,41)]}
+function cvLoadG(force){if(!S.db||!S.db.call)return;const [a,b]=cvGridRange(),key=a;const cur=CV.gl[key];if(cur&&(cur.busy||(!force&&Date.now()-cur.at<120e3)))return;
+  CV.gl[key]={busy:1,at:Date.now()};S.db.call('gcalList',{from:a,to:b}).then(r=>{CV.g[key]=r;CV.gl[key]={at:Date.now()};schedule()}).catch(e=>{CV.gl[key]={at:Date.now(),err:e&&e.code==='bad'&&/ไม่รู้จักคำสั่ง/.test(e.message||'')?'ตัวกลางยังเป็นรุ่นเก่า (ต้องอัปเดต Code.gs 1.2.17)':e&&e.message||'อ่านปฏิทิน Google ไม่ได้'};schedule()})}
+/* ---- ส่งขึ้น Google ---- */
+function cvDesc(lines,link){return lines.filter(Boolean).join('\n')+'\n\n— สร้างจากระบบ CLEANLINE · แก้ในระบบเท่านั้น'+(link?'\nเปิดในระบบ: '+link:'')}
+const cvLink=h=>location.origin+location.pathname+'#'+h;
+function cvItems(col,id){const cfg=cvCfg(),from=cfg.from||'9999';const out=[];
+  if(col==='jobs'){const j=S.jobs[id];if(!j)return out;const c=cOf(j),s=sOf(j);const sale=j.salesPerson||j.salesTeam||'';
+    cvJobEvents(j).forEach(e=>{if(cvEnd(e)<from)return;const it={key:e.id,d:e.d,c:e.k==='i'?'10':'2'};
+      if(e.k==='i'){it.n='ติดตั้ง · '+e.n+(j.installTeam?' · '+j.installTeam:'');if(e.end)it.end=e.end;it.desc=cvDesc([j.installTeam&&'ทีมติดตั้ง: '+j.installTeam,j.supervisor&&'ผู้คุมงาน: '+j.supervisor,c.phone&&'โทร: '+c.phone,placeOf(j,s,c)&&'สถานที่: '+placeOf(j,s,c),s.map&&'แผนที่: '+s.map],cvLink('job-'+j.id))}
+      else{it.n='สำรวจ · '+e.n+(sale?' *'+sale+'*':'')+(e.k==='p'?' (รอตอบรับคิว)':'');if(e.tm&&cvH(e.tm)!=null){it.tm=cvHm(cvH(e.tm));it.tm2=cvHm(Math.min(23.5,cvH(e.tm)+1.5))}
+        it.desc=cvDesc([j.surveyor&&'คนสำรวจ: '+j.surveyor,c.phone&&'โทร: '+c.phone,placeOf(j,s,c)&&'สถานที่: '+placeOf(j,s,c),s.map&&'แผนที่: '+s.map],cvLink('job-'+j.id))}
+      out.push(it)})}
+  else{const a=(S.appts||{})[id];if(!a||a.gs===false)return out;const e=cvApEvent(a);if(cvEnd(e)<from)return out;const t=cvTY()[e.ty]||{n:'อื่น ๆ'};
+    const it={key:e.id,d:e.d,c:e.c,n:`[${t.n}] ${e.n}${e.place?' · '+e.place:''}`,desc:cvDesc([e.who&&'คนไป: '+e.who,a.tel&&'โทร: '+a.tel,a.map&&'แผนที่: '+a.map,a.note&&'หมายเหตุ: '+a.note])};
+    if(e.tm){it.tm=cvHm(cvH(e.tm));it.tm2=a.tm2||cvHm(cvH(e.tm)+1)}else if(e.end)it.end=e.end;out.push(it)}
+  return out}
+function cvMark(path){const [col,id]=String(path).split('/');if((col!=='jobs'&&col!=='appts')||!id)return;if(!cvCfg().on||!cvCanAp()||!S.db||!S.db.call)return;CV.pend.set(col+'/'+id,Date.now());clearTimeout(CV.pt);CV.pt=setTimeout(cvFlush,4000)}
+async function cvFlush(){if(!CV.pend.size)return;const L=[...CV.pend.keys()];CV.pend.clear();const items=[],scope=[];
+  L.forEach(p=>{const [col,id]=p.split('/');scope.push((col==='jobs'?'job:':'ap:')+id);items.push(...cvItems(col,id))});
+  try{const r=await S.db.call('gcalSync',{items,scope});if(r&&r.err&&r.err.length)toast('ส่งขึ้น Google ไม่ครบ: '+r.err[0]);else if(r&&(r.put||r.del))CV.gl={}}
+  catch(e){toast('ส่งนัดขึ้น Google ไม่ได้: '+(e&&e.message||'ลองอีกครั้ง'))}}
+async function cvSyncAll(){if(!cvCfg().on)return toast('เปิด “ส่งขึ้น Google” และตั้งวันเริ่มก่อน');const all=[];Object.keys(S.jobs).forEach(id=>all.push(...cvItems('jobs',id)));Object.keys(S.appts||{}).forEach(id=>all.push(...cvItems('appts',id)));
+  toast('กำลังส่ง '+all.length+' นัดขึ้น Google…');let put=0,del=0;
+  try{for(let i=0;i<all.length;i+=40){const r=await S.db.call('gcalSync',{items:all.slice(i,i+40)});put+=r.put||0}
+    const r=await S.db.call('gcalSync',{items:[],prune:all.map(x=>x.key)});del=r.del||0;CV.gl={};toast(`ซิงก์แล้ว · อัปเดต ${put} · ลบ ${del}`);cvLoadG(true)}
+  catch(e){toast('ซิงก์ไม่สำเร็จ: '+(e&&e.message||''))}}
+/* ---- หน้า ---- */
+function viewCal(){
+  if(!S.loaded.jobs)return '<div class="card empty">กำลังโหลด…</div>';
+  const mob=cvMob(),t=today();if(!S.f.cvm)S.f.cvm=t.slice(0,8)+'01';if(!S.f.qsel)S.f.qsel=t;const sel=S.f.qsel,v=S.f.cv||'month',mv=S.f.cvmv||'list';
+  cvLoadG();const cur=cvD(S.f.cvm),w0=cvMon(sel),w6=isoAdd(w0,6);
+  const title=mob&&mv==='list'?`${TMF[cvD(sel).getMonth()]} ${cvD(sel).getFullYear()+543}`:(!mob&&v==='week')?`${cvD(w0).getDate()} ${TM[cvD(w0).getMonth()]} – ${cvD(w6).getDate()} ${TM[cvD(w6).getMonth()]} ${cvD(w6).getFullYear()+543}`:`${TMF[cur.getMonth()]} ${cur.getFullYear()+543}`;
+  const seg=mob?[['list','รายการ'],['month','เดือน']].map(([k,x])=>`<button class="${mv===k?'on':''}" data-cvmv="${k}" aria-pressed="${mv===k}">${x}</button>`).join(''):[['month','เดือน'],['week','สัปดาห์']].map(([k,x])=>`<button class="${v===k?'on':''}" data-cvv="${k}" aria-pressed="${v===k}">${x}</button>`).join('');
+  const body=mob?cvMobile():v==='week'?cvWeek():cvMonth();
+  return `<div class="cvw" id="cvw"><h1 class="sr">ปฏิทินงาน</h1>
+   <div class="cvtb"><button class="btn sm" data-cvtoday>วันนี้</button><button class="ib" data-cvstep="-1" aria-label="ก่อนหน้า">${svg('chev','currentColor',2)}</button><button class="ib nx" data-cvstep="1" aria-label="ถัดไป">${svg('chev','currentColor',2)}</button>
+     <h2 class="cvtt">${title}</h2><span class="cvsp"></span>${cvGStat()}
+     <label class="cvsr">${svg('search','currentColor',2)}<input id="cvq" placeholder="ค้นหานัด ชื่อลูกค้า" value="${esc(CV.q)}" aria-label="ค้นหานัด"></label>
+     <div class="seg cvseg" role="group" aria-label="มุมมอง">${seg}</div>${mob&&cvCanAp()?`<button class="btn sm pri" data-cvnew="${sel<t?t:sel}">+ สร้าง</button>`:''}</div>
+   <div class="cvb"><aside class="cvrail">${cvCanAp()?`<button class="cvcreate" data-cvnew="${sel<t?t:sel}"><b>+</b>สร้างนัด</button>`:''}${cvMini()}${cvLayers()}</aside>
+   <section class="card cvmain">${body}</section></div></div>`;
+}
+function cvGStat(){const [a]=cvGridRange(),st=CV.gl[a]||{};const cfg=cvCfg();
+  if(st.err)return `<span class="cvgs err" title="${esc(st.err)}">${svg('warn','currentColor',2)}Google: อ่านไม่ได้</span>`;
+  if(st.busy)return '<span class="cvgs">Google: กำลังโหลด…</span>';
+  return `<span class="cvgs ${cfg.on?'ok':''}" title="${cfg.on?'จองในเว็บแล้วส่งขึ้น Google Calendar ของทีม ตั้งแต่ '+esc(fd(cfg.from||'')):'ยังไม่ได้เปิดส่งขึ้น Google'}">${cfg.on?'● ส่งขึ้น Google แล้ว':'○ ยังไม่ส่งขึ้น Google'}</span>`}
+function cvMini(){const cur=cvD(S.f.cvm),y=cur.getFullYear(),m=cur.getMonth(),first=isoOf(new Date(y,m,1)),st=cvMon(first),nW=Math.ceil((cvDiff(st,first)+new Date(y,m+1,0).getDate())/7);
+  const has=new Set();cvAll().forEach(e=>{if(cvShown(e)&&e.k!=='h')for(let k=e.d;k<=cvEnd(e)&&k<=isoAdd(st,nW*7);k=isoAdd(k,1))has.add(k)});const t=today();
+  return `<div class="cvmini"><div class="cvmh"><b>${TMF[m]} ${y+543}</b><span><button data-cvmn="-1" aria-label="เดือนก่อน">‹</button><button data-cvmn="1" aria-label="เดือนถัดไป">›</button></span></div>
+  <div class="cvmg">${['จ','อ','พ','พฤ','ศ','ส','อา'].map(x=>`<span>${x}</span>`).join('')}${[...Array(nW*7)].map((_,i)=>{const k=isoAdd(st,i);return `<button class="${cvD(k).getMonth()!==m?'o':''} ${k===t?'t':''} ${k===S.f.qsel?'s':''} ${has.has(k)?'dt':''}" data-cvjump="${k}" aria-label="${fd(k)}">${cvD(k).getDate()}</button>`}).join('')}</div></div>`}
+function cvTree(){const T=cvT();return [{id:'sol',n:'โซลาร์',items:[['s','สำรวจโซลาร์',CV_GCC['2']],['i','ติดตั้งโซลาร์',CV_GCC['10']]]},
+  ...T.groups.map(g=>({id:g.id,n:g.n,items:T.types.filter(t=>t.g===g.id).map(t=>[t.id,t.n,CV_GCC[t.c]||CV_GCC['8']])})),
+  ...(T.types.some(t=>!T.groups.some(g=>g.id===t.g))?[{id:'_x',n:'ไม่มีหมวด',items:T.types.filter(t=>!T.groups.some(g=>g.id===t.g)).map(t=>[t.id,t.n,CV_GCC[t.c]||CV_GCC['8']])}]:[]),
+  {id:'goo',n:'จาก Google',items:[['g','พิมพ์เองใน Google','#98a2b3'],['h','วันหยุดในไทย','#7a6a4f']]}]}
+function cvLayers(){const off=cvOff(),cm=cvD(S.f.cvm).getMonth(),ev=cvAll();const cnt=k=>ev.filter(e=>cvLay(e)===k&&cvD(e.d).getMonth()===cm).length;
+  const row=([k,n,c])=>`<label class="cvly"><input type="checkbox" data-cvlay="${esc(k)}" ${off.has(k)?'':'checked'} style="--c:${c}"><span>${esc(n)}</span><small>${cnt(k)}</small></label>`;
+  return `<div class="cvlays"><div class="cvlh"><b>หมวดงาน</b>${cvCanTy()?'<button class="cvmt" data-cvmt>จัดการประเภท</button>':''}</div>${cvTree().map(g=>{const on=g.items.filter(i=>!off.has(i[0])).length,all=g.items.length,c=g.items.reduce((a,i)=>a+cnt(i[0]),0),cl=CV.col.has(g.id);
+    return `<div class="cvbr"><div class="cvbrh"><button class="cvcar ${cl?'cl':''}" data-cvcol="${esc(g.id)}" aria-expanded="${!cl}" aria-label="${cl?'กาง':'พับ'}หมวด ${esc(g.n)}">▾</button><label class="cvly g"><input type="checkbox" data-cvgrp="${esc(g.id)}" ${on===all&&all?'checked':''} data-ind="${on>0&&on<all?1:''}" style="--c:#16171d"><span>${esc(g.n)}</span><small>${c}</small></label></div>
+    ${cl?'':`<div class="cvbrc">${g.items.map(row).join('')||'<p class="cvnote">ยังไม่มีประเภท</p>'}</div>`}</div>`}).join('')}<p class="cvnote">สีเทา = มีคนพิมพ์เองใน Google · ดูได้อย่างเดียว ไม่เป็นงานในระบบ</p></div>`}
+function cvLanes(w0,w6,ev){const bars=ev.filter(e=>!e.tm&&e.d<=w6&&cvEnd(e)>=w0).sort((a,b)=>a.d.localeCompare(b.d)||cvDiff(b.d,cvEnd(b))-cvDiff(a.d,cvEnd(a)));
+  const lanes=[];bars.forEach(e=>{const s=e.d<w0?w0:e.d,en=cvEnd(e)>w6?w6:cvEnd(e);let li=lanes.findIndex(L=>L.every(o=>o.en<s||o.s>en));if(li<0){lanes.push([]);li=lanes.length-1}lanes[li].push({e,s,en})});return lanes}
+const cvAg=e=>e.src==='job'?agCls(e.j):'';
+const cvDrag=e=>e.src==='ap'&&cvCanAp();
+function cvRow(e){const c=cvCol(e);return `<button class="cvev ${e.k==='g'?'gx':''} ${e.k==='p'?'pe':''} ${cvAg(e)}" data-cvev="${esc(e.id)}" ${cvDrag(e)?'draggable="true"':''} title="${esc(cvLab(e)+' · '+(e.tm||'')+' '+e.n)}"><i class="${e.k==='g'?'g':''}" style="background:${c}"></i>${e.tm?`<b>${esc(e.tm)}</b>`:''}<span>${esc(e.n)}</span></button>`}
+function cvBar(e,w0,w6,col,row,span){const c=cvCol(e),n=cvDiff(e.d,cvEnd(e))+1;return `<button class="cvbar ${e.d<w0?'cl':''} ${cvEnd(e)>w6?'cr':''} ${e.k==='g'?'gx':''} ${cvAg(e)}" style="grid-column:${col}/span ${span};grid-row:${row};background:${e.k==='g'?'#fff':c};color:${e.k==='g'?'#475467':cvInk(c)}" data-cvev="${esc(e.id)}" ${cvDrag(e)?'draggable="true"':''} title="${esc(cvLab(e)+' · '+e.n)}">${esc(e.n)}${n>1&&e.k==='i'?` <em>(${n} วัน)</em>`:''}</button>`}
+function cvMonth(){
+  const cur=cvD(S.f.cvm),y=cur.getFullYear(),m=cur.getMonth(),first=isoOf(new Date(y,m,1)),st=cvMon(first),nW=Math.ceil((cvDiff(st,first)+new Date(y,m+1,0).getDate())/7);
+  const ev=cvAll().filter(cvShown),t=today(),MAXL=CV.maxl||4;let html='';
+  for(let w=0;w<nW;w++){const w0=isoAdd(st,w*7),w6=isoAdd(w0,6),days=[...Array(7)].map((_,i)=>isoAdd(w0,i));const lanes=cvLanes(w0,w6,ev),nl=Math.min(lanes.length,Math.max(0,MAXL-1));
+    const bg=days.map(k=>{const c=cvCap(k);return `<div data-cvcell="${k}" class="${cvD(k).getMonth()!==m?'o':''} ${cvD(k).getDay()===0?'sun':''} ${k<t?'past':''} ${c&&c.c==='full'?'full':''} ${k===S.f.qsel?'sel':''}"></div>`}).join('');
+    let fg=days.map((k,i)=>{const c=cvCap(k);return `<div class="cvdh ${cvD(k).getMonth()!==m?'o':''} ${k===t?'t':''}" style="grid-column:${i+1};grid-row:1"><button class="cvdn" data-cvday="${k}" aria-label="ดูทั้งวัน ${fd(k)}">${cvD(k).getDate()===1?TM[cvD(k).getMonth()]+' ':''}${cvD(k).getDate()}</button>${c?`<span class="cvcap ${c.c}" title="คิวสำรวจ${c.why?' · '+esc(c.why):''}">${c.t}</span>`:''}</div>`}).join('');
+    lanes.slice(0,nl).forEach((L,li)=>L.forEach(({e,s,en})=>{fg+=cvBar(e,w0,w6,cvDiff(w0,s)+1,li+2,cvDiff(s,en)+1)}));
+    fg+=days.map((k,i)=>{const L=cvSortT(ev.filter(e=>e.tm&&e.d===k));const hb=lanes.slice(nl).flat().filter(o=>o.s<=k&&o.en>=k).length;const room=Math.max(1,MAXL-nl);const sh=L.length+hb>room?L.slice(0,room-1):L;const more=L.length-sh.length+hb;
+      return `<div class="cvdl" style="grid-column:${i+1};grid-row:${nl+2}">${sh.map(cvRow).join('')}${more?`<button class="cvmore" data-cvday="${k}">${sh.length||nl?'อีก ':''}${more} รายการ</button>`:''}</div>`}).join('');
+    html+=`<div class="cvwk"><div class="cvbg">${bg}</div><div class="cvfg">${fg}</div></div>`}
+  return `<div class="cvmo ${CV.cmp?'cmp':''}"><div class="cvwd">${['จันทร์','อังคาร','พุธ','พฤหัสฯ','ศุกร์','เสาร์','อาทิตย์'].map(x=>`<div>${x}</div>`).join('')}</div><div class="cvwks">${html}</div></div>`}
+function cvWeek(){const w0=cvMon(S.f.qsel),w6=isoAdd(w0,6),days=[...Array(7)].map((_,i)=>isoAdd(w0,i)),H0=7,H1=20,PX=CV.px||40,t=today();const ev=cvAll().filter(cvShown);
+  const gc='56px repeat(7,minmax(0,1fr))';const lanes=cvLanes(w0,w6,ev);
+  let all='<div class="cvalb">ทั้งวัน</div>';lanes.forEach((L,li)=>L.forEach(({e,s,en})=>{all+=cvBar(e,w0,w6,cvDiff(w0,s)+2,li+1,cvDiff(s,en)+1)}));if(!lanes.length)all+='<div style="grid-column:2/-1;height:22px"></div>';
+  const nowH=new Date().getHours()+new Date().getMinutes()/60;
+  const cols=days.map(k=>{const L=cvSortT(ev.filter(e=>e.tm&&e.d===k&&cvH(e.tm)!=null));const ends=[];const pos=L.map(e=>{const s=Math.max(H0,cvH(e.tm)),en=Math.min(H1,s+(e.dur||1));let c=ends.findIndex(x=>x<=s);if(c<0){ends.push(en);c=ends.length-1}else ends[c]=en;return {e,s,en,c}});const nc=Math.max(1,ends.length);
+    return `<div class="cvcol ${cvD(k).getDay()===0?'sun':''} ${k<t?'past':''}" data-cvwcol="${k}" style="height:${(H1-H0)*PX}px">${pos.map(({e,s,en,c})=>{const cc=cvCol(e);return `<button class="cvtev ${e.k==='g'?'gx':''} ${cvAg(e)}" data-cvev="${esc(e.id)}" style="top:${(s-H0)*PX+1}px;height:${Math.max(18,(en-s)*PX-3)}px;left:calc(${c/nc*100}% + 2px);width:calc(${100/nc}% - 5px);background:${e.k==='g'?'#fff':cc};color:${e.k==='g'?'#475467':cvInk(cc)}"><b>${esc(e.n)}</b><span>${cvHm(s)}–${cvHm(en)}${e.who?' · '+esc(e.who):''}</span></button>`}).join('')}${k===t&&nowH>=H0&&nowH<H1?`<i class="cvnow" style="top:${(nowH-H0)*PX}px"></i>`:''}</div>`}).join('');
+  return `<div class="cvwv" style="--px:${PX}px"><div class="cvwh" style="grid-template-columns:${gc}"><div></div>${days.map(k=>{const c=cvCap(k);return `<button class="${k===t?'t':''}" data-cvday="${k}"><small>${TDS[cvD(k).getDay()]}</small><b>${cvD(k).getDate()}</b><em class="${c?c.c:''}">${c?c.t:'&nbsp;'}</em></button>`}).join('')}</div>
+   <div class="cvwa" style="grid-template-columns:${gc}">${all}</div>
+   <div class="cvwb" style="grid-template-columns:${gc}"><div class="cvhrs" style="height:${(H1-H0)*PX}px">${[...Array(H1-H0)].map((_,i)=>i?`<span style="top:${i*PX}px">${String(H0+i).padStart(2,'0')}:00</span>`:'').join('')}</div>${cols}</div></div>`}
+function cvMobile(){const sel=S.f.qsel,t=today(),mv=S.f.cvmv||'list',ev=cvAll().filter(cvShown);const dots=k=>ev.filter(e=>cvOn(e,k)).slice(0,4).map(e=>`<i style="background:${e.k==='g'?'#c4c9d2':cvCol(e)}"></i>`).join('');
+  let top;if(mv==='list'){const w0=cvMon(sel);top=`<div class="cvstrip">${[...Array(7)].map((_,i)=>{const k=isoAdd(w0,i);return `<button class="${k===t?'t':''} ${k===sel?'s':''}" data-cvjump="${k}"><small>${TDS[cvD(k).getDay()]}</small><b>${cvD(k).getDate()}</b><span>${dots(k)}</span></button>`}).join('')}</div>`}
+  else{const cur=cvD(S.f.cvm),y=cur.getFullYear(),m=cur.getMonth(),first=isoOf(new Date(y,m,1)),st=cvMon(first),nW=Math.ceil((cvDiff(st,first)+new Date(y,m+1,0).getDate())/7);
+    top=`<div class="cvmm">${['จ','อ','พ','พฤ','ศ','ส','อา'].map(x=>`<span>${x}</span>`).join('')}${[...Array(nW*7)].map((_,i)=>{const k=isoAdd(st,i);return `<button class="${cvD(k).getMonth()!==m?'o':''} ${k===t?'t':''} ${k===sel?'s':''}" data-cvjump="${k}"><b>${cvD(k).getDate()}</b><span>${dots(k)}</span></button>`}).join('')}</div>`}
+  const n=mv==='list'?14:1;let ag='';
+  for(let i=0;i<n;i++){const k=isoAdd(sel,i);const L=cvSortT(ev.filter(e=>cvOn(e,k)));if(!L.length&&k!==t&&k!==sel)continue;const c=cvCap(k);
+    ag+=`<div class="cvag ${k===t?'t':''}"><div class="cvagd"><small>${TDS[cvD(k).getDay()]}</small><b>${cvD(k).getDate()}</b></div><div class="cvagl">${c?`<span class="cvcap ${c.c}">คิวสำรวจ ${c.t}</span>`:''}
+      ${L.length?L.map(e=>{const c2=cvCol(e);return `<button class="cvagi ${e.k==='g'?'gx':''} ${cvAg(e)}" data-cvev="${esc(e.id)}" style="background:${e.k==='g'?'#fff':c2};color:${e.k==='g'?'#475467':cvInk(c2)}"><b>${esc(e.n)}</b>${e.tm?esc(e.tm)+'–'+cvHm(Math.min(23.9,cvH(e.tm)+(e.dur||1))):e.end?'ทั้งวัน · วันที่ '+(cvDiff(e.d,k)+1)+'/'+(cvDiff(e.d,e.end)+1):'ทั้งวัน'}${e.who?' · '+esc(e.who):''} · ${esc(cvLab(e))}</button>`}).join(''):`<span class="cvnote">ไม่มีนัด${cvCanAp()&&k>=t?' · แตะ “+ สร้าง” เพื่อเพิ่ม':''}</span>`}</div></div>`}
+  return `<div class="cvmob">${top}<div class="cvags">${ag}</div></div>`}
+/* ---- กล่องลอย (popover) ---- */
+function cvPopEl(){let p=document.getElementById('cvpop');if(!p){p=document.createElement('div');p.id='cvpop';p.className='cvpop';p.setAttribute('role','dialog');document.body.appendChild(p)}return p}
+function cvOpen(html,anchor,cls){const p=cvPopEl(),was=p.classList.contains('show');p.innerHTML=html;p.className='cvpop show'+(cls?' '+cls:'');
+  if(!anchor&&was){cvClamp(p);const f=p.querySelector('#cvtps')||p.querySelector('[autofocus]');if(f){f.focus();try{const n=f.value.length;f.setSelectionRange(n,n)}catch(e){}}return}
+  if(cvMob()){p.style.left='';p.style.top='';}else{const r=anchor?anchor.getBoundingClientRect():{left:innerWidth/2-200,right:innerWidth/2+200,top:160,bottom:200};const pw=p.offsetWidth,ph=p.offsetHeight;
+    let x=r.right+8;if(x+pw>innerWidth-10)x=r.left-pw-8;if(x<10)x=Math.max(10,(innerWidth-pw)/2);let y=r.top-20;y=Math.max(10,Math.min(y,innerHeight-ph-10));p.style.left=x+'px';p.style.top=y+'px';cvClamp(p)}
+  const f=p.querySelector('[autofocus]');if(f)f.focus()}
+function cvClamp(p){if(cvMob())return;const ph=p.offsetHeight,top=parseFloat(p.style.top)||10;if(ph>innerHeight-20)p.classList.add('scroll');const h=Math.min(ph,innerHeight-20);if(top+h>innerHeight-10)p.style.top=Math.max(10,innerHeight-h-10)+'px'}
+function cvClose(){const p=document.getElementById('cvpop');if(p)p.className='cvpop';CV.qc=null;CV.tpo=null}
+function cvFind(id){return cvAll().find(e=>e.id===id)}
+function cvEvPop(id,anchor){const e=cvFind(id);if(!e)return;const c=cvCol(e);
+  let h=`<div class="cvph"><span class="cvpill" style="--c:${e.k==='g'?'#475467':c}">● ${esc(cvLab(e))}</span><button class="cvx" data-cvclose aria-label="ปิด">✕</button></div><h3>${esc(e.n)}</h3>
+  <dl class="cvkv"><dt>วันเวลา</dt><dd>${e.end?fd(e.d)+' – '+fd(e.end)+' · ทั้งวัน':fd(e.d)+' · '+(e.tm?esc(e.tm)+(e.dur?'–'+cvHm(Math.min(23.9,cvH(e.tm)+e.dur)):''):'ทั้งวัน')}</dd>${e.who?`<dt>${e.k==='s'||e.k==='p'?'คนสำรวจ':'คนไป'}</dt><dd>${esc(e.who)}</dd>`:''}${e.place?`<dt>สถานที่</dt><dd>${esc(e.place)}</dd>`:''}${e.a&&e.a.tel?`<dt>โทร</dt><dd>${esc(e.a.tel)}</dd>`:''}${e.a&&safeUrl(e.a.map)?`<dt>แผนที่</dt><dd><a href="${esc(safeUrl(e.a.map))}" target="_blank" rel="noopener">เปิด Google Maps</a></dd>`:''}${e.a&&e.a.note?`<dt>หมายเหตุ</dt><dd>${esc(e.a.note)}</dd>`:''}${e.by?`<dt>คนพิมพ์</dt><dd>${esc(e.by)}</dd>`:''}${e.g&&e.g.desc?`<dt>รายละเอียด</dt><dd class="cvdesc">${esc(e.g.desc)}</dd>`:''}</dl>`;
+  const on=cvCfg().on;
+  if(e.k==='h')h+=`<div class="cvbox g">วันหยุดจากปฏิทิน Google${cvCap(e.d)&&!closedDays()[e.d]&&cvCanTy()?' · ถ้าไม่รับคิวสำรวจวันนี้ กด “ปิดรับคิว” ในหน้าวัน':''}</div>`;
+  else if(e.k==='g')h+=`<div class="cvbox g">มีคนพิมพ์ลง Google เอง ระบบแสดงให้ดูอย่างเดียว · จะแก้ต้องแก้ใน Google</div>${cvCanAp()?`<div class="cvmf"><button class="btn sm" data-cvconv="${esc(e.id)}">ทำเป็นคิวในระบบ</button></div>`:''}`;
+  else if(e.src==='job')h+=`<div class="cvbox ${on?'ok':'g'}">${on?'อยู่ใน Google ของทีมด้วย · ':''}เปลี่ยนวันได้ที่หน้างาน</div><div class="cvmf"><button class="btn sm pri" data-osel="${esc(e.j.id)}" data-cvgo>เปิดหน้างาน</button></div>`;
+  else h+=`<div class="cvbox ${on&&e.a.gs!==false?'ok':'g'}">${on&&e.a.gs!==false?'อยู่ใน Google ของทีมด้วย · ':''}${cvCanAp()?'ลากไปวางวันอื่นได้':''}</div>${cvCanAp()?`<div class="cvmf"><button class="btn sm" data-cvdel="${esc(e.a.id)}">ยกเลิกคิว</button><button class="btn sm pri" data-cvedit="${esc(e.a.id)}">แก้ไข</button></div>`:''}`;
+  cvOpen(h,anchor)}
+function cvDayPop(k,anchor){const L=cvSortT(cvAll().filter(e=>cvShown(e)&&cvOn(e,k)));const c=cvCap(k),cl=closedDays()[k],adm=cvCanTy();const t=today();
+  const di=k>=t&&cvD(k).getDay()!==0&&!cl?dayInfo(k):null;
+  cvOpen(`<div class="cvph"><b class="cvpt">${fd(k)}</b><button class="cvx" data-cvclose aria-label="ปิด">✕</button></div>${c?`<p class="cvcapl">คิวสำรวจ <b class="${c.c}">${c.t}</b>${c.why?' · '+esc(c.why):''}</p>`:''}
+   ${di?`<div class="cvteam">${SV_TEAMS.map(tm=>{const n=teamSlots(tm,k),cc=teamCount(tm,k);return `<span class="${n?'ok':cc?'busy':'off'}"><b>${esc(tm)}</b> ${cc?'นัดแล้ว '+cc:''}${cc&&n?' · ':''}${n?'ว่าง '+n:cc?'':esc(teamWhy(tm,k))}</span>`}).join('')}</div>`:''}
+   <div class="cvdl pop">${L.map(e=>e.tm?cvRow(e):cvBar(e,k,k,1,'auto',1)).join('')||'<p class="cvnote">ไม่มีนัด</p>'}</div>
+   ${k>=t?`<div class="cvmf">${adm&&cvD(k).getDay()!==0?`<button class="btn sm" data-qclose="${k}" data-cvclose>${cl?'เปิดรับคิว':'ปิดรับคิวสำรวจ'}</button>`:''}${cvCanAp()&&c&&c.c===''?`<a class="btn sm" href="#new" data-qd="${k}" data-cvclose>จองคิวสำรวจ</a>`:''}${cvCanAp()?`<button class="btn sm pri" data-cvnew="${k}">+ สร้างนัด</button>`:''}</div>`:''}`,anchor)}
+/* สร้าง / แก้คิวอื่น */
+function cvStart(d,tm,anchor,pre){if(!cvCanAp())return;if(d<today())return toast('วันที่ผ่านไปแล้ว สร้างนัดไม่ได้');const h=cvH(tm)??10;
+  CV.tpo=null;CV.tpq='';CV.qc={id:'',d,end:'',title:'',ty:'',c:'',allday:false,t1:cvHm(h),t2:cvHm(Math.min(19.5,h+1)),gs:true,more:false,place:'',tel:'',map:'',who:[],note:'',...(pre||{})};cvQcPop(anchor)}
+function cvTpick(){const o=CV.qc,T=cvT(),TY=cvTY();const sv={id:'sv',n:'สำรวจโซลาร์ (ฟอร์มจองคิวเดิม)',c:'2',g:'sol'};const cur=o.ty==='sv'?sv:TY[o.ty];const open=CV.tpo,q=CV.tpq.trim();
+  const list=[...(o.id?[]:[sv]),...T.types].filter(x=>!q||x.n.toLowerCase().includes(q.toLowerCase()));const cc=cur?CV_GCC[o.c||cur.c]:'#d0d5dd';
+  const groups=[{id:'sol',n:'โซลาร์'},...T.groups,{id:'_x',n:'ไม่มีหมวด'}];
+  return `<div class="cvtp"><button class="cvtpb" data-cvtpo aria-expanded="${!!open}" aria-haspopup="listbox"><i style="background:${cc}"></i><span>${cur?esc(cur.n):'เลือกประเภท'}</span><em>▾</em></button>
+   ${open?`<div class="cvtpl" role="listbox"><input class="cvtps" id="cvtps" placeholder="${cvCanTy()?'พิมพ์ค้นหา หรือพิมพ์ชื่อประเภทใหม่':'พิมพ์ค้นหา'}" value="${esc(CV.tpq)}" autocomplete="off" autofocus>${groups.map(g=>{const L=list.filter(x=>g.id==='_x'?!['sol',...T.groups.map(z=>z.id)].includes(x.g):x.g===g.id);return L.length?`<div class="cvtpg">${esc(g.n)}</div>`+L.map(x=>`<button class="cvtpi ${o.ty===x.id?'on':''}" role="option" data-cvtpk="${esc(x.id)}"><i style="background:${CV_GCC[x.c]||'#999'}"></i>${esc(x.n)}</button>`).join(''):''}).join('')}${q&&cvCanTy()&&!T.types.some(x=>x.n===q)?`<button class="cvtpi add" data-cvtpn>+ เพิ่ม “${esc(q)}” เป็นประเภทใหม่</button>`:''}${!list.length&&!(q&&cvCanTy())?'<p class="cvnote">ไม่พบประเภท</p>':''}</div>`:''}</div>
+   ${cur&&o.ty!=='sv'?`<div class="cvsws"><span>สีนัด</span>${CV_GC.map(g=>`<button class="cvsw ${(o.c||cur.c)===g[0]?'on':''}" data-cvsw="${g[0]}" title="${g[1]}" aria-label="สี${g[1]}" style="background:${g[2]}"></button>`).join('')}</div>`:''}`}
+function cvQcPop(anchor){if(!CV.qc)return;const q=CV.qc,c=cvCap(q.d);const times=[];for(let h=7;h<=20;h++)['00','30'].forEach(x=>times.push(String(h).padStart(2,'0')+':'+x));
+  const ppl=[...new Set(Object.values(S.members||{}).filter(m=>m&&m.name&&m.role!=='sales'&&!m.disabled).map(m=>m.name))].slice(0,30);
+  cvOpen(`<div class="cvph"><b class="cvpt">${q.id?'แก้ไขคิว':'สร้างนัด'}</b><button class="cvx" data-cvclose aria-label="ปิด">✕</button></div>
+   <input class="cvqin" id="cvqt" placeholder="ชื่อนัด เช่น ติดตั้ง EV คุณสุดา" value="${esc(q.title)}" aria-label="ชื่อนัด" ${CV.tpo?'':'autofocus'}>
+   ${cvTpick()}
+   ${q.ty==='sv'?`<div class="cvbox g">นัดสำรวจต้องกรอกข้อมูลลูกค้า → ไปฟอร์มจองคิวสำรวจเดิม (ใส่วันที่ ${fd(q.d)} ให้แล้ว)</div>`:''}
+   <div class="cvqrow"><b>${fd(q.d)}</b>${q.end?' – '+fd(q.end):''}</div>
+   ${q.ty==='sv'?'':`<div class="cvqrow"><label><input type="checkbox" id="cvqad" ${q.allday?'checked':''}>ทั้งวัน</label>${q.allday?`<label>ถึงวันที่ <input type="date" id="cvqend" value="${esc(q.end||q.d)}" min="${esc(q.d)}"></label>`:`<select id="cvqt1" aria-label="เวลาเริ่ม">${times.map(t=>`<option ${t===q.t1?'selected':''}>${t}</option>`).join('')}</select> ถึง <select id="cvqt2" aria-label="เวลาจบ">${times.map(t=>`<option ${t===q.t2?'selected':''}>${t}</option>`).join('')}</select>`}</div>
+   ${q.more?`<div class="cvmore2"><label>สถานที่ / ลูกค้า<input id="cvqpl" value="${esc(q.place)}" placeholder="เช่น ปากเกร็ด"></label><label>เบอร์<input id="cvqtel" value="${esc(q.tel)}" inputmode="tel" placeholder="08x-xxx-xxxx"></label>
+     <label>ลิงก์ Google Maps<input id="cvqmap" value="${esc(q.map)}" placeholder="https://maps.app.goo.gl/..."></label>
+     <span class="cvlbl">คนไป · กดเลือก หรือพิมพ์ชื่อคนที่ไม่มีในระบบ (เช่น ทีม EV)</span><div class="cvppl">${ppl.map(p=>`<button class="cvpp ${q.who.includes(p)?'on':''}" data-cvpp="${esc(p)}">${esc(p)}</button>`).join('')}${q.who.filter(p=>!ppl.includes(p)).map(p=>`<button class="cvpp x" data-cvpp="${esc(p)}" title="กดเพื่อเอาออก">${esc(p)} ✕</button>`).join('')}</div>
+     <div class="cvaddp"><input id="cvqx" placeholder="พิมพ์ชื่อ แล้วกด เพิ่ม"><button class="btn sm" data-cvaddp>เพิ่ม</button></div>
+     <label>หมายเหตุ<textarea id="cvqnote" rows="2">${esc(q.note)}</textarea></label></div>`:''}
+   <div class="cvqrow"><label><input type="checkbox" id="cvqgs" ${q.gs?'checked':''} ${cvCfg().on?'':'disabled'}>ส่งขึ้น Google ของทีม${cvCfg().on?'':' (ยังไม่เปิด)'}</label></div>`}
+   ${c?`<p class="cvcapl">คิวสำรวจวันนี้ <b class="${c.c}">${c.t}</b></p>`:''}
+   <p class="cvqerr" id="cvqerr" role="alert"></p>
+   <div class="cvmf">${q.ty!=='sv'&&!q.more?'<button class="btn sm" data-cvmore>ตัวเลือกเพิ่มเติม</button>':''}<button class="btn sm pri" data-cvsave>${q.ty==='sv'?'ไปฟอร์มจองคิวสำรวจ':q.id?'บันทึก':'บันทึก'}</button></div>`,anchor,q.more?'scroll':'')}
+function cvReadQc(){const q=CV.qc;if(!q)return;const v=id=>{const el=document.getElementById(id);return el?el.value:null};
+  [['cvqt','title'],['cvqpl','place'],['cvqtel','tel'],['cvqmap','map'],['cvqnote','note']].forEach(([i,k])=>{const x=v(i);if(x!=null)q[k]=x})}
+async function cvSave(){const q=CV.qc;cvReadQc();const E=document.getElementById('cvqerr');const err=m=>{if(E)E.textContent=m};
+  if(q.ty==='sv'){S.f.qd=q.d;cvClose();location.hash='new';return}
+  if(!q.ty)return err('เลือกประเภทนัดก่อน');if(!q.title.trim()){err('ใส่ชื่อนัดก่อน');document.getElementById('cvqt')?.focus();return}
+  if(!q.allday&&cvH(q.t2)<=cvH(q.t1))return err('เวลาจบต้องหลังเวลาเริ่ม');
+  const now=Date.now(),id=q.id||S.db.collection('appts').doc().id,old=(S.appts||{})[id]||{};
+  const doc={...old,d:q.d,end:q.allday&&q.end&&q.end>q.d?q.end:'',tm:q.allday?'':q.t1,tm2:q.allday?'':q.t2,ty:q.ty,c:q.c||'',title:q.title.trim().slice(0,200),place:q.place.trim(),tel:q.tel.trim(),map:normUrl(q.map),who:q.who.slice(0,20),note:q.note.trim().slice(0,1000),gs:!!q.gs,updatedAt:now,updatedBy:S.me.id||null,...(q.id?{}:{createdAt:now,createdBy:S.me.id||null})};
+  delete doc.id;const btn=document.querySelector('[data-cvsave]');if(btn)btn.disabled=true;
+  try{await w('appts/'+id,doc,'set');cvClose();S.f.qsel=q.d;CV.newId='ap:'+id;toast(q.id?'บันทึกแล้ว':'สร้างนัดแล้ว'+(doc.gs&&cvCfg().on?' · ส่งขึ้น Google ของทีม':''))}
+  catch(e){if(btn)btn.disabled=false}}
+async function cvMove(apId,to){const a=(S.appts||{})[apId];if(!a||a.d===to)return;if(to<today())return toast('ย้ายไปวันที่ผ่านแล้วไม่ได้');
+  const len=a.end&&a.end>a.d?cvDiff(a.d,a.end):0,old={d:a.d,end:a.end||''};
+  try{await w('appts/'+apId,{d:to,end:len?isoAdd(to,len):'',updatedAt:Date.now(),updatedBy:S.me.id||null});CV.newId='ap:'+apId;
+    undoable(`ย้ายไป ${fd(to)} แล้ว${cvCfg().on&&a.gs!==false?' · Google ย้ายตาม':''}`,()=>w('appts/'+apId,{...old,updatedAt:Date.now()}),'ย้ายกลับแล้ว')}catch(e){}}
+/* จัดการประเภท/หมวด + ตั้งค่าส่งขึ้น Google (แอดมิน) */
+function cvMtPop(anchor){const T=cvT(),cfg=cvCfg();const gopt=v=>T.groups.map(g=>`<option value="${esc(g.id)}" ${v===g.id?'selected':''}>${esc(g.n)}</option>`).join('');
+  cvOpen(`<div class="cvph"><b class="cvpt">จัดการประเภทงาน</b><span class="cvpill" style="--c:#b54708">แอดมิน/เจ้าของ</span><button class="cvx" data-cvclose aria-label="ปิด">✕</button></div>
+  <p class="cvnote">คนอื่นเลือกใช้ได้อย่างเดียว · สีตรงกับใน Google</p>
+  <h4 class="cvmth">หมวด</h4>${T.groups.map(g=>`<div class="cvmtr"><input value="${esc(g.n)}" data-cvgn="${esc(g.id)}" aria-label="ชื่อหมวด"></div>`).join('')}
+  <h4 class="cvmth">ประเภท</h4>${T.types.map(t=>`<div class="cvmtr"><i style="background:${CV_GCC[t.c]||'#999'}"></i><input value="${esc(t.n)}" data-cvtn="${esc(t.id)}" aria-label="ชื่อประเภท"><select data-cvtg="${esc(t.id)}" aria-label="หมวด">${gopt(t.g)}</select><select data-cvtc="${esc(t.id)}" aria-label="สี">${CV_GC.map(g=>`<option value="${g[0]}" ${t.c===g[0]?'selected':''}>${g[1]}</option>`).join('')}</select></div>`).join('')}
+  <div class="cvmf"><button class="btn sm" data-cvgadd>+ หมวด</button><button class="btn sm" data-cvtadd>+ ประเภท</button></div>
+  <h4 class="cvmth">ส่งขึ้น Google Calendar (Tasks EN Team)</h4>
+  <div class="cvqrow"><label><input type="checkbox" id="cvgon" ${cfg.on?'checked':''}>ส่งนัดจากเว็บขึ้น Google</label></div>
+  <div class="cvqrow"><label>เริ่มส่งนัดตั้งแต่วันที่ <input type="date" id="cvgfrom" value="${esc(cfg.from||today())}"></label></div>
+  <p class="cvnote">นัดก่อนวันนี้ไม่ส่ง (กันซ้ำกับที่เคยพิมพ์ใน Google เอง) · ตั้งแต่วันเริ่ม ให้ออฟฟิศเลิกพิมพ์นัดสำรวจ/ติดตั้งลง Google เอง</p>
+  <div class="cvmf"><button class="btn sm" data-cvsyncall ${cfg.on?'':'disabled'}>ซิงก์ทั้งหมดตอนนี้</button><button class="btn sm pri" data-cvclose>เสร็จ</button></div>`,anchor,'scroll')}
+async function cvSaveTypes(T){try{await w('config/apptTypes',{groups:T.groups,types:T.types,updatedAt:Date.now()},'set')}catch(e){}}
+const cvNextColor=()=>{const used=new Set(cvT().types.map(t=>t.c));return (CV_GC.find(g=>!used.has(g[0]))||CV_GC[0])[0]};
+/* ---- พอดีหน้าจอ (จอคอม) ---- */
+function cvFit(){const el=document.getElementById('cvw');if(!el)return;if(cvMob()){el.style.height='';return}
+  const top=el.getBoundingClientRect().top+scrollY;el.style.height=Math.max(420,innerHeight-top-14)+'px';
+  let ch=false;const wk=el.querySelector('.cvwk');if(wk){const hh=wk.clientHeight,cmp=hh<112;const m=Math.max(1,cmp?Math.floor((hh-30)/21):Math.floor((hh-38)/25));if(m!==CV.maxl||cmp!==CV.cmp){CV.maxl=m;CV.cmp=cmp;ch=true}}
+  const wb=el.querySelector('.cvwb');if(wb){const px=Math.max(26,Math.floor(wb.clientHeight/13));if(px!==CV.px){CV.px=px;ch=true}}
+  el.querySelectorAll('[data-ind="1"]').forEach(x=>x.indeterminate=true);
+  if(CV.newId){const n=el.querySelector(`[data-cvev="${CSS.escape(CV.newId)}"]`);if(n){n.classList.add('cvnew');CV.newId=''}}
+  if(ch&&CV.fitting<2){CV.fitting++;render();CV.fitting=0}}
+/* ---- เหตุการณ์ ---- */
+document.addEventListener('click',async e=>{
+  const p=document.getElementById('cvpop');
+  const t=e.target.closest('[data-cvnew],[data-cvev],[data-cvday],[data-cvcell],[data-cvwcol],[data-cvtoday],[data-cvstep],[data-cvv],[data-cvmv],[data-cvmn],[data-cvjump],[data-cvcol],[data-cvmt],[data-cvclose],[data-cvconv],[data-cvdel],[data-cvedit],[data-cvtpo],[data-cvtpk],[data-cvtpn],[data-cvsw],[data-cvmore],[data-cvsave],[data-cvpp],[data-cvaddp],[data-cvgadd],[data-cvtadd],[data-cvsyncall],[data-cvgo]');
+  if(!t){if(p&&p.classList.contains('show')&&!p.contains(e.target)&&!e.target.closest('#toast'))cvClose();return}
+  const d=t.dataset;
+  if('cvclose' in d||'cvgo' in d){setTimeout(cvClose,0);return}
+  if(d.cvnew){cvStart(d.cvnew,'10:00',t);return}
+  if(d.cvev){if(CV.dragged)return;cvEvPop(d.cvev,t);return}
+  if(d.cvday){cvDayPop(d.cvday,t);return}
+  if(d.cvcell){if(cvCanAp())cvStart(d.cvcell,'10:00',t);else cvDayPop(d.cvcell,t);return}
+  if(d.cvwcol){if(e.target.closest('.cvtev'))return;const r=t.getBoundingClientRect();const h=7+Math.floor((e.clientY-r.top)/(CV.px||40)*2)/2;if(cvCanAp())cvStart(d.cvwcol,cvHm(Math.min(19.5,h)),t);return}
+  if('cvtoday' in d){S.f.qsel=today();S.f.cvm=today().slice(0,8)+'01';render();return}
+  if(d.cvstep){const n=+d.cvstep,mob=cvMob();if((mob&&(S.f.cvmv||'list')==='list')||(!mob&&S.f.cv==='week')){S.f.qsel=isoAdd(S.f.qsel||today(),7*n);S.f.cvm=S.f.qsel.slice(0,8)+'01'}else{const c=cvD(S.f.cvm||today().slice(0,8)+'01');c.setMonth(c.getMonth()+n);S.f.cvm=isoOf(c);if(mob)S.f.qsel=S.f.cvm}render();return}
+  if(d.cvv){S.f.cv=d.cvv;render();return}
+  if(d.cvmv){S.f.cvmv=d.cvmv;render();return}
+  if(d.cvmn){const c=cvD(S.f.cvm);c.setMonth(c.getMonth()+ +d.cvmn);S.f.cvm=isoOf(c);render();return}
+  if(d.cvjump){S.f.qsel=d.cvjump;S.f.cvm=d.cvjump.slice(0,8)+'01';render();return}
+  if(d.cvcol){CV.col.has(d.cvcol)?CV.col.delete(d.cvcol):CV.col.add(d.cvcol);render();return}
+  if('cvmt' in d){cvMtPop(t);return}
+  if(d.cvconv){const ev=cvFind(d.cvconv);if(!ev)return;cvClose();cvStart(ev.d<today()?today():ev.d,ev.tm||'10:00',null,{title:ev.n,allday:!ev.tm,end:ev.end||'',t2:ev.g&&ev.g.tm2||cvHm(Math.min(19.5,(cvH(ev.tm)||10)+1)),note:ev.g&&ev.g.desc||'',more:true});return}
+  if(d.cvdel){const a=(S.appts||{})[d.cvdel];if(!a)return;cvClose();if(!(await confirmBox('ยกเลิกคิวนี้?',`“${a.title||''}” ${fd(a.d)}${cvCfg().on&&a.gs!==false?' · นัดใน Google จะถูกลบด้วย':''}`,'ยกเลิกคิว')))return;
+    try{await w('appts/'+d.cvdel,{trashedAt:Date.now(),trashedBy:S.me.id||null});undoable('ยกเลิกคิวแล้ว',()=>w('appts/'+d.cvdel,{trashedAt:null,trashedBy:null}),'กู้คืนแล้ว')}catch(x){}return}
+  if(d.cvedit){const a=(S.appts||{})[d.cvedit];if(!a)return;cvStart(a.d<today()?today():a.d,a.tm||'10:00',null,{id:d.cvedit,title:a.title||'',ty:a.ty||'',c:a.c||'',allday:!a.tm,end:a.end||'',t1:a.tm||'10:00',t2:a.tm2||cvHm((cvH(a.tm)||10)+1),gs:a.gs!==false,place:a.place||'',tel:a.tel||'',map:a.map||'',who:(a.who||[]).slice(),note:a.note||'',more:true});if(a.d<today())CV.qc.d=a.d;return}
+  if(!CV.qc&&!['cvgadd','cvtadd','cvsyncall'].some(k=>k in d))return;
+  if('cvtpo' in d){cvReadQc();CV.tpo=!CV.tpo;CV.tpq='';cvQcPop(null);return}
+  if(d.cvtpk){cvReadQc();CV.qc.ty=d.cvtpk;CV.qc.c='';CV.tpo=null;cvQcPop(null);return}
+  if('cvtpn' in d){cvReadQc();const n=CV.tpq.trim();if(!n)return;const T=cvT(),id='u'+Date.now().toString(36);const grp=T.groups.find(g=>g.id==='off')?'off':(T.groups[0]||{}).id||'off';
+    const nt={groups:T.groups.slice(),types:[...T.types,{id,n:n.slice(0,40),c:cvNextColor(),g:grp}]};CV.qc.ty=id;CV.qc.c='';CV.tpo=null;CV.tpq='';await cvSaveTypes(nt);cvQcPop(null);toast(`เพิ่มประเภท “${n}” แล้ว`);return}
+  if(d.cvsw){cvReadQc();const t2=cvTY()[CV.qc.ty];CV.qc.c=t2&&t2.c===d.cvsw?'':d.cvsw;cvQcPop(null);return}
+  if('cvmore' in d){cvReadQc();CV.qc.more=true;cvQcPop(null);return}
+  if('cvsave' in d){cvSave();return}
+  if(d.cvpp){cvReadQc();const L=CV.qc.who,i=L.indexOf(d.cvpp);i<0?L.push(d.cvpp):L.splice(i,1);cvQcPop(null);return}
+  if('cvaddp' in d){cvReadQc();const x=document.getElementById('cvqx');const v=x&&x.value.trim();if(v&&!CV.qc.who.includes(v))CV.qc.who.push(v.slice(0,40));cvQcPop(null);return}
+  if('cvgadd' in d){const T=cvT();await cvSaveTypes({groups:[...T.groups,{id:'g'+Date.now().toString(36),n:'หมวดใหม่'}],types:T.types});cvMtPop(null);return}
+  if('cvtadd' in d){const T=cvT();await cvSaveTypes({groups:T.groups,types:[...T.types,{id:'u'+Date.now().toString(36),n:'ประเภทใหม่',c:cvNextColor(),g:(T.groups[T.groups.length-1]||{}).id||'off'}]});cvMtPop(null);return}
+  if('cvsyncall' in d){t.disabled=true;await cvSyncAll();t.disabled=false;return}
+});
+document.addEventListener('input',e=>{const t=e.target;if(t.id==='cvq'){CV.q=t.value;schedule();return}if(t.id==='cvtps'){CV.tpq=t.value;cvReadQc();cvQcPop(null)}});
+document.addEventListener('change',async e=>{const t=e.target,d=t.dataset||{};
+  if(d.cvlay){const o=cvOff();t.checked?o.delete(d.cvlay):o.add(d.cvlay);cvSaveOff();render();return}
+  if(d.cvgrp){const g=cvTree().find(x=>x.id===d.cvgrp);if(!g)return;const o=cvOff(),ids=g.items.map(i=>i[0]),allOn=ids.every(i=>!o.has(i));ids.forEach(i=>allOn?o.add(i):o.delete(i));cvSaveOff();render();return}
+  if(t.id==='cvqad'){cvReadQc();CV.qc.allday=t.checked;cvQcPop(null);return}
+  if(t.id==='cvqend'){CV.qc.end=t.value>=CV.qc.d?t.value:'';return}
+  if(t.id==='cvqt1'){cvReadQc();CV.qc.t1=t.value;if(cvH(CV.qc.t2)<=cvH(t.value))CV.qc.t2=cvHm(Math.min(20.5,cvH(t.value)+1));cvQcPop(null);return}
+  if(t.id==='cvqt2'){CV.qc.t2=t.value;return}
+  if(t.id==='cvqgs'){CV.qc.gs=t.checked;return}
+  if(d.cvgn||d.cvtn||d.cvtg||d.cvtc){const T=cvT(),G=T.groups.map(x=>({...x})),Y=T.types.map(x=>({...x}));
+    if(d.cvgn){const g=G.find(x=>x.id===d.cvgn);if(g)g.n=t.value.trim().slice(0,40)||g.n}
+    const y=Y.find(x=>x.id===(d.cvtn||d.cvtg||d.cvtc));if(y){if(d.cvtn)y.n=t.value.trim().slice(0,40)||y.n;if(d.cvtg)y.g=t.value;if(d.cvtc)y.c=t.value}
+    await cvSaveTypes({groups:G,types:Y});if(d.cvtc)cvMtPop(null);return}
+  if(t.id==='cvgon'||t.id==='cvgfrom'){const on=document.getElementById('cvgon').checked,from=document.getElementById('cvgfrom').value||today();
+    if(on&&!cvCfg().on&&!(await confirmBox('เปิดส่งนัดขึ้น Google?',`ตั้งแต่ ${fd(from)} นัดสำรวจ ติดตั้ง และคิวอื่นที่จอง/แก้ในเว็บ จะขึ้นในปฏิทิน Tasks EN Team ให้อัตโนมัติ (ทุกคนในกลุ่มอีเมลเห็น)`,'เปิดส่ง','pri'))){t.checked=false;return}
+    try{await w('config/gcal',{on,from,updatedAt:Date.now(),by:S.me.id||null},'set');toast(on?'เปิดส่งขึ้น Google แล้ว':'ปิดส่งขึ้น Google แล้ว');cvMtPop(null)}catch(x){}return}
+});
+document.addEventListener('keydown',e=>{const p=document.getElementById('cvpop');if(!p||!p.classList.contains('show'))return;
+  if(e.target.id==='cvtps'&&e.key==='Enter'){e.preventDefault();const b=p.querySelector('[data-cvtpn]')||p.querySelector('[data-cvtpk]');if(b)b.click();return}
+  if(e.target.id==='cvqt'&&e.key==='Enter'){e.preventDefault();cvSave();return}
+  if(e.target.id==='cvqx'&&e.key==='Enter'){e.preventDefault();p.querySelector('[data-cvaddp]')?.click();return}
+  if(e.key==='Escape'){if(CV.tpo){CV.tpo=null;cvReadQc();cvQcPop(null)}else cvClose()}});
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#cvpop [data-cvgo],#cvpop a[href]'))setTimeout(cvClose,0)},true);
+/* ลากคิวอื่นไปวันอื่น */
+document.addEventListener('dragstart',e=>{const t=e.target.closest&&e.target.closest('[data-cvev][draggable="true"]');if(!t)return;CV.drag=t.dataset.cvev;t.classList.add('cvdragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',CV.drag)}catch(x){}cvClose()});
+document.addEventListener('dragend',()=>{document.querySelectorAll('.cvdragging,.cvover').forEach(x=>x.classList.remove('cvdragging','cvover'));CV.drag=null;CV.dragged=true;setTimeout(()=>CV.dragged=false,50)});
+const cvCellAt=e=>{const wk=e.target.closest&&e.target.closest('.cvwk');if(!wk)return null;return [...wk.querySelectorAll('[data-cvcell]')].find(c=>{const r=c.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<r.right})||null};
+document.addEventListener('dragover',e=>{if(!CV.drag)return;const c=cvCellAt(e);document.querySelectorAll('.cvover').forEach(x=>x!==c&&x.classList.remove('cvover'));if(c){e.preventDefault();c.classList.add('cvover')}});
+document.addEventListener('drop',e=>{if(!CV.drag)return;const c=cvCellAt(e);if(c){e.preventDefault();const id=CV.drag.replace(/^ap:/,'');cvMove(id,c.dataset.cvcell)}});
+addEventListener('resize',()=>{if(route()==='queue'){clearTimeout(CV.rt);CV.rt=setTimeout(()=>{CV.maxl=0;render()},150)}});
+
 /* ---------- customers ---------- */
 function viewCustomers(){
   const jobsBy={};visibleJobs().forEach(j=>{(jobsBy[j.customerId]=jobsBy[j.customerId]||[]).push(j)});
@@ -5005,7 +5521,7 @@ document.addEventListener('click',async e=>{
   if(t.dataset.mtedit){openMeter(t.dataset.mtedit);return}
   if(t.dataset.mtout){await w('meters/'+t.dataset.mtout,{status:'out',outAt:today()}).then(()=>toast('บันทึกว่าติดตั้งเครื่องแล้ว'),()=>{});return}
   if(t.dataset.mtret){await w('meters/'+t.dataset.mtret,{status:'returned',returnedAt:today()}).then(()=>toast('รับเครื่องคืนแล้ว'),()=>{});return}
-  if(t.dataset.sbtog){const m=!document.body.classList.contains('sbmin');document.body.classList.toggle('sbmin',m);try{localStorage.setItem('cl.sbmin',m?'1':'0')}catch(x){}t.setAttribute('aria-expanded',String(!m));t.title=m?'ขยายเมนู':'ย่อเมนู';return}if(t.dataset.mtcancel){const id=t.dataset.mtcancel;closeModal();const ps=(S.meters[id]||{}).status||null;await w('meters/'+id,{status:'cancel'}).then(()=>undoable('ยกเลิกการจองแล้ว เครื่องว่างในช่วงวันนั้น',()=>w('meters/'+id,{status:ps}),'คืนการจองแล้ว'),()=>{});return}
+  if(t.dataset.sbtog){S.cvAutoMin=0;if(route()==='queue'){CV.maxl=0;setTimeout(render,0)}const m=!document.body.classList.contains('sbmin');document.body.classList.toggle('sbmin',m);try{localStorage.setItem('cl.sbmin',m?'1':'0')}catch(x){}t.setAttribute('aria-expanded',String(!m));t.title=m?'ขยายเมนู':'ย่อเมนู';return}if(t.dataset.mtcancel){const id=t.dataset.mtcancel;closeModal();const ps=(S.meters[id]||{}).status||null;await w('meters/'+id,{status:'cancel'}).then(()=>undoable('ยกเลิกการจองแล้ว เครื่องว่างในช่วงวันนั้น',()=>w('meters/'+id,{status:ps}),'คืนการจองแล้ว'),()=>{});return}
   if(t.dataset.jdel){const id=t.dataset.jdel;closeModal();try{await toTrash('jobs',id)}catch(e){return}S.sel=null;document.body.classList.remove('dlock');if(route()==='job-'+id)location.hash='jobs';else render();return}
   if(t.dataset.fmnew){openForm();return}
   if(t.dataset.fmedit){openForm(t.dataset.fmedit);return}
@@ -5223,7 +5739,7 @@ async function createJob(mode){
 async function wMany(list){
   if(!S.db.batch){for(const [p,d,m] of list)await w(p,d,m);return}
   const b=S.db.batch();list.forEach(([p,d,m])=>{const r=S.db.doc(p);if(m==='set')b.set(r,d);else if(m==='delete')b.delete(r);else b.update(r,d)});
-  try{await b.commit()}catch(e){
+  try{await b.commit();list.forEach(([p])=>cvMark(p))}catch(e){
     if(e?.code==='bad'&&/batch/.test(e.message||'')){for(const [p,d,m] of list)await w(p,d,m);return} /* ตัวกลางรุ่นเก่ายังไม่รู้จักการเขียนรวด → เขียนทีละรายการ */
     toast('บันทึกไม่ได้: '+(e?.message||'ลองอีกครั้ง'));throw e}
 }
@@ -5354,7 +5870,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-retry]'))locati
   try{
     const {db,user,me}=await CLGDB.connect('admin');
     document.body.classList.add('rocat');S.db=db;S.user=user;S.me.id=me.id;S.me.owner=!!me.owner;S.me.edit=['admin','sysadmin'].includes(me.role);S.me.role=me.role;S.me.email=me.email;S.me.name=me.name;
-    ['jobs','customers','sites','products','members','config','articles','services','forms','meters','messages','photos'].forEach(subscribe);
+    ['jobs','customers','sites','products','members','config','articles','services','forms','meters','messages','photos','appts'].forEach(subscribe);
     names([S.me.id]).then(schedule);render();
   }catch(e){showErr(e,'เชื่อมต่อไม่สำเร็จ');S.noDb=true;render()}
 })();
