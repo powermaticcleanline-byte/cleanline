@@ -2559,6 +2559,20 @@ html:not([data-r="today"]){--mut2:#62607a}
   .nsplit{padding-bottom:88px}
   .nfdone{flex-wrap:wrap}.nfdone>div{flex-basis:calc(100% - 56px)}.nfdone .btn{flex:1;justify-content:center}
 }
+
+/* ข้อ 5 มือถือ: การ์ดขั้นปัจจุบัน (ส่งต่อ/ปิดงาน) ขึ้นก่อนข้อมูลงาน · งานค้างจากเดือนก่อนไม่ทับกัน */
+@media (max-width:640px){
+  .cols>.colR{order:-1}
+  .bt.hdr.bl{display:none!important}
+  .bt.bl{grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:none!important;gap:6px 12px!important;padding:14px 16px!important;align-items:center}
+  .bt.bl>span{grid-area:auto!important;position:static!important;min-width:0}
+  .bt.bl>.bkn{grid-column:1/-1!important;grid-row:1!important}
+  .bt.bl>span:nth-child(2){grid-column:1!important;grid-row:2!important;justify-self:start}
+  .bt.bl>span:nth-child(3){grid-column:1!important;grid-row:3!important}.bt.bl>span:nth-child(3) b{display:none}.bt.bl>span:nth-child(3) small{font-size:13px;color:var(--mut)}
+  .bt.bl>span:nth-child(4){grid-column:2!important;grid-row:2/4!important;text-align:right;justify-self:end}
+  .bt.bl>span.bkb{display:none!important}
+  .blr{max-height:none}
+}
 </style></head>
 <body>
 <div class="shell">
@@ -4089,7 +4103,7 @@ function viewJob(id){
     else if(n===ST.COMM&&j.status==='active'){right=insFormCard(j,'');if(isImp(j)&&['admin','dispatch'].includes(myGroup()))other+=`<section class="act" aria-label="ติดตั้งเสร็จแล้ว"><div><h2>ติดตั้งเสร็จไปแล้ว</h2><span class="sub">สำหรับงานที่นำเข้าจาก Excel และติดตั้งเสร็จนอกระบบ · ไม่ต้องมีใบงานติดตั้ง · งานจะไปขั้น "${esc(STAGES[ST.DOCS].name)}" แล้วทีมใน Man อัปโหลด Single Line</span></div><div class="btns"><button class="btn" data-act="impins">ย้ายไป${esc(STAGES[ST.DOCS].name)}</button></div></section>`;}
     else    right=`<section class="act" aria-label="ขั้นปัจจุบัน">
       <div><h2>${n===LAST?'ปิดงาน':'ส่งต่อให้'+esc(nextRole)}</h2><span class="sub">ครบ ${done} จาก ${nd.length}</span></div>
-      ${nd.length?`<div class="pbar"><i style="width:${Math.round(done/nd.length*100)}%"></i></div>${curSecs.size?(done<nd.length?`<p class="need-hint">${curSecs.size===1?`กรอกในการ์ด “${esc(SECTIONS.find(x=>x.id===[...curSecs][0])?.title||'')}” ด้านซ้าย`:'กรอกในการ์ดด้านซ้าย'} · ยังขาด ${nd.length-done} ข้อ</p>`:''):`<ul class="need">${nd.map(x=>`<li class="${x.ok?'ok':''}"><span class="k">${x.ok?'✓':''}</span>${esc(x.l)}</li>`).join('')}</ul>`}`:''}
+      ${nd.length?`<div class="pbar"><i style="width:${Math.round(done/nd.length*100)}%"></i></div>${curSecs.size?(done<nd.length?`<p class="need-hint">${curSecs.size===1?`กรอกในการ์ด “${esc(SECTIONS.find(x=>x.id===[...curSecs][0])?.title||'')}”`:'กรอกในการ์ดข้อมูลงาน'} · ยังขาด ${nd.length-done} ข้อ <button type="button" class="lnk" data-gosec="${esc([...curSecs][0]||'')}">ไปที่การ์ด</button></p>`:''):`<ul class="need">${nd.map(x=>`<li class="${x.ok?'ok':''}"><span class="k">${x.ok?'✓':''}</span>${esc(x.l)}</li>`).join('')}</ul>`}`:''}
       <div class="btns">${btns}</div>
       ${act?'':`<span class="sub">รอ${esc(ownerOf(j))}ดำเนินการ</span>`}
     </section>`;
@@ -5285,6 +5299,8 @@ document.addEventListener('click',e=>{const k=e.target.closest('[data-nfk]');if(
     Object.assign(f,{cid,first:c.firstName||nm[0]||f.first,last:c.lastName||nm.slice(1).join(' ')||f.last,email:f.email||c.email||'',addr:f.addr||c.address||st.address||'',map:f.map||st.mapLink||''});render();toast('ใส่ข้อมูลลูกค้าเดิมแล้ว ตรวจอีกครั้งก่อนจอง');return}
   if(e.target.closest('[data-nfnext]')){S.nfDone=null;render();scrollTo(0,0);$('#n-first')?.focus()}});
 addEventListener('hashchange',()=>{if(location.hash!=='#new')S.nfDone=null});
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-gosec]');if(!b)return;const id=b.dataset.gosec;const el=(id&&document.querySelector(`[data-edit="${CSS.escape(id)}"]`)?.closest('section,.sec,.ngrp,div'))||document.querySelector('.colL');if(el){el.scrollIntoView({behavior:'smooth',block:'start'});const f=el.querySelector('input,select,textarea,[data-edit]');setTimeout(()=>f?.focus({preventScroll:true}),400)}});
 </script>
 </body>
 </html>
