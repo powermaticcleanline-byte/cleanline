@@ -2624,6 +2624,7 @@ html:not([data-r="today"]) #app .ph p:not(.warn):not(.err){color:#525c6e}
 .htls.hs-tl{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 @media (max-width:900px){.hs{grid-template-columns:1fr 1fr}.hs-d{grid-column:1/-1;flex-direction:row!important;align-items:baseline;flex-wrap:wrap;gap:4px 12px!important;border-bottom:1px solid rgba(16,24,40,.08)}.hs-d b{font-size:56px;margin:0}.hs-qa{margin:0 0 0 auto;padding:0}.hs-qa .btn{width:auto}.hs>div+div{border-left:0}.hs-r{border-left:1px solid rgba(16,24,40,.08)!important}}
 @media (max-width:640px){.hs{grid-template-columns:1fr}.hs>div{padding:18px 20px}.hs-r{border-left:0!important;border-top:1px solid rgba(16,24,40,.08)}.hs-qa{display:none}.htls.hs-tl{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+.hs-w b.z{background:#e3e6ea;color:#5f6672}
 </style></head>
 <body>
 <div class="shell">
@@ -3384,7 +3385,10 @@ function heroStrip(t,d,evOn,active,all){
     ap=`<h2>วันนี้ไม่มีนัด</h2>${nx?`<p class="hs-sub">นัดถัดไป</p>${row(nx,dl(nk))}`:'<p class="hs-sub">30 วันข้างหน้ายังไม่มีนัดสำรวจหรือติดตั้ง</p>'}`}
   const M=mineJobs();const by={};M.forEach(j=>(by[j.stage]=by[j.stage]||[]).push(j));
   const own=()=>{const c={};active.filter(j=>j.stage!==ST.OFFER).forEach(j=>{c[j.stage]=(c[j.stage]||0)+1});const K=Object.keys(c).sort((a,b)=>a-b);return K.length?`<h2>งานแต่ละขั้น <span>${Object.values(c).reduce((a,b)=>a+b,0)} งาน</span></h2><div class="hs-wl">${K.map(k=>`<a class="hs-w" href="#jobs" data-pillf="${esc(phaseOf(+k)?.k||'pre')}"><span>${esc(STAGES[k].name)}</span><b>${c[k]}</b>${svg('chev','currentColor',2.2)}</a>`).join('')}</div>`:''};
-  const wait=!myGroup()?own():M.length?`<h2>รอคุณ <span>${M.length} งาน</span></h2><div class="hs-wl">${Object.keys(by).sort((a,b)=>a-b).map(k=>{const A=by[k];return `<a class="hs-w" href="${A.length===1?'#job-'+A[0].id:'#mine'}"><span>${esc(STAGES[k].name)}</span><b>${A.length}</b>${svg('chev','currentColor',2.2)}</a>`}).join('')}</div>`:`<h2>รอคุณ</h2><p class="hs-sub hs-ok">${svg('check','currentColor',2.4)}ไม่มีงานรอคุณ เคลียร์หมดแล้ว</p>`;
+  const bk=()=>{const sv=active.filter(j=>j.stage===ST.ACCEPT).length,ins=active.filter(j=>j.stage===ST.INSREQ).length,b1=active.filter(j=>j.stage===ST.BOOK).length;
+    const r=(n,l,attr)=>`<a class="hs-w" href="#today" ${attr}><span>${l}</span><b class="${n?'':'z'}">${n}</b>${svg('chev','currentColor',2.2)}</a>`;
+    return `<h2>จองคิว <span>${sv+ins+b1} งาน</span></h2><div class="hs-wl">${r(sv,'คิวสำรวจรอตอบรับ','data-bkgo="sv"')}${r(ins,'คิวติดตั้งรอจอง','data-bkgo="ins"')}${b1?`<a class="hs-w" href="#mine"><span>จองคิวสำรวจ (ยังไม่มีวัน)</span><b>${b1}</b>${svg('chev','currentColor',2.2)}</a>`:''}</div>`};
+  const wait=myGroup()==='admin'?bk():!myGroup()?own():M.length?`<h2>รอคุณ <span>${M.length} งาน</span></h2><div class="hs-wl">${Object.keys(by).sort((a,b)=>a-b).map(k=>{const A=by[k];return `<a class="hs-w" href="${A.length===1?'#job-'+A[0].id:'#mine'}"><span>${esc(STAGES[k].name)}</span><b>${A.length}</b>${svg('chev','currentColor',2.2)}</a>`}).join('')}</div>`:`<h2>รอคุณ</h2><p class="hs-sub hs-ok">${svg('check','currentColor',2.4)}ไม่มีงานรอคุณ เคลียร์หมดแล้ว</p>`;
   return `<section class="card hs" aria-label="วันนี้">
     <div class="hs-d"><b>${d.getDate()}</b><span>วัน${TD[d.getDay()]}</span><span>${TMF[d.getMonth()]} ${d.getFullYear()+543}</span><div class="hs-qa">${newBtn()}</div></div>
     <div class="hs-a">${ap}</div>
@@ -3485,7 +3489,7 @@ function viewToday0(){
   const tile=(ic,c,l,v,h,x)=>`<a class="htl" href="${h}" ${x||''}><span class="hti ${c}">${svg(ic,'#fff',2.2)}</span><span><small>${l}</small><b>${v} <em>งาน</em></b></span></a>`;
   DP=dashPro(all);
   if(S.heroV2!==false)return `${heroStrip(t,d,evOn,active,all)}
-  ${g==='admin'?`<div class="hbk">${bookPanel()}</div>`:''}
+  ${g==='admin'&&active.some(j=>j.stage===ST.ACCEPT||j.stage===ST.INSREQ)?`<div class="hbk">${bookPanel()}</div>`:''}
   ${g==='admin'||(!g&&S.me.owner)?blPanel(all):''}
   <div class="hrow3 two tday">${dayPanel(evOn,t)}${miniCal(evOn,isoD,t)}</div>
   <div class="htls hs-tl">${tile('layers','b','งานทั้งหมด',all.length,'#jobs','data-mine="0"')}${tile('check','g','ติดตั้งเสร็จ',instAll,'#service','data-sst="installed"')}${tile('clock','o','รอยืนยันคิว',qS0,'#jobs','data-mine="1"')}${tile('wrench','v','งานบริการ',svcN,'#service')}</div>
@@ -5382,6 +5386,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-gosec]');i
 
 /* ข้อ 7: กดป้ายสถานะในแถว = กรองเฉพาะสถานะนั้น (แบบป้ายใน Gmail) */
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pillf]');if(!b)return;e.preventDefault();e.stopPropagation();S.f.phase=[b.dataset.pillf];S.f.pg=0;if(route()!=='jobs'){S.f.mine=false;S.f.status='all';S.f.jmo=0;location.hash='jobs';return}render();toast('แสดงเฉพาะสถานะนี้ · กด "ล้างตัวกรอง" เพื่อดูทั้งหมด')},true);
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-bkgo]');if(!b)return;e.preventDefault();S.f.bk=b.dataset.bkgo;render();requestAnimationFrame(()=>document.querySelector('.bkc')?.scrollIntoView({behavior:'smooth',block:'start'}))});
 </script>
 </body>
 </html>
