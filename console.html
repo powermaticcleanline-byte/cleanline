@@ -292,6 +292,49 @@ h1{letter-spacing:.01em}
 #clg.cs .cs-boot{font-size:14px;color:var(--cy);min-height:22px;letter-spacing:.02em}
 #clg.cs .cs-wm i{color:var(--cy)}
 @media(prefers-reduced-motion:reduce){.hudgrid:after,#clg.cs .cs-hud .r1,#clg.cs .cs-hud .r2,#clg.cs .cs-card .cs-scan{animation:none}}
+
+/* ===== เมนูข้างสายเทค (28 พ.ย. 11:20) · ติดจอเต็มความสูง ===== */
+aside{position:sticky;top:16px;height:calc(100vh - 32px);padding:20px 14px 16px;background:linear-gradient(180deg,rgba(94,240,255,.07),rgba(6,20,32,.2) 30%),rgba(6,18,30,.62)}
+aside:after{content:"";position:absolute;top:24px;bottom:24px;right:-1px;width:1px;background:linear-gradient(180deg,transparent,rgba(94,240,255,.6),transparent);pointer-events:none}
+.brand{font-family:"Chakra Petch",sans-serif;font-size:22px;letter-spacing:.1em;padding:0 8px}
+.sb-st{display:flex;align-items:center;gap:8px;margin:6px 8px 0;font-size:14px;color:var(--m)}
+.sb-st i{width:8px;height:8px;border-radius:50%;background:var(--leaf);box-shadow:0 0 10px var(--leaf);animation:rec 2s infinite}
+.sb-st b{margin-left:auto;font-family:"Chakra Petch",sans-serif;font-weight:600;color:var(--cy);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.kbd{margin:14px 2px 4px;border-radius:10px;border-color:rgba(94,240,255,.25);background:rgba(94,240,255,.05)}
+nav .grp{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--m2);padding:16px 10px 6px}
+nav .grp:before{content:"";width:12px;height:1.5px;background:var(--cy);opacity:.7}
+nav .grp:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(94,240,255,.25),transparent)}
+nav button{padding:7px 10px;gap:12px;border-radius:10px}
+nav button svg{width:30px;height:30px;padding:6px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(94,240,255,.14);box-sizing:border-box;transition:background .2s,border-color .2s,box-shadow .2s}
+nav button:hover svg{border-color:rgba(94,240,255,.45)}
+nav button.on svg{background:rgba(94,240,255,.2);border-color:var(--cy);box-shadow:0 0 14px -2px rgba(94,240,255,.7);color:#eafcff}
+#navpill{left:10px;right:10px}
+.me{border-top:0;padding:12px 2px 0;font-size:14px}
+.sb-sys{display:grid;gap:6px;padding:12px;border-radius:12px;background:rgba(94,240,255,.05);border:1px solid rgba(94,240,255,.14);margin-bottom:10px}
+.sb-sys div{display:flex;justify-content:space-between;gap:8px}.sb-sys span{color:var(--m2)}.sb-sys b{font-family:"Chakra Petch",sans-serif;font-weight:600;color:var(--t);display:inline}
+.sb-me{display:flex;align-items:center;gap:10px;padding:4px 4px 10px}
+.sb-av{width:38px;height:38px;border-radius:12px;object-fit:cover;flex:none;display:grid;place-items:center;font-weight:600;color:#0a1a24;background:linear-gradient(135deg,var(--cy),var(--leaf));box-shadow:0 0 0 2px rgba(94,240,255,.35)}
+.sb-me b{display:block;color:var(--t);font-size:15px;font-weight:600}.sb-me .em{color:var(--cy);font-size:14px}
+.sb-act{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.me .sb-b{display:flex;align-items:center;justify-content:center;gap:6px;margin:0;padding:8px 6px;border-radius:10px;border:1px solid rgba(94,240,255,.22);background:rgba(255,255,255,.05);color:var(--t);font:inherit;font-size:14px;text-decoration:none;cursor:pointer;opacity:1;white-space:nowrap}
+.me .sb-b:hover{border-color:var(--cy);background:rgba(94,240,255,.12);text-decoration:none}
+.me .sb-b svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+@media(max-height:760px){.sb-sys{display:none}}
+@media(max-width:900px){aside{position:sticky;top:0;height:auto}aside:after,.sb-st,.sb-sys,.sb-me{display:none}.sb-act{display:flex}.me .sb-b{padding:6px 10px}nav button svg{display:none}nav .grp{display:none}}
+
+aside{overflow:hidden;display:flex;flex-direction:column}
+aside nav{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;position:relative;margin-top:6px}
+aside nav::-webkit-scrollbar{display:none}
+nav button{padding:5px 10px;min-height:40px}nav button svg{width:28px;height:28px;padding:5px}
+nav .grp{padding:12px 10px 4px}
+.kbd{min-height:40px;padding:8px 12px}
+.me{flex:none}
+@media(max-height:900px){.sb-sys{display:none}}
+
+.sb-act{grid-template-columns:minmax(0,1fr) 42px}
+.me .sb-out{padding:8px 0}.me .sb-out:hover{border-color:var(--warnc);color:#ffd0c5;background:rgba(255,138,115,.12)}
+aside nav{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);padding-bottom:18px}
+@media(max-width:900px){aside{flex-direction:row;flex-wrap:wrap;align-items:center;overflow:visible;padding:12px 12px 8px}aside nav{flex:1 1 100%;order:3;margin-top:8px;overflow-x:auto;overflow-y:hidden}.brand{font-size:18px;letter-spacing:.06em;flex:1;padding:0 4px}.me{order:2;padding:0}.sb-act{display:flex;gap:6px}.me .sb-b{width:38px;height:38px;padding:0}.me .sb-b .tx{display:none}aside nav{-webkit-mask-image:none;mask-image:none;padding-bottom:0}}
 /* ===== หน้าเข้าสู่ระบบ Console (28 พ.ย.) · ฟ้าเดียวกับในแอป + ทุ่งแผงโซลาร์บินผ่าน + การ์ดกระจกเอียงตามเมาส์ ===== */
 [hidden]{display:none!important}
 #clg.cs{display:flex;align-items:center;justify-content:center;background:transparent;color:var(--t);font-family:"IBM Plex Sans Thai Looped","Noto Sans Thai",system-ui,sans-serif;overflow:auto;padding:24px;perspective:1400px}
@@ -337,6 +380,7 @@ h1{letter-spacing:.01em}
 <div class="app" id="app" hidden>
   <aside>
     <div class="brand">CLEANL<i>I</i>NE<small>Console</small></div>
+    <div class="sb-st"><i></i><span>ระบบออนไลน์</span><b data-clock></b></div>
     <button class="kbd" id="kbd" type="button"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>ค้นหาด่วน<kbd>Ctrl K</kbd></button>
     <nav id="nav"></nav>
     <div class="me" id="me"></div>
@@ -444,7 +488,10 @@ const gFind=gid=>{const D=S.gcal[gMonth()];return D&&D.ev?D.ev.find(x=>x.id===gi
 function render(){
   const pend=Object.keys(S.joinreq).length;
   $('#nav').innerHTML=TABS.map(([k,l])=>`${TGRP[k]?`<div class="grp">${TGRP[k]}</div>`:''}<button data-tab="${k}" class="${S.tab===k?'on':''}"><svg viewBox="0 0 24 24">${TIC[k]}</svg>${l}${k==='users'&&pend?`<span class="n">${pend}</span>`:''}${k==='price'&&prDirty()?'<span class="n s" title="มีราคาที่ยังไม่ได้บันทึก">!</span>':''}</button>`).join('');
-  $('#me').innerHTML=`<b>${esc(S.me.name)}</b><span class="em">${esc(S.me.email)}</span><div style="margin-top:8px"><a href="index.html">เปิด Management</a><button id="out">ออกจากระบบ</button></div>`;
+  const bk0=S.backups&&S.backups[0],onl=new Set(Object.values(S.logs).filter(l=>l&&l.at>Date.now()-15*6e4&&l.by!==S.me.id).map(l=>l.by)).size;
+  $('#me').innerHTML=`<div class="sb-sys"><div><span>ตัวกลาง</span><b>${S.health?esc(S.health.version):'—'}</b></div><div><span>สำรองล่าสุด</span><b>${bk0?hm(bk0.at):'—'}</b></div><div><span>ออนไลน์</span><b>${onl} คน</b></div></div>
+   <div class="sb-me">${S.me.picture?`<img class="sb-av" src="${esc(S.me.picture)}" alt="" onerror="this.outerHTML='<span class=sb-av>${esc(ini(S.me.name))}</span>'">`:`<span class="sb-av">${esc(ini(S.me.name))}</span>`}<div><b>${esc(S.me.name)}</b><span class="em">ผู้ดูแลระบบ</span></div></div>
+   <div class="sb-act"><a href="index.html" class="sb-b" title="เปิด Management"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="tx">เปิด Management</span></a><button id="out" class="sb-b sb-out" title="ออกจากระบบ" aria-label="ออกจากระบบ"><svg viewBox="0 0 24 24"><path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button></div>`;
   const M=$('#main');M.classList.toggle('fx',!!S.fx);
   M.innerHTML=({staff:vStaff,gdup:vGdup,home:vHome,users:vUsers,docs:vDocs,cat:vCat,price:vPrice,logs:vLogs,backup:vBackup,system:vSystem})[S.tab]();
   if(S.tab==='home')homeAfter();
@@ -728,7 +775,7 @@ function fStat(x){const j=x.j,t0=d0(Date.now()),now=Date.now();
     return {c:'wait',h:'รอออก'}}
   const st=+(j.stage||1);if(st>=8)return {c:'ok',h:'ติดตั้งเสร็จ'};if(st===7)return {c:'go',h:`กำลังติดตั้ง · <span data-since="${+j.stageSince||now}">${hms(now-(+j.stageSince||now))}</span>`};return {c:'wait',h:'รอเริ่มติดตั้ง'}}
 /* ทุกวินาที: เวลาที่ผ่านไป · "กี่นาทีที่แล้ว" · โดยไม่วาดหน้าใหม่ */
-setInterval(()=>{if(document.hidden)return;const n=Date.now();document.querySelectorAll('[data-since]').forEach(e=>{e.textContent=hms(n-(+e.dataset.since))});document.querySelectorAll('[data-ago]').forEach(e=>{e.textContent=ago(+e.dataset.ago)})},1000);
+setInterval(()=>{if(document.hidden)return;const n=Date.now();const ck=document.querySelector('[data-clock]');if(ck){const d=new Date(n);ck.textContent=[d.getHours(),d.getMinutes(),d.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':')}document.querySelectorAll('[data-since]').forEach(e=>{e.textContent=hms(n-(+e.dataset.since))});document.querySelectorAll('[data-ago]').forEach(e=>{e.textContent=ago(+e.dataset.ago)})},1000);
 /* กราฟชีพจรระบบ (ECG): การบันทึกใน 10 นาทีล่าสุด เลื่อนไปเรื่อย ๆ · มีบันทึกใหม่ = ยอดพุ่ง */
 let ecgRaf=0;
 function ecgRun(){cancelAnimationFrame(ecgRaf);const c=$('#ecg');if(!c)return;const ctx=c.getContext('2d'),dpr=window.devicePixelRatio||1;
@@ -922,8 +969,8 @@ sky();setInterval(sky,5*60e3);
 /* แสงสะท้อนบนกระจกตามเมาส์ */
 let mxRaf=0;document.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||mxRaf)return;mxRaf=requestAnimationFrame(()=>{mxRaf=0;const c=e.target.closest&&e.target.closest('.card');if(!c)return;const r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px')})},{passive:true});
 /* แถบเมนูเลื่อนตามเมนูที่เลือก */
-function navPill(){const a=document.querySelector('aside'),on=document.querySelector('nav button.on');if(!a||!on)return;let p=$('#navpill');if(!p){p=document.createElement('span');p.id='navpill';a.prepend(p);a.classList.add('pill-on')}
-  const ar=a.getBoundingClientRect(),r=on.getBoundingClientRect();p.style.transform=`translateY(${(r.top-ar.top+a.scrollTop).toFixed(1)}px)`;p.style.height=r.height+'px';p.style.opacity=1}
+function navPill(){const a=document.querySelector('aside'),nv=$('#nav'),on=document.querySelector('nav button.on');if(!a||!on)return;let p=$('#navpill');if(!p){p=document.createElement('span');p.id='navpill';a.prepend(p);a.classList.add('pill-on');nv&&nv.addEventListener('scroll',()=>navPill(),{passive:true})}
+  const ar=a.getBoundingClientRect(),r=on.getBoundingClientRect(),nr=nv?nv.getBoundingClientRect():ar,vis=r.bottom>nr.top+4&&r.top<nr.bottom-4;p.style.transform=`translateY(${(r.top-ar.top).toFixed(1)}px)`;p.style.height=r.height+'px';p.style.opacity=vis?1:0}
 window.addEventListener('resize',()=>navPill());
 /* แจ้งสดเมื่อคนในทีมบันทึก */
 S.pulseAt=null;
