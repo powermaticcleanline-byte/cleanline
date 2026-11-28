@@ -855,7 +855,81 @@ html.desk .mehero .mav .av{box-shadow:0 0 0 4px #fff}
 html.desk .mehero img.mm{filter:none}
 html.desk .mestat{margin:-32px 24px 16px;box-shadow:0 0 0 1px var(--dln)}
 html.desk .dev{display:none}
+
+/* ===== 28 พ.ย. 7 วันของฉัน (มือถือ + จอคอม) ===== */
+.wk7{background:#fff;border-radius:20px;padding:14px 14px 12px;margin:12px 0;box-shadow:0 1px 2px rgba(20,30,50,.05),0 10px 24px -18px rgba(20,30,50,.35)}
+.wk7h{display:flex;align-items:baseline;flex-wrap:wrap;margin:0 2px 10px}.wk7h b{font-size:16px;font-weight:600}.wk7h span{font-size:14px;color:#3d7c0e;font-weight:600}
+.wk7g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.wk7d{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 7px;border:0;border-radius:14px;background:#f4f6f1;font:inherit;color:inherit;cursor:pointer;min-width:0}
+.wk7d small{font-size:14px;color:#6b7280;line-height:1.2;white-space:nowrap}.wk7d b{font-size:20px;font-weight:600;line-height:1.15}
+.wk7d em{font-style:normal;font-size:14px;font-weight:600;line-height:1.2;padding:1px 4px;border-radius:6px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.wk7d em.f{color:#3d7c0e}.wk7d em.o{color:#9aa1ab;font-weight:500}
+.wk7d em.dt{display:flex;gap:3px;height:19px;align-items:center;padding:0}.wk7d em.dt i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.wk7d.bs{background:#e3efd3;color:#1f4d05}.wk7d.bs small{color:#3f6b1f}
+.wk7d.bi{background:#16171d;color:#fff}.wk7d.bi small{color:#c9ccd3}
+.wk7l{display:inline-flex;align-items:center;gap:4px;font-size:14px;color:#6b7280;margin-left:auto;margin-right:12px}.wk7l i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-left:6px}.wk7l i.s{background:#c7e0a8}.wk7l i.i{background:#16171d}
+.wk7d.off{background:transparent}
+.wk7d.t{box-shadow:inset 0 0 0 2px #3d7c0e}
+.wk7d:focus-visible{outline:2px solid #3d7c0e;outline-offset:2px}
+@media (max-width:380px){.wk7g{gap:3px}.wk7d em{padding:1px 0}}
+/* ===== 28 พ.ย. จอคอม: หน้าตาเข้าชุดกับ Management (ผู้ใช้เลือก) ===== */
+html.desk{--f:"Noto Sans Thai Looped","Noto Sans Thai",'Prompt',system-ui,sans-serif;--side:280px;--topb:84px;--dbg:transparent;--dln:rgba(16,24,40,.08)}
+html.desk,html.desk body{background:radial-gradient(1100px 600px at 70% 110%,#dfe7d2 0%,rgba(223,231,210,0) 60%),linear-gradient(#e6e8ec 0%,#e0e3e9 100%) fixed;font-family:var(--f);font-weight:500;color:#1b1d22}
+html.desk .dnav{left:16px;top:16px;bottom:16px;width:248px;padding:16px;background:#fff;border-radius:26px;box-shadow:0 1px 2px rgba(20,30,50,.04),0 18px 40px -22px rgba(30,40,60,.28)}
+html.desk .dbrand{font-size:18px;font-weight:700;margin-bottom:16px}
+html.desk .dnew{align-self:stretch;justify-content:center;height:44px;padding:0 16px;border-radius:12px;background:#16171d;color:#fff;font-size:15px;font-weight:600;box-shadow:none;margin-bottom:16px}
+html.desk .dnew svg{color:#fff}html.desk .dnew:hover{background:#2a2c33}
+html.desk .dni{min-height:40px;padding:0 12px;border-radius:12px;font-size:16px;font-weight:500;color:#44464d;gap:12px}
+html.desk .dni svg{width:19px;height:19px}
+html.desk .dni:hover{background:#f3f5f0}
+html.desk .dni.on{background:#edf6e1;color:#3d7c0e;font-weight:600}
+html.desk .dni .bd,html.desk .dib .bd{font-size:14px;min-width:22px;height:22px}
+html.desk .dsh{font-size:14px;color:#80858f;padding:16px 12px 6px}
+html.desk .dtop{left:var(--side);height:var(--topb);padding:0 32px 0 32px;background:linear-gradient(#e6e8ec 70%,rgba(230,232,236,0))}
+html.desk .dq{height:48px;background:rgba(255,255,255,.85);border:1px solid #80858f;box-shadow:inset 0 1px 0 #fff,0 8px 16px -10px rgba(0,0,0,.35);color:#5b606b}
+html.desk .dq:hover{background:#fff}
+html.desk .dib,html.desk .dav{background:#fff;box-shadow:0 1px 2px rgba(20,30,50,.06),0 8px 16px -12px rgba(20,30,50,.4)}
+html.desk .dib:hover,html.desk .dav:hover{background:#f6f7f4}
+html.desk .wrap{margin:0 32px 32px 32px;padding:28px 32px 36px;border-radius:38px;background:linear-gradient(rgba(246,247,249,.92),rgba(238,240,244,.88));box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(0,0,0,.03),0 30px 60px -40px rgba(30,40,60,.38)}
+html.desk .top,html.desk .top.solid{background:transparent}
+html.desk .top .in{padding:0 32px 8px 32px}
+html.desk .top .ttl{font-size:24px;font-weight:700}
+html.desk .dht h1{font-size:32px;font-weight:700;letter-spacing:-.01em}
+html.desk .dht p{font-size:16px;color:#5f6672}
+html.desk .dsec h2,html.desk .dbox h2{font-size:18px;font-weight:700}
+html.desk .dbox,html.desk .card,html.desk .nx,html.desk .ls,html.desk .qa{background:#fff;border:0;border-radius:24px;box-shadow:0 0 0 1px rgba(16,24,40,.06)}
+html.desk .dbox{padding:18px 20px}
+html.desk .dday .dtc{background:#fff;border-radius:16px;box-shadow:0 0 0 1px rgba(16,24,40,.06)}
+html.desk .dtbl{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 0 0 1px rgba(16,24,40,.06)}
+html.desk .ob{box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+html.desk .pb,html.desk .dact .btn.pri,html.desk .dact .btn.blu{background:#16171d}
+html.desk .pb:hover,html.desk .dact .btn.pri:hover,html.desk .dact .btn.blu:hover{background:#2a2c33}
+html.desk .dms{background:#fff;border-radius:24px;box-shadow:0 0 0 1px rgba(16,24,40,.06)}
+html.desk .dms small{font-size:14px}
+html.desk .wk7{border-radius:24px;box-shadow:0 0 0 1px rgba(16,24,40,.06);margin:0 0 16px;padding:18px 20px 16px}
+html.desk .wk7h b{font-size:18px;font-weight:700}
+html.desk .wk7d{padding:10px 2px 8px}
+html.desk .wk7d:hover{background:#edf6e1}
+
+/* 28 พ.ย. จอคอม: กระดาน 7 วัน */
+html.desk .wkb{background:#fff;border-radius:24px;box-shadow:0 0 0 1px rgba(16,24,40,.06);padding:18px 20px 20px;margin:0 0 24px}
+html.desk .wkb-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}html.desk .wkb-top h2{margin:0;font-size:18px;font-weight:700}
+html.desk .wkb-top .wk7l{margin:0 0 0 4px}html.desk .wkb-top b{margin-left:auto;font-size:15px;color:#3d7c0e}
+html.desk .wkb-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+html.desk .wkb-c{display:flex;flex-direction:column;gap:6px;min-height:150px;padding:10px;border-radius:16px;background:#f6f7f4;min-width:0}
+html.desk .wkb-c.t{box-shadow:inset 0 0 0 2px #3d7c0e;background:#fff}
+html.desk .wkb-c.off{background:transparent;box-shadow:inset 0 0 0 1px rgba(16,24,40,.06)}
+html.desk .wkb-h{display:flex;align-items:baseline;gap:6px;margin-bottom:2px}html.desk .wkb-h small{font-size:14px;color:#6b7280}html.desk .wkb-h b{font-size:20px;font-weight:700;margin-left:auto}
+html.desk .wkb-c.t .wkb-h small{color:#3d7c0e;font-weight:600}
+html.desk .wkb-e{display:block;width:100%;text-align:left;border:0;border-radius:10px;padding:7px 9px;font:inherit;cursor:pointer;background:#e3efd3;color:#1f4d05}
+html.desk .wkb-e.i{background:#16171d;color:#fff}
+html.desk .wkb-e small{display:block;font-size:14px;opacity:.8;line-height:1.3}
+html.desk .wkb-e span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px;font-weight:600;line-height:1.35}
+html.desk .wkb-e:hover{filter:brightness(.96)}html.desk .wkb-e:focus-visible{outline:2px solid #3d7c0e;outline-offset:2px}
+html.desk .wkb-n{margin:auto 0;text-align:center;font-size:15px;font-weight:600;color:#3d7c0e}html.desk .wkb-c.off .wkb-n{color:#9aa1ab;font-weight:500}
+html.desk .wrap.dhm{min-height:0}
 </style>
+<link rel="stylesheet" media="(min-width:1024px)" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@400;500;600;700&display=swap">
 </head>
 <body>
 <div id="spl" aria-hidden="true"><style>
@@ -966,6 +1040,8 @@ const COLS=['jobs','customers','sites','products','members','services','meters',
 const COLS_WAIT=COLS.filter(c=>c!=='pricing');
 class ConflictError extends Error{constructor(){super('งานนี้มีคนดำเนินการไปแล้ว');this.code='conflict'}}
 /* งานสำรวจเป็นของฉันไหม: มี surveyorId → ตรง id · ไม่มี → ตรงชื่อ หรือส่งให้ทีมของฉัน (ข้อมูลแบบเดิม) */
+/* คนไปด้วย (j.surveyHelpers = ชื่อคั่นด้วย , + / และ) เห็นงานในรายการ/วันนี้/7 วัน แต่สิทธิ์ทำงานยังเป็นของคนสำรวจหลัก (ผู้ใช้ 28 พ.ย.) */
+const svHelp=(j,u)=>!!(j&&u&&u.name&&j.surveyHelpers)&&String(j.surveyHelpers).split(/\s*[,+\/]\s*|\s+และ\s+/).map(x=>x.trim()).includes(u.name);
 function svMine(j,u){if(!j||!u)return false;if(j.surveyorId)return j.surveyorId===u.id;
   return (!!j.surveyor&&j.surveyor===u.name)||(!!u.team&&j.surveyTeam===u.team&&(!j.surveyor||j.surveyor===j.surveyTeam||/^ทีม \d/.test(j.surveyor)))}
 class BaseAdapter{
@@ -978,7 +1054,7 @@ class BaseAdapter{
     u=u||this.user;if(!u||!j)return false;
     if(u.role==='lead'||u.role==='admin')return true;
     const n=u.name;
-    return svMine(j,u)||supMine(j,u)||j.installTeam===n;
+    return svMine(j,u)||svHelp(j,u)||supMine(j,u)||j.installTeam===n;
   }
   listMyJobs(userId){const u=userId===this.user?.id?this.user:this.userById(userId);return Object.values(this.c.jobs).filter(j=>this.isMine(j,u))}
   listAllJobs(){return Object.values(this.c.jobs)}
@@ -2027,7 +2103,7 @@ const MPOSE={wave:'mascot-wave.webp',thumb:'mascot-thumb.webp',cheer:'mascot-che
 function dayJobs(){   // งานของฉันวันนี้ รวมที่เสร็จแล้ว (วงแหวน + เส้นทางวันนี้)
   const u=me(),T=today();
   return S.api.listAllJobs().filter(j=>!['lost','cancelled'].includes(j.status)).map(j=>{
-    if(svMine(j,u)&&(j.surveyDate||j.queueDate)===T&&j.stage>=ST.SURVEY)return {j,k:'สำรวจ',tm:j.queueTime||'',done:j.stage>ST.SURVEY||!!(j.sv&&j.sv.sign)};
+    if((svMine(j,u)||svHelp(j,u))&&(j.surveyDate||j.queueDate)===T&&j.stage>=ST.SURVEY)return {j,k:svMine(j,u)?'สำรวจ':'สำรวจ (ไปด้วย)',tm:j.queueTime||'',done:j.stage>ST.SURVEY||!!(j.sv&&j.sv.sign)};
     const a=j.installDate,b=j.installEnd||a;
     if(supMine(j,u)&&a&&a<=T&&T<=b&&j.stage>=ST.INSTALL)return {j,k:'ติดตั้ง',tm:'',done:j.stage>ST.COMM||j.status==='done'};
     return null}).filter(Boolean).sort((x,y)=>(x.tm||'99')<(y.tm||'99')?-1:1);
@@ -2078,10 +2154,26 @@ function dayLine(){const D=dayJobs(),dn=D.filter(x=>x.done).length,ix=D.findInde
    ${D.length?`<ul class="tl day">${D.map((x,i)=>`<li class="${x.done?'done':i===ix?'now':''}"><span class="tm">${esc(x.tm||'ทั้งวัน')}</span><span class="pt"></span><button type="button" data-dlgo="${destOf(x.j)}"><b>${esc(x.j.title||sOf(x.j).label||'')}</b><small>${x.done?'เสร็จแล้ว':x.k} · ${esc(sOf(x.j).area||sOf(x.j).address||'')}</small></button></li>`).join('')}</ul>`:''}
    <button class="btn" style="width:100%;margin-top:8px" data-dlx>ปิด</button></div></div>`);
   {const b=document.querySelector('#dayl .dlb');let y0=0,dy=0,on=false;b.addEventListener('pointerdown',e=>{if(b.scrollTop>0)return;y0=e.clientY;on=true});b.addEventListener('pointermove',e=>{if(!on)return;dy=Math.max(0,e.clientY-y0);b.style.transform=`translateY(${dy}px)`});b.addEventListener('pointerup',()=>{on=false;if(dy>90)document.getElementById('dayl')?.remove();else b.style.transform='';dy=0})}}
+/* 7 วันของฉัน: วันไหนมีสำรวจ/ติดตั้ง วันไหนว่าง (ผู้ใช้ 28 พ.ย.: Man อยากรู้แค่วันนี้มีงานไหม · วันไหนว่าง) · กดวัน = ปฏิทินวันนั้น */
+function myWeek(){const u=me(),T=today(),J=S.api.listAllJobs().filter(j=>j.status==='active');
+  const on=k=>{let s=0,i=0;J.forEach(j=>{if(j.stage<=ST.SURVEY&&j.stage>=ST.SURVEY-1&&(j.surveyDate||j.queueDate)===k&&(svMine(j,u)||svHelp(j,u)))s++;
+    if(j.stage>=ST.INSREQ&&j.stage<=ST.INSTALL&&j.installDate&&j.installDate<=k&&k<=(j.installEnd||j.installDate)&&(supMine(j,u)||j.installTeam===u.name))i++});return {s,i}};
+  const D=[...Array(7)].map((_,n)=>isoAdd(T,n)),free=D.filter(k=>{const o=on(k);return !o.s&&!o.i&&new Date(k+'T00:00:00').getDay()!==0}).length;
+  return `<section class="wk7" aria-label="7 วันของฉัน"><div class="wk7h"><b>7 วันของฉัน</b><span class="wk7l"><i class="s"></i>สำรวจ<i class="i"></i>ติดตั้ง</span><span>ว่าง ${free} วัน</span></div><div class="wk7g">${D.map(k=>{const d=new Date(k+'T00:00:00'),o=on(k),sun=d.getDay()===0,busy=o.s||o.i;
+    return `<button class="wk7d ${k===T?'t':''} ${o.i?'bi':o.s?'bs':sun?'off':'f'}" data-wk7="${k}" aria-label="${TD[d.getDay()]} ${d.getDate()} ${busy?[o.s?'สำรวจ '+o.s:'',o.i?'ติดตั้ง':''].filter(Boolean).join(' '):sun?'วันอาทิตย์':'ว่าง'}"><small>${k===T?'วันนี้':['อา','จ','อ','พ','พฤ','ศ','ส'][d.getDay()]}</small><b>${d.getDate()}</b>${busy?`<em class="dt">${'<i></i>'.repeat(Math.min(3,o.s+o.i))}</em>`:`<em class="${sun?'o':'f'}">${sun?'หยุด':'ว่าง'}</em>`}</button>`}).join('')}</div></section>`}
+/* จอคอม: กระดาน 7 วัน (ผู้ใช้ 28 พ.ย.: หน้าจอคอมมีที่ว่างเยอะ) · แต่ละวันเห็นชื่องาน เวลา กดเปิดงานได้ */
+function myWeekBoard(){const u=me(),T=today(),J=S.api.listAllJobs().filter(j=>j.status==='active');
+  const on=k=>{const L=[];J.forEach(j=>{if(j.stage<=ST.SURVEY&&j.stage>=ST.SURVEY-1&&(j.surveyDate||j.queueDate)===k&&(svMine(j,u)||svHelp(j,u)))L.push({j,k:'s',tm:j.queueTime||'',h:!svMine(j,u)});
+    if(j.stage>=ST.INSREQ&&j.stage<=ST.INSTALL&&j.installDate&&j.installDate<=k&&k<=(j.installEnd||j.installDate)&&(supMine(j,u)||j.installTeam===u.name))L.push({j,k:'i',tm:''})});return L.sort((a,b)=>(a.tm||'00')<(b.tm||'00')?-1:1)};
+  const D=[...Array(7)].map((_,n)=>isoAdd(T,n));let free=0;
+  const col=k=>{const d=new Date(k+'T00:00:00'),L=on(k),sun=d.getDay()===0;if(!L.length&&!sun)free++;
+    return `<div class="wkb-c ${k===T?'t':''} ${L.length?'':sun?'off':'f'}"><div class="wkb-h"><small>${k===T?'วันนี้':TD[d.getDay()]}</small><b>${d.getDate()}</b></div>${L.length?L.map(x=>`<button class="wkb-e ${x.k}" data-go="${destOf(x.j)}"><small>${x.k==='i'?'ติดตั้ง':(esc(x.tm)||'สำรวจ')+(x.h?' · ไปด้วย':'')}</small><span>${esc(x.j.title||sOf(x.j).label||'')}</span></button>`).join(''):`<p class="wkb-n">${sun?'วันหยุด':'ว่าง'}</p>`}</div>`};
+  const cols=D.map(col).join('');
+  return `<section class="wkb" aria-label="7 วันของฉัน"><div class="wkb-top"><h2>7 วันของฉัน</h2><span class="wk7l"><i class="s"></i>สำรวจ<i class="i"></i>ติดตั้ง</span><b>ว่าง ${free} วัน</b><button class="lk" data-go="#tool-cal">เปิดปฏิทิน</button></div><div class="wkb-g">${cols}</div></section>`}
 function viewToday(){
   const u=me(),T=today(),TM1=isoAdd(T,1),all=S.scope==='all'||u.role==='lead';
   const base=(all?S.api.listAllJobs():S.api.listMyJobs(u.id)).filter(j=>j.status==='active');
-  const relevant=j=>(j.stage===ST.SURVEY||j.stage===ST.INSTALL)&&(all||ownedByMe(j));
+  const relevant=j=>(j.stage===ST.SURVEY||j.stage===ST.INSTALL)&&(all||ownedByMe(j)||svHelp(j,u));
   const L={today:base.filter(j=>relevant(j)&&onDay(j,T)),tomorrow:base.filter(j=>relevant(j)&&onDay(j,TM1)),all:base.filter(j=>all?actionable(j):waitingMe(j))};
   Object.values(L).forEach(a=>a.sort((a,b)=>sortKey(a)<sortKey(b)?-1:1));
   const tab=S.tab in L?S.tab:'today',list=L[tab],nx=nextJob(),nNew=notiNew();
@@ -2112,7 +2204,7 @@ function viewToday(){
      <div class="masc"><span class="mhearts"></span><span class="mbub" aria-live="polite"></span><div class="mrig${S.hmPose==='wave'?'':' posed'}" data-masc data-pose="${S.hmPose}" role="img" aria-label="มาสคอต CLEANLINE แตะเพื่อคุยด้วย">${MRIG}<img class="pz" src="${MPOSE[S.hmPose]}" alt="" draggable="false"></div></div></div></div></div>
    <div id="hmini" aria-hidden="true"><img src="${MPOSE[S.hmPose]}" alt=""><b>${esc(u.name||'')}</b><span>${dn}/${D.length} งานวันนี้</span></div>
    <main class="wrap hm${first?' intro':''}">
-    ${nxCard}${pendBanner()}${slHome()}
+    ${nxCard}${myWeek()}${pendBanner()}${slHome()}
     <section class="qa">${qa.map(([h,i,t,c,n])=>`<button data-go="${h}"><span class="ki ${c}">${ic(i)}${n?`<i class="bd">${n}</i>`:''}</span><small>${t}</small></button>`).join('')}</section>
     <section class="ls"><div class="lsh"><b>${all?'งานทุกคน':'งานของฉัน'}</b><button class="lk" data-go="#mine">ดูทั้งหมด</button></div>
      <div class="tb" role="tablist">${[['today','วันนี้'],['tomorrow','พรุ่งนี้'],['all',all?'ค้างทั้งหมด':'รอฉันทั้งหมด']].map(([k,t])=>`<button role="tab" aria-selected="${k===tab}" class="${k===tab?'on':''}" data-tab="${k}">${t} <span>${L[k].length}</span></button>`).join('')}</div>
@@ -2136,6 +2228,7 @@ function hmDesk({u,T,TM1,all,L,tab,list,nx,D,dn,hr}){
   return `<main class="wrap dhm">
    <div class="dhead"><div class="dht"><h1>${hr<11?'อรุณสวัสดิ์':hr<16?'สวัสดีตอนบ่าย':'สวัสดีตอนเย็น'} ${esc(u.name||'')}</h1><p>${esc(fdLong(T))} · ${D.length?`วันนี้มี ${D.length} งาน เสร็จแล้ว ${dn}`:'วันนี้ไม่มีงานนัด'}</p></div>
     <div class="dact"><button class="ob" data-dayline>${ic('pin')}<span>เส้นทางวันนี้</span></button></div></div>
+   ${myWeekBoard()}
    <div class="dcols"><div class="dcol">
     <section class="dsec"><h2>${D.length?'งานวันนี้':'งานถัดไป'}</h2>${day.length?`<ol class="dday">${day.map(card).join('')}</ol>`:'<p class="dmut">ไม่มีงานนัดที่รออยู่ · งานใหม่จะขึ้นที่นี่ทันที</p>'}</section>
     ${pendBanner()}
@@ -2532,7 +2625,7 @@ function viewTool(name){
 }
 function calEvents(){
   const u=me(),all=S.scope==='all'||u.role==='lead',kf=TV('ck','all'),by={};
-  S.api.listAllJobs().filter(j=>!['lost','cancelled'].includes(j.status)&&(all||ownedByMe(j)||touchedByMe(j))).forEach(j=>{
+  S.api.listAllJobs().filter(j=>!['lost','cancelled'].includes(j.status)&&(all||ownedByMe(j)||svHelp(j,u)||touchedByMe(j))).forEach(j=>{
     const sd=j.surveyDate||j.queueDate;if(sd&&j.stage<=ST.SURVEY&&kf!=='i')(by[sd]=by[sd]||[]).push({j,k:j.stage===ST.ACCEPT?'p':'s',tm:j.queueTime||''});
     if(j.installDate&&(j.stage>=ST.INSREQ||j.status==='done')&&kf!=='s'){const D=[];for(let d=j.installDate;d<=(j.installEnd||j.installDate)&&D.length<10;d=isoAdd(d,1))D.push(d);D.forEach((d,i)=>(by[d]=by[d]||[]).push({j,k:'i',tm:'',day:i+1,of:D.length}))}});
   Object.values(by).forEach(L=>L.sort((a,b)=>(a.k==='i')-(b.k==='i')||String(a.tm||'99').localeCompare(String(b.tm||'99'))));
@@ -2998,6 +3091,7 @@ document.addEventListener('click',e=>{
   if(d.open){const u=safeUrl(d.open);if(u)window.open(u,'_blank','noopener');return}
   if(d.lradd){const i=d.lradd,used=[1,2,3,4].filter(lShow).map(k=>TV('lr'+k+'d','ทิศใต้'));S.t['_lrs'+i]='1';S.t['lr'+i+'d']=L_DIRS.find(x=>!used.includes(x));S.t['lr'+i+'n']=0;render();const el=$('#t-lr'+i+'n');if(el){el.focus();el.select()}return}
   if(d.lrx){const i=d.lrx;S.t['_lrs'+i]='0';S.t['lr'+i+'n']=0;render();return}
+  if(d.wk7){const T=today(),a=new Date(T+'T00:00:00'),b=new Date(d.wk7+'T00:00:00');S.t.cm=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth();S.t.cd=d.wk7;go('#tool-cal');return}
   if(d.tv){const v=d.tv==='cm'?+d.v:d.v;S.t[d.tv]=v;if('today' in d)delete S.t.cd;if(d.tv==='pk'&&C().jobs[S.t.cj])pkgFrom(C().jobs[S.t.cj],+v);if(d.tv!=='opt'&&d.tv!=='wd'&&d.tv!=='wk')delete S.t.opt;render();return}
   if(d.lsave){lSitePick();return}
   if(d.lview){if(S.ld){if(d.lview==='report'){const P_=lPkg();if(P_&&lHouse(P_)==='1 เฟส'&&P_.phase!=='1 เฟส'){toast('Package 3 เฟส ใช้กับไฟบ้าน 1 เฟสไม่ได้');return}const x=lRun()||{},R=x.R||{};if(!(R.energy&&R.energy.solarMax>0)){toast('ใส่จำนวนแผงตามทิศหลังคาก่อน');return}S.t._lres=R}S.ld.view=d.lview;render();scrollTo(0,0)}return}
