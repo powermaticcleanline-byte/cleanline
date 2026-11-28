@@ -355,7 +355,7 @@
   }
   function renderGBtn() {
     var b = document.getElementById('clg-btn');
-    if (b && window.google && google.accounts) google.accounts.id.renderButton(b, { theme: 'filled_black', size: 'large', shape: 'pill', text: st.page === 'admin' && lastAcct() ? 'continue_with' : 'signin_with', locale: 'th', width: st.page === 'engineer' ? Math.max(240, Math.min(400, (window.innerWidth || 360) - 56)) : st.page === 'admin' ? Math.min(320, (window.innerWidth || 360) - 48) : 300 });
+    if (b && window.google && google.accounts) google.accounts.id.renderButton(b, { theme: st.page === 'console' ? 'outline' : 'filled_black', size: 'large', shape: 'pill', text: st.page === 'admin' && lastAcct() ? 'continue_with' : 'signin_with', locale: 'th', width: st.page === 'engineer' ? Math.max(240, Math.min(400, (window.innerWidth || 360) - 56)) : st.page === 'admin' || st.page === 'console' ? Math.min(320, (window.innerWidth || 360) - 48) : 300 });
   }
   /* ---------- Management: จำคนที่เคยเข้า · บอกขั้นตอนตอนเข้า · รออนุมัติ ---------- */
   var AKEY = 'cl.acct';
@@ -611,6 +611,17 @@
           '<div class="cm-h" role="heading" aria-level="1">' + hd[0] + '</div><p class="cm-s">' + hd[1] + '</p>' + body +
           (kind === 'login' ? '<div class="cm-ft">ใช้บัญชี Google ของบริษัท</div>' : '') + '</div></div>';
       };
+    } else if (st.page === 'console') {   // Console (28 พ.ย.): ฟ้าตามเวลาจริง + ทุ่งแผงโซลาร์ + การ์ดกระจก · สไตล์อยู่ใน console.html (#clg.cs)
+      el.className = 'cs';
+      var CH = { login: ['เข้าสู่ Console', 'ห้องควบคุมของเจ้าของระบบ'], pending: ['รออนุมัติ', 'ส่งคำขอเข้าใช้แล้ว'] };
+      frame = function (body) {
+        var hd = CH[kind] || ['บัญชีนี้เปิด Console ไม่ได้', 'ใช้บัญชีของเจ้าของระบบ'];
+        return '<div class="cs-sky" aria-hidden="true"><i class="cs-sun' + (sn.night ? ' moon' : '') + '"></i><div class="cs-field"><i class="cs-glint"></i></div></div>' +
+          '<div class="cs-card" id="cs-card"><div class="cs-wm">CLEANL<i>I</i>NE<span>Console</span></div>' +
+          '<div class="cs-scan" aria-hidden="true"></div><div class="cs-hud"><svg viewBox="0 0 230 230" aria-hidden="true"><circle class="r1" cx="115" cy="115" r="108" fill="none" stroke="rgba(94,240,255,.55)" stroke-width="1.5" stroke-dasharray="2 6 40 6"/><circle class="r2" cx="115" cy="115" r="94" fill="none" stroke="rgba(94,240,255,.3)" stroke-width="6" stroke-dasharray="60 240" stroke-linecap="round"/><circle cx="115" cy="115" r="82" fill="rgba(94,240,255,.04)" stroke="rgba(255,255,255,.12)"/></svg><div class="cs-clock" id="cs-clock">' + sn.hh + '</div><div class="cs-date">' + new Date().toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) + '</div></div>' +
+          '<div class="cs-h" role="heading" aria-level="1">' + hd[0] + '</div><p class="cs-s">' + hd[1] + '</p><div class="cs-boot" aria-hidden="true"></div>' + body +
+          '<div class="cs-ft"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>เฉพาะผู้ดูแลระบบ</div></div>';
+      };
     } else el.className = '';
     var who = st.me ? '<div class="cg-who">' + (st.me.picture ? '<img class="cg-av" alt="" src="' + esc(st.me.picture) + '" onerror="this.remove()">' : '') +
       '<div><b>' + esc(st.me.name) + '</b><span>' + esc(st.me.email) + '</span></div></div>' : '';
@@ -662,7 +673,9 @@
     });
   }
   function setScreenMsg(t, bad) { var m = document.getElementById('clg-m'); if (m) { m.textContent = t; m.className = 'cg-m' + (bad ? ' bad' : ''); } }
-  function hideScreen() { var el = typeof document !== 'undefined' && document.getElementById('clg'); if (el) el.remove(); }
+  function hideScreen() { var el = typeof document !== 'undefined' && document.getElementById('clg'); if (!el) return;
+    if (el.className === 'cs' && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { el.classList.add('out'); setTimeout(function () { el.remove(); }, 1100); return; } // Console: การ์ดลอยขึ้นแล้วจาง (28 พ.ย.)
+    el.remove(); }
   var banners = {};
   function banner(k, t) {
     if (typeof document === 'undefined') return;
