@@ -335,6 +335,11 @@ nav .grp{padding:12px 10px 4px}
 .me .sb-out{padding:8px 0}.me .sb-out:hover{border-color:var(--warnc);color:#ffd0c5;background:rgba(255,138,115,.12)}
 aside nav{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 28px),transparent);padding-bottom:18px}
 @media(max-width:900px){aside{flex-direction:row;flex-wrap:wrap;align-items:center;overflow:visible;padding:12px 12px 8px}aside nav{flex:1 1 100%;order:3;margin-top:8px;overflow-x:auto;overflow-y:hidden}.brand{font-size:18px;letter-spacing:.06em;flex:1;padding:0 4px}.me{order:2;padding:0}.sb-act{display:flex;gap:6px}.me .sb-b{width:38px;height:38px;padding:0}.me .sb-b .tx{display:none}aside nav{-webkit-mask-image:none;mask-image:none;padding-bottom:0}}
+
+.lg-dt{gap:6px}.lg-rg{display:inline-flex;gap:10px;margin-left:8px;flex-wrap:wrap}.lg-rg label{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--m)}
+.lg-rg input[type=date]{font:inherit;font-size:15px;border:1px solid var(--b);border-radius:10px;padding:6px 10px;background:rgba(4,18,26,.38);color:var(--t);color-scheme:dark}
+.lg-pg{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);gap:8px}.lg-pg select{width:auto}.lg-no{font-size:14px;color:var(--m);padding:0 4px}.lg-no b{font-family:"Chakra Petch",sans-serif;color:var(--t)}
+@media(max-width:900px){.lg-rg{margin-left:0}.lg-pg .sp{display:none}table.log{display:block;overflow-x:auto;white-space:nowrap}table.log td,table.log th{white-space:nowrap}}
 /* ===== หน้าเข้าสู่ระบบ Console (28 พ.ย.) · ฟ้าเดียวกับในแอป + ทุ่งแผงโซลาร์บินผ่าน + การ์ดกระจกเอียงตามเมาส์ ===== */
 [hidden]{display:none!important}
 #clg.cs{display:flex;align-items:center;justify-content:center;background:transparent;color:var(--t);font-family:"IBM Plex Sans Thai Looped","Noto Sans Thai",system-ui,sans-serif;overflow:auto;padding:24px;perspective:1400px}
@@ -421,7 +426,7 @@ const EQF={
  'BATTERY':[['model','รุ่น','text',{req:1}],['brand','ยี่ห้อ','text'],['kwh','ความจุ (kWh)','number'],['volt','แรงดัน','sel',['LV','HV']],...LNK],
  'SOLAR PANEL':[['model','รุ่น','text',{req:1}],['brand','ยี่ห้อ','text'],['watt','กำลัง (W)','number'],['cell','ชนิดเซลล์','text'],...LNK]};
 const eqSpec=p=>p.category==='INVERTER'?[p.kw?p.kw+' kW':'',p.phase?p.phase+' เฟส':'',p.type].filter(Boolean).join(' · '):p.category==='BATTERY'?[p.kwh?p.kwh+' kWh':'',p.volt].filter(Boolean).join(' · '):[p.watt?p.watt+' W':'',p.cell].filter(Boolean).join(' · ');
-const S = {tab:'home', jobs:{}, appts:{}, customers:{}, sites:{}, gm:'', gcal:{}, gpick:{}, fx:true, seenAt:0, lat:null, members:{}, joinreq:{}, logs:{}, forms:{}, products:{}, config:{}, pricing:{}, pd:null, eqc:'INVERTER', dq:'', eqq:'', me:null, db:null, health:null, backups:null, sys:{}, lq:'', lcol:'', lby:'', llim:150, edit:{}, busy:false, shares:null};
+const S = {tab:'home', ld:'', lfrom:'', lto:'', lps:50, lpg:0, jobs:{}, appts:{}, customers:{}, sites:{}, gm:'', gcal:{}, gpick:{}, fx:true, seenAt:0, lat:null, members:{}, joinreq:{}, logs:{}, forms:{}, products:{}, config:{}, pricing:{}, pd:null, eqc:'INVERTER', dq:'', eqq:'', me:null, db:null, health:null, backups:null, sys:{}, lq:'', lcol:'', lby:'', llim:150, edit:{}, busy:false, shares:null};
 const fdt = ms => { if(!ms) return '-'; const d=new Date(ms); return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}); };
 const ini = n => (String(n||'?').trim()[0]||'?');
 function toast(t,bad){const e=$('#toast');e.textContent=t;e.className=bad?'bad':'';e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',3500)}
@@ -702,18 +707,31 @@ async function catImport(file){
 function vLogs(){
   const all=Object.entries(S.logs).map(([id,l])=>({id,...l})).sort((a,b)=>b.at-a.at);
   const people=[...new Map(all.map(l=>[l.by,l.byName])).entries()];
-  const q=S.lq.trim().toLowerCase();
-  const rows=all.filter(l=>(!S.lcol||l.col===S.lcol||(S.lcol==='login'&&l.act==='login'))&&(!S.lby||l.by===S.lby)&&(!q||[l.byName,l.ttl,l.id,COLN[l.col],(l.fields||[]).join(' ')].join(' ').toLowerCase().includes(q)));
+  const q=S.lq.trim().toLowerCase(),t0=d0(Date.now());
+  // ช่วงวัน: ปุ่มลัด (S.ld) หรือเลือกเอง (S.lfrom/S.lto)
+  const rng=S.ld==='today'?[t0,t0+DAY]:S.ld==='yday'?[t0-DAY,t0]:S.ld==='7'?[t0-6*DAY,t0+DAY]:S.ld==='30'?[t0-29*DAY,t0+DAY]:
+    [S.lfrom?+new Date(S.lfrom+'T00:00:00'):0,S.lto?+new Date(S.lto+'T00:00:00')+DAY:Infinity];
+  const rows=all.filter(l=>l.at>=rng[0]&&l.at<rng[1]&&(!S.lcol||l.col===S.lcol||(S.lcol==='login'&&l.act==='login'))&&(!S.lby||l.by===S.lby)&&(!q||[l.byName,l.ttl,l.id,COLN[l.col],(l.fields||[]).join(' ')].join(' ').toLowerCase().includes(q)));
+  const ps=S.lps||50,pages=Math.max(1,Math.ceil(rows.length/ps)),pg=Math.min(S.lpg||0,pages-1),from=pg*ps,show=rows.slice(from,from+ps);
+  const chip=(k,t)=>`<button class="btn sm ${S.ld===k?'':'l'}" data-ld="${k}">${t}</button>`;
   return `<h1>บันทึกการใช้งาน</h1><p class="lead">การบันทึก แก้ไข ลบ และการเข้าสู่ระบบทั้งหมด · แก้ไขหรือลบไม่ได้</p>
-  <section class="card"><div class="row" style="margin-bottom:12px"><input type="search" id="lq" placeholder="ค้นหา: ชื่อคน ชื่องาน ช่องที่แก้" value="${esc(S.lq)}" style="width:280px">
+  <section class="card"><div class="row" style="margin-bottom:10px"><input type="search" id="lq" placeholder="ค้นหา: ชื่อคน ชื่องาน ช่องที่แก้" value="${esc(S.lq)}" style="width:280px">
     <select id="lby"><option value="">ทุกคน</option>${people.map(([id,n])=>`<option value="${esc(id)}" ${S.lby===id?'selected':''}>${esc(n||id)}</option>`).join('')}</select>
     <select id="lcol"><option value="">ทุกเรื่อง</option><option value="login" ${S.lcol==='login'?'selected':''}>เข้าสู่ระบบ</option>${Object.entries(COLN).map(([k,v])=>`<option value="${k}" ${S.lcol===k?'selected':''}>${v}</option>`).join('')}</select>
-    <span class="sp"></span><span class="mut">${rows.length} รายการ</span></div>
+    <span class="sp"></span><span class="mut"><b style="color:var(--t)">${nf(rows.length)}</b> รายการ</span></div>
+   <div class="row lg-dt" style="margin-bottom:12px">${chip('','ทั้งหมด')}${chip('today','วันนี้')}${chip('yday','เมื่อวาน')}${chip('7','7 วัน')}${chip('30','30 วัน')}
+    <span class="lg-rg"><label>ตั้งแต่ <input type="date" id="lfrom" value="${esc(S.ld==='c'?S.lfrom||'':'')}" max="${isoL(Date.now())}"></label><label>ถึง <input type="date" id="lto" value="${esc(S.ld==='c'?S.lto||'':'')}" max="${isoL(Date.now())}"></label></span></div>
   ${rows.length?`<table class="log"><thead><tr><th>เวลา</th><th>ใคร</th><th>ทำอะไร</th><th>เรื่อง</th><th>ช่องที่เปลี่ยน</th></tr></thead><tbody>
-  ${rows.slice(0,S.llim).map(l=>`<tr><td class="t">${fdt(l.at)}</td><td>${esc(l.byName||'-')} <span class="mut">${esc(ROLE[l.role]||(l.role==='sysadmin'?'ผู้ดูแลระบบ':''))}</span></td>
+  ${show.map(l=>`<tr><td class="t">${fdt(l.at)}</td><td>${esc(l.byName||'-')} <span class="mut">${esc(ROLE[l.role]||(l.role==='sysadmin'?'ผู้ดูแลระบบ':''))}</span></td>
     <td><span class="pill ${l.act==='del'?'bad':l.act==='login'?'gray':''}">${esc(ACT[l.act]||l.act)}</span></td>
     <td>${l.col?esc(COLN[l.col]||l.col)+' · ':''}${esc(l.ttl||l.id||'')}</td><td class="mut">${esc([...new Set((l.fields||[]).map(f=>FN[f]||f))].join(', '))}</td></tr>`).join('')}
-  </tbody></table>${rows.length>S.llim?`<div style="text-align:center;margin-top:12px"><button class="btn l" data-lmore>แสดงเพิ่ม</button></div>`:''}`:'<div class="empty">ไม่มีรายการ</div>'}</section>`;
+  </tbody></table>
+  <div class="row lg-pg"><span class="mut">แสดงทีละ</span><select id="lps" aria-label="แสดงทีละ">${[10,50,100].map(n=>`<option ${ps===n?'selected':''}>${n}</option>`).join('')}</select>
+   <span class="mut">${nf(from+1)}–${nf(Math.min(from+ps,rows.length))} จาก ${nf(rows.length)}</span><span class="sp"></span>
+   <button class="btn l sm" data-lpg="0" ${pg===0?'disabled':''} aria-label="หน้าแรก">«</button><button class="btn l sm" data-lpg="${pg-1}" ${pg===0?'disabled':''}>ก่อนหน้า</button>
+   <span class="lg-no">หน้า <b>${pg+1}</b> / ${nf(pages)}</span>
+   <button class="btn l sm" data-lpg="${pg+1}" ${pg>=pages-1?'disabled':''}>ถัดไป</button><button class="btn l sm" data-lpg="${pages-1}" ${pg>=pages-1?'disabled':''} aria-label="หน้าสุดท้าย">»</button></div>`
+  :'<div class="empty">ไม่มีรายการในช่วงที่เลือก</div>'}</section>`;
 }
 function vBackup(){
   const L=S.backups;
@@ -1052,6 +1070,8 @@ document.addEventListener('click',async e=>{
     await run(()=>S.db.call('approve',{uid:d.del,member:null}).then(()=>S.db.refresh()),'ลบแล้ว');return}
   if(d.shares!==undefined){S.shares=await run(()=>S.db.call('syncShares').then(r=>r.report),'ตรวจสิทธิ์โฟลเดอร์แล้ว')||S.shares;render();return}
   if(d.lmore!==undefined){S.llim+=150;render();return}
+  if(d.ld!==undefined){S.ld=d.ld;S.lfrom='';S.lto='';S.lpg=0;render();return}
+  if(d.lpg!==undefined){S.lpg=Math.max(0,+d.lpg);render();window.scrollTo({top:0,behavior:'smooth'});return}
   if(d.dnew!==undefined||d.dedit){const id=d.dedit,cur=id?S.forms[id]:{cat:FMC[0]};const v=await formBox(id?'แก้ไขเอกสาร':'เพิ่มเอกสาร',FMF,cur);if(!v)return;
     await run(()=>S.db.doc('forms/'+(id||('fm'+Date.now().toString(36)))).set({...(id?cur:{}),...v,updatedAt:Date.now()}),'บันทึกแล้ว');return}
   if(d.ddel){const x=S.forms[d.ddel];if(!await ask('ลบเอกสารนี้?',`"${esc(x.name||x.code)}" จะหายจากรายการในเว็บแอดมิน (ไฟล์จริงไม่ถูกลบ)`,'ลบ',true))return;
@@ -1085,8 +1105,10 @@ document.addEventListener('change',async e=>{
   if(d.mrole)return set(d.mrole,'role',t.value);
   if(d.mteam)return set(d.mteam,'queue',t.value);
   if(d.msteam)return set(d.msteam,'team',t.value);
-  if(t.id==='lby'){S.lby=t.value;S.llim=150;render();return}
-  if(t.id==='lcol'){S.lcol=t.value;S.llim=150;render();return}
+  if(t.id==='lby'){S.lby=t.value;S.llim=150;S.lpg=0;render();return}
+  if(t.id==='lps'){S.lps=+t.value;S.lpg=0;render();return}
+  if(t.id==='lfrom'||t.id==='lto'){S.ld='c';S[t.id]=t.value;if(S.lfrom&&S.lto&&S.lfrom>S.lto){const x=S.lfrom;S.lfrom=S.lto;S.lto=x}S.lpg=0;render();return}
+  if(t.id==='lcol'){S.lcol=t.value;S.llim=150;S.lpg=0;render();return}
   if(t.id==='eqx'){const f=t.files[0];t.value='';if(f)catImport(f);return}
   if(t.id==='prx'){const f=t.files[0];t.value='';if(f)prImport(f);return}
   if(d.pr){prSet(d.pr,t.value);render();return}
@@ -1101,7 +1123,7 @@ document.addEventListener('input',e=>{
   if(d.pname)return keep(d.pname,'name');
   if(d.mname){keep(d.mname,'name');return softRender(t)}
   if(d.mphone){keep(d.mphone,'phone');return softRender(t)}
-  if(t.id==='lq'){S.lq=t.value;S.llim=150;softRender(t)}
+  if(t.id==='lq'){S.lq=t.value;S.llim=150;S.lpg=0;softRender(t)}
   if(t.id==='mmsg')S.mmsg=t.value;
   if(t.id==='dq'){S.dq=t.value;softRender(t)}
   if(t.id==='eqq'){S.eqq=t.value;softRender(t)}
